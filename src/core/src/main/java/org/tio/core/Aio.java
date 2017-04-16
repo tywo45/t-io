@@ -8,7 +8,7 @@ import java.util.concurrent.locks.Lock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.intf.Packet;
-import org.tio.core.intf.PacketWithSendModel;
+import org.tio.core.intf.PacketWithSendMode;
 import org.tio.core.maintain.ChannelContextMapWithLock;
 import org.tio.core.task.SendRunnable;
 import org.tio.core.threadpool.SynThreadPoolExecutor;
@@ -160,7 +160,7 @@ public class Aio
 	 * @param packet
 	 * @author: tanyaowu
 	 */
-	public static <SessionContext, P extends Packet, R> Boolean send(ChannelContext<SessionContext, P, R> channelContext, final P packet, PacketSendMode packetSendMode)
+	public static <SessionContext, P extends Packet, R> Boolean send(final ChannelContext<SessionContext, P, R> channelContext, final P packet, PacketSendMode packetSendMode)
 	{
 		if (channelContext == null)
 		{
@@ -173,50 +173,44 @@ public class Aio
 			return false;
 		}
 		GroupContext<SessionContext, P, R> groupContext = channelContext.getGroupContext();
-		PacketSendMode packetSendMode1 = packetSendMode != null ? packetSendMode : groupContext.getPacketSendMode();
+		PacketSendMode _packetSendMode = packetSendMode != null ? packetSendMode : groupContext.getPacketSendMode();
 
 		final SendRunnable<SessionContext, P, R> sendRunnable = AioUtils.selectSendRunnable(channelContext, packet);
-		if (packetSendMode1 == PacketSendMode.BLOCK)
+		if (_packetSendMode == PacketSendMode.BLOCK)
 		{
-			synchronized (sendRunnable)
+			//			synchronized (sendRunnable)
+			//			{
+			final PacketWithSendMode packetWithSendMode = new PacketWithSendMode(packet, _packetSendMode);
+
+//			long timeout = 2000;
+			long start = SystemTimer.currentTimeMillis();
+			//log.error("{} 准备发送: {}", channelContext, packet.logstr());
+//			synchronized (packetWithSendMode)
+//			{
+//				try
+//				{
+//					sendRunnable.sendPacket(packet, packetWithSendMode);
+//					packetWithSendMode.wait(timeout);
+//				} catch (InterruptedException e)
+//				{
+//					log.error(e.toString(), e);
+//				}
+//			}
+			sendRunnable.sendPacket(packet, packetWithSendMode);
+			long end = SystemTimer.currentTimeMillis();
+			long iv = end - start;
+
+			Boolean isSentSuccess = packetWithSendMode.getIsSentSuccess();
+			if (isSentSuccess == null)
 			{
-				final PacketWithSendModel packetWithSendModel = new PacketWithSendModel(packet, packetSendMode1);
-
-				long timeout = 10000;
-				long start = SystemTimer.currentTimeMillis();
-				synchronized (packetWithSendModel)
-				{
-					try
-					{
-						new Thread(new Runnable()
-						{
-							@Override
-							public void run()
-							{
-								sendRunnable.sendPacket(packet, packetWithSendModel);
-							}
-						}).start();
-
-						packetWithSendModel.wait(timeout);
-					} catch (InterruptedException e)
-					{
-						log.error(e.toString(), e);
-					}
-				}
-				long end = SystemTimer.currentTimeMillis();
-				long iv = end - start;
-				if (iv > 10)
-				{
-					log.error("{} 发送耗时:{} ms,packet: {}", channelContext, iv, packet.logstr());
-				}
-				Boolean isSentSuccess = packetWithSendModel.getIsSentSuccess();
-				if (isSentSuccess == null)
-				{
-					log.error("{} 发送超时，超时时间： {} ms, packet: {}", channelContext, timeout, packet.logstr());
-				}
-
-				return isSentSuccess;
+				//log.error("{} 发送超时，超时时间： {} ms, packet: {}", channelContext, timeout, packet.logstr());
+			} else if (iv > 100)
+			{
+				//log.error("{} 发送耗时:{} ms,packet: {}", channelContext, iv, packet.logstr());
 			}
+
+			return isSentSuccess;
+			//			}
 
 		} else
 		{

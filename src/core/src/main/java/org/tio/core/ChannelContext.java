@@ -1,54 +1,65 @@
-
 package org.tio.core;
 
 import java.io.IOException;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.tio.core.intf.Packet;
 import org.tio.core.task.DecodeRunnable;
 import org.tio.core.task.HandlerRunnable;
 import org.tio.core.task.SendRunnable;
+import org.tio.json.Json;
 
+import com.xiaoleilu.hutool.date.DatePattern;
+import com.xiaoleilu.hutool.date.DateUtil;
 
 public abstract class ChannelContext<SessionContext, P extends Packet, R>
 {
 	private static Logger log = LoggerFactory.getLogger(ChannelContext.class);
-	
+
+	private Logger clientTraceLog = LoggerFactory.getLogger("tio-client-trace-log");
+
+	private boolean isTraceClient = false;
+
 	public static final String UNKNOWN_ADDRESS_IP = "$UNKNOWN";
-	
+
 	public static final AtomicInteger UNKNOWN_ADDRESS_PORT_SEQ = new AtomicInteger();
-	
+
 	//	private java.util.concurrent.Semaphore sendSemaphore = new Semaphore(1);
 
 	private GroupContext<SessionContext, P, R> groupContext = null;
 
 	private DecodeRunnable<SessionContext, P, R> decodeRunnable = null;
 
-//	private CloseRunnable<SessionContext, P, R> closeRunnable = null;
-//	private HandlerRunnable<SessionContext, P, R> handlerRunnableHighPrior = null;
+	//	private CloseRunnable<SessionContext, P, R> closeRunnable = null;
+	//	private HandlerRunnable<SessionContext, P, R> handlerRunnableHighPrior = null;
 	private HandlerRunnable<SessionContext, P, R> handlerRunnableNormPrior = null;
 
-//	private SendRunnable<SessionContext, P, R> sendRunnableHighPrior = null;
+	//	private SendRunnable<SessionContext, P, R> sendRunnableHighPrior = null;
 	private SendRunnable<SessionContext, P, R> sendRunnableNormPrior = null;
 	private ReentrantReadWriteLock closeLock = new ReentrantReadWriteLock();
 	private ReadCompletionHandler<SessionContext, P, R> readCompletionHandler = null;//new ReadCompletionHandler<>(this);
 	private WriteCompletionHandler<SessionContext, P, R> writeCompletionHandler = null;//new WriteCompletionHandler<>(this);
-	
+
 	private int reconnCount = 0;//连续重连次数，连接成功后，此值会被重置0
 
 	//	private WriteCompletionHandler<SessionContext, P, R> writeCompletionHandler = new WriteCompletionHandler<>();
 
 	private String userid;
-	
+
 	private boolean isWaitingClose = false;
 
 	private boolean isClosed = true;
-	
+
 	private boolean isRemoved = false;
 
 	private ChannelStat stat = new ChannelStat();
@@ -61,16 +72,16 @@ public abstract class ChannelContext<SessionContext, P extends Packet, R>
 	private String id = java.util.UUID.randomUUID().toString();
 
 	private Node clientNode;
-	
+
+	private String clientNodeTraceFilename;
+
 	private Node serverNode;
 
 	/**
+	 * 
 	 * @param groupContext
 	 * @param asynchronousSocketChannel
-	 *
 	 * @author: tanyaowu
-	 * 2016年11月16日 下午1:13:56
-	 * 
 	 */
 	public ChannelContext(GroupContext<SessionContext, P, R> groupContext, AsynchronousSocketChannel asynchronousSocketChannel)
 	{
@@ -86,10 +97,7 @@ public abstract class ChannelContext<SessionContext, P extends Packet, R>
 	 * @param asynchronousSocketChannel
 	 * @return
 	 * @throws IOException
-	 *
 	 * @author: tanyaowu
-	 * 2016年12月6日 下午12:21:41
-	 *
 	 */
 	public abstract Node createClientNode(AsynchronousSocketChannel asynchronousSocketChannel) throws IOException;
 
@@ -154,7 +162,6 @@ public abstract class ChannelContext<SessionContext, P extends Packet, R>
 			assignAnUnknownClientNode();
 		}
 	}
-	
 
 	private void assignAnUnknownClientNode()
 	{
@@ -185,9 +192,9 @@ public abstract class ChannelContext<SessionContext, P extends Packet, R>
 				log.error(e1.toString(), e1);
 			}
 		}
-		
+
 		this.clientNode = clientNode;
-		
+
 		if (this.clientNode != null && !Objects.equals(UNKNOWN_ADDRESS_IP, this.clientNode.getIp()))
 		{
 			try
@@ -198,6 +205,8 @@ public abstract class ChannelContext<SessionContext, P extends Packet, R>
 				log.error(e1.toString(), e1);
 			}
 		}
+
+		clientNodeTraceFilename = StringUtils.replaceAll(clientNode.toString(), ":", "_");
 	}
 
 	/**
@@ -218,12 +227,12 @@ public abstract class ChannelContext<SessionContext, P extends Packet, R>
 		if (groupContext != null)
 		{
 			decodeRunnable = new DecodeRunnable<>(this);
-//			closeRunnable = new CloseRunnable<>(this, null, null, groupContext.getCloseExecutor());
+			//			closeRunnable = new CloseRunnable<>(this, null, null, groupContext.getCloseExecutor());
 
-//			handlerRunnableHighPrior = new HandlerRunnable<>(this, groupContext.getHandlerExecutorHighPrior());
+			//			handlerRunnableHighPrior = new HandlerRunnable<>(this, groupContext.getHandlerExecutorHighPrior());
 			handlerRunnableNormPrior = new HandlerRunnable<>(this, groupContext.getHandlerExecutorNormPrior());
 
-//			sendRunnableHighPrior = new SendRunnable<>(this, groupContext.getSendExecutorHighPrior());
+			//			sendRunnableHighPrior = new SendRunnable<>(this, groupContext.getSendExecutorHighPrior());
 			sendRunnableNormPrior = new SendRunnable<>(this, groupContext.getSendExecutorNormPrior());
 
 			groupContext.getConnections().add(this);
@@ -262,21 +271,21 @@ public abstract class ChannelContext<SessionContext, P extends Packet, R>
 		this.decodeRunnable = decodeRunnable;
 	}
 
-//	/**
-//	 * @return the handlerRunnableHighPrior
-//	 */
-//	public HandlerRunnable<SessionContext, P, R> getHandlerRunnableHighPrior()
-//	{
-//		return handlerRunnableHighPrior;
-//	}
+	//	/**
+	//	 * @return the handlerRunnableHighPrior
+	//	 */
+	//	public HandlerRunnable<SessionContext, P, R> getHandlerRunnableHighPrior()
+	//	{
+	//		return handlerRunnableHighPrior;
+	//	}
 
-//	/**
-//	 * @param handlerRunnableHighPrior the handlerRunnableHighPrior to set
-//	 */
-//	public void setHandlerRunnableHighPrior(HandlerRunnable<SessionContext, P, R> handlerRunnableHighPrior)
-//	{
-//		this.handlerRunnableHighPrior = handlerRunnableHighPrior;
-//	}
+	//	/**
+	//	 * @param handlerRunnableHighPrior the handlerRunnableHighPrior to set
+	//	 */
+	//	public void setHandlerRunnableHighPrior(HandlerRunnable<SessionContext, P, R> handlerRunnableHighPrior)
+	//	{
+	//		this.handlerRunnableHighPrior = handlerRunnableHighPrior;
+	//	}
 
 	/**
 	 * @return the handlerRunnableNormPrior
@@ -294,21 +303,21 @@ public abstract class ChannelContext<SessionContext, P extends Packet, R>
 		this.handlerRunnableNormPrior = handlerRunnableNormPrior;
 	}
 
-//	/**
-//	 * @return the sendRunnableHighPrior
-//	 */
-//	public SendRunnable<SessionContext, P, R> getSendRunnableHighPrior()
-//	{
-//		return sendRunnableHighPrior;
-//	}
-//
-//	/**
-//	 * @param sendRunnableHighPrior the sendRunnableHighPrior to set
-//	 */
-//	public void setSendRunnableHighPrior(SendRunnable<SessionContext, P, R> sendRunnableHighPrior)
-//	{
-//		this.sendRunnableHighPrior = sendRunnableHighPrior;
-//	}
+	//	/**
+	//	 * @return the sendRunnableHighPrior
+	//	 */
+	//	public SendRunnable<SessionContext, P, R> getSendRunnableHighPrior()
+	//	{
+	//		return sendRunnableHighPrior;
+	//	}
+	//
+	//	/**
+	//	 * @param sendRunnableHighPrior the sendRunnableHighPrior to set
+	//	 */
+	//	public void setSendRunnableHighPrior(SendRunnable<SessionContext, P, R> sendRunnableHighPrior)
+	//	{
+	//		this.sendRunnableHighPrior = sendRunnableHighPrior;
+	//	}
 
 	/**
 	 * @return the sendRunnableNormPrior
@@ -384,21 +393,21 @@ public abstract class ChannelContext<SessionContext, P extends Packet, R>
 		}
 	}
 
-//	/**
-//	 * @return the closeRunnable
-//	 */
-//	public CloseRunnable<SessionContext, P, R> getCloseRunnable()
-//	{
-//		return closeRunnable;
-//	}
-//
-//	/**
-//	 * @param closeRunnable the closeRunnable to set
-//	 */
-//	public void setCloseRunnable(CloseRunnable<SessionContext, P, R> closeRunnable)
-//	{
-//		this.closeRunnable = closeRunnable;
-//	}
+	//	/**
+	//	 * @return the closeRunnable
+	//	 */
+	//	public CloseRunnable<SessionContext, P, R> getCloseRunnable()
+	//	{
+	//		return closeRunnable;
+	//	}
+	//
+	//	/**
+	//	 * @param closeRunnable the closeRunnable to set
+	//	 */
+	//	public void setCloseRunnable(CloseRunnable<SessionContext, P, R> closeRunnable)
+	//	{
+	//		this.closeRunnable = closeRunnable;
+	//	}
 
 	/**
 	 * @return the stat
@@ -538,10 +547,10 @@ public abstract class ChannelContext<SessionContext, P extends Packet, R>
 	@Override
 	public boolean equals(Object obj)
 	{
-//		if (this == obj)
-//		{
-//			return true;
-//		}
+		//		if (this == obj)
+		//		{
+		//			return true;
+		//		}
 		if (obj == null)
 		{
 			return false;
@@ -560,6 +569,77 @@ public abstract class ChannelContext<SessionContext, P extends Packet, R>
 			return false;
 		}
 
+	}
+
+	/**
+	 * @return the clientTraceLog
+	 */
+	public Logger getClientTraceLog()
+	{
+		return clientTraceLog;
+	}
+
+	/**
+	 * @param clientTraceLog the clientTraceLog to set
+	 */
+	public void setClientTraceLog(Logger clientTraceLog)
+	{
+		this.clientTraceLog = clientTraceLog;
+	}
+
+	public void traceClient(ClientAction clientAction, Packet packet)
+	{
+		if (isTraceClient)
+		{
+			Map<String, Object> map = new HashMap<>();
+			map.put("time", DateUtil.format(new Date(), DatePattern.NORM_DATETIME_MS_PATTERN));
+			map.put("action", clientAction);
+			map.put("c_id", this.id);
+			
+			
+			MDC.put("tio_client", clientNodeTraceFilename);
+			
+			if (packet != null)
+			{
+				map.put("p_id", packet.getId());
+				map.put("p_respId", packet.getRespId());
+				
+				map.put("packet", packet.logstr());
+			}
+			clientTraceLog.info(Json.toJson(map));
+		}
+	}
+
+	/**
+	 * @return the isTraceClient
+	 */
+	public boolean isTraceClient()
+	{
+		return isTraceClient;
+	}
+
+	/**
+	 * @param isTraceClient the isTraceClient to set
+	 */
+	public void setTraceClient(boolean isTraceClient)
+	{
+		this.isTraceClient = isTraceClient;
+	}
+
+	/**
+	 * @return the clientNodeTraceFilename
+	 */
+	public String getClientNodeTraceFilename()
+	{
+		return clientNodeTraceFilename;
+	}
+
+	/**
+	 * @param clientNodeTraceFilename the clientNodeTraceFilename to set
+	 */
+	public void setClientNodeTraceFilename(String clientNodeTraceFilename)
+	{
+		this.clientNodeTraceFilename = clientNodeTraceFilename;
 	}
 
 }

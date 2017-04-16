@@ -50,7 +50,6 @@ public class CloseRunnable<SessionContext, P extends Packet, R>  implements Runn
 	{
 		try
 		{
-			
 			try
 			{
 				AsynchronousSocketChannel asynchronousSocketChannel = channelContext.getAsynchronousSocketChannel();
@@ -111,6 +110,8 @@ public class CloseRunnable<SessionContext, P extends Packet, R>  implements Runn
 					}
 				}
 
+				channelContext.traceClient(ClientAction.UNCONNECT, null);
+				
 				if (channelContext.isClosed() && !isRemove)
 				{
 					log.info("{}已经关闭，备注:{}，异常:{}", channelContext, remark, throwable == null ? "无" : throwable.toString());

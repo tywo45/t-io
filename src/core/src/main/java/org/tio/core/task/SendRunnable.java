@@ -9,12 +9,13 @@ import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
+import org.tio.core.ClientAction;
 import org.tio.core.GroupContext;
 import org.tio.core.PacketSendMode;
 import org.tio.core.WriteCompletionHandler;
 import org.tio.core.intf.AioHandler;
 import org.tio.core.intf.Packet;
-import org.tio.core.intf.PacketWithSendModel;
+import org.tio.core.intf.PacketWithSendMode;
 import org.tio.core.threadpool.AbstractQueueRunnable;
 import org.tio.core.utils.AioUtils;
 import org.tio.core.utils.SystemTimer;
@@ -24,7 +25,7 @@ import org.tio.core.utils.SystemTimer;
  * @author tanyaowu 
  * 2017年4月4日 上午9:19:18
  */
-public class SendRunnable<SessionContext, P extends Packet, R> extends AbstractQueueRunnable<Object>
+public class SendRunnable<SessionContext, P extends Packet, R> extends AbstractQueueRunnable<P>
 {
 
 	private static final Logger log = LoggerFactory.getLogger(SendRunnable.class);
@@ -57,9 +58,9 @@ public class SendRunnable<SessionContext, P extends Packet, R> extends AbstractQ
 	 * @param packetWithSendModel
 	 * @author: tanyaowu
 	 */
-	public void sendPacket(P packet, PacketWithSendModel packetWithSendModel)
+	public void sendPacket(P packet, PacketWithSendMode packetWithSendModel)
 	{
-		log.info("{}, 准备发送:{}", channelContext, packet.logstr());
+		channelContext.traceClient(ClientAction.BEFORE_SEND, packet);
 		GroupContext<SessionContext, P, R> groupContext = channelContext.getGroupContext();
 		ByteBuffer byteBuffer = getByteBuffer(packet, groupContext, groupContext.getAioHandler());
 		int packetCount = 1;
@@ -71,10 +72,10 @@ public class SendRunnable<SessionContext, P extends Packet, R> extends AbstractQ
 	 * @param byteBuffer
 	 * @param packetCount
 	 * @param packets
-	 * @param packetWithSendModel
+	 * @param packetWithSendMode 有可能是null
 	 * @author: tanyaowu
 	 */
-	public void sendByteBuffer(ByteBuffer byteBuffer, Integer packetCount, Object packets, PacketWithSendModel packetWithSendModel)
+	public void sendByteBuffer(ByteBuffer byteBuffer, Integer packetCount, Object packets, PacketWithSendMode packetWithSendMode)
 	{
 		if (byteBuffer == null)
 		{
@@ -92,14 +93,34 @@ public class SendRunnable<SessionContext, P extends Packet, R> extends AbstractQ
 		WriteCompletionHandler<SessionContext, P, R> writeCompletionHandler = channelContext.getWriteCompletionHandler();
 		try
 		{
+			long start = SystemTimer.currentTimeMillis();
 			writeCompletionHandler.getWriteSemaphore().acquire();
+			long end = SystemTimer.currentTimeMillis();
+			long iv = end - start;
+			if (iv > 100)
+			{
+				//log.error("{} 等发送锁耗时:{} ms", channelContext, iv);
+			}
+			
 		} catch (InterruptedException e)
 		{
 			log.error(e.toString(), e);
 		}
-		if (packetWithSendModel != null)
+		if (packetWithSendMode != null)
 		{
-			asynchronousSocketChannel.write(byteBuffer, packetWithSendModel, writeCompletionHandler);
+			
+			long timeout = 2000;
+			synchronized (packetWithSendMode)
+			{
+				try
+				{
+					asynchronousSocketChannel.write(byteBuffer, packetWithSendMode, writeCompletionHandler);
+					packetWithSendMode.wait(timeout);
+				} catch (InterruptedException e)
+				{
+					log.error(e.toString(), e);
+				}
+			}
 		} else
 		{
 			asynchronousSocketChannel.write(byteBuffer, packets, writeCompletionHandler);
@@ -122,7 +143,7 @@ public class SendRunnable<SessionContext, P extends Packet, R> extends AbstractQ
 		return builder.toString();
 	}
 
-	@SuppressWarnings("unchecked")
+	
 	@Override
 	public void runTask()
 	{
@@ -136,9 +157,8 @@ public class SendRunnable<SessionContext, P extends Packet, R> extends AbstractQ
 			queueSize = 1000;
 		}
 
-		Object ele = null;
+		P packet = null;
 		GroupContext<SessionContext, P, R> groupContext = this.channelContext.getGroupContext();
-		PacketSendMode packetSendMode = groupContext.getPacketSendMode();
 		AioHandler<SessionContext, P, R> aioHandler = groupContext.getAioHandler();
 
 		if (queueSize > 1)
@@ -147,33 +167,15 @@ public class SendRunnable<SessionContext, P extends Packet, R> extends AbstractQ
 			int allBytebufferCapacity = 0;
 
 			int packetCount = 0;
-			List<Object> packets = new ArrayList<>();
+			List<P> packets = new ArrayList<>();
 			for (int i = 0; i < queueSize; i++)
 			{
-				if ((ele = msgQueue.poll()) != null)
+				if ((packet = msgQueue.poll()) != null)
 				{
-					boolean isPacket = ele instanceof Packet;
-//					boolean isPacketWithSendModel = false;
-//					if (!isPacket)
-//					{
-//						isPacketWithSendModel = ele instanceof PacketWithSendModel;
-//					}
-					PacketWithSendModel packetWithSendModel = null;
-					P packet = null;
-					if (isPacket)
-					{
-						packet = (P) ele;
-						packets.add(packet);
-					} else
-					{
-						packetWithSendModel = (PacketWithSendModel) ele;
-						packet = (P) packetWithSendModel.getPacket();
-						packets.add(packetWithSendModel);
-					}
-
 					ByteBuffer byteBuffer = getByteBuffer(packet, groupContext, aioHandler);
-					log.info("{}, 准备发送:{}", channelContext, packet.logstr());
-
+					
+					channelContext.traceClient(ClientAction.BEFORE_SEND, packet);
+					packets.add(packet);
 					allBytebufferCapacity += byteBuffer.limit();
 					packetCount++;
 					byteBuffers[i] = byteBuffer;
@@ -196,29 +198,12 @@ public class SendRunnable<SessionContext, P extends Packet, R> extends AbstractQ
 				}
 			}
 			sendByteBuffer(allByteBuffer, packetCount, packets, null);
+
 		} else
 		{
-			if ((ele = msgQueue.poll()) != null)
+			if ((packet = msgQueue.poll()) != null)
 			{
-
-				boolean isPacket = ele instanceof Packet;
-//				boolean isPacketWithSendModel = false;
-//				if (!isPacket)
-//				{
-//					isPacketWithSendModel = ele instanceof PacketWithSendModel;
-//				}
-				PacketWithSendModel packetWithSendModel = null;
-				P packet = null;
-				if (isPacket)
-				{
-					packet = (P) ele;
-				} else
-				{
-					packetWithSendModel = (PacketWithSendModel) ele;
-					packet = (P) packetWithSendModel.getPacket();
-				}
-
-				sendPacket(packet, packetWithSendModel);
+				sendPacket(packet, null);
 			}
 		}
 	}

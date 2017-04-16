@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
+import org.tio.core.ClientAction;
 import org.tio.core.GroupContext;
 import org.tio.core.intf.Packet;
 import org.tio.core.maintain.ChannelContextMapWithLock;
@@ -67,7 +68,9 @@ public class HandlerRunnable<SessionContext, P extends Packet, R> extends Abstra
 				}
 			} else
 			{
+				channelContext.traceClient(ClientAction.BEFORE_HANDLER, packet);
 				groupContext.getAioHandler().handler(packet, channelContext);
+				channelContext.traceClient(ClientAction.AFTER_HANDLER, packet);
 				groupContext.getGroupStat().getHandledPacket().incrementAndGet();
 			}
 			ret++;

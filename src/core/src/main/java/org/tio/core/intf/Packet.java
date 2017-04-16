@@ -1,6 +1,7 @@
 package org.tio.core.intf;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 
@@ -23,6 +24,12 @@ public class Packet
 	//	 * 消息处理的发送的优先级
 	//	 */
 	//	private byte priority = 1;
+	
+	private static final AtomicLong ID_ATOMICLONG = new AtomicLong();
+	
+	private Long id = ID_ATOMICLONG.incrementAndGet();
+	
+	private Long respId = null;
 
 	/**
 	 * 同步发送时，需要的同步序列号
@@ -86,4 +93,37 @@ public class Packet
 	{
 		return "";
 	}
+
+	/**
+	 * @return the id
+	 */
+	public Long getId()
+	{
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(Long id)
+	{
+		this.id = id;
+	}
+
+	/**
+	 * @return the respId
+	 */
+	public Long getRespId()
+	{
+		return respId;
+	}
+
+	/**
+	 * @param respId the respId to set
+	 */
+	public void setRespId(Long respId)
+	{
+		this.respId = respId;
+	}
+
 }

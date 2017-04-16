@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.Aio;
 import org.tio.core.ChannelContext;
+import org.tio.core.ClientAction;
 import org.tio.core.GroupContext;
 import org.tio.core.PacketHandlerMode;
 import org.tio.core.exception.AioDecodeException;
@@ -172,6 +173,8 @@ public class DecodeRunnable<SessionContext, P extends Packet, R> implements Runn
 					
 					channelContext.getGroupContext().getGroupStat().getReceivedPacket().incrementAndGet();
 					channelContext.getGroupContext().getGroupStat().getReceivedBytes().addAndGet(len);
+					
+					channelContext.traceClient(ClientAction.RECEIVED, packet);
 					
 					handler(channelContext, packet, len);
 					

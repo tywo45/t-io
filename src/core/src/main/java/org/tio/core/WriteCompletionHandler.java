@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.intf.AioListener;
 import org.tio.core.intf.Packet;
-import org.tio.core.intf.PacketWithSendModel;
+import org.tio.core.intf.PacketWithSendMode;
 import org.tio.core.stat.GroupStat;
 
 /**
@@ -45,9 +45,11 @@ public class WriteCompletionHandler<SessionContext, P extends Packet, R> impleme
 	@SuppressWarnings("unchecked")
 	public void handle(Integer result, Throwable throwable, Object packets)
 	{
-		//有可能会是null
-		PacketWithSendModel packetWithSendModel = null;
 		this.writeSemaphore.release();
+		
+		//有可能会是null
+		PacketWithSendMode packetWithSendMode = null;
+		
 		GroupContext<SessionContext, P, R> groupContext = channelContext.getGroupContext();
 		GroupStat groupStat = groupContext.getGroupStat();
 		AioListener<SessionContext, P, R> aioListener = groupContext.getAioListener();
@@ -62,7 +64,7 @@ public class WriteCompletionHandler<SessionContext, P extends Packet, R> impleme
 		try
 		{
 			boolean isPacket = packets instanceof Packet;
-			boolean isPacketWithSendModel = packets instanceof PacketWithSendModel;
+			boolean isPacketWithSendModel = packets instanceof PacketWithSendMode;
 			if (isPacket || isPacketWithSendModel)
 			{
 				if (isSentSuccess)
@@ -74,17 +76,28 @@ public class WriteCompletionHandler<SessionContext, P extends Packet, R> impleme
 				P packet = null;
 				if (isPacket)
 				{
+//					log.error("isPacket : true");
 					packet = (P) packets;
 				} else
 				{
-					packetWithSendModel = (PacketWithSendModel) packets;
-					packet = (P) packetWithSendModel.getPacket();
-					packetWithSendModel.setIsSentSuccess(isSentSuccess);
+					packetWithSendMode = (PacketWithSendMode) packets;
+					packet = (P) packetWithSendMode.getPacket();
+					packetWithSendMode.setIsSentSuccess(isSentSuccess);
+//					log.error("{},发送成功:{}", channelContext, packetWithSendMode.getPacket().logstr());
+					
+					if (packetWithSendMode != null)
+					{
+						synchronized (packetWithSendMode)
+						{
+//							log.error("{},释放通知:{}", channelContext, packetWithSendMode.getPacket().logstr());
+							packetWithSendMode.notify();
+						}
+					}
 				}
 
 				try
 				{
-					log.info("{} 已经发送:{}", channelContext, packet.logstr());
+					channelContext.traceClient(ClientAction.AFTER_SEND, packet);
 					aioListener.onAfterSent(channelContext, packet, isSentSuccess);
 				} catch (Exception e)
 				{
@@ -103,7 +116,7 @@ public class WriteCompletionHandler<SessionContext, P extends Packet, R> impleme
 				{
 					try
 					{
-						log.info("{} 已经发送:{}", channelContext, p.logstr());
+						channelContext.traceClient(ClientAction.AFTER_SEND, p);
 						aioListener.onAfterSent(channelContext, p, isSentSuccess);
 					} catch (Exception e)
 					{
@@ -121,14 +134,7 @@ public class WriteCompletionHandler<SessionContext, P extends Packet, R> impleme
 			log.error(e.toString(), e);
 		} finally
 		{
-			if (packetWithSendModel != null)
-			{
-				synchronized (packetWithSendModel)
-				{
-					log.error("{},释放通知:{}", channelContext, packetWithSendModel.getPacket().logstr());
-					packetWithSendModel.notifyAll();
-				}
-			}
+			
 		}
 	}
 
