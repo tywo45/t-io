@@ -43,7 +43,12 @@ public enum ClientAction
 	/**
 	 * 
 	 */
-	AFTER_HANDLER(8);
+	AFTER_HANDLER(8),
+	
+	/**
+	 * 
+	 */
+	RECEIVED_BUF(9);
 
 	private final int value;
 
@@ -67,6 +72,8 @@ public enum ClientAction
 			return BEFORE_HANDLER;
 		case 8:
 			return AFTER_HANDLER;
+		case 9:
+			return RECEIVED_BUF;
 		default:
 			return null;
 		}

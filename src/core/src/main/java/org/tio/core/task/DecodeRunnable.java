@@ -174,7 +174,7 @@ public class DecodeRunnable<SessionContext, P extends Packet, R> implements Runn
 					channelContext.getGroupContext().getGroupStat().getReceivedPacket().incrementAndGet();
 					channelContext.getGroupContext().getGroupStat().getReceivedBytes().addAndGet(len);
 					
-					channelContext.traceClient(ClientAction.RECEIVED, packet);
+					channelContext.traceClient(ClientAction.RECEIVED, packet, null);
 					
 					handler(channelContext, packet, len);
 					

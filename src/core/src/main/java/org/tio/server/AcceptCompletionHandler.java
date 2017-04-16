@@ -50,7 +50,7 @@ public class AcceptCompletionHandler<SessionContext, P extends Packet, R> implem
 			channelContext.setServerNode(aioServer.getServerNode());
 			ServerAioListener<SessionContext, P, R> serverAioListener = serverGroupContext.getServerAioListener();
 			channelContext.getStat().setTimeFirstConnected(SystemTimer.currentTimeMillis());
-			channelContext.traceClient(ClientAction.CONNECT, null);
+			channelContext.traceClient(ClientAction.CONNECT, null, null);
 			try
 			{
 				serverAioListener.onAfterConnected(channelContext, true, false);

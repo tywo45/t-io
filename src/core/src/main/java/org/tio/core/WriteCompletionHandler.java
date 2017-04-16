@@ -46,10 +46,10 @@ public class WriteCompletionHandler<SessionContext, P extends Packet, R> impleme
 	public void handle(Integer result, Throwable throwable, Object packets)
 	{
 		this.writeSemaphore.release();
-		
+
 		//有可能会是null
 		PacketWithSendMode packetWithSendMode = null;
-		
+
 		GroupContext<SessionContext, P, R> groupContext = channelContext.getGroupContext();
 		GroupStat groupStat = groupContext.getGroupStat();
 		AioListener<SessionContext, P, R> aioListener = groupContext.getAioListener();
@@ -76,20 +76,20 @@ public class WriteCompletionHandler<SessionContext, P extends Packet, R> impleme
 				P packet = null;
 				if (isPacket)
 				{
-//					log.error("isPacket : true");
+					//					log.error("isPacket : true");
 					packet = (P) packets;
 				} else
 				{
 					packetWithSendMode = (PacketWithSendMode) packets;
 					packet = (P) packetWithSendMode.getPacket();
 					packetWithSendMode.setIsSentSuccess(isSentSuccess);
-//					log.error("{},发送成功:{}", channelContext, packetWithSendMode.getPacket().logstr());
-					
+					//					log.error("{},发送成功:{}", channelContext, packetWithSendMode.getPacket().logstr());
+
 					if (packetWithSendMode != null)
 					{
 						synchronized (packetWithSendMode)
 						{
-//							log.error("{},释放通知:{}", channelContext, packetWithSendMode.getPacket().logstr());
+							//							log.error("{},释放通知:{}", channelContext, packetWithSendMode.getPacket().logstr());
 							packetWithSendMode.notify();
 						}
 					}
@@ -97,7 +97,7 @@ public class WriteCompletionHandler<SessionContext, P extends Packet, R> impleme
 
 				try
 				{
-					channelContext.traceClient(ClientAction.AFTER_SEND, packet);
+					channelContext.traceClient(ClientAction.AFTER_SEND, packet, null);
 					aioListener.onAfterSent(channelContext, packet, isSentSuccess);
 				} catch (Exception e)
 				{
@@ -116,7 +116,7 @@ public class WriteCompletionHandler<SessionContext, P extends Packet, R> impleme
 				{
 					try
 					{
-						channelContext.traceClient(ClientAction.AFTER_SEND, p);
+						channelContext.traceClient(ClientAction.AFTER_SEND, p, null);
 						aioListener.onAfterSent(channelContext, p, isSentSuccess);
 					} catch (Exception e)
 					{
@@ -134,7 +134,7 @@ public class WriteCompletionHandler<SessionContext, P extends Packet, R> impleme
 			log.error(e.toString(), e);
 		} finally
 		{
-			
+
 		}
 	}
 

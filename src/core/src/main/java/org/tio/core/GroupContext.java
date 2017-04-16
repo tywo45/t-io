@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.tio.client.ReconnConf;
 import org.tio.core.intf.AioHandler;
 import org.tio.core.intf.AioListener;
+import org.tio.core.intf.ClientTraceHandler;
 import org.tio.core.intf.Packet;
 import org.tio.core.maintain.ChannelContextMapWithLock;
 import org.tio.core.maintain.ChannelContextSetWithLock;
@@ -65,6 +66,9 @@ public abstract class GroupContext<SessionContext, P extends Packet, R>
 	 * 低优先级的业务处理线程池
 	 */
 	private SynThreadPoolExecutor<SynRunnableIntf> handlerExecutorNormPrior = null;
+	
+	
+	private  ClientTraceHandler<SessionContext, P, R> clientTraceHandler = new DefaultClientTraceHandler<SessionContext, P, R>();
 
 	/**
 	 * 低优先级的消息发送线程池
@@ -486,5 +490,21 @@ public abstract class GroupContext<SessionContext, P extends Packet, R>
 	public void setGroupExecutor(ExecutorService groupExecutor)
 	{
 		this.groupExecutor = groupExecutor;
+	}
+
+	/**
+	 * @return the clientTraceHandler
+	 */
+	public ClientTraceHandler<SessionContext, P, R> getClientTraceHandler()
+	{
+		return clientTraceHandler;
+	}
+
+	/**
+	 * @param clientTraceHandler the clientTraceHandler to set
+	 */
+	public void setClientTraceHandler(ClientTraceHandler<SessionContext, P, R> clientTraceHandler)
+	{
+		this.clientTraceHandler = clientTraceHandler;
 	}
 }

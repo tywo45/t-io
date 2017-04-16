@@ -110,7 +110,7 @@ public class CloseRunnable<SessionContext, P extends Packet, R>  implements Runn
 					}
 				}
 
-				channelContext.traceClient(ClientAction.UNCONNECT, null);
+				channelContext.traceClient(ClientAction.UNCONNECT, null, null);
 				
 				if (channelContext.isClosed() && !isRemove)
 				{

@@ -2,8 +2,6 @@ package org.tio.core;
 
 import java.io.IOException;
 import java.nio.channels.AsynchronousSocketChannel;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,21 +10,16 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import org.tio.core.intf.Packet;
 import org.tio.core.task.DecodeRunnable;
 import org.tio.core.task.HandlerRunnable;
 import org.tio.core.task.SendRunnable;
-import org.tio.json.Json;
-
-import com.xiaoleilu.hutool.date.DatePattern;
-import com.xiaoleilu.hutool.date.DateUtil;
 
 public abstract class ChannelContext<SessionContext, P extends Packet, R>
 {
 	private static Logger log = LoggerFactory.getLogger(ChannelContext.class);
 
-	private Logger clientTraceLog = LoggerFactory.getLogger("tio-client-trace-log");
+	
 
 	private boolean isTraceClient = false;
 
@@ -568,45 +561,13 @@ public abstract class ChannelContext<SessionContext, P extends Packet, R>
 		{
 			return false;
 		}
-
 	}
 
-	/**
-	 * @return the clientTraceLog
-	 */
-	public Logger getClientTraceLog()
-	{
-		return clientTraceLog;
-	}
-
-	/**
-	 * @param clientTraceLog the clientTraceLog to set
-	 */
-	public void setClientTraceLog(Logger clientTraceLog)
-	{
-		this.clientTraceLog = clientTraceLog;
-	}
-
-	public void traceClient(ClientAction clientAction, Packet packet)
+	public void traceClient(ClientAction clientAction, Packet packet, Map<String, Object> msg)
 	{
 		if (isTraceClient)
 		{
-			Map<String, Object> map = new HashMap<>();
-			map.put("time", DateUtil.format(new Date(), DatePattern.NORM_DATETIME_MS_PATTERN));
-			map.put("action", clientAction);
-			map.put("c_id", this.id);
-			
-			
-			MDC.put("tio_client", clientNodeTraceFilename);
-			
-			if (packet != null)
-			{
-				map.put("p_id", packet.getId());
-				map.put("p_respId", packet.getRespId());
-				
-				map.put("packet", packet.logstr());
-			}
-			clientTraceLog.info(Json.toJson(map));
+			this.getGroupContext().getClientTraceHandler().traceClient(this, clientAction, packet, msg);
 		}
 	}
 

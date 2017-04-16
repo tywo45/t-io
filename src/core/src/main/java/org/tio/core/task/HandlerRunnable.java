@@ -68,9 +68,9 @@ public class HandlerRunnable<SessionContext, P extends Packet, R> extends Abstra
 				}
 			} else
 			{
-				channelContext.traceClient(ClientAction.BEFORE_HANDLER, packet);
+				channelContext.traceClient(ClientAction.BEFORE_HANDLER, packet, null);
 				groupContext.getAioHandler().handler(packet, channelContext);
-				channelContext.traceClient(ClientAction.AFTER_HANDLER, packet);
+				channelContext.traceClient(ClientAction.AFTER_HANDLER, packet, null);
 				groupContext.getGroupStat().getHandledPacket().incrementAndGet();
 			}
 			ret++;

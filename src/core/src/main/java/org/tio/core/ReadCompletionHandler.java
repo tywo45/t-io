@@ -3,6 +3,8 @@ package org.tio.core;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +43,15 @@ public class ReadCompletionHandler<SessionContext, P extends Packet, R> implemen
 //		GroupContext<SessionContext, P, R> groupContext = channelContext.getGroupContext();
 		if (result > 0)
 		{
+			if (channelContext.isTraceClient())
+			{
+				Map<String, Object> map = new HashMap<>();
+				map.put("p_r_buf_len", result);
+				channelContext.traceClient(ClientAction.RECEIVED_BUF, null, map);
+			}
+			
+			
+			
 //			ByteBuffer newByteBuffer = ByteBufferUtils.copy(readByteBuffer, 0, readByteBuffer.position());
 			DecodeRunnable<SessionContext, P, R> decodeRunnable = channelContext.getDecodeRunnable();
 			readByteBuffer.flip();
