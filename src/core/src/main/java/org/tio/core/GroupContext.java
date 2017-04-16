@@ -52,7 +52,7 @@ public abstract class GroupContext<SessionContext, P extends Packet, R>
 
 	private PacketHandlerMode packetHandlerMode = PacketHandlerMode.SINGLE_THREAD;//.queue;
 	
-	private PacketSendMode packetSendMode = PacketSendMode.BLOCK;
+	private PacketSendMode packetSendMode = PacketSendMode.QUEUE;
 
 	/**
 	 * 接收数据的buffer size
