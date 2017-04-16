@@ -1,200 +1,116 @@
-<h3>
+### 
   t-io: 百万级TCP长连接即时通讯框架，让天下没有难开发的即时通讯。
-</h3>
 
+1.  ### 简 介
 
-<ol>
-	
-	
-	<li><h3>简 介</h3>
-		 <strong>t-io</strong>是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置功能丰富、核心代码只有4000多行的即时通讯框架。字母<strong> t </strong>取<strong>talent</strong>（天才）的首字母，也可以理解为<strong>"特快"</strong>，同时也是<strong>作者姓氏</strong>的首字母。
-	</li>
-	
-	<li><h3>各种传送门</h3>
-		<ul class="masthead-links" style="">
-			<li><a href="http://www.t-io.org:9292/" target="_blank">官 网</a></li>
-			<li><a href="http://www.t-io.org:9292/quickstart.html" target="_blank">30分钟极速入门</a></li>
-			<li><a href="http://www.t-io.org:9292/apidocs/index.html" target="_blank">API</a>（先看<a href="http://www.t-io.org:9292/apidocs/org/tio/core/Aio.html" target="_blank">Aio.java</a>的就好，其它的看<a href="http://www.t-io.org:9292/quickstart.html" target="_blank">30分钟极速入门</a>）</li>
-			<li><a href="https://my.oschina.net/talenttan/blog/863545" target="_blank">资料及问题汇总</a></li>
-			<li><a href="https://my.oschina.net/talenttan/blog" target="_blank">作者博客</a></li>
-		</ul>
-	</li>
-	
-		 
-	<li><h3>常见应用场景</h3>
-		IM、实时监控、推送服务（已内置API）、RPC、游戏、物联网等实时通讯类型的场景
-	</li>
-	
-	<li><h3>特 点</h3>
-		<ul class="masthead-links" style="">
-		  <li>
-			<strong>极简洁清晰易懂的API</strong>: 没有生涩难懂的新概念，只需<strong>花上30分钟</strong><a href="http://www.t-io.org:9292/quickstart.html" target="_blank">学习helloworld</a>就能很好地掌握并实现一个性能极好的即时通讯应用
-		  </li>
-		  <li>
-			<strong>极震撼的性能</strong>
-			<ul>
-				<li>
-					轻松支持<strong>百万级</strong>tcp长连接，彻底甩开业界<strong>C1000K</strong>烦恼（centos 单CPU4核 16G 测试数据: 17.82万长连接，只消耗800M内存，CPU毫无压力）
-				</li>
-				<li>
-					最高时，每秒可以收发<strong>500万</strong>条消息，约<strong>165M</strong>（windows10、i7、8g、固态硬盘、群聊场景、服务器和客户机在同一台机器）
-				</li>
-			</ul>
-		  </li>
-		  
-		  <li>
-			<strong>极亲民的内置功能</strong>
-			<ul>
-				<li>
-					框架层面帮你<strong>检测心跳</strong>(tcp server)、<strong>发送心跳</strong>(tcp client)
-				</li>
-				<li>
-					框架层面支持<strong>自动重连</strong>(可设置重连间隔时间和重连次数)
-				</li>
-				<li>
-					框架层面支持<strong>同步消息</strong>(消息发送后，等到响应消息再往下执行)
-				</li>
-				<li>
-					框架层面支持<strong>绑定userid</strong>(用于用户关联)、<strong>绑定groupid</strong>(用于群聊)
-				</li>
-				<li>
-					内置各项统计功能----接受过多少连接、关闭过多少连接、已发送的消息数、已接收的消息数、当前是多少正常连接、当前多少断开的连接等。
-				</li>
-			</ul>
-		  </li>
-		</ul>
-	</li>
-	
-	
-	<li><h3>性能数据</h3>
-		<ol>
-			<li>
-				<h4>IM实例收发速度<strong>500万条/秒</strong>----此数据系网友提供（i7 6700 + 固态硬盘 + win10），我本地只能跑到333万/秒</h4>
-			</li>
-			<li>
-				<h4>IM实例<strong>17.82万TCP长连接且正常收发消息只消耗800M内存，CPU使用率极低</strong>，目测t-io可以支撑<strong>200万长连接</strong></h4>
-			</li>
-			<li>
-				<h4>17万长连接反复破坏性测试（譬如断网又连网、反复断开客户端又连上客户端等），服务器内存保持稳定（600多M到900M间）</h4>
-			</li>
-		</ol>
-	</li>
-	
-	<li><h3>性能测试步骤</h3>
-		<ol>
-			<li>
-				<h4>测试单机吞吐量</h4>
-				<ol>
-					<li>
-						<h4>机器准备</h4>
-						<ol>
-							<li>CPU: i7 6700</li>
-							<li>内存：8G/4G</li>
-							<li>操作系统：windows7/windows10</li>
-							<li>说明：客户机和服务器位于同一台机器</li>
-						</ol>
-					</li>
-					<li>
-						<h4>测试步骤</h4>
-						<ol>
-							<li>双击 "bin/start-im-server.bat" 启动im server</li>
-							<li>双击 "bin/start-im-client.bat" 启动im client</li>
-							<li>保持下图参数进行测试
-							<img src='http://git.oschina.net/tywo45/t-io/raw/master/docs/performance/500%E4%B8%87.png'/>
-							</li>
-						</ol>
-					</li>
-					<li>
-						<h4>测试结果</h4>
-						<ol>
-							<li>500万条/秒约165M----此数据系网友提供（i7 6700 + 固态硬盘 + win10）</li>
-							<li>333万条/秒约97M----此数据系本人亲测数据（i7 4790 + 固态硬盘 + win7），测试参数与上图略有差别，不一一说明</li>
-						</ol>
-					</li>
-					
-				</ol>
-				
-			</li>
-			<li>
-				<h4>测试centos下可以支持多少长连接数</h4>
-				<ol>
-					<li>
-						<h4>机器准备</h4>
-						<ol>
-							<li>服务器一台：centos6.x,  虚拟机，一个4核E5 CPU，内存16G</li>
-							<li>客户机11台：windows，硬件没什么特别要求</li>
-						</ol>
-					</li>
-					<li>
-						<h4>测试步骤</h4>
-						<ol>
-							<li>修改centos操作系统参数，使之支持更大的长连接数，细节略（可百度之）</li>
-							<li>在centos上运行 "bin/start-im-server.sh" 启动im server</li>
-							<li>修改dist\examples\im\client\config\app.conf，参考下面的值，注意把server指向centos的ip，
+    		 **t-io**是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置功能丰富、核心代码只有4000多行的即时通讯框架。字母** t **取**talent**（天才）的首字母，也可以理解为**"特快"**，同时也是**作者姓氏**的首字母。
+2.  ### 各种传送门
+
+        *   [官 网](http://www.t-io.org:9292/)
+    *   [30分钟极速入门](http://www.t-io.org:9292/quickstart.html)
+    *   [API](http://www.t-io.org:9292/apidocs/index.html)（先看[Aio.java](http://www.t-io.org:9292/apidocs/org/tio/core/Aio.html)的就好，其它的看[30分钟极速入门](http://www.t-io.org:9292/quickstart.html)）
+    *   [资料及问题汇总](https://my.oschina.net/talenttan/blog/863545)
+    *   [作者博客](https://my.oschina.net/talenttan/blog)
+3.  ### 常见应用场景
+
+    		IM、实时监控、推送服务（已内置API）、RPC、游戏、物联网等实时通讯类型的场景
+4.  ### 特 点
+
+        *   **极简洁清晰易懂的API**: 没有生涩难懂的新概念，只需**花上30分钟**[学习helloworld](http://www.t-io.org:9292/quickstart.html)就能很好地掌握并实现一个性能极好的即时通讯应用
+    *   **极震撼的性能**
+
+                *   轻松支持**百万级**tcp长连接，彻底甩开业界**C1000K**烦恼（centos 单CPU4核 16G 测试数据: 17.82万长连接，只消耗800M内存，CPU毫无压力）
+        *   最高时，每秒可以收发**500万**条消息，约**165M**（windows10、i7、8g、固态硬盘、群聊场景、服务器和客户机在同一台机器）
+    *   **极亲民的内置功能**
+
+                *   框架层面帮你**检测心跳**(tcp server)、**发送心跳**(tcp client)
+        *   框架层面支持**自动重连**(可设置重连间隔时间和重连次数)
+        *   框架层面支持**同步消息**(消息发送后，等到响应消息再往下执行)
+        *   框架层面支持**绑定userid**(用于用户关联)、**绑定groupid**(用于群聊)
+        *   内置各项统计功能----接受过多少连接、关闭过多少连接、已发送的消息数、已接收的消息数、当前是多少正常连接、当前多少断开的连接等。
+5.  ### 性能数据
+
+        1.  #### IM实例收发速度**500万条/秒**----此数据系网友提供（i7 6700 + 固态硬盘 + win10），我本地只能跑到333万/秒
+
+        2.  #### IM实例**17.82万TCP长连接且正常收发消息只消耗800M内存，CPU使用率极低**，目测t-io可以支撑**200万长连接**
+
+        3.  #### 17万长连接反复破坏性测试（譬如断网又连网、反复断开客户端又连上客户端等），服务器内存保持稳定（600多M到900M间）
+6.  ### 性能测试步骤
+
+        1.  #### 测试单机吞吐量
+
+            1.  #### 机器准备
+
+                    1.  CPU: i7 6700
+            2.  内存：8G/4G
+            3.  操作系统：windows7/windows10
+            4.  说明：客户机和服务器位于同一台机器
+        2.  #### 测试步骤
+
+                    1.  双击 "bin/start-im-server.bat" 启动im server
+            2.  双击 "bin/start-im-client.bat" 启动im client
+            3.  保持下图参数进行测试
+							![](http://git.oschina.net/tywo45/t-io/raw/master/docs/performance/500%E4%B8%87.png)
+        3.  #### 测试结果
+
+                    1.  500万条/秒约165M----此数据系网友提供（i7 6700 + 固态硬盘 + win10）
+            2.  333万条/秒约97M----此数据系本人亲测数据（i7 4790 + 固态硬盘 + win7），测试参数与上图略有差别，不一一说明
+    2.  #### 测试centos下可以支持多少长连接数
+
+            1.  #### 机器准备
+
+                    1.  服务器一台：centos6.x,  虚拟机，一个4核E5 CPU，内存16G
+            2.  客户机11台：windows，硬件没什么特别要求
+        2.  #### 测试步骤
+
+                    1.  修改centos操作系统参数，使之支持更大的长连接数，细节略（可百度之）
+            2.  在centos上运行 "bin/start-im-server.sh" 启动im server
+            3.  修改dist\examples\im\client\config\app.conf，参考下面的值，注意把server指向centos的ip，
 							<pre>
 #服务器
 server=127.0.0.1
 
-#服务器port
+                #服务器port
 port=9321
 
-#连接多少个连接到服务器
+                #连接多少个连接到服务器
 client.count=16200
 
-#进入到哪个组
+                #进入到哪个组
 group=g
 
-#聊天消息发的内容
+                #聊天消息发的内容
 chat.content=he
 
-#一次发多少条(这个数字不要太大)
+                #一次发多少条(这个数字不要太大)
 send.count=1
 							</pre>
-							
-							</li>
-							<li>把dist\examples\im\client拷到各客户机并运行"bin/start-im-client.bat"</li>
-						</ol>
-					</li>
-					<li>
-						<h4>测试结果</h4>
-						<ol>
-							<li>11个客户机 ，每个客户机连16200个TCP连接，服务器一共承受17.82万TCP长连接，服务器内存只消耗800M，CPU使用率极低</li>
-							<li>根据测试结果初步推测：t-io支持200万长连接没什么问题，各位有条件的可以测测。</li>
-						</ol>
-					</li>
-					
-				</ol>
-			</li>
-			
-		</ol>
-	</li>
+            4.  把dist\examples\im\client拷到各客户机并运行"bin/start-im-client.bat"
+        3.  #### 测试结果
 
+                    1.  11个客户机 ，每个客户机连16200个TCP连接，服务器一共承受17.82万TCP长连接，服务器内存只消耗800M，CPU使用率极低
+            2.  根据测试结果初步推测：t-io支持200万长连接没什么问题，各位有条件的可以测测。
+7.  ### t-io学习步骤（供参考，具体步骤根据各人而异）
 
-	
-	
-	<li><h3>t-io学习步骤（供参考，具体步骤根据各人而异）</h3>
-		学习t-io的最好方式，是从helloworld的例子入手，顺藤摸瓜阅读t-io的源代码，已经有很多人阅读过t-io的源代码，譬如j-net的作者、hutool的作者，并且反馈良好，源代码毕竟只有4000多行，读读无妨！如果懒于阅读代码，就按照下面的步骤来学习吧！
-		<ol>
-			<li><h4>初步认识t-io</h4>
-				<ol>
-					<li>安装1.7以上版本的jdk及maven（已安装的略过此步骤）</li>
-					<li>从<a href="https://git.oschina.net/tywo45/t-io" target="_blank">https://git.oschina.net/tywo45/t-io</a>处下载源代码（已下载的略过此步骤）</li>
-					<li>双击 "bin/install.bat" 安装t-io到本地maven仓库（此步骤可省略）</li>
-					<li>双击 "bin/start-im-server.bat" 启动im server</li>
-					<li>双击 "bin/start-im-client.bat" 启动im client</li>
-					<li>对着界面把玩几下，测试一把性能数据，对t-io形成感性认识<br>
-						客户端界面
-						<img src='http://git.oschina.net/tywo45/t-io/raw/master/docs/performance/500%E4%B8%87.png'/>
-						<br>
-						服务器端界面（这里显示的都是一些统计信息，方便用户了解服务器运作情况）
-						<img src='http://git.oschina.net/tywo45/t-io/raw/master/docs/im/server.png'/>
-					</li>
-				</ol>
-			</li>
-			
-			<li><h4>了解代码目录结构（所有工程都是maven工程）</h4>
-<h3>
-<pre>
+    		学习t-io的最好方式，是从helloworld的例子入手，顺藤摸瓜阅读t-io的源代码，已经有很多人阅读过t-io的源代码，譬如j-net的作者、hutool的作者，并且反馈良好，源代码毕竟只有4000多行，读读无妨！如果懒于阅读代码，就按照下面的步骤来学习吧！
+
+        1.  #### 初步认识t-io
+
+            1.  安装1.7以上版本的jdk及maven（已安装的略过此步骤）
+        2.  从[https://git.oschina.net/tywo45/t-io](https://git.oschina.net/tywo45/t-io)处下载源代码（已下载的略过此步骤）
+        3.  双击 "bin/install.bat" 安装t-io到本地maven仓库（此步骤可省略）
+        4.  双击 "bin/start-im-server.bat" 启动im server
+        5.  双击 "bin/start-im-client.bat" 启动im client
+        6.  对着界面把玩几下，测试一把性能数据，对t-io形成感性认识
+
+            						客户端界面
+						![](http://git.oschina.net/tywo45/t-io/raw/master/docs/performance/500%E4%B8%87.png)
+
+            						服务器端界面（这里显示的都是一些统计信息，方便用户了解服务器运作情况）
+						![](http://git.oschina.net/tywo45/t-io/raw/master/docs/im/server.png)
+    2.  #### 了解代码目录结构（所有工程都是maven工程）
+
+    ###<pre>
 ├─bin<font color='#06AD3'>----------------脚本目录（方便快速操作）</font>
 │      clean.bat<font color='#06AD3'>----------------清空所有工程的target目录</font>
 │      clean.sh<font color='#06AD3'>----------------清空所有工程的target目录</font>
@@ -221,14 +137,11 @@ send.count=1
 │      start-showcase-server.bat<font color='#06AD3'>----------------启动showcase的服务端</font>
 │      start-showcase-server.sh<font color='#06AD3'>----------------启动showcase的服务端</font>
 ├─docs
-│  │  
-│  ├─blog<font color='#06AD3'>----------------本人博客草稿（大部分博客是在线编辑，所以此处就没有了）</font>
-│  │      
-│  ├─performance<font color='#06AD3'>----------------一些性能测试截图（随着版本的增多，有些截图已经过时，但仍保留）</font>
+│  ││  ├─blog<font color='#06AD3'>----------------本人博客草稿（大部分博客是在线编辑，所以此处就没有了）</font>
+│  ││  ├─performance<font color='#06AD3'>----------------一些性能测试截图（随着版本的增多，有些截图已经过时，但仍保留）</font>
 │  │
 │  ├─release<font color='#06AD3'>----------------新版本发布时的log</font>
-│  
-├─dist<font color='#06AD3'>----------------成品</font>
+│├─dist<font color='#06AD3'>----------------成品</font>
 │  └─examples<font color='#06AD3'>----------------用t-io写的例子成品</font>
 │      ├─helloworld
 │      │  ├─client<font color='#06AD3'>----------------helloworld的客户端</font>
@@ -264,88 +177,33 @@ send.count=1
 	│      └─server
 	└─parent<font color='#06AD3'>----------------maven工程的parent</font>
 </pre>
-</h3>
-			</li>
-			
-			<li><h4>花30分钟学习hello world</h4>
-				传送门: <a href="http://www.t-io.org:9292/quickstart.html" target="_blank">30分钟极速入门</a>
-			</li>
-			
-			<li><h4>花点时间学习showcase</h4>
-				代码正在开发中，文档暂未开始... ...尽量在2017年4月30号前提供，在此之前有问题可以和作者沟通。有什么需求可以在这里反馈给我：
-				<a href="https://my.oschina.net/talenttan/tweet/12616527" target="_blank">showcase需求反馈</a>
-			</li>
-		</ol>
-	</li>
-	
-	
-	<li><h3>案 例（案例太多，此处仅列举t-io开源第一个月内的案例）</h3>
-		<ul class="masthead-links" style="font-size:14pt;">
-		  <li>
-			某网管系统(管理数百台刀片服务器的系统)
-		  </li>
-		  <li>
-			某直播平台(视频直播+聊天)
-		  </li>
-		  <li>
-			某智能设备检测系统(数据采集)<!--小白-->
-		  </li>
-		  <li>
-			某物联网系统(服务端)<!--好像是jackkang-->
-		  </li>
-		  <li>
-			深圳市某在线技术发展有限公司(中银联投资)：某网络安全运营支撑平台<!--小宇-->
-		  </li>
-		  <li>
-			<a href="https://git.oschina.net/websterlu/redisx" target="_blank">redisx</a><!--小宇-->
-		  </li>
-		  <li>
-			<a href="https://git.oschina.net/kangjie1209/talent_dubbo" target="_blank">talent_dubbo</a><!--jackkang-->
-		  </li>
-		  <li>
-			某移动省公司CRM业务受理消息采集平台(数据采集)<!--福州-精灵-java-->
-		  </li>
-		</ul>
-	</li>
-	
-		
-	
-	
 
-	<li><h3>参与t-io</h3>
-		<ol>
-			<li>t-io是将多线程技巧运用到极致的框架，所以一旦您参与到本项目，将会从本项目中学到很多关于多线程的技巧。</li>
-			<li>
-			<a 
-			  href="/tywo45/t-io/issues/new?issue%5Bassignee_id%5D=&amp;issue%5Bmilestone_id%5D="
-			  class="ui mini green button"
-			  title="提交issue">
-			<i class="icon plus"></i>提交Issue
-			</a>
+        3.  #### 花30分钟学习hello world
+
+        				传送门: [30分钟极速入门](http://www.t-io.org:9292/quickstart.html)
+    4.  #### 花点时间学习showcase
+
+        				代码正在开发中，文档暂未开始... ...尽量在2017年4月30号前提供，在此之前有问题可以和作者沟通。有什么需求可以在这里反馈给我：
+				[showcase需求反馈](https://my.oschina.net/talenttan/tweet/12616527)
+8.  ### 案 例（案例太多，此处仅列举t-io开源第一个月内的案例）
+
+        *   某网管系统(管理数百台刀片服务器的系统)
+    *   某直播平台(视频直播+聊天)
+    *   某智能设备检测系统(数据采集)<!--小白-->
+    *   某物联网系统(服务端)<!--好像是jackkang-->
+    *   深圳市某在线技术发展有限公司(中银联投资)：某网络安全运营支撑平台<!--小宇-->
+    *   [redisx](https://git.oschina.net/websterlu/redisx)<!--小宇-->
+    *   [talent_dubbo](https://git.oschina.net/kangjie1209/talent_dubbo)<!--jackkang-->
+    *   某移动省公司CRM业务受理消息采集平台(数据采集)<!--福州-精灵-java-->
+9.  ### 参与t-io
+
+        1.  t-io是将多线程技巧运用到极致的框架，所以一旦您参与到本项目，将会从本项目中学到很多关于多线程的技巧。
+    2.  [
+			提交Issue
+			](/tywo45/t-io/issues/new?issue%5Bassignee_id%5D=&amp;issue%5Bmilestone_id%5D= "提交issue")
 			给项目提出有意义的新需求，或是帮项目发现BUG，或是上传你本地测试的一些数据让作者参考以便进一步优化。
-			</li>
-
-			<li>
-			点击右上方的
+    3.  点击右上方的
 			<span class="basic buttons mini star-container ui">
-			<a href="javascritp:void(0);" class="ui button star" data-method="post" data-remote="true" rel="nofollow">Star</a>
+			[Star](javascritp:void(0);)
 			</span>
 			以便随时掌握本项目的动态
-			</li>
-			
-			
-			
-
-			
-		</ol>
-	</li>
-	
-	
-	
-</ol>
-
-
-
-
-
-
