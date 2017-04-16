@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>   
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+                       
+<script src="../../lib/protobuf/long.js"></script> 
+<script src="../../lib/protobuf/bytebuffer.js"></script>
+<script src="../../lib/protobuf/protobuf.js"></script>
+
+<script src="../../lib/vue/vue.js"></script>
+
+<link rel="stylesheet" href="../../lib/iview/styles/iview.css">
+<script src="../../lib/iview/iview.min.js"></script>
+
+<script src="../../lib/talent/talent.js"></script>
+
+
+</head>
+<body>
+	
+	<div id="tip">
+	 
+	</div>
+	
+	<div id="connection">
+	  Server <input name='' id='server' value='127.0.0.1'/> :  <input name='' id='port' value='9321' style='width:50px;'/>,
+	  Group: <input name='' id='group' value='g' style=''/>
+	  连接个数: <input name='' id='count' value='100' style=''/>
+	  
+	  <input type='button' value='连接并进入群组' onclick='connectionBtnClicked();'>
+	  
+	  <input name='' id='text' value='hello'/> <input type='button' value='发送' onclick='sendBtnClicked();'>
+	</div>
+	
+	
+	<div id="chat">
+	  <ol>
+	    <li v-for="chatRespBody in chatRespBodys">
+		    {{ chatRespBody.date }} <a v-bind:href="'#' + chatRespBody.fromId">{{ chatRespBody.fromNick }}</a> say: {{ chatRespBody.text }}
+	    </li>
+	  </ol>
+	</div>
+</body>
+
+<script src="im.js"></script>
+<script src="action.js"></script>
+
+</html>

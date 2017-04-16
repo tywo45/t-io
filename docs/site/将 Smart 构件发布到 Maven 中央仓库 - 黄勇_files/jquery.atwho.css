@@ -1,0 +1,45 @@
+#at-view {
+    position:absolute;
+    top: 0;
+    left: 0;
+    display: none;
+    margin-top: 18px;
+    background: white;
+    border: 1px solid #DDD;
+    border-radius: 3px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    min-width: 120px;
+}
+
+#at-view .cur {
+    background: #EAEDEE;
+    color: #333;
+}
+#at-view .cur small {
+    color: #333;
+}
+#at-view strong {
+    color: #333;
+}
+#at-view .cur strong {
+    color: #333;
+    font:bold;
+}
+#at-view ul {
+    list-style:none;
+    padding:0;
+    margin:auto;
+}
+#at-view ul li {
+    display: block;
+    padding: 2px 10px;
+    cursor: pointer;
+    text-align: left;
+}
+#at-view small {
+    font-size: smaller;
+    color: #777;
+    font-weight: normal;
+}
+
+

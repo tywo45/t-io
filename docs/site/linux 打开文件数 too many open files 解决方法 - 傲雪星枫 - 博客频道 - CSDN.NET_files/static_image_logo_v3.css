@@ -1,0 +1,140 @@
+html,
+body {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#adContent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+#text1 {
+  font-family: 'Roboto', Arial, sans-serif;
+  font-weight: bold;
+  opacity: 0;
+}
+
+#text2 {
+  font-family: 'Roboto', Arial, sans-serif;
+  font-weight: 300;
+  opacity: 0;
+}
+
+#url {
+  font-family: 'Roboto', Arial, sans-serif;
+  font-weight: 300;
+  opacity: 0;
+}
+
+#product {
+  opacity: 0;
+}
+
+#logo {
+  border-radius: 5%;
+  overflow: hidden;
+}
+
+#button {
+  border-radius: 50%;
+  box-shadow: 1px 2px 3px 0px rgba(0,0,0,.4);
+  text-shadow:1px 1px 0 rgba(255,255,255,0.1);
+  display: block;
+  opacity: 0;
+}
+
+[data-variation='towerA'] #text1,
+[data-variation='towerA'] #text2,
+[data-variation='towerB'] #text1,
+[data-variation='towerB'] #text2,
+[data-variation='smallSquare'] #text1,
+[data-variation='smallSquare'] #text2 {
+  text-align: center;
+}
+
+/* Default animations */
+[data-variation]:not([data-variation*='small']) #text1,
+[data-variation]:not([data-variation*='small']) #text2,
+[data-variation]:not([data-variation*='small']) #url {
+  opacity: 1;
+}
+
+[data-variation]:not([data-variation*='small']) #button {
+  -webkit-animation: fadein_keyframes .5s both;
+  animation: fadein_keyframes .5s both;
+}
+
+[data-variation]:not([data-variation*='small']) #product {
+  -webkit-animation: fadein_keyframes .9s both;
+  animation: fadein_keyframes .9s both;
+}
+
+[data-variation]:not([data-variation*='small']) #logo {
+  -webkit-animation: fadein_keyframes .9s both;
+  animation: fadein_keyframes .9s both;
+}
+
+@-webkit-keyframes
+fadein_keyframes {
+    0% {opacity: 0;}
+  100% {opacity: 1;}
+}
+
+@keyframes
+fadein_keyframes {
+    0% {opacity: 0;}
+  100% {opacity: 1;}
+}
+
+/* Small size animations */
+#adContent[data-variation*='small'],
+#adContent[data-variation*='small'] > * {
+  opacity: 1;
+}
+
+[data-variation*='smallBanner'] #text1 {
+  -webkit-animation: frames1 3.75s ease-in-out 4 alternate both;
+  animation: frames1 3.75s ease-in-out 4 alternate both;
+}
+
+[data-variation*='smallBanner'] #text2 {
+  -webkit-animation: frames2 3.75s ease-in-out 4 alternate both;
+  animation: frames2 3.75s ease-in-out 4 alternate both;
+}
+
+@-webkit-keyframes
+frames1 {
+   0%, 44% {opacity: 1; -webkit-transform: translateY(0);}
+  56%,100% {opacity: 0; -webkit-transform: translateY(-100%);}
+}
+
+@keyframes
+frames1 {
+   0%, 44% {opacity: 1; transform: translateY(0);}
+  56%,100% {opacity: 0; transform: translateY(-100%);}
+}
+
+@-webkit-keyframes
+frames2 {
+   0%, 44% {opacity: 0; -webkit-transform: translateY(100%);}
+  56%,100% {opacity: 1; -webkit-transform: translateY(0);}
+}
+
+@keyframes
+frames2 {
+   0%, 44% {opacity: 0; transform: translateY(100%);}
+  56%,100% {opacity: 1; transform: translateY(0);}
+}

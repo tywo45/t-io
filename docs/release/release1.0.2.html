@@ -1,0 +1,98 @@
+<h3>t-io1.0.2发布，让天下没有难开发的即时通讯</h3>
+
+<h4>web开发领域，springmvc之外有jfinal；TCP长连接领域，netty之外还有更易用的t-io</h4>
+
+更好用、更接开发人员地气的TCP长连接框架，t-io 1.0.2正式版发布，已更新到maven中心仓库，t-io详细介绍请前往如下地址
+<li>
+红薯家的码云: <a href="https://git.oschina.net/tywo45/t-io" target="_blank">https://git.oschina.net/tywo45/t-io</a>
+</li>
+<li>
+talent-tan家的临时官网: <a href="http://www.talent-tan.com:9292/" target="_blank">http://www.talent-tan.com:9292</a>，感谢南京皓叶腾信息科技有限公司CEO提供主机支持
+</li>
+<li>
+红薯家的OSC: <a href="https://www.oschina.net/p/t-io" target="_blank">https://www.oschina.net/p/t-io</a>
+</li>
+<li>
+还有一个不太维护的github（不太维护是因为速度没码云快）: <a href="https://github.com/tywo45/t-io" target="_blank">https://github.com/tywo45/t-io</a>
+</li>
+<li>
+利用t-io，30分钟开发一个高性能的即时通讯程序: <a href="http://www.talent-tan.com:9292/quickstart.html" target="_blank">http://www.talent-tan.com:9292/quickstart.html</a>
+</li>
+
+<br>
+
+
+
+
+<h3>
+修改点
+</h3>
+<li>
+	server和client各增加stop()方法，用于停止服务和释放资源
+</li>
+
+<li>
+	优化重连(1.0.1版本已经优化过一次，1.0.3还将继续优化)
+</li>
+<li>
+	client增加异步连接(就是连接服务器时并不等待连接建立好后再往下执行)
+</li>
+<li>
+	各种变态测试发现的零碎问题修复(譬如同时连2万个连接，又马上断开，又马上连上，如此反复，考验服务器释放资源的能力以及正确性，也考验客户端重连能力以及重新管理连接的能力)
+</li>
+<li>
+	资源读操作和写操作时各自的锁优化
+</li>
+<li>
+	目录调整（不影响使用）
+</li>
+<li>
+	IM实例支持websocket，为以后的web监控功能打下基础 ( 作者厚颜无耻地违背了当初不实现websocket的决定，感谢<a href='https://git.oschina.net/generallycloud/baseio'  target="_blank">baseio</a>作者对本项目的支持 )，下图是个测试界面，后续会优化
+	<img src='https://git.oschina.net/tywo45/t-io/raw/master/docs/websocket-1.png'>
+	<br/>对比一下老版的swing界面
+	<img src='https://git.oschina.net/tywo45/t-io/raw/master/docs/performance/client-11.png'>
+	
+</li>
+
+
+<h3>
+注意点
+</h3>
+<li>
+	IM实例的非界面相关的设计是<strong>接近生产项目标准</strong>的，但是界面设计仍然是DEMO级别的，后面有可能会去掉swing界面，而改用web来进行监控(利用本次实现的websocket协议)
+</li>
+<li>
+	IM实例同时支持普通的socket协议和websocket协议，在握手时确定协议格式，解码编码时对websocket加一层皮
+</li>
+<li>
+	IM实例中的swing客户端界面，后续会被抛弃，完全改用web版来实现。
+</li>
+
+<h3>
+为t-io提供支持的公司和个人
+</h3>
+
+<li>
+	南京皓叶腾信息科技有限公司
+</li>
+<li>
+	个人：<a href='https://git.oschina.net/generallycloud/baseio' target="_blank">baseio</a>
+</li>
+<li>
+	后续可能会和专家级测试公司<strong><a href='http://com.testin.cn/' target='_blank'>Testin</a></strong>进行相关测试合作，用以提升t-io应付<strong>各项变态场景</strong>的能力。
+</li>
+
+
+<h3>
+开源软件t-io持续活下去的几种途径( 回答许多朋友担心的这个问题 )
+</h3>
+
+<li>
+	引入第三方公司支持，这是作者目前努力的主要方向。
+</li>
+<li>
+	社区捐款支持，传统的中国人似乎比较忌讳这一点，作者不会刻意追求这个方向，但也不拒绝。
+</li>
+<li>
+	依靠t-io开发出商用级的应用，譬如另一种活法的IM，这一点也是作者目前努力的方向之一，所以如果后面有一个talent-im出来，那么talent-im可能不是免费的。
+</li>

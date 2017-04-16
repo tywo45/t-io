@@ -1,0 +1,68 @@
+<h3>t-io1.6.7发布，输掉性能PK战后再度优化</h3>
+
+<h4>web开发领域，springmvc之外有jfinal；TCP长连接领域，netty之外还有更易用的t-io</h4>
+
+更好用、更接地气、支持百万级长连接的即时通讯框架，t-io 1.6.7正式版发布，已更新到maven中心仓库，t-io详细介绍请前往如下地址
+<li>
+	<strong>30分钟</strong>开发一个高性能的即时通讯程序: <a href="http://www.talent-tan.com:9292/quickstart.html" target="_blank">http://www.talent-tan.com:9292/quickstart.html</a>
+</li>
+
+<li>
+	t-io资料汇总: 
+	<a href="https://my.oschina.net/talenttan/blog/863545" target="_blank">
+		https://my.oschina.net/talenttan/blog/863545
+	</a>
+</li>
+<li>
+	红薯家的码云: <a href="https://git.oschina.net/tywo45/t-io" target="_blank">https://git.oschina.net/tywo45/t-io</a>
+</li>
+
+
+
+
+
+
+
+
+<h3>
+	修改点
+</h3>
+<li>
+	与高手几度PK过后，继续优化t-io，处理速度再度提升2倍多(IM实例测出的数据达到333万/每秒)，速度和稳定性在交替PK中不断前进！
+	<ul>
+		<li>简单解释一下：老版本的速度曾经达到过283万/秒，那是没有兼容websocket协议的速度，后来im例子实现并兼容了websocket协议，速度降到了160万/秒了，这次优化过后，又把速度拉到了333万/秒</li>
+	</ul>
+</li>
+<li>
+	优化一下日志，当对方关闭连接后，不打印调用堆栈日志
+</li>
+<li>
+	框架层面增加一个系统参数tio.default.read.buffer.size，用于设置默认readbuffer大小，单位为字节
+</li>
+<li>
+	im client支持1.7
+</li>
+<li>
+	maven去掉版本前提要求
+</li>
+
+	
+<h3>
+	与jnet的PK故事
+</h3>
+<li>
+	简单点说就是性能PK战t-io完败，所以我觉得，大家多多关注<a href="https://git.oschina.net/eric_ds/jnet" target="_blank">j-net</a>。败给j-net后，t-io作者心里唯一的安慰是：再也不会有人说t-io的数据造假了！
+</li>
+<li>
+	想了解这几次PK故事的全过程，可以找<a href="https://git.oschina.net/eric_ds/jnet" target="_blank">j-net</a>作者了解（此处台词：你若敢赢我，我便敢顶你）！
+</li>
+
+<li>
+	若因为j-net名气较少，就小瞧其实力，此处只能呵呵！
+</li>
+
+<h3>
+	最后感谢一下<a href="https://www.oschina.net/" target="_blank">OSChina</a>为<a href="https://git.oschina.net/tywo45/t-io" target="_blank">t-io</a>颁发的奖杯，只是红薯说话要算话啊(见图)
+</h3>
+<img src="https://git.oschina.net/tywo45/t-io/raw/master/docs/honor/mayunlin.jpg" width="600px" height="800px">
+

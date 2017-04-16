@@ -1,0 +1,101 @@
+<configuration scan="true" scanPeriod="10 seconds" debug="true">
+	<property resource="logback.properties" />
+	
+	<contextName>${context.name}</contextName>                         <!-- 本项目的名字 -->
+   
+	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>${conversion.pattern}</pattern>
+		</encoder>
+	</appender>
+	
+	<!-- root file 日志 -->
+	<appender name="root-file-error"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.dir}/error.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${log.dir}/error.%d{${rolling.policy.file.name.pattern}}%d{mmss}.%i.log.zip</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>${max.file.size}</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			<maxHistory>${max.history}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${conversion.pattern}</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">   
+			<level>ERROR</level>   
+			<onMatch>ACCEPT</onMatch>   
+			<onMismatch>DENY</onMismatch>   
+		</filter> 
+	</appender>
+	<appender name="root-file-warn"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.dir}/warn.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${log.dir}/warn.%d{${rolling.policy.file.name.pattern}}%d{mmss}.%i.log.zip</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>${max.file.size}</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			<maxHistory>${max.history}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${conversion.pattern}</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">   
+			<level>warn</level>   
+			<onMatch>ACCEPT</onMatch>   
+			<onMismatch>DENY</onMismatch>   
+		</filter> 
+	</appender>
+	<appender name="root-file-info"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.dir}/info.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${log.dir}/info.%d{${rolling.policy.file.name.pattern}}%d{mmss}.%i.log.zip</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>${max.file.size}</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			<maxHistory>${max.history}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${conversion.pattern}</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">   
+			<level>INFO</level>   
+			<onMatch>ACCEPT</onMatch>   
+			<onMismatch>DENY</onMismatch>   
+		</filter> 
+	</appender>
+	<appender name="root-file-debug"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.dir}/debug.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${log.dir}/debug.%d{${rolling.policy.file.name.pattern}}%d{mmss}.%i.log.zip</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>${max.file.size}</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			<maxHistory>${max.history}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${conversion.pattern}</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">   
+			<level>debug</level>   
+			<onMatch>ACCEPT</onMatch>   
+			<onMismatch>DENY</onMismatch>   
+		</filter> 
+	</appender>
+	<root level="${root.level}">
+		<appender-ref ref="console" />
+		<appender-ref ref="root-file-error"/>
+		<appender-ref ref="root-file-warn"/>
+		<appender-ref ref="root-file-info"/>
+		<appender-ref ref="root-file-debug"/>
+	</root>
+
+</configuration>

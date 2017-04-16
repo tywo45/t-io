@@ -1,0 +1,151 @@
+<h3>t-io1.6.6发布，再迎民间高手叫阵--代码当众大PK</h3>
+
+<h4>web开发领域，springmvc之外有jfinal；TCP长连接领域，netty之外还有更易用的t-io</h4>
+
+更好用、更接开发人员地气的TCP长连接框架，t-io 1.6.6正式版发布，已更新到maven中心仓库，t-io详细介绍请前往如下地址
+<li>
+利用t-io，<strong>30分钟</strong>开发一个高性能的即时通讯程序: <a href="http://www.talent-tan.com:9292/quickstart.html" target="_blank">http://www.talent-tan.com:9292/quickstart.html</a>
+</li>
+<li>
+红薯家的码云: <a href="https://git.oschina.net/tywo45/t-io" target="_blank">https://git.oschina.net/tywo45/t-io</a>
+</li>
+<li>
+talent-tan家的临时官网: <a href="http://www.talent-tan.com:9292/" target="_blank">http://www.talent-tan.com:9292</a>，由南京皓叶腾信息科技有限公司CEO提供主机支持
+</li>
+<li>
+红薯家的OSC: <a href="https://www.oschina.net/p/t-io" target="_blank">https://www.oschina.net/p/t-io</a>
+</li>
+<li>
+还有快要<strong>被抛弃的github</strong>（抛弃的原因是其创始人没红薯帅）: <a href="https://github.com/tywo45/t-io" target="_blank">https://github.com/tywo45/t-io</a>
+<br>
+<a href="https://git.oschina.net/tywo45/t-io" target="_blank"><img src="https://git.oschina.net/tywo45/t-io/raw/master/docs/release/img/1.6.6/gomayun.png"/></a>
+
+</li>
+
+
+<br>
+
+
+
+
+<h3>
+修改点（本版本修改点极少，后面基本是这个版本经历的精彩剧情）
+</h3>
+<li>
+	动用11台客户机，17.82万TCP长连接拷机测试时，发现若干地方仍可以继续优化
+</li>
+<li>
+	日志优化，使用户可以更清楚的知道当前连接数据(在检查心跳时，顺便把连接维护情况打印一下，让用户心里更有底)
+</li>
+<li>
+	一些第三方组件升级，譬如fastjson
+</li>
+
+
+<h3>
+下面咱们来看看这个版本经历的剧情吧
+</h3>
+<ol>
+	<li>
+		<h4>
+		公司公开支持t-io，11台客户机(windows)加一台虚拟机(centos)，雄纠纠气昂昂的赴上测试一线，17.82万长连接拷机测试，结果比我预料的要好太多----<a href="https://my.oschina.net/talenttan/blog/861707" target="_blank">17.82万TCP长连接只消耗800M内存</a>，根据这17.82万长连接的测试结果，作者乐观估计，t-io有能力让单虚拟机支持200万长连接
+		</h4>
+	</li>
+	<img  src='https://git.oschina.net/tywo45/t-io/raw/master/docs/step/2.png'>
+	
+	
+	
+	<li>
+		<h4>
+		t-io本次迎来<a href="https://git.oschina.net/eric_ds/jfireframework/tree/master/jfire-jnet2?dir=1&filepath=jfire-jnet2&oid=764e77a3ca4bf370d5691afacb70a6d553add6c6&sha=9e0364a3f2a14413aaa4d04720cab5d4a2a10811" target="_blank">j-net2</a>作者的挑战，在和t-io进行性能PK过后，这位朋友终于放弃零拷贝和jdk自带的批量bytebuffer发送（之前他试图说服我用上这两个东西）。额外补充一下，这位朋友只花了一天时间就把t-io的源代码翻了个底朝天，真是让我不寒而栗。下面多图是部分PK实况（在500多人的大群直接PK）
+		</h4>
+	</li>
+	
+	<table>
+		<tr>
+			<td>
+			<a href="https://git.oschina.net/tywo45/t-io/raw/master/docs/release/img/1.6.6/1.png" target="_blank"><img src='https://git.oschina.net/tywo45/t-io/raw/master/docs/release/img/1.6.6/1.png' width="450" height="700"/></a>
+			</td>
+			<td>
+			<a href="https://git.oschina.net/tywo45/t-io/raw/master/docs/release/img/1.6.6/2.png" target="_blank"><img src='https://git.oschina.net/tywo45/t-io/raw/master/docs/release/img/1.6.6/2.png' width="450" height="700"/></a>
+			</td>
+			
+		</tr>
+		<tr>
+			<td>
+			<a href="https://git.oschina.net/tywo45/t-io/raw/master/docs/release/img/1.6.6/3.png" target="_blank"><img src='https://git.oschina.net/tywo45/t-io/raw/master/docs/release/img/1.6.6/3.png' width="450" height="700"/></a>
+			</td>
+			<td>
+			<a href="https://git.oschina.net/tywo45/t-io/raw/master/docs/release/img/1.6.6/4.png" target="_blank"><img src='https://git.oschina.net/tywo45/t-io/raw/master/docs/release/img/1.6.6/4.png' width="450" height="700"/></a>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			<a href="https://git.oschina.net/tywo45/t-io/raw/master/docs/release/img/1.6.6/5.png" target="_blank"><img src='https://git.oschina.net/tywo45/t-io/raw/master/docs/release/img/1.6.6/5.png' width="450" height="700"/></a>
+			</td>
+			<td>
+			<a href="https://git.oschina.net/tywo45/t-io/raw/master/docs/release/img/1.6.6/6.png" target="_blank"><img src='https://git.oschina.net/tywo45/t-io/raw/master/docs/release/img/1.6.6/6.png' width="450" height="700"/></a>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			<a href="https://git.oschina.net/tywo45/t-io/raw/master/docs/release/img/1.6.6/7.png" target="_blank"><img src='https://git.oschina.net/tywo45/t-io/raw/master/docs/release/img/1.6.6/7.png' width="450" height="700"/></a>
+			</td>
+			<td>
+			<a href="https://git.oschina.net/tywo45/t-io/raw/master/docs/release/img/1.6.6/8.png" target="_blank"><img src='https://git.oschina.net/tywo45/t-io/raw/master/docs/release/img/1.6.6/8.png' width="450" height="700"/></a>
+			</td>
+			
+		</tr>
+		<tr>
+			<td>
+			<a href="https://git.oschina.net/tywo45/t-io/raw/master/docs/release/img/1.6.6/9.png" target="_blank"><img src='https://git.oschina.net/tywo45/t-io/raw/master/docs/release/img/1.6.6/9.png' width="450" height="700"/></a>
+			</td>
+		</tr>
+	</table>
+		
+		
+	<li>
+		<h4>
+		第一次体验到铁粉的感觉，只是看到这个粉丝要来刷票，心疼开源中国的服务器！！所以建议红薯还是取消开源软件的排名，否则看着一群大牛争第二的场面，会很壮观。（纯属调侃，不必当真）
+		</h4>
+	</li>
+	<img  src='https://git.oschina.net/tywo45/t-io/raw/master/docs/release/img/1.6.6/fen.png'>
+	
+	
+	<li>
+		<h4>
+		再回到17.82万拷机测试的故事
+		</h4>
+	</li>
+	我的运维同事在我拷机过程中，偷偷地又加了1000连接上去，并且背着我发送了2万条消息(是瞬间发送)，这意味着，服务器要分发2万*17.92万=<strong>35.84亿条消息</strong>，服务器内存瞬间飙满8G，不过之后事的出乎意料，服务器在分了3亿条消息过后，几乎不再发送，内存也降了下来，jmap出来的堆只有700M左右，一切又回到正常。是的，t-io把剩下的32亿条消息丢弃了----这个原理讲起来太长，以后开博客说吧。
+	
+	<li>
+		<h4>
+		再回到j-net2作者的故事
+		</h4>
+	</li>
+	
+	<table>
+		<tr>
+			<td>
+			这位执着的技术爱好者，看完t-io的代码后，把<a href="https://git.oschina.net/eric_ds/jfireframework/tree/master/jfire-jnet2?dir=1&filepath=jfire-jnet2&oid=764e77a3ca4bf370d5691afacb70a6d553add6c6&sha=9e0364a3f2a14413aaa4d04720cab5d4a2a10811" target="_blank">j-net2</a>的代码全部重写了，高手就是高手，瞬间就能获取到灵感！只是t-io以后会迎来真正的对手哆（好怕）！
+			</td>
+		</tr>
+		<tr>
+			<td>
+			<a href="https://git.oschina.net/tywo45/t-io/raw/master/docs/release/img/1.6.6/10.png" target="_blank"><img src='https://git.oschina.net/tywo45/t-io/raw/master/docs/release/img/1.6.6/10.png' width=500 height=800/></a>
+			</td>
+		</tr>
+	</table>
+	
+	<li>
+		<h4>
+		最后借红薯宝地给作者本人发条小广告，请审核手下留情
+		</h4>
+	</li>
+	作者现在想用t-io做一个有意义且能在市场上存活下去的产品，只是作为码农的作者，并不是一个好的需求生产者（创意来源于生活嘛），所以作者想求一个创意（很多人是有创意缺一个程序员，作者自身就是一个程序猿，但缺少一个创意），目前暂时悬赏1000(自掏腰包) + t-io的所有微信红包收入(发红包系网友自发行为)，日后事成，必有重谢。<br>
+	
+	<img src='http://image.tianjimedia.com/uploadImages/2016/148/59/2UCB32OTBM44.jpg'/>
+	
+	
+</ol>

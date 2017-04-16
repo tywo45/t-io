@@ -1,0 +1,46 @@
+
+ .pop_CA_cover{
+  position: fixed;
+  left: 0;
+  top:0;
+  width: 100%;
+  height: 100%;
+  z-index:10000000 ;
+  /*display: none;*/
+}
+.pop.pop_CA{
+  /*display: none;*/
+  position: fixed;
+  left: 50%;
+  top:50%;
+  margin-left: -325px;
+  margin-top: -179px;
+  width: 650px;
+  background: #fff;
+  border: 1px solid #cecece;
+  box-shadow:0 0 10px 0  #cecece  ;
+  z-index:10000001 ;
+}
+.pop .CA_header{
+  height: 50px ;
+  line-height: 50px;
+  padding: 0 20px;
+  border-bottom: 1px solid #cecece;
+  position: relative;
+  text-align: left;
+  font-size: 16px;
+  color: #333;
+}
+.pop .CA_header .cancel_icon{
+  display: block;
+  width: 15px;
+  height: 15px;
+  position: absolute;
+  right: 16px;
+  top: 18px;
+  background: url(../images/cancel_icon.png) no-repeat center;
+  cursor: pointer;
+}
+.pop .CA_header .cancel_icon:hover{
+  opacity: 0.8;
+}

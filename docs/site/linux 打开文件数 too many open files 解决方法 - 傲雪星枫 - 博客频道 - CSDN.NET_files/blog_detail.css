@@ -1,0 +1,141 @@
+.mod_zhuanjia_dianping {
+  background-color: #fffdf5;
+  font-size: 12px;
+  color: #656565;
+  margin-top: 80px;
+  border-top: 1px solid #fbf5dd;
+  border-bottom: 1px solid #fbf5dd;
+}
+.mod_zhuanjia_dianping ul,
+.mod_zhuanjia_dianping li {
+  padding: 0px;
+  margin: 0px;
+  list-style: none;
+}
+.mod_zhuanjia_dianping img {
+  border: none;
+}
+.mod_zhuanjia_dianping .dianping_title {
+  height: 40px;
+  line-height: 40px;
+  border-bottom: 2px solid #ccc;
+}
+.mod_zhuanjia_dianping .dianping_title .dianping_title_left {
+  float: left;
+  border-bottom: 2px solid #cb0000;
+  font-size: 16px;
+}
+.mod_zhuanjia_dianping .dianping_title .dianping_title_right {
+  float: right;
+  font-size: 14px;
+  color: #656565;
+  font-weight: normal;
+}
+.mod_zhuanjia_dianping .dianping_title .dianping_title_right .red {
+  color: #cb0000;
+  padding: 0 5px;
+}
+.mod_zhuanjia_dianping .dianping_title .dianping_title_right img {
+  padding-right: 5px;
+  vertical-align: -2px;
+}
+.mod_zhuanjia_dianping .dianping_content {
+  overflow: hidden;
+  max-height: 800px;
+  height: 240px;
+}
+.mod_zhuanjia_dianping .dianping_content .dianping_content_list {
+  padding: 20px 0;
+  width: 100%;
+  float: left;
+  border-top: 1px dashed #dedcdd;
+}
+.mod_zhuanjia_dianping .dianping_content .dianping_content_list_left {
+  width: 40px;
+  float: left;
+  margin-left: -100%;
+  margin-top: 20px;
+}
+.mod_zhuanjia_dianping .dianping_content .dianping_content_list_left .name {
+  color: #000;
+  text-align: center;
+  margin-top: 10px;
+  width: 40px;
+  display: inline-block;
+}
+.mod_zhuanjia_dianping .dianping_content .dianping_content_list .dianping_content_list_right {
+  margin-left: 40px;
+  padding-left: 20px;
+}
+.mod_zhuanjia_dianping .dianping_content .dianping_content_list .dianping_content_list_right .time {
+  color: #7795a5;
+}
+.mod_zhuanjia_dianping .dianping_content .dianping_content_list .dianping_content_list_right .time .time_desc {
+  padding: 0 5px;
+}
+.mod_zhuanjia_dianping .dianping_content .dianping_content_list .dianping_content_list_right .dianping_content_list_right_content {
+  margin-top: 10px;
+  line-height: 18px;
+}
+.mod_zhuanjia_dianping .dianping_content .dianping_content_list .dianping_content_list_right .time img {
+  vertical-align: -2px;
+}
+.mod_zhuanjia_dianping .more {
+  text-align: center;
+  position: relative;
+  width: 100%;
+}
+.mod_zhuanjia_dianping .more img {
+  position: relative;
+  bottom: -20px;
+  cursor: pointer;
+}
+/*更多文章的样式*/
+.mod_more_detail {
+  font-size: 12px;
+  color: #333;
+  margin-top: 50px;
+  border: 1px solid #e8e8e8;
+}
+.mod_more_detail ul,
+.mod_more_detail li {
+  padding: 0px;
+  margin: 0px;
+  list-style: none;
+  height: 24px;
+  line-height: 24px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mod_more_detail li a {
+  color: #333;
+}
+.mod_more_detail .mod_more_detail_title {
+  height: 40px;
+  line-height: 40px;
+  background-color: #f1f1f1;
+  text-indent: 10px;
+}
+.mod_more_detail .mod_more_detail_title .mod_more_detail_left {
+  float: left;
+  font-size: 16px;
+  color: #000;
+}
+.mod_more_detail .mod_more_detail_content {
+  overflow: hidden;  
+  padding: 20px 0;
+}
+.mod_more_detail .mod_more_detail_content .mod_more_detail_content_left {
+  float: left;
+  padding: 0 20px;
+  border-right: 1px solid #e8e8e8;
+  width: 50%;
+  box-sizing: border-box;
+}
+.mod_more_detail .mod_more_detail_content .mod_more_detail_content_right {
+  float: left;
+  padding: 0 20px;
+  width: 50%;
+  box-sizing: border-box;
+}

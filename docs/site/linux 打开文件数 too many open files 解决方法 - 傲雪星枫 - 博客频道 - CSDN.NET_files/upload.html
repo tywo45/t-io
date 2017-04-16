@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<!-- saved from url=(0031)http://ask.csdn.net/upload.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <title>上传图片</title>
+    <meta name="author" content="CSDN">
+    <meta name="Copyright" content="CSDN">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <link href="http://ask.csdn.net/favicon.ico" rel="SHORTCUT ICON">
+    <script src="./jquery-1.11.1.min.js.下载"></script>
+    <script src="./jquery.form.js.下载"></script>
+<style>
+    body {margin: 0;}
+    * {box-sizing: border-box; font: 12px/20px 'microsoft yahei';}
+    .up_img_loading {display: none;}
+    .up_img_loading.active {display: block; position: fixed; z-index: 3; background: rgba(255,255,255,.9); background: #fff \9; width: 100%; height: 100%; line-height: 90px; top: 0; right: 0; text-align: center;}
+    .markdown_file_name {width: 100%; height: 30px; border: 1px solid #ddd; margin: 25px 0; padding: 5px 5px; white-space: nowrap; overflow: hidden; color: #999;}
+    .markdown_file_msg {color: #666; position: absolute; margin-top: -25px;}
+    .btn {text-align: right;}
+    .btn span {background: #999; color: #fff; padding: 3px 10px; cursor: pointer;}
+    label {position: absolute; right: 1px; top: 26px; background: #eee; color: #666; padding: 4px 8px; border-left: 1px solid #ddd;}
+    form {width: 1px; height: 1px ; position: absolute; overflow: hidden;}
+</style>
+</head>
+<body>
+<div class="markdown_file_name"></div>
+<div class="markdown_file_msg"></div>
+<label for="markdown_file">浏览..</label>
+<div class="up_img_loading">上传中...</div>
+<div class="btn" onclick="submit()"><span>上传图片</span></div>
+
+<form action="http://ask.csdn.net/upload_picture.json" id="picture_dialog_form" method="post">
+    <input type="file" name="markdown_file" id="markdown_file" accept="image/gif, image/jpeg, image/png">
+</form>
+<script>
+    $('.up_img_loading').removeClass('active');
+    document.domain = "csdn.net";
+    $('#markdown_file').change(function() {
+        var file_name = $(this).val();
+        $('.markdown_file_name').text(file_name);
+        $(".markdown_file_msg").html("");
+    });
+    function submit(){
+        $('.up_img_loading').addClass('active');
+
+        var form = $("#picture_dialog_form");
+        $(form).ajaxSubmit({
+            success: function (result) {
+                result = $.parseJSON(result);
+                if( result.status==500){
+                    $(".markdown_file_msg").html(result.msg);
+                    $('.up_img_loading').removeClass('active');
+                }else{
+                    $('.markdown_file_name').text(result.url);
+                    $('.up_img_loading').removeClass('active');
+                    window.parent.editor_change_ask_o(result.url);
+                }
+            },
+            error: function(err) {
+                $(".markdown_file_msg").html("系统繁忙，请稍后再试");
+                $('.up_img_loading').removeClass('active');
+            }
+        });
+    }
+</script>
+
+
+</body></html>

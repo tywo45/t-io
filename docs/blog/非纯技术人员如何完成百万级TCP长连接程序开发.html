@@ -1,0 +1,41 @@
+<p>这是本人接触到的一个不太典型的案例，以此记录告诉大家：<span style="color:#FF0000"><strong>完成一个了不起的项目，有时候并不需要有很深厚的技术</strong></span>。</p>
+
+<ol>
+	<li>
+	<h4><strong>人物及环境简介</strong></h4>
+
+	<ol>
+		<li>何君：非纯技术出身，但又会写点代码，没有TCP自定义消息编码解码技术基础。但现在他要完成一个有技术含量的项目A</li>
+		<li>谭码农：<a href="https://www.oschina.net/p/t-io" target="_blank">t-io</a>的作者</li>
+		<li>某QQ群：一群闲杂人中夹着一些民间高手</li>
+	</ol>
+	</li>
+	<li>
+	<h4><strong>项目A简介</strong></h4>
+	简单点说就是扫码枪（TCP客户端）会发消息到项目A（服务端），消息格式：4个字节的消息头 + json格式的消息体。消息头用字符串保存消息体的长度。</li>
+	<li>
+	<h4><strong>何君如何完成</strong></h4>
+
+	<ol>
+		<li>拷贝showcase整个工程到自己的新工程</li>
+		<li>修改包名以及类名，部分业务处理调整，删除showcase中的业务部分代码</li>
+		<li>启动服务器，扫码枪发消息过来，一步步调试。发现解码不对，向谭码农求助，谭码农改了几行代码，解码通过</li>
+		<li>在业务代码中向扫码枪发消息。发现编码不对，向谭码农求助，谭码农改了4行代码（其实就是删两行代码再加两行代码），编码通过</li>
+		<li>顺利通过</li>
+	</ol>
+	</li>
+	<li>
+	<h4><strong>来个项目剧照（以下所有照片都是经过授权的）</strong></h4>
+	<img height="500" src="http://git.oschina.net/tywo45/t-io/raw/master/docs/blog/2-1.jpg" width="300" /> 
+	<img height="500" src="http://git.oschina.net/tywo45/t-io/raw/master/docs/blog/2-2.jpg" width="300" /><br>
+	<img height="700" src="http://git.oschina.net/tywo45/t-io/raw/master/docs/blog/2-3.jpg" width="1000" />
+	</li>
+	<li>
+	<h4><strong>此工程部分源代码（为了安全，已删除业务相关的代码），大家可以对比一下和showcase代码的区别</strong></h4>
+	<a href="http://git.oschina.net/tywo45/t-io/blob/master/docs/blog/com.zip?dir=0&amp;filepath=docs%2Fblog%2Fcom.zip&amp;oid=81fa398becb6fb1efeb76c45c9c943dd62d67f59&amp;sha=49a02a49220c310bbd170869c679fdf23c213556" target="_blank">com.zip</a></li>
+	<li>
+	<h4><strong>结束语</strong></h4>
+
+	<h3>让天下没有难开发的即时通讯，这个口号，我们是认真的----<a href="http://git.oschina.net/tywo45/t-io" target="_blank">t-io</a></h3>
+	</li>
+</ol>

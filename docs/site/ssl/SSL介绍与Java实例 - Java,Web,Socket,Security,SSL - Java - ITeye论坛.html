@@ -1,0 +1,1325 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0034)http://www.iteye.com/topic/1125183 -->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-CN" dir="ltr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <title>SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛</title>
+    <meta name="description" content="有关SSL的原理和介绍在网上已经有不少，对于Java下使用keytool生成证书，配置SSL通信的教程也非常多。但如果我们不能够亲自动手做一个SSL Sever和SSL Client，可能就永远也不能深入地理解Java环境下，SSL的通信是如何实现的。对SSL中的各种概念的认识也可能会仅限于可以使用的程度。本文通过构造一个简单的SSL Server和SSL Client来讲解Java环境下SSL的通 ...">
+    <meta name="keywords" content="Java Web Socket Security SSL Java">
+    <link rel="shortcut icon" href="http://www.iteye.com/images/favicon.ico" type="image/x-icon">
+    <link href="http://www.iteye.com/rss/board/Java" rel="alternate" title="ITeye论坛" type="application/rss+xml">
+    <link rel="search" type="application/opensearchdescription+xml" href="http://www.iteye.com/open_search.xml" title="ITeye">
+    <link href="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/forum.css" media="screen" rel="stylesheet" type="text/css">
+    <script type="text/javascript" async="" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/ga.js.下载"></script><script src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/application.js.下载" type="text/javascript"></script>
+    <script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-535605-1']);
+  _gaq.push(['_setDomainName', 'iteye.com']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+
+      <link href="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/SyntaxHighlighter.css" media="screen" rel="stylesheet" type="text/css">
+  <script src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/shCoreCommon.js.下载" type="text/javascript"></script>
+<script src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/hotkey.js.下载" type="text/javascript"></script>
+  <script src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/code_favorites.js.下载" type="text/javascript"></script>
+          <script src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/dragdrop.js.下载" type="text/javascript"></script>
+          <style type="text/css">.dp-j .annotation { color: #646464; }.dp-j .number { color: #C00000; }</style><style type="text/css">.dp-j .annotation { color: #646464; }.dp-j .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-j .annotation { color: #646464; }.dp-j .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-j .annotation { color: #646464; }.dp-j .number { color: #C00000; }</style><style type="text/css">.dp-j .annotation { color: #646464; }.dp-j .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-j .annotation { color: #646464; }.dp-j .number { color: #C00000; }</style><style type="text/css">.dp-j .annotation { color: #646464; }.dp-j .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-j .annotation { color: #646464; }.dp-j .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><style type="text/css">.dp-default .number { color: #C00000; }</style><script src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/get_ads.php" type="text/javascript"></script></head>
+  <body><div id="BAIDU_DUP_fp_wrapper" style="position: absolute; left: -1px; bottom: -1px; z-index: 0; width: 0px; height: 0px; overflow: hidden; visibility: hidden; display: none;"><iframe id="BAIDU_DUP_fp_iframe" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/o.html" style="width: 0px; height: 0px; visibility: hidden; display: none;"></iframe></div>
+    <div id="page">
+      <div id="header">
+        <div class="clearfix"><div id="user_nav">
+      <a href="http://www.iteye.com/login" class="welcome" title="登录">您还未登录 !</a>
+    <a href="http://www.iteye.com/login">登录</a>
+    <a href="http://www.iteye.com/signup" class="nobg">注册</a>
+  </div>
+</div>
+        <div class="clearfix">
+          <div id="branding">
+            <a href="http://www.iteye.com/"><img alt="ITeye-最棒的软件开发交流社区" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/logo.gif" title="ITeye-最棒的软件开发交流社区"></a>
+          </div>
+          <div id="gg">
+          	
+          	<div class="J_adv" data-view="true" data-mod="ad_popu_168" data-mtp="34" data-order="92" data-con="ad_content_483" style="width: 728px; height: 90px;"><!-- 广告占位容器 --><div id="cpro_u1617757"><iframe id="iframeu1617757_0" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/wctm.html" width="728" height="90" align="center,center" vspace="0" hspace="0" marginwidth="0" marginheight="0" scrolling="no" frameborder="0" style="border:0;vertical-align:bottom;margin:0;width:728px;height:90px" allowtransparency="true"></iframe></div><!-- 投放代码 --><script type="text/javascript">   /*服务器频道首页置顶Banner960*90，创建于2014-7-3*/    (window.cproArray = window.cproArray || []).push({        id: 'u1617757'      });  </script>  <script src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/c.js.下载" type="text/javascript"></script></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="content" class="clearfix">
+        <div id="main">
+          
+
+
+
+          
+
+<div class="h-entry" style="display:none">
+  <a href="http://weli.iteye.com/" class="p-author" target="_blank">阿男bluedash</a>
+</div>
+
+
+<div class="clearfix">
+  <div class="crumbs">
+    <a href="http://www.iteye.com/forums">论坛首页</a> <span class="arrow">→</span>
+    <a href="http://www.iteye.com/forums/board/Java">Java企业应用论坛</a> <span class="arrow">→</span>
+    <h1>SSL介绍与Java实例</h1>
+  </div>
+</div>
+
+
+  <div id="forum_tag_list">
+    <a href="http://www.iteye.com/forums/board/Java">全部</a>
+          <a href="http://www.iteye.com/forums/tag/Hibernate">Hibernate</a>
+          <a href="http://www.iteye.com/forums/tag/Spring">Spring</a>
+          <a href="http://www.iteye.com/forums/tag/Struts">Struts</a>
+          <a href="http://www.iteye.com/forums/tag/iBATIS">iBATIS</a>
+          <a href="http://www.iteye.com/forums/tag/%E4%BC%81%E4%B8%9A%E5%BA%94%E7%94%A8">企业应用</a>
+          <a href="http://www.iteye.com/forums/tag/Lucene">Lucene</a>
+          <a href="http://www.iteye.com/forums/tag/SOA">SOA</a>
+              <a href="http://www.iteye.com/forums/tag/Java%E7%BB%BC%E5%90%88">Java综合</a>
+          <a href="http://www.iteye.com/forums/tag/Tomcat">Tomcat</a>
+          <a href="http://www.iteye.com/forums/tag/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F">设计模式</a>
+          <a href="http://www.iteye.com/forums/tag/OO">OO</a>
+          <a href="http://www.iteye.com/forums/tag/JBoss">JBoss</a>
+      </div>
+
+
+<div class="actions">
+  <div class="buttons"></div>
+  <div class="wrapper">
+    <div id="forum_recommended_f4"></div>
+    <div class="pagination"><span class="disabled prev_page">« 上一页</span> <span class="current">1</span> <a href="http://www.iteye.com/topic/1125183?page=2" rel="next">2</a> <a href="http://www.iteye.com/topic/1125183?page=3">3</a> <a href="http://www.iteye.com/topic/1125183?page=2" class="next_page" rel="next">下一页 »</a></div>
+    <div class="info">浏览 46751 次</div>
+  </div>
+</div>
+
+
+
+<table id="forum_main" cellspacing="1">
+  <thead>
+    <tr>
+      <th colspan="2" class="topic_title">
+        <div class="wrapper"><span class="locked">锁定老帖子</span> <a href="http://www.iteye.com/topic/1125183">主题：SSL介绍与Java实例</a></div>
+        <div id="topic_rate_box">精华帖 (3) :: 良好帖 (0) :: 新手帖 (0) :: 隐藏帖 (1)</div>
+      </th>
+    </tr>
+    <tr>
+      <td class="first_col">作者</td>
+      <td class="last_col">正文
+      
+      </td>
+    </tr>
+  </thead>
+  <tbody id="posts">
+    <tr id="2362670">
+  <td class="postauthor">
+    <ul>
+      <li class="name">阿男bluedash</li>
+      <li>等级: 初级会员</li>
+      <li><a href="http://weli.iteye.com/" target="_blank"><img alt="阿男bluedash的博客" class="logo" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/5bad9481-0b9b-3304-b845-8aa4deba7ae4.jpg" title="阿男bluedash的博客: 排骨藕汤" width=""></a></li>
+      <li>性别: <img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_minigender_1.gif" title="男"></li>      <li>文章: 16</li>
+      <li>积分: 70</li>
+      <li>来自: 北京</li>
+      <li><img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/offline.gif"></li>
+    </ul>
+  </td>
+  <td class="postcontent">
+    <div class="postactions">
+      <div class="description">
+        &nbsp;&nbsp;
+        发表时间：2012-07-11&nbsp;&nbsp;
+        
+      </div>
+      <div class="links">
+        
+        
+          
+          
+        
+      </div>
+    </div>
+    <div class="postbody clearfix">
+	    
+      
+	      	    
+		  		
+<div class="newfors">
+  <em>相关知识库：</em>
+  
+  <a target="_blank" href="http://lib.csdn.net/base/javase">
+  	<img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/1453169124297_297.jpg" width="30" height="30" alt="" class="imgradius">
+    <span>Java SE知识库</span>
+  </a>
+  
+  <a target="_blank" href="http://lib.csdn.net/base/java">
+  	<img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/1453701371636_636.jpg" width="30" height="30" alt="" class="imgradius">
+    <span>Java 知识库</span>
+  </a>
+  
+  <a target="_blank" href="http://lib.csdn.net/base/javaee">
+  	<img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/1456818035722_722.jpg" width="30" height="30" alt="" class="imgradius">
+    <span>Java EE知识库</span>
+  </a>
+  
+  <a target="_blank" href="http://lib.csdn.net/base/javascript">
+  	<img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/1458106113412_412.jpg" width="30" height="30" alt="" class="imgradius">
+    <span>JavaScript知识库</span>
+  </a>
+  
+  <a target="_blank" href="http://lib.csdn.net/base/jquery">
+  	<img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/1459143634568_568.jpg" width="30" height="30" alt="" class="imgradius">
+    <span>jQuery知识库</span>
+  </a>
+  
+  <a target="_blank" href="http://lib.csdn.net/base/angularjs">
+  	<img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/1458526868366_366.jpg" width="30" height="30" alt="" class="imgradius">
+    <span>AngularJS知识库</span>
+  </a>
+  </div>
+
+		            
+          
+        
+      
+                                            <div id="related_topics" style="position: relative;">相关文章: <span class="close"><a href="http://www.iteye.com/topic/1125183#" onclick="$(&#39;related_topics&#39;).hide();if($(&#39;hunter_recommended&#39;)){$(&#39;hunter_recommended&#39;).style.width=&#39;780px&#39;};if($(&#39;topic_tags&#39;)){$(&#39;topic_tags&#39;).style.width=&#39;790px&#39;};return false;" title="关闭">&nbsp;</a></span>
+              <ul>
+                                  <li><a href="http://www.iteye.com/topic/450093" title="数字认证的迷惑" target="_blank">数字认证的迷惑</a></li>
+                                  <li><a href="http://www.iteye.com/topic/49839" title="怎么利用数字证书完成身份验证、客户和服务器端的加密和解密。" target="_blank">怎么利用数字证书完成身份验证、客户和服务器端的加密和解密。</a></li>
+                                  <li><a href="http://www.iteye.com/topic/733341" title="小蚂蚁-CAS单点登录系列(1)-基础知识" target="_blank">小蚂蚁-CAS单点登录系列(1)-基础知识</a></li>
+                              </ul>
+              <br><span>推荐群组: <a href="http://security.group.iteye.com/" target="_blank">信息安全</a></span>
+              <br><a href="http://www.iteye.com/wiki/topic/1125183" target="_blank">更多相关推荐</a>
+            </div>
+            <script type="text/javascript">
+              document.observe("dom:loaded", function() {
+                if($('hunter_recommended')) {
+                  $('hunter_recommended').setStyle({cssFloat: 'left', width: '557px'})
+                }
+                if($('topic_tags')) {
+                  $('topic_tags').setStyle({width: '567px'})
+                }
+                new Draggable("related_topics");
+              });
+            </script>
+                          
+          <div id="topic_tags" class="news_tag" style="width: 567px;">
+                          <a href="http://www.iteye.com/forums/tag/Java">Java</a>
+                          <a href="http://www.iteye.com/forums/tag/Web">Web</a>
+                          <a href="http://www.iteye.com/forums/tag/Socket">Socket</a>
+                          <a href="http://www.iteye.com/forums/tag/Security">Security</a>
+                          <a href="http://www.iteye.com/forums/tag/SSL">SSL</a>
+                      </div>
+        
+      
+      有关SSL的原理和介绍在网上已经有不少，对于Java下使用keytool生成证书，配置SSL通信的教程也非常多。但如果我们不能够亲自动手做一个SSL Sever和SSL Client，可能就永远也不能深入地理解Java环境下，SSL的通信是如何实现的。对SSL中的各种概念的认识也可能会仅限于可以使用的程度。本文通过构造一个简单的SSL Server和SSL Client来讲解Java环境下SSL的通信原理。
+<br>
+<br>首先我们先回顾一下常规的Java Socket编程。在Java下写一个Socket服务器和客户端的例子还是比较简单的。以下是服务端的代码：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Java代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=package%20org.bluedash.tryssl%3B%0A%0Aimport%20java.io.BufferedReader%3B%0Aimport%20java.io.IOException%3B%0Aimport%20java.io.InputStreamReader%3B%0Aimport%20java.io.PrintWriter%3B%0Aimport%20java.net.ServerSocket%3B%0Aimport%20java.net.Socket%3B%0A%0Apublic%20class%20Server%20extends%20Thread%20%7B%0A%09private%20Socket%20socket%3B%0A%0A%09public%20Server(Socket%20socket)%20%7B%0A%09%09this.socket%20%3D%20socket%3B%0A%09%7D%0A%0A%09public%20void%20run()%20%7B%0A%09%09try%20%7B%0A%09%09%09BufferedReader%20reader%20%3D%20new%20BufferedReader(new%20InputStreamReader(socket.getInputStream()))%3B%0A%09%09%09PrintWriter%20writer%20%3D%20new%20PrintWriter(socket.getOutputStream())%3B%0A%0A%09%09%09String%20data%20%3D%20reader.readLine()%3B%0A%09%09%09writer.println(data)%3B%0A%09%09%09writer.close()%3B%0A%09%09%09socket.close()%3B%0A%09%09%7D%20catch%20(IOException%20e)%20%7B%0A%0A%09%09%7D%0A%09%7D%0A%09%0A%09public%20static%20void%20main(String%5B%5D%20args)%20throws%20Exception%20%7B%0A%09%09while%20(true)%20%7B%0A%09%09%09new%20Server((new%20ServerSocket(8080)).accept()).start()%3B%0A%09%09%7D%0A%09%7D%0A%7D%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-j"><li><span><span class="keyword">package</span><span>&nbsp;org.bluedash.tryssl;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span><span class="keyword">import</span><span>&nbsp;java.io.BufferedReader;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.io.IOException;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.io.InputStreamReader;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.io.PrintWriter;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.net.ServerSocket;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.net.Socket;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span><span class="keyword">public</span><span>&nbsp;</span><span class="keyword">class</span><span>&nbsp;Server&nbsp;</span><span class="keyword">extends</span><span>&nbsp;Thread&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;Socket&nbsp;socket;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;Server(Socket&nbsp;socket)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">this</span><span>.socket&nbsp;=&nbsp;socket;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;</span><span class="keyword">void</span><span>&nbsp;run()&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">try</span><span>&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BufferedReader&nbsp;reader&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;BufferedReader(</span><span class="keyword">new</span><span>&nbsp;InputStreamReader(socket.getInputStream()));&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PrintWriter&nbsp;writer&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;PrintWriter(socket.getOutputStream());&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;data&nbsp;=&nbsp;reader.readLine();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;writer.println(data);&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;writer.close();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;socket.close();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<span class="keyword">catch</span><span>&nbsp;(IOException&nbsp;e)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;</span><span class="keyword">void</span><span>&nbsp;main(String[]&nbsp;args)&nbsp;</span><span class="keyword">throws</span><span>&nbsp;Exception&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">while</span><span>&nbsp;(</span><span class="keyword">true</span><span>)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">new</span><span>&nbsp;Server((</span><span class="keyword">new</span><span>&nbsp;ServerSocket(</span><span class="number">8080</span><span>)).accept()).start();&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div><pre class="java" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="0" title="SSL介绍与Java实例" style="display: none;">package org.bluedash.tryssl;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class Server extends Thread {
+	private Socket socket;
+
+	public Server(Socket socket) {
+		this.socket = socket;
+	}
+
+	public void run() {
+		try {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			PrintWriter writer = new PrintWriter(socket.getOutputStream());
+
+			String data = reader.readLine();
+			writer.println(data);
+			writer.close();
+			socket.close();
+		} catch (IOException e) {
+
+		}
+	}
+	
+	public static void main(String[] args) throws Exception {
+		while (true) {
+			new Server((new ServerSocket(8080)).accept()).start();
+		}
+	}
+}
+</pre>
+<br>
+<br>服务端很简单：侦听8080端口，并把客户端发来的字符串返回去。下面是客户端的代码：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Java代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=package%20org.bluedash.tryssl%3B%0A%0Aimport%20java.io.BufferedReader%3B%0Aimport%20java.io.InputStreamReader%3B%0Aimport%20java.io.PrintWriter%3B%0Aimport%20java.net.Socket%3B%0A%0Apublic%20class%20Client%20%7B%0A%0A%09public%20static%20void%20main(String%5B%5D%20args)%20throws%20Exception%20%7B%0A%0A%09%09Socket%20s%20%3D%20new%20Socket(%22localhost%22%2C%208080)%3B%0A%0A%09%09PrintWriter%20writer%20%3D%20new%20PrintWriter(s.getOutputStream())%3B%0A%09%09BufferedReader%20reader%20%3D%20new%20BufferedReader(new%20InputStreamReader(s.getInputStream()))%3B%0A%09%09writer.println(%22hello%22)%3B%0A%09%09writer.flush()%3B%0A%09%09System.out.println(reader.readLine())%3B%0A%09%09s.close()%3B%0A%09%7D%0A%0A%7D%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-j"><li><span><span class="keyword">package</span><span>&nbsp;org.bluedash.tryssl;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span><span class="keyword">import</span><span>&nbsp;java.io.BufferedReader;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.io.InputStreamReader;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.io.PrintWriter;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.net.Socket;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span><span class="keyword">public</span><span>&nbsp;</span><span class="keyword">class</span><span>&nbsp;Client&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;</span><span class="keyword">void</span><span>&nbsp;main(String[]&nbsp;args)&nbsp;</span><span class="keyword">throws</span><span>&nbsp;Exception&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Socket&nbsp;s&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;Socket(</span><span class="string">"localhost"</span><span>,&nbsp;</span><span class="number">8080</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PrintWriter&nbsp;writer&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;PrintWriter(s.getOutputStream());&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BufferedReader&nbsp;reader&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;BufferedReader(</span><span class="keyword">new</span><span>&nbsp;InputStreamReader(s.getInputStream()));&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;writer.println(<span class="string">"hello"</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;writer.flush();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(reader.readLine());&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s.close();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div><pre class="java" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="1" title="SSL介绍与Java实例" style="display: none;">package org.bluedash.tryssl;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+
+public class Client {
+
+	public static void main(String[] args) throws Exception {
+
+		Socket s = new Socket("localhost", 8080);
+
+		PrintWriter writer = new PrintWriter(s.getOutputStream());
+		BufferedReader reader = new BufferedReader(new InputStreamReader(s.getInputStream()));
+		writer.println("hello");
+		writer.flush();
+		System.out.println(reader.readLine());
+		s.close();
+	}
+
+}
+</pre>
+<br>
+<br>客户端也非常简单：向服务端发起请求，发送一个"hello"字串，然后获得服务端的返回。把服务端运行起来后，执行客户端，我们将得到"hello"的返回。
+<br>
+<br>就是这样一套简单的网络通信的代码，我们来把它改造成使用SSL通信。在SSL通信协议中，我们都知道首先服务端必须有一个数字证书，当客户端连接到服务端时，会得到这个证书，然后客户端会判断这个证书是否是可信的，如果是，则交换信道加密密钥，进行通信。如果不信任这个证书，则连接失败。
+<br>
+<br>因此，我们首先要为服务端生成一个数字证书。Java环境下，数字证书是用keytool生成的，这些证书被存储在store的概念中，就是证书仓库。我们来调用keytool命令为服务端生成数字证书和保存它使用的证书仓库：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Bash代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=keytool%20-genkey%20-v%20-alias%20bluedash-ssl-demo-server%20-keyalg%20RSA%20-keystore%20.%2Fserver_ks%20-dname%20%22CN%3Dlocalhost%2COU%3Dcn%2CO%3Dcn%2CL%3Dcn%2CST%3Dcn%2CC%3Dcn%22%20-storepass%20server%20-keypass%20123123%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-default"><li><span><span>keytool&nbsp;-genkey&nbsp;-v&nbsp;-alias&nbsp;bluedash-ssl-demo-server&nbsp;-keyalg&nbsp;RSA&nbsp;-keystore&nbsp;./server_ks&nbsp;-dname&nbsp;</span><span class="string">"CN=localhost,OU=cn,O=cn,L=cn,ST=cn,C=cn"</span><span>&nbsp;-storepass&nbsp;server&nbsp;-keypass&nbsp;</span><span class="number">123123</span><span>&nbsp;&nbsp;</span></span></li></ol></div><pre class="bash" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="2" title="SSL介绍与Java实例" style="display: none;">keytool -genkey -v -alias bluedash-ssl-demo-server -keyalg RSA -keystore ./server_ks -dname "CN=localhost,OU=cn,O=cn,L=cn,ST=cn,C=cn" -storepass server -keypass 123123
+</pre>
+<br>
+<br>这样，我们就将服务端证书bluedash-ssl-demo-server保存在了server_ksy这个store文件当中。有关keytool的用法在本文中就不再多赘述。执行上面的命令得到如下结果：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Bash代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=Generating%201%2C024%20bit%20RSA%20key%20pair%20and%20self-signed%20certificate%20(SHA1withRSA)%20with%20a%20validity%20of%2090%20days%0A%20%20%20%20%20%20%20%20for%3A%20CN%3Dlocalhost%2C%20OU%3Dcn%2C%20O%3Dcn%2C%20L%3Dcn%2C%20ST%3Dcn%2C%20C%3Dcn%0A%5BStoring%20.%2Fserver_ks%5D%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-default"><li><span><span>Generating&nbsp;</span><span class="number">1</span><span>,</span><span class="number">024</span><span>&nbsp;bit&nbsp;RSA&nbsp;key&nbsp;pair&nbsp;and&nbsp;self-signed&nbsp;certificate&nbsp;(SHA1withRSA)&nbsp;with&nbsp;a&nbsp;validity&nbsp;of&nbsp;</span><span class="number">90</span><span>&nbsp;days&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for:&nbsp;CN=localhost,&nbsp;OU=cn,&nbsp;O=cn,&nbsp;L=cn,&nbsp;ST=cn,&nbsp;C=cn&nbsp;&nbsp;</span></li><li><span>[Storing&nbsp;./server_ks]&nbsp;&nbsp;</span></li></ol></div><pre class="bash" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="3" title="SSL介绍与Java实例" style="display: none;">Generating 1,024 bit RSA key pair and self-signed certificate (SHA1withRSA) with a validity of 90 days
+        for: CN=localhost, OU=cn, O=cn, L=cn, ST=cn, C=cn
+[Storing ./server_ks]
+</pre>
+<br>
+<br>然后，改造我们的服务端代码，让服务端使用这个证书，并提供SSL通信：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Java代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=package%20org.bluedash.tryssl%3B%0A%0Aimport%20java.io.BufferedReader%3B%0Aimport%20java.io.FileInputStream%3B%0Aimport%20java.io.IOException%3B%0Aimport%20java.io.InputStreamReader%3B%0Aimport%20java.io.PrintWriter%3B%0Aimport%20java.net.ServerSocket%3B%0Aimport%20java.net.Socket%3B%0Aimport%20java.security.KeyStore%3B%0A%0Aimport%20javax.net.ServerSocketFactory%3B%0Aimport%20javax.net.ssl.KeyManagerFactory%3B%0Aimport%20javax.net.ssl.SSLContext%3B%0Aimport%20javax.net.ssl.SSLServerSocket%3B%0A%0Apublic%20class%20SSLServer%20extends%20Thread%20%7B%0A%09private%20Socket%20socket%3B%0A%0A%09public%20SSLServer(Socket%20socket)%20%7B%0A%09%09this.socket%20%3D%20socket%3B%0A%09%7D%0A%0A%09public%20void%20run()%20%7B%0A%09%09try%20%7B%0A%09%09%09BufferedReader%20reader%20%3D%20new%20BufferedReader(new%20InputStreamReader(socket.getInputStream()))%3B%0A%09%09%09PrintWriter%20writer%20%3D%20new%20PrintWriter(socket.getOutputStream())%3B%0A%0A%09%09%09String%20data%20%3D%20reader.readLine()%3B%0A%09%09%09writer.println(data)%3B%0A%09%09%09writer.close()%3B%0A%09%09%09socket.close()%3B%0A%09%09%7D%20catch%20(IOException%20e)%20%7B%0A%0A%09%09%7D%0A%09%7D%0A%0A%09private%20static%20String%20SERVER_KEY_STORE%20%3D%20%22%2FUsers%2Fliweinan%2Fprojs%2Fssl%2Fsrc%2Fmain%2Fresources%2FMETA-INF%2Fserver_ks%22%3B%0A%09private%20static%20String%20SERVER_KEY_STORE_PASSWORD%20%3D%20%22123123%22%3B%0A%0A%09public%20static%20void%20main(String%5B%5D%20args)%20throws%20Exception%20%7B%0A%09%09System.setProperty(%22javax.net.ssl.trustStore%22%2C%20SERVER_KEY_STORE)%3B%0A%09%09SSLContext%20context%20%3D%20SSLContext.getInstance(%22TLS%22)%3B%0A%09%09%0A%09%09KeyStore%20ks%20%3D%20KeyStore.getInstance(%22jceks%22)%3B%0A%09%09ks.load(new%20FileInputStream(SERVER_KEY_STORE)%2C%20null)%3B%0A%09%09KeyManagerFactory%20kf%20%3D%20KeyManagerFactory.getInstance(%22SunX509%22)%3B%0A%09%09kf.init(ks%2C%20SERVER_KEY_STORE_PASSWORD.toCharArray())%3B%0A%09%09%0A%09%09context.init(kf.getKeyManagers()%2C%20null%2C%20null)%3B%0A%0A%09%09ServerSocketFactory%20factory%20%3D%20context.getServerSocketFactory()%3B%0A%09%09ServerSocket%20_socket%20%3D%20factory.createServerSocket(8443)%3B%0A%09%09((SSLServerSocket)%20_socket).setNeedClientAuth(false)%3B%0A%0A%09%09while%20(true)%20%7B%0A%09%09%09new%20SSLServer(_socket.accept()).start()%3B%0A%09%09%7D%0A%09%7D%0A%7D%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-j"><li><span><span class="keyword">package</span><span>&nbsp;org.bluedash.tryssl;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span><span class="keyword">import</span><span>&nbsp;java.io.BufferedReader;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.io.FileInputStream;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.io.IOException;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.io.InputStreamReader;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.io.PrintWriter;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.net.ServerSocket;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.net.Socket;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.security.KeyStore;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span><span class="keyword">import</span><span>&nbsp;javax.net.ServerSocketFactory;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;javax.net.ssl.KeyManagerFactory;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;javax.net.ssl.SSLContext;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;javax.net.ssl.SSLServerSocket;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span><span class="keyword">public</span><span>&nbsp;</span><span class="keyword">class</span><span>&nbsp;SSLServer&nbsp;</span><span class="keyword">extends</span><span>&nbsp;Thread&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;Socket&nbsp;socket;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;SSLServer(Socket&nbsp;socket)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">this</span><span>.socket&nbsp;=&nbsp;socket;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;</span><span class="keyword">void</span><span>&nbsp;run()&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">try</span><span>&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BufferedReader&nbsp;reader&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;BufferedReader(</span><span class="keyword">new</span><span>&nbsp;InputStreamReader(socket.getInputStream()));&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PrintWriter&nbsp;writer&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;PrintWriter(socket.getOutputStream());&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;data&nbsp;=&nbsp;reader.readLine();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;writer.println(data);&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;writer.close();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;socket.close();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<span class="keyword">catch</span><span>&nbsp;(IOException&nbsp;e)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;String&nbsp;SERVER_KEY_STORE&nbsp;=&nbsp;</span><span class="string">"/Users/liweinan/projs/ssl/src/main/resources/META-INF/server_ks"</span><span>;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;String&nbsp;SERVER_KEY_STORE_PASSWORD&nbsp;=&nbsp;</span><span class="string">"123123"</span><span>;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;</span><span class="keyword">void</span><span>&nbsp;main(String[]&nbsp;args)&nbsp;</span><span class="keyword">throws</span><span>&nbsp;Exception&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.setProperty(<span class="string">"javax.net.ssl.trustStore"</span><span>,&nbsp;SERVER_KEY_STORE);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SSLContext&nbsp;context&nbsp;=&nbsp;SSLContext.getInstance(<span class="string">"TLS"</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KeyStore&nbsp;ks&nbsp;=&nbsp;KeyStore.getInstance(<span class="string">"jceks"</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ks.load(<span class="keyword">new</span><span>&nbsp;FileInputStream(SERVER_KEY_STORE),&nbsp;</span><span class="keyword">null</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KeyManagerFactory&nbsp;kf&nbsp;=&nbsp;KeyManagerFactory.getInstance(<span class="string">"SunX509"</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;kf.init(ks,&nbsp;SERVER_KEY_STORE_PASSWORD.toCharArray());&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;context.init(kf.getKeyManagers(),&nbsp;<span class="keyword">null</span><span>,&nbsp;</span><span class="keyword">null</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ServerSocketFactory&nbsp;factory&nbsp;=&nbsp;context.getServerSocketFactory();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ServerSocket&nbsp;_socket&nbsp;=&nbsp;factory.createServerSocket(<span class="number">8443</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((SSLServerSocket)&nbsp;_socket).setNeedClientAuth(<span class="keyword">false</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">while</span><span>&nbsp;(</span><span class="keyword">true</span><span>)&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">new</span><span>&nbsp;SSLServer(_socket.accept()).start();&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div><pre class="java" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="4" title="SSL介绍与Java实例" style="display: none;">package org.bluedash.tryssl;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.security.KeyStore;
+
+import javax.net.ServerSocketFactory;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocket;
+
+public class SSLServer extends Thread {
+	private Socket socket;
+
+	public SSLServer(Socket socket) {
+		this.socket = socket;
+	}
+
+	public void run() {
+		try {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			PrintWriter writer = new PrintWriter(socket.getOutputStream());
+
+			String data = reader.readLine();
+			writer.println(data);
+			writer.close();
+			socket.close();
+		} catch (IOException e) {
+
+		}
+	}
+
+	private static String SERVER_KEY_STORE = "/Users/liweinan/projs/ssl/src/main/resources/META-INF/server_ks";
+	private static String SERVER_KEY_STORE_PASSWORD = "123123";
+
+	public static void main(String[] args) throws Exception {
+		System.setProperty("javax.net.ssl.trustStore", SERVER_KEY_STORE);
+		SSLContext context = SSLContext.getInstance("TLS");
+		
+		KeyStore ks = KeyStore.getInstance("jceks");
+		ks.load(new FileInputStream(SERVER_KEY_STORE), null);
+		KeyManagerFactory kf = KeyManagerFactory.getInstance("SunX509");
+		kf.init(ks, SERVER_KEY_STORE_PASSWORD.toCharArray());
+		
+		context.init(kf.getKeyManagers(), null, null);
+
+		ServerSocketFactory factory = context.getServerSocketFactory();
+		ServerSocket _socket = factory.createServerSocket(8443);
+		((SSLServerSocket) _socket).setNeedClientAuth(false);
+
+		while (true) {
+			new SSLServer(_socket.accept()).start();
+		}
+	}
+}
+</pre>
+<br>
+<br>可以看到，服务端的Socket准备设置工作大大增加了，增加的代码的作用主要是将证书导入并进行使用。此外，所使用的Socket变成了SSLServerSocket，另外端口改到了8443（这个不是强制的，仅仅是为了遵守习惯）。另外，最重要的一点，服务端证书里面的CN一定和服务端的域名统一，我们的证书服务的域名是localhost，那么我们的客户端在连接服务端时一定也要用localhost来连接，否则根据SSL协议标准，域名与证书的CN不匹配，说明这个证书是不安全的，通信将无法正常运行。
+<br>
+<br>有了服务端，我们原来的客户端就不能使用了，必须要走SSL协议。由于服务端的证书是我们自己生成的，没有任何受信任机构的签名，所以客户端是无法验证服务端证书的有效性的，通信必然会失败。所以我们需要为客户端创建一个保存所有信任证书的仓库，然后把服务端证书导进这个仓库。这样，当客户端连接服务端时，会发现服务端的证书在自己的信任列表中，就可以正常通信了。
+<br>
+<br>因此现在我们要做的是生成一个客户端的证书仓库，因为keytool不能仅生成一个空白仓库，所以和服务端一样，我们还是生成一个证书加一个仓库（客户端证书加仓库）：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Bash代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=keytool%20-genkey%20-v%20-alias%20bluedash-ssl-demo-client%20-keyalg%20RSA%20-keystore%20.%2Fclient_ks%20-dname%20%22CN%3Dlocalhost%2COU%3Dcn%2CO%3Dcn%2CL%3Dcn%2CST%3Dcn%2CC%3Dcn%22%20-storepass%20client%20-keypass%20456456%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-default"><li><span><span>keytool&nbsp;-genkey&nbsp;-v&nbsp;-alias&nbsp;bluedash-ssl-demo-client&nbsp;-keyalg&nbsp;RSA&nbsp;-keystore&nbsp;./client_ks&nbsp;-dname&nbsp;</span><span class="string">"CN=localhost,OU=cn,O=cn,L=cn,ST=cn,C=cn"</span><span>&nbsp;-storepass&nbsp;client&nbsp;-keypass&nbsp;</span><span class="number">456456</span><span>&nbsp;&nbsp;</span></span></li></ol></div><pre class="bash" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="5" title="SSL介绍与Java实例" style="display: none;">keytool -genkey -v -alias bluedash-ssl-demo-client -keyalg RSA -keystore ./client_ks -dname "CN=localhost,OU=cn,O=cn,L=cn,ST=cn,C=cn" -storepass client -keypass 456456
+</pre>
+<br>
+<br>结果如下：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Bash代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=Generating%201%2C024%20bit%20RSA%20key%20pair%20and%20self-signed%20certificate%20(SHA1withRSA)%20with%20a%20validity%20of%2090%20days%0A%20%20%20%20%20%20%20%20for%3A%20CN%3Dlocalhost%2C%20OU%3Dcn%2C%20O%3Dcn%2C%20L%3Dcn%2C%20ST%3Dcn%2C%20C%3Dcn%0A%5BStoring%20.%2Fclient_ks%5D" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-default"><li><span><span>Generating&nbsp;</span><span class="number">1</span><span>,</span><span class="number">024</span><span>&nbsp;bit&nbsp;RSA&nbsp;key&nbsp;pair&nbsp;and&nbsp;self-signed&nbsp;certificate&nbsp;(SHA1withRSA)&nbsp;with&nbsp;a&nbsp;validity&nbsp;of&nbsp;</span><span class="number">90</span><span>&nbsp;days&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for:&nbsp;CN=localhost,&nbsp;OU=cn,&nbsp;O=cn,&nbsp;L=cn,&nbsp;ST=cn,&nbsp;C=cn&nbsp;&nbsp;</span></li><li><span>[Storing&nbsp;./client_ks]&nbsp;&nbsp;</span></li></ol></div><pre class="bash" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="6" title="SSL介绍与Java实例" style="display: none;">Generating 1,024 bit RSA key pair and self-signed certificate (SHA1withRSA) with a validity of 90 days
+        for: CN=localhost, OU=cn, O=cn, L=cn, ST=cn, C=cn
+[Storing ./client_ks]</pre>
+<br>
+<br>接下来，我们要把服务端的证书导出来，并导入到客户端的仓库。第一步是导出服务端的证书：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Bash代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=keytool%20-export%20-alias%20bluedash-ssl-demo-server%20-keystore%20.%2Fserver_ks%20-file%20server_key.cer" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-default"><li><span><span>keytool&nbsp;-export&nbsp;-alias&nbsp;bluedash-ssl-demo-server&nbsp;-keystore&nbsp;./server_ks&nbsp;-file&nbsp;server_key.cer&nbsp;&nbsp;</span></span></li></ol></div><pre class="bash" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="7" title="SSL介绍与Java实例" style="display: none;">keytool -export -alias bluedash-ssl-demo-server -keystore ./server_ks -file server_key.cer</pre>
+<br>
+<br>执行结果如下：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Bash代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=Enter%20keystore%20password%3A%20%20server%0ACertificate%20stored%20in%20file%20%3Cserver_key.cer%3E" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-default"><li><span><span>Enter&nbsp;keystore&nbsp;password:&nbsp;&nbsp;server&nbsp;&nbsp;</span></span></li><li><span>Certificate&nbsp;stored&nbsp;in&nbsp;file&nbsp;&lt;server_key.cer&gt;&nbsp;&nbsp;</span></li></ol></div><pre class="bash" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="8" title="SSL介绍与Java实例" style="display: none;">Enter keystore password:  server
+Certificate stored in file &lt;server_key.cer&gt;</pre>
+<br>
+<br>然后是把导出的证书导入到客户端证书仓库：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Bash代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=keytool%20-import%20-trustcacerts%20-alias%20bluedash-ssl-demo-server%20-file%20.%2Fserver_key.cer%20-keystore%20.%2Fclient_ks" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-default"><li><span><span>keytool&nbsp;-import&nbsp;-trustcacerts&nbsp;-alias&nbsp;bluedash-ssl-demo-server&nbsp;-file&nbsp;./server_key.cer&nbsp;-keystore&nbsp;./client_ks&nbsp;&nbsp;</span></span></li></ol></div><pre class="bash" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="9" title="SSL介绍与Java实例" style="display: none;">keytool -import -trustcacerts -alias bluedash-ssl-demo-server -file ./server_key.cer -keystore ./client_ks</pre>
+<br>
+<br>结果如下：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Bash代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=Enter%20keystore%20password%3A%20%20client%0AOwner%3A%20CN%3Dlocalhost%2C%20OU%3Dcn%2C%20O%3Dcn%2C%20L%3Dcn%2C%20ST%3Dcn%2C%20C%3Dcn%0AIssuer%3A%20CN%3Dlocalhost%2C%20OU%3Dcn%2C%20O%3Dcn%2C%20L%3Dcn%2C%20ST%3Dcn%2C%20C%3Dcn%0ASerial%20number%3A%204c57c7de%0AValid%20from%3A%20Tue%20Aug%2003%2015%3A40%3A14%20CST%202010%20until%3A%20Mon%20Nov%2001%2015%3A40%3A14%20CST%202010%0ACertificate%20fingerprints%3A%0A%20%20%20%20%20%20%20%20%20MD5%3A%20%20FC%3AD4%3A8B%3A36%3A3F%3A1B%3A30%3AEA%3A6D%3A63%3A55%3A4F%3AC7%3A68%3A3B%3A0C%0A%20%20%20%20%20%20%20%20%20SHA1%3A%20E1%3A54%3A2F%3A7C%3A1A%3A50%3AF5%3A74%3AAA%3A63%3A1E%3AF9%3ACC%3AB1%3A1C%3A73%3AAA%3A34%3A8A%3AC4%0A%20%20%20%20%20%20%20%20%20Signature%20algorithm%20name%3A%20SHA1withRSA%0A%20%20%20%20%20%20%20%20%20Version%3A%203%0ATrust%20this%20certificate%3F%20%5Bno%5D%3A%20%20yes%0ACertificate%20was%20added%20to%20keystore" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-default"><li><span><span>Enter&nbsp;keystore&nbsp;password:&nbsp;&nbsp;client&nbsp;&nbsp;</span></span></li><li><span>Owner:&nbsp;CN=localhost,&nbsp;OU=cn,&nbsp;O=cn,&nbsp;L=cn,&nbsp;ST=cn,&nbsp;C=cn&nbsp;&nbsp;</span></li><li><span>Issuer:&nbsp;CN=localhost,&nbsp;OU=cn,&nbsp;O=cn,&nbsp;L=cn,&nbsp;ST=cn,&nbsp;C=cn&nbsp;&nbsp;</span></li><li><span>Serial&nbsp;number:&nbsp;4c57c7de&nbsp;&nbsp;</span></li><li><span>Valid&nbsp;from:&nbsp;Tue&nbsp;Aug&nbsp;<span class="number">03</span><span>&nbsp;</span><span class="number">15</span><span>:</span><span class="number">40</span><span>:</span><span class="number">14</span><span>&nbsp;CST&nbsp;</span><span class="number">2010</span><span>&nbsp;until:&nbsp;Mon&nbsp;Nov&nbsp;</span><span class="number">01</span><span>&nbsp;</span><span class="number">15</span><span>:</span><span class="number">40</span><span>:</span><span class="number">14</span><span>&nbsp;CST&nbsp;</span><span class="number">2010</span><span>&nbsp;&nbsp;</span></span></li><li><span>Certificate&nbsp;fingerprints:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MD5:&nbsp;&nbsp;FC:D4:8B:<span class="number">36</span><span>:3F:1B:</span><span class="number">30</span><span>:EA:6D:</span><span class="number">63</span><span>:</span><span class="number">55</span><span>:4F:C7:</span><span class="number">68</span><span>:3B:0C&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHA1:&nbsp;E1:<span class="number">54</span><span>:2F:7C:1A:</span><span class="number">50</span><span>:F5:</span><span class="number">74</span><span>:AA:</span><span class="number">63</span><span>:1E:F9:CC:B1:1C:</span><span class="number">73</span><span>:AA:</span><span class="number">34</span><span>:8A:C4&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Signature&nbsp;algorithm&nbsp;name:&nbsp;SHA1withRSA&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Version:&nbsp;<span class="number">3</span><span>&nbsp;&nbsp;</span></span></li><li><span>Trust&nbsp;this&nbsp;certificate?&nbsp;[no]:&nbsp;&nbsp;yes&nbsp;&nbsp;</span></li><li><span>Certificate&nbsp;was&nbsp;added&nbsp;to&nbsp;keystore&nbsp;&nbsp;</span></li></ol></div><pre class="bash" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="10" title="SSL介绍与Java实例" style="display: none;">Enter keystore password:  client
+Owner: CN=localhost, OU=cn, O=cn, L=cn, ST=cn, C=cn
+Issuer: CN=localhost, OU=cn, O=cn, L=cn, ST=cn, C=cn
+Serial number: 4c57c7de
+Valid from: Tue Aug 03 15:40:14 CST 2010 until: Mon Nov 01 15:40:14 CST 2010
+Certificate fingerprints:
+         MD5:  FC:D4:8B:36:3F:1B:30:EA:6D:63:55:4F:C7:68:3B:0C
+         SHA1: E1:54:2F:7C:1A:50:F5:74:AA:63:1E:F9:CC:B1:1C:73:AA:34:8A:C4
+         Signature algorithm name: SHA1withRSA
+         Version: 3
+Trust this certificate? [no]:  yes
+Certificate was added to keystore</pre>
+<br>
+<br>好，准备工作做完了，我们来撰写客户端的代码：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Java代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=package%20org.bluedash.tryssl%3B%0A%0Aimport%20java.io.BufferedReader%3B%0Aimport%20java.io.InputStreamReader%3B%0Aimport%20java.io.PrintWriter%3B%0Aimport%20java.net.Socket%3B%0A%0Aimport%20javax.net.SocketFactory%3B%0Aimport%20javax.net.ssl.SSLSocketFactory%3B%0A%0Apublic%20class%20SSLClient%20%7B%0A%0A%09private%20static%20String%20CLIENT_KEY_STORE%20%3D%20%22%2FUsers%2Fliweinan%2Fprojs%2Fssl%2Fsrc%2Fmain%2Fresources%2FMETA-INF%2Fclient_ks%22%3B%0A%0A%09public%20static%20void%20main(String%5B%5D%20args)%20throws%20Exception%20%7B%0A%09%09%2F%2F%20Set%20the%20key%20store%20to%20use%20for%20validating%20the%20server%20cert.%0A%09%09System.setProperty(%22javax.net.ssl.trustStore%22%2C%20CLIENT_KEY_STORE)%3B%0A%09%09%0A%09%09System.setProperty(%22javax.net.debug%22%2C%20%22ssl%2Chandshake%22)%3B%0A%0A%09%09SSLClient%20client%20%3D%20new%20SSLClient()%3B%0A%09%09Socket%20s%20%3D%20client.clientWithoutCert()%3B%0A%0A%09%09PrintWriter%20writer%20%3D%20new%20PrintWriter(s.getOutputStream())%3B%0A%09%09BufferedReader%20reader%20%3D%20new%20BufferedReader(new%20InputStreamReader(s%0A%09%09%09%09.getInputStream()))%3B%0A%09%09writer.println(%22hello%22)%3B%0A%09%09writer.flush()%3B%0A%09%09System.out.println(reader.readLine())%3B%0A%09%09s.close()%3B%0A%09%7D%0A%0A%09private%20Socket%20clientWithoutCert()%20throws%20Exception%20%7B%0A%09%09SocketFactory%20sf%20%3D%20SSLSocketFactory.getDefault()%3B%0A%09%09Socket%20s%20%3D%20sf.createSocket(%22localhost%22%2C%208443)%3B%0A%09%09return%20s%3B%0A%09%7D%0A%7D%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-j"><li><span><span class="keyword">package</span><span>&nbsp;org.bluedash.tryssl;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span><span class="keyword">import</span><span>&nbsp;java.io.BufferedReader;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.io.InputStreamReader;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.io.PrintWriter;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.net.Socket;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span><span class="keyword">import</span><span>&nbsp;javax.net.SocketFactory;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;javax.net.ssl.SSLSocketFactory;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span><span class="keyword">public</span><span>&nbsp;</span><span class="keyword">class</span><span>&nbsp;SSLClient&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;String&nbsp;CLIENT_KEY_STORE&nbsp;=&nbsp;</span><span class="string">"/Users/liweinan/projs/ssl/src/main/resources/META-INF/client_ks"</span><span>;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;</span><span class="keyword">void</span><span>&nbsp;main(String[]&nbsp;args)&nbsp;</span><span class="keyword">throws</span><span>&nbsp;Exception&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">//&nbsp;Set&nbsp;the&nbsp;key&nbsp;store&nbsp;to&nbsp;use&nbsp;for&nbsp;validating&nbsp;the&nbsp;server&nbsp;cert.</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.setProperty(<span class="string">"javax.net.ssl.trustStore"</span><span>,&nbsp;CLIENT_KEY_STORE);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.setProperty(<span class="string">"javax.net.debug"</span><span>,&nbsp;</span><span class="string">"ssl,handshake"</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SSLClient&nbsp;client&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;SSLClient();&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Socket&nbsp;s&nbsp;=&nbsp;client.clientWithoutCert();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PrintWriter&nbsp;writer&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;PrintWriter(s.getOutputStream());&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BufferedReader&nbsp;reader&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;BufferedReader(</span><span class="keyword">new</span><span>&nbsp;InputStreamReader(s&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.getInputStream()));&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;writer.println(<span class="string">"hello"</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;writer.flush();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(reader.readLine());&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s.close();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;Socket&nbsp;clientWithoutCert()&nbsp;</span><span class="keyword">throws</span><span>&nbsp;Exception&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SocketFactory&nbsp;sf&nbsp;=&nbsp;SSLSocketFactory.getDefault();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Socket&nbsp;s&nbsp;=&nbsp;sf.createSocket(<span class="string">"localhost"</span><span>,&nbsp;</span><span class="number">8443</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span><span>&nbsp;s;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div><pre class="java" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="11" title="SSL介绍与Java实例" style="display: none;">package org.bluedash.tryssl;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+
+import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocketFactory;
+
+public class SSLClient {
+
+	private static String CLIENT_KEY_STORE = "/Users/liweinan/projs/ssl/src/main/resources/META-INF/client_ks";
+
+	public static void main(String[] args) throws Exception {
+		// Set the key store to use for validating the server cert.
+		System.setProperty("javax.net.ssl.trustStore", CLIENT_KEY_STORE);
+		
+		System.setProperty("javax.net.debug", "ssl,handshake");
+
+		SSLClient client = new SSLClient();
+		Socket s = client.clientWithoutCert();
+
+		PrintWriter writer = new PrintWriter(s.getOutputStream());
+		BufferedReader reader = new BufferedReader(new InputStreamReader(s
+				.getInputStream()));
+		writer.println("hello");
+		writer.flush();
+		System.out.println(reader.readLine());
+		s.close();
+	}
+
+	private Socket clientWithoutCert() throws Exception {
+		SocketFactory sf = SSLSocketFactory.getDefault();
+		Socket s = sf.createSocket("localhost", 8443);
+		return s;
+	}
+}
+</pre>
+<br>
+<br>可以看到，除了把一些类变成SSL通信类以外，客户端也多出了使用信任证书仓库的代码。以上，我们便完成了SSL单向握手通信。即：客户端验证服务端的证书，服务端不认证客户端的证书。
+<br>
+<br>以上便是Java环境下SSL单向握手的全过程。因为我们在客户端设置了日志输出级别为DEBUG：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Java代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=System.setProperty(%22javax.net.debug%22%2C%20%22ssl%2Chandshake%22)%3B" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-j"><li><span><span>System.setProperty(</span><span class="string">"javax.net.debug"</span><span>,&nbsp;</span><span class="string">"ssl,handshake"</span><span>);&nbsp;&nbsp;</span></span></li></ol></div><pre class="java" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="12" title="SSL介绍与Java实例" style="display: none;">System.setProperty("javax.net.debug", "ssl,handshake");</pre>
+<br>
+<br>因此我们可以看到SSL通信的全过程，这些日志可以帮助我们更具体地了解通过SSL协议建立网络连接时的全过程。
+<br>
+<br>结合日志，我们来看一下SSL双向认证的全过程：
+<br>
+<br><img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/f376cb46-3fbd-3fe4-9da0-fe477147db77.jpg">
+<br>
+<br>第一步: 客户端发送ClientHello消息，发起SSL连接请求，告诉服务器自己支持的SSL选项（加密方式等）。
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Bash代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=***%20ClientHello%2C%20TLSv1%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-default"><li><span><span>***&nbsp;ClientHello,&nbsp;TLSv1&nbsp;&nbsp;</span></span></li></ol></div><pre class="bash" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="13" title="SSL介绍与Java实例" style="display: none;">*** ClientHello, TLSv1
+</pre>
+<br>
+<br>第二步: 服务器响应请求，回复ServerHello消息，和客户端确认SSL加密方式：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Bash代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=***%20ServerHello%2C%20TLSv1%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-default"><li><span><span>***&nbsp;ServerHello,&nbsp;TLSv1&nbsp;&nbsp;</span></span></li></ol></div><pre class="bash" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="14" title="SSL介绍与Java实例" style="display: none;">*** ServerHello, TLSv1
+</pre>
+<br>
+<br>第三步: 服务端向客户端发布自己的公钥。
+<br>
+<br>第四步: 客户端与服务端的协通沟通完毕，服务端发送ServerHelloDone消息：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Bash代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=***%20ServerHelloDone%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-default"><li><span><span>***&nbsp;ServerHelloDone&nbsp;&nbsp;</span></span></li></ol></div><pre class="bash" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="15" title="SSL介绍与Java实例" style="display: none;">*** ServerHelloDone
+</pre>
+<br>
+<br>第五步: 客户端使用服务端给予的公钥，创建会话用密钥（SSL证书认证完成后，为了提高性能，所有的信息交互就可能会使用对称加密算法），并通过ClientKeyExchange消息发给服务器：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Bash代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=***%20ClientKeyExchange%2C%20RSA%20PreMasterSecret%2C%20TLSv1%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-default"><li><span><span>***&nbsp;ClientKeyExchange,&nbsp;RSA&nbsp;PreMasterSecret,&nbsp;TLSv1&nbsp;&nbsp;</span></span></li></ol></div><pre class="bash" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="16" title="SSL介绍与Java实例" style="display: none;">*** ClientKeyExchange, RSA PreMasterSecret, TLSv1
+</pre>
+<br>
+<br>第六步： 客户端通知服务器改变加密算法，通过ChangeCipherSpec消息发给服务端：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Bash代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=main%2C%20WRITE%3A%20TLSv1%20Change%20Cipher%20Spec%2C%20length%20%3D%201%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-default"><li><span><span>main,&nbsp;WRITE:&nbsp;TLSv1&nbsp;Change&nbsp;Cipher&nbsp;Spec,&nbsp;length&nbsp;=&nbsp;</span><span class="number">1</span><span>&nbsp;&nbsp;</span></span></li></ol></div><pre class="bash" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="17" title="SSL介绍与Java实例" style="display: none;">main, WRITE: TLSv1 Change Cipher Spec, length = 1
+</pre>
+<br>
+<br>第七步： 客户端发送Finished消息，告知服务器请检查加密算法的变更请求：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Bash代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=***%20Finished%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-default"><li><span><span>***&nbsp;Finished&nbsp;&nbsp;</span></span></li></ol></div><pre class="bash" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="18" title="SSL介绍与Java实例" style="display: none;">*** Finished
+</pre>
+<br>
+<br>第八步：服务端确认算法变更，返回ChangeCipherSpec消息
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Bash代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=main%2C%20READ%3A%20TLSv1%20Change%20Cipher%20Spec%2C%20length%20%3D%201%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-default"><li><span><span>main,&nbsp;READ:&nbsp;TLSv1&nbsp;Change&nbsp;Cipher&nbsp;Spec,&nbsp;length&nbsp;=&nbsp;</span><span class="number">1</span><span>&nbsp;&nbsp;</span></span></li></ol></div><pre class="bash" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="19" title="SSL介绍与Java实例" style="display: none;">main, READ: TLSv1 Change Cipher Spec, length = 1
+</pre>
+<br>
+<br>第九步：服务端发送Finished消息，加密算法生效：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Bash代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=***%20Finished%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-default"><li><span><span>***&nbsp;Finished&nbsp;&nbsp;</span></span></li></ol></div><pre class="bash" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="20" title="SSL介绍与Java实例" style="display: none;">*** Finished
+</pre>
+<br>
+<br>那么如何让服务端也认证客户端的身份，即双向握手呢？其实很简单，在服务端代码中，把这一行：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Java代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=((SSLServerSocket)%20_socket).setNeedClientAuth(false)%3B" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-j"><li><span><span>((SSLServerSocket)&nbsp;_socket).setNeedClientAuth(</span><span class="keyword">false</span><span>);&nbsp;&nbsp;</span></span></li></ol></div><pre class="java" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="21" title="SSL介绍与Java实例" style="display: none;">((SSLServerSocket) _socket).setNeedClientAuth(false);</pre>
+<br>
+<br>改成：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Java代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=((SSLServerSocket)%20_socket).setNeedClientAuth(true)%3B" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-j"><li><span><span>((SSLServerSocket)&nbsp;_socket).setNeedClientAuth(</span><span class="keyword">true</span><span>);&nbsp;&nbsp;</span></span></li></ol></div><pre class="java" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="22" title="SSL介绍与Java实例" style="display: none;">((SSLServerSocket) _socket).setNeedClientAuth(true);</pre>
+<br>
+<br>就可以了。但是，同样的道理，现在服务端并没有信任客户端的证书，因为客户端的证书也是自己生成的。所以，对于服务端，需要做同样的工作：把客户端的证书导出来，并导入到服务端的证书仓库：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Bash代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=keytool%20-export%20-alias%20bluedash-ssl-demo-client%20-keystore%20.%2Fclient_ks%20-file%20client_key.cer%0AEnter%20keystore%20password%3A%20%20client%0ACertificate%20stored%20in%20file%20%3Cclient_key.cer%3E" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-default"><li><span><span>keytool&nbsp;-export&nbsp;-alias&nbsp;bluedash-ssl-demo-client&nbsp;-keystore&nbsp;./client_ks&nbsp;-file&nbsp;client_key.cer&nbsp;&nbsp;</span></span></li><li><span>Enter&nbsp;keystore&nbsp;password:&nbsp;&nbsp;client&nbsp;&nbsp;</span></li><li><span>Certificate&nbsp;stored&nbsp;in&nbsp;file&nbsp;&lt;client_key.cer&gt;&nbsp;&nbsp;</span></li></ol></div><pre class="bash" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="23" title="SSL介绍与Java实例" style="display: none;">keytool -export -alias bluedash-ssl-demo-client -keystore ./client_ks -file client_key.cer
+Enter keystore password:  client
+Certificate stored in file &lt;client_key.cer&gt;</pre>
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Bash代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=keytool%20-import%20-trustcacerts%20-alias%20bluedash-ssl-demo-client%20-file%20.%2Fclient_key.cer%20-keystore%20.%2Fserver_ks%0AEnter%20keystore%20password%3A%20%20server%0AOwner%3A%20CN%3Dlocalhost%2C%20OU%3Dcn%2C%20O%3Dcn%2C%20L%3Dcn%2C%20ST%3Dcn%2C%20C%3Dcn%0AIssuer%3A%20CN%3Dlocalhost%2C%20OU%3Dcn%2C%20O%3Dcn%2C%20L%3Dcn%2C%20ST%3Dcn%2C%20C%3Dcn%0ASerial%20number%3A%204c57c80b%0AValid%20from%3A%20Tue%20Aug%2003%2015%3A40%3A59%20CST%202010%20until%3A%20Mon%20Nov%2001%2015%3A40%3A59%20CST%202010%0ACertificate%20fingerprints%3A%0A%20%20%20%20%20%20%20%20%20MD5%3A%20%20DB%3A91%3AF4%3A1E%3A65%3AD1%3A81%3AF2%3A1E%3AA6%3AA3%3A55%3A3F%3AE8%3A12%3A79%0A%20%20%20%20%20%20%20%20%20SHA1%3A%20BF%3A77%3A56%3A61%3A04%3ADD%3A95%3AFC%3AE5%3A84%3A48%3A5C%3ABE%3A60%3AAF%3A02%3A96%3AA2%3AE1%3AE2%0A%20%20%20%20%20%20%20%20%20Signature%20algorithm%20name%3A%20SHA1withRSA%0A%20%20%20%20%20%20%20%20%20Version%3A%203%0ATrust%20this%20certificate%3F%20%5Bno%5D%3A%20%20yes%0ACertificate%20was%20added%20to%20keystore" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-default"><li><span><span>keytool&nbsp;-import&nbsp;-trustcacerts&nbsp;-alias&nbsp;bluedash-ssl-demo-client&nbsp;-file&nbsp;./client_key.cer&nbsp;-keystore&nbsp;./server_ks&nbsp;&nbsp;</span></span></li><li><span>Enter&nbsp;keystore&nbsp;password:&nbsp;&nbsp;server&nbsp;&nbsp;</span></li><li><span>Owner:&nbsp;CN=localhost,&nbsp;OU=cn,&nbsp;O=cn,&nbsp;L=cn,&nbsp;ST=cn,&nbsp;C=cn&nbsp;&nbsp;</span></li><li><span>Issuer:&nbsp;CN=localhost,&nbsp;OU=cn,&nbsp;O=cn,&nbsp;L=cn,&nbsp;ST=cn,&nbsp;C=cn&nbsp;&nbsp;</span></li><li><span>Serial&nbsp;number:&nbsp;4c57c80b&nbsp;&nbsp;</span></li><li><span>Valid&nbsp;from:&nbsp;Tue&nbsp;Aug&nbsp;<span class="number">03</span><span>&nbsp;</span><span class="number">15</span><span>:</span><span class="number">40</span><span>:</span><span class="number">59</span><span>&nbsp;CST&nbsp;</span><span class="number">2010</span><span>&nbsp;until:&nbsp;Mon&nbsp;Nov&nbsp;</span><span class="number">01</span><span>&nbsp;</span><span class="number">15</span><span>:</span><span class="number">40</span><span>:</span><span class="number">59</span><span>&nbsp;CST&nbsp;</span><span class="number">2010</span><span>&nbsp;&nbsp;</span></span></li><li><span>Certificate&nbsp;fingerprints:&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MD5:&nbsp;&nbsp;DB:<span class="number">91</span><span>:F4:1E:</span><span class="number">65</span><span>:D1:</span><span class="number">81</span><span>:F2:1E:A6:A3:</span><span class="number">55</span><span>:3F:E8:</span><span class="number">12</span><span>:</span><span class="number">79</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SHA1:&nbsp;BF:<span class="number">77</span><span>:</span><span class="number">56</span><span>:</span><span class="number">61</span><span>:</span><span class="number">04</span><span>:DD:</span><span class="number">95</span><span>:FC:E5:</span><span class="number">84</span><span>:</span><span class="number">48</span><span>:5C:BE:</span><span class="number">60</span><span>:AF:</span><span class="number">02</span><span>:</span><span class="number">96</span><span>:A2:E1:E2&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Signature&nbsp;algorithm&nbsp;name:&nbsp;SHA1withRSA&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Version:&nbsp;<span class="number">3</span><span>&nbsp;&nbsp;</span></span></li><li><span>Trust&nbsp;this&nbsp;certificate?&nbsp;[no]:&nbsp;&nbsp;yes&nbsp;&nbsp;</span></li><li><span>Certificate&nbsp;was&nbsp;added&nbsp;to&nbsp;keystore&nbsp;&nbsp;</span></li></ol></div><pre class="bash" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="24" title="SSL介绍与Java实例" style="display: none;">keytool -import -trustcacerts -alias bluedash-ssl-demo-client -file ./client_key.cer -keystore ./server_ks
+Enter keystore password:  server
+Owner: CN=localhost, OU=cn, O=cn, L=cn, ST=cn, C=cn
+Issuer: CN=localhost, OU=cn, O=cn, L=cn, ST=cn, C=cn
+Serial number: 4c57c80b
+Valid from: Tue Aug 03 15:40:59 CST 2010 until: Mon Nov 01 15:40:59 CST 2010
+Certificate fingerprints:
+         MD5:  DB:91:F4:1E:65:D1:81:F2:1E:A6:A3:55:3F:E8:12:79
+         SHA1: BF:77:56:61:04:DD:95:FC:E5:84:48:5C:BE:60:AF:02:96:A2:E1:E2
+         Signature algorithm name: SHA1withRSA
+         Version: 3
+Trust this certificate? [no]:  yes
+Certificate was added to keystore</pre>
+<br>
+<br>完成了证书的导入，还要在客户端需要加入一段代码，用于在连接时，客户端向服务端出示自己的证书：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Java代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=package%20org.bluedash.tryssl%3B%0A%0Aimport%20java.io.BufferedReader%3B%0Aimport%20java.io.FileInputStream%3B%0Aimport%20java.io.InputStreamReader%3B%0Aimport%20java.io.PrintWriter%3B%0Aimport%20java.net.Socket%3B%0Aimport%20java.security.KeyStore%3B%0Aimport%20javax.net.SocketFactory%3B%0Aimport%20javax.net.ssl.KeyManagerFactory%3B%0Aimport%20javax.net.ssl.SSLContext%3B%0Aimport%20javax.net.ssl.SSLSocketFactory%3B%0A%0Apublic%20class%20SSLClient%20%7B%0A%09private%20static%20String%20CLIENT_KEY_STORE%20%3D%20%22%2FUsers%2Fliweinan%2Fprojs%2Fssl%2Fsrc%2Fmain%2Fresources%2FMETA-INF%2Fclient_ks%22%3B%0A%09private%20static%20String%20CLIENT_KEY_STORE_PASSWORD%20%3D%20%22456456%22%3B%0A%09%0A%09public%20static%20void%20main(String%5B%5D%20args)%20throws%20Exception%20%7B%0A%09%09%2F%2F%20Set%20the%20key%20store%20to%20use%20for%20validating%20the%20server%20cert.%0A%09%09System.setProperty(%22javax.net.ssl.trustStore%22%2C%20CLIENT_KEY_STORE)%3B%0A%09%09System.setProperty(%22javax.net.debug%22%2C%20%22ssl%2Chandshake%22)%3B%0A%09%09SSLClient%20client%20%3D%20new%20SSLClient()%3B%0A%09%09Socket%20s%20%3D%20client.clientWithCert()%3B%0A%09%09%0A%09%09PrintWriter%20writer%20%3D%20new%20PrintWriter(s.getOutputStream())%3B%0A%09%09BufferedReader%20reader%20%3D%20new%20BufferedReader(new%20InputStreamReader(s.getInputStream()))%3B%0A%09%09writer.println(%22hello%22)%3B%0A%09%09writer.flush()%3B%0A%09%09System.out.println(reader.readLine())%3B%0A%09%09s.close()%3B%0A%09%7D%0A%0A%09private%20Socket%20clientWithoutCert()%20throws%20Exception%20%7B%0A%09%09SocketFactory%20sf%20%3D%20SSLSocketFactory.getDefault()%3B%0A%09%09Socket%20s%20%3D%20sf.createSocket(%22localhost%22%2C%208443)%3B%0A%09%09return%20s%3B%0A%09%7D%0A%0A%09private%20Socket%20clientWithCert()%20throws%20Exception%20%7B%0A%09%09SSLContext%20context%20%3D%20SSLContext.getInstance(%22TLS%22)%3B%0A%09%09KeyStore%20ks%20%3D%20KeyStore.getInstance(%22jceks%22)%3B%0A%09%09%0A%09%09ks.load(new%20FileInputStream(CLIENT_KEY_STORE)%2C%20null)%3B%0A%09%09KeyManagerFactory%20kf%20%3D%20KeyManagerFactory.getInstance(%22SunX509%22)%3B%0A%09%09kf.init(ks%2C%20CLIENT_KEY_STORE_PASSWORD.toCharArray())%3B%0A%09%09context.init(kf.getKeyManagers()%2C%20null%2C%20null)%3B%0A%09%09%0A%09%09SocketFactory%20factory%20%3D%20context.getSocketFactory()%3B%0A%09%09Socket%20s%20%3D%20factory.createSocket(%22localhost%22%2C%208443)%3B%0A%09%09return%20s%3B%0A%09%7D%0A%7D" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-j"><li><span><span class="keyword">package</span><span>&nbsp;org.bluedash.tryssl;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span><span class="keyword">import</span><span>&nbsp;java.io.BufferedReader;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.io.FileInputStream;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.io.InputStreamReader;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.io.PrintWriter;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.net.Socket;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;java.security.KeyStore;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;javax.net.SocketFactory;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;javax.net.ssl.KeyManagerFactory;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;javax.net.ssl.SSLContext;&nbsp;&nbsp;</span></span></li><li><span><span class="keyword">import</span><span>&nbsp;javax.net.ssl.SSLSocketFactory;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;</span></li><li><span><span class="keyword">public</span><span>&nbsp;</span><span class="keyword">class</span><span>&nbsp;SSLClient&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;String&nbsp;CLIENT_KEY_STORE&nbsp;=&nbsp;</span><span class="string">"/Users/liweinan/projs/ssl/src/main/resources/META-INF/client_ks"</span><span>;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;String&nbsp;CLIENT_KEY_STORE_PASSWORD&nbsp;=&nbsp;</span><span class="string">"456456"</span><span>;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">public</span><span>&nbsp;</span><span class="keyword">static</span><span>&nbsp;</span><span class="keyword">void</span><span>&nbsp;main(String[]&nbsp;args)&nbsp;</span><span class="keyword">throws</span><span>&nbsp;Exception&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">//&nbsp;Set&nbsp;the&nbsp;key&nbsp;store&nbsp;to&nbsp;use&nbsp;for&nbsp;validating&nbsp;the&nbsp;server&nbsp;cert.</span><span>&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.setProperty(<span class="string">"javax.net.ssl.trustStore"</span><span>,&nbsp;CLIENT_KEY_STORE);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.setProperty(<span class="string">"javax.net.debug"</span><span>,&nbsp;</span><span class="string">"ssl,handshake"</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SSLClient&nbsp;client&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;SSLClient();&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Socket&nbsp;s&nbsp;=&nbsp;client.clientWithCert();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PrintWriter&nbsp;writer&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;PrintWriter(s.getOutputStream());&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BufferedReader&nbsp;reader&nbsp;=&nbsp;<span class="keyword">new</span><span>&nbsp;BufferedReader(</span><span class="keyword">new</span><span>&nbsp;InputStreamReader(s.getInputStream()));&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;writer.println(<span class="string">"hello"</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;writer.flush();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(reader.readLine());&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s.close();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;Socket&nbsp;clientWithoutCert()&nbsp;</span><span class="keyword">throws</span><span>&nbsp;Exception&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SocketFactory&nbsp;sf&nbsp;=&nbsp;SSLSocketFactory.getDefault();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Socket&nbsp;s&nbsp;=&nbsp;sf.createSocket(<span class="string">"localhost"</span><span>,&nbsp;</span><span class="number">8443</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span><span>&nbsp;s;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span><span>&nbsp;Socket&nbsp;clientWithCert()&nbsp;</span><span class="keyword">throws</span><span>&nbsp;Exception&nbsp;{&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SSLContext&nbsp;context&nbsp;=&nbsp;SSLContext.getInstance(<span class="string">"TLS"</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KeyStore&nbsp;ks&nbsp;=&nbsp;KeyStore.getInstance(<span class="string">"jceks"</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ks.load(<span class="keyword">new</span><span>&nbsp;FileInputStream(CLIENT_KEY_STORE),&nbsp;</span><span class="keyword">null</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KeyManagerFactory&nbsp;kf&nbsp;=&nbsp;KeyManagerFactory.getInstance(<span class="string">"SunX509"</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;kf.init(ks,&nbsp;CLIENT_KEY_STORE_PASSWORD.toCharArray());&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;context.init(kf.getKeyManagers(),&nbsp;<span class="keyword">null</span><span>,&nbsp;</span><span class="keyword">null</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SocketFactory&nbsp;factory&nbsp;=&nbsp;context.getSocketFactory();&nbsp;&nbsp;</span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Socket&nbsp;s&nbsp;=&nbsp;factory.createSocket(<span class="string">"localhost"</span><span>,&nbsp;</span><span class="number">8443</span><span>);&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span><span>&nbsp;s;&nbsp;&nbsp;</span></span></li><li><span>&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;</span></li><li><span>}&nbsp;&nbsp;</span></li></ol></div><pre class="java" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="25" title="SSL介绍与Java实例" style="display: none;">package org.bluedash.tryssl;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.security.KeyStore;
+import javax.net.SocketFactory;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+
+public class SSLClient {
+	private static String CLIENT_KEY_STORE = "/Users/liweinan/projs/ssl/src/main/resources/META-INF/client_ks";
+	private static String CLIENT_KEY_STORE_PASSWORD = "456456";
+	
+	public static void main(String[] args) throws Exception {
+		// Set the key store to use for validating the server cert.
+		System.setProperty("javax.net.ssl.trustStore", CLIENT_KEY_STORE);
+		System.setProperty("javax.net.debug", "ssl,handshake");
+		SSLClient client = new SSLClient();
+		Socket s = client.clientWithCert();
+		
+		PrintWriter writer = new PrintWriter(s.getOutputStream());
+		BufferedReader reader = new BufferedReader(new InputStreamReader(s.getInputStream()));
+		writer.println("hello");
+		writer.flush();
+		System.out.println(reader.readLine());
+		s.close();
+	}
+
+	private Socket clientWithoutCert() throws Exception {
+		SocketFactory sf = SSLSocketFactory.getDefault();
+		Socket s = sf.createSocket("localhost", 8443);
+		return s;
+	}
+
+	private Socket clientWithCert() throws Exception {
+		SSLContext context = SSLContext.getInstance("TLS");
+		KeyStore ks = KeyStore.getInstance("jceks");
+		
+		ks.load(new FileInputStream(CLIENT_KEY_STORE), null);
+		KeyManagerFactory kf = KeyManagerFactory.getInstance("SunX509");
+		kf.init(ks, CLIENT_KEY_STORE_PASSWORD.toCharArray());
+		context.init(kf.getKeyManagers(), null, null);
+		
+		SocketFactory factory = context.getSocketFactory();
+		Socket s = factory.createSocket("localhost", 8443);
+		return s;
+	}
+}</pre>
+<br>
+<br>通过比对单向认证的日志输出，我们可以发现双向认证时，多出了服务端认证客户端证书的步骤：
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Bash代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=***%20CertificateRequest%0ACert%20Types%3A%20RSA%2C%20DSS%0ACert%20Authorities%3A%0A%3CCN%3Dlocalhost%2C%20OU%3Dcn%2C%20O%3Dcn%2C%20L%3Dcn%2C%20ST%3Dcn%2C%20C%3Dcn%3E%0A%3CCN%3Dlocalhost%2C%20OU%3Dcn%2C%20O%3Dcn%2C%20L%3Dcn%2C%20ST%3Dcn%2C%20C%3Dcn%3E%0A***%20ServerHelloDone%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-default"><li><span><span>***&nbsp;CertificateRequest&nbsp;&nbsp;</span></span></li><li><span>Cert&nbsp;Types:&nbsp;RSA,&nbsp;DSS&nbsp;&nbsp;</span></li><li><span>Cert&nbsp;Authorities:&nbsp;&nbsp;</span></li><li><span>&lt;CN=localhost,&nbsp;OU=cn,&nbsp;O=cn,&nbsp;L=cn,&nbsp;ST=cn,&nbsp;C=cn&gt;&nbsp;&nbsp;</span></li><li><span>&lt;CN=localhost,&nbsp;OU=cn,&nbsp;O=cn,&nbsp;L=cn,&nbsp;ST=cn,&nbsp;C=cn&gt;&nbsp;&nbsp;</span></li><li><span>***&nbsp;ServerHelloDone&nbsp;&nbsp;</span></li></ol></div><pre class="bash" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="26" title="SSL介绍与Java实例" style="display: none;">*** CertificateRequest
+Cert Types: RSA, DSS
+Cert Authorities:
+&lt;CN=localhost, OU=cn, O=cn, L=cn, ST=cn, C=cn&gt;
+&lt;CN=localhost, OU=cn, O=cn, L=cn, ST=cn, C=cn&gt;
+*** ServerHelloDone
+</pre>
+<br>
+<br><div class="dp-highlighter" id=""><div class="bar"><div class="tools">Bash代码 <embed wmode="transparent" src="/javascripts/syntaxhighlighter/clipboard_new.swf" width="14" height="15" flashvars="clipboard=***%20CertificateVerify%0Amain%2C%20WRITE%3A%20TLSv1%20Handshake%2C%20length%20%3D%20134%0Amain%2C%20WRITE%3A%20TLSv1%20Change%20Cipher%20Spec%2C%20length%20%3D%201%0A" quality="high" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">&nbsp;<a href="javascript:void()" title="收藏这段代码" onclick="code_favorites_do_favorite(this);return false;"><img class="star" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_star.png" alt="收藏代码"><img class="spinner" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/spinner.gif" style="display:none"></a></div></div><ol start="1" class="dp-default"><li><span><span>***&nbsp;CertificateVerify&nbsp;&nbsp;</span></span></li><li><span>main,&nbsp;WRITE:&nbsp;TLSv1&nbsp;Handshake,&nbsp;length&nbsp;=&nbsp;<span class="number">134</span><span>&nbsp;&nbsp;</span></span></li><li><span>main,&nbsp;WRITE:&nbsp;TLSv1&nbsp;Change&nbsp;Cipher&nbsp;Spec,&nbsp;length&nbsp;=&nbsp;<span class="number">1</span><span>&nbsp;&nbsp;</span></span></li></ol></div><pre class="bash" name="code" codeable_type="Post" codeable_id="2362670" source_url="http://www.iteye.com/topic/1125183#2362670" pre_index="27" title="SSL介绍与Java实例" style="display: none;">*** CertificateVerify
+main, WRITE: TLSv1 Handshake, length = 134
+main, WRITE: TLSv1 Change Cipher Spec, length = 1
+</pre>
+<br>
+<br>在 @*** ServerHelloDone@ 之前，服务端向客户端发起了需要证书的请求 @*** CertificateRequest@ 。
+<br>
+<br>在客户端向服务端发出 @Change Cipher Spec@ 请求之前，多了一步客户端证书认证的过程 @*** CertificateVerify@ 。
+<br>
+<br>客户端与服务端互相认证证书的情景，可参考下图：
+<br>
+<br><img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/9b5ccdb1-c460-34e8-9aa9-169b8188f202.jpg">
+<br>
+<br>参考资料：
+<br>
+<br>fn1. Tomcat双向SSL认证的配置 - <a target="_blank" href="http://www.javaeedev.com/blog/article.jspx?articleId=ff808081198fb524011993a9bb7a029a">http://www.javaeedev.com/blog/article.jspx?articleId=ff808081198fb524011993a9bb7a029a</a>
+<br>
+<br>fn2. Understanding SSL - <a target="_blank" href="http://developerspoint.wordpress.com/2008/06/21/understanding-ssl/">http://developerspoint.wordpress.com/2008/06/21/understanding-ssl/</a>
+<br>
+<br>fn3. Change Cipher Spec Protocol - <a target="_blank" href="http://www.pierobon.org/ssl/ch2/ccs.htm">http://www.pierobon.org/ssl/ch2/ccs.htm</a>
+<br>
+<br>fn4. SSL &amp; TLS Essentials: Securing the Web - <a target="_blank" href="http://www.amazon.com/SSL-TLS-Essentials-Securing-Web/dp/0471383546/ref=sr_1_1?ie=UTF8&amp;s=books&amp;qid=1280891641&amp;sr=8-1">http://www.amazon.com/SSL-TLS-Essentials-Securing-Web/dp/0471383546/ref=sr_1_1?ie=UTF8&amp;s=books&amp;qid=1280891641&amp;sr=8-1</a>
+<br>
+    </div>
+    
+
+          <div id="topic_copyright">声明：ITeye文章版权属于作者，受法律保护。没有作者书面许可不得转载。 </div>
+      <div id="forum_recommended_f5"><span>推荐链接</span><ul></ul></div>
+              <div id="forum_recommended_f0"></div>
+        </td>
+  </tr>
+  <tr>
+    <td class="postauthor"><a href="http://www.iteye.com/topic/1125183#">返回顶楼</a></td>
+    <td class="postcontent">
+      <div class="icons">
+        <a href="http://weli.iteye.com/" class="icon_www" title="浏览作者的博客">&nbsp;</a>
+        <a href="http://weli.iteye.com/blog/profile" class="icon_profile" title="浏览作者资料">&nbsp;</a>
+        <a href="http://my.iteye.com/messages/new?message%5Breceiver_name%5D=%E9%98%BF%E7%94%B7bluedash" class="icon_pm" title="发送站内短信">&nbsp;</a>
+        <a href="http://weli.iteye.com/blog/guest_book" class="icon_guestbook" title="给作者留言">&nbsp;</a>
+        <a href="http://my.iteye.com/feed?subscription%5Bsubscribed_user_name%5D=%E9%98%BF%E7%94%B7bluedash" class="icon_rss" onclick="var f = document.createElement(&#39;form&#39;); f.style.display = &#39;none&#39;; this.parentNode.appendChild(f); f.method = &#39;POST&#39;; f.action = this.href;var s = document.createElement(&#39;input&#39;); s.setAttribute(&#39;type&#39;, &#39;hidden&#39;); s.setAttribute(&#39;name&#39;, &#39;authenticity_token&#39;); s.setAttribute(&#39;value&#39;, &#39;SfF1/9U/MxXb3AOPQyQkkTzhWHayuHZfDtsJnYvKF1I=&#39;); f.appendChild(s);f.submit();return false;" title="关注作者">&nbsp;</a>
+              </div>
+                    </td>
+</tr>
+<tr class="sep2"><td colspan="2"></td></tr>
+<tr id="2362806">
+  <td class="postauthor">
+    <ul>
+      <li class="name">old</li>
+      <li>等级: 初级会员</li>
+      <li><a href="http://old.iteye.com/" target="_blank"><img alt="old的博客" class="logo" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/user-logo.gif" title="old的博客: " width=""></a></li>
+      <li>性别: <img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_minigender_1.gif" title="男"></li>      <li>文章: 11</li>
+      <li>积分: 30</li>
+      <li>来自: 武汉</li>
+      <li><img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/offline.gif"></li>
+    </ul>
+  </td>
+  <td class="postcontent">
+    <div class="postactions">
+      <div class="description">
+        &nbsp;&nbsp;
+        发表时间：2012-07-11&nbsp;&nbsp;
+        
+      </div>
+      <div class="links">
+        
+        
+          
+          
+          
+        
+      </div>
+    </div>
+    <div class="postbody clearfix">
+	    
+      
+      
+      写了这多，总要有人坐个沙发呀
+    </div>
+    
+
+            </td>
+  </tr>
+  <tr>
+    <td class="postauthor"><a href="http://www.iteye.com/topic/1125183#">返回顶楼</a></td>
+    <td class="postcontent">
+      <div class="icons">
+        <a href="http://old.iteye.com/" class="icon_www" title="浏览作者的博客">&nbsp;</a>
+        <a href="http://old.iteye.com/blog/profile" class="icon_profile" title="浏览作者资料">&nbsp;</a>
+        <a href="http://my.iteye.com/messages/new?message%5Breceiver_name%5D=old" class="icon_pm" title="发送站内短信">&nbsp;</a>
+        <a href="http://old.iteye.com/blog/guest_book" class="icon_guestbook" title="给作者留言">&nbsp;</a>
+        <a href="http://my.iteye.com/feed?subscription%5Bsubscribed_user_name%5D=old" class="icon_rss" onclick="var f = document.createElement(&#39;form&#39;); f.style.display = &#39;none&#39;; this.parentNode.appendChild(f); f.method = &#39;POST&#39;; f.action = this.href;var s = document.createElement(&#39;input&#39;); s.setAttribute(&#39;type&#39;, &#39;hidden&#39;); s.setAttribute(&#39;name&#39;, &#39;authenticity_token&#39;); s.setAttribute(&#39;value&#39;, &#39;SfF1/9U/MxXb3AOPQyQkkTzhWHayuHZfDtsJnYvKF1I=&#39;); f.appendChild(s);f.submit();return false;" title="关注作者">&nbsp;</a>
+                  <a href="http://www.iteye.com/topic/1125183#2362806" title="old回帖:SSL介绍与Java实例">回帖地址</a>
+              </div>
+                        <div id="post_rate_box_2362806" class="post_rate_box"><a href="http://www.iteye.com/topic/1125183#" onclick="return false;" class="good" title="好">0</a> <a href="http://www.iteye.com/topic/1125183#" onclick="return false;" class="hidden" title="差">0</a> 请登录后投票</div>              </td>
+</tr>
+<tr class="sep2"><td colspan="2"></td></tr>
+<tr id="2362941">
+  <td class="postauthor">
+    <ul>
+      <li class="name">dasheng</li>
+      <li>等级: 初级会员</li>
+      <li><a href="http://dasheng.iteye.com/" target="_blank"><img alt="dasheng的博客" class="logo" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/user-logo.gif" title="dasheng的博客: " width=""></a></li>
+      <li>性别: <img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_minigender_1.gif" title="男"></li>      <li>文章: 24</li>
+      <li>积分: 30</li>
+      <li>来自: 北京</li>
+      <li><img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/offline.gif"></li>
+    </ul>
+  </td>
+  <td class="postcontent">
+    <div class="postactions">
+      <div class="description">
+        &nbsp;&nbsp;
+        发表时间：2012-07-12&nbsp;&nbsp;
+        
+      </div>
+      <div class="links">
+        
+        
+          
+          
+          
+        
+      </div>
+    </div>
+    <div class="postbody clearfix">
+	    
+      
+      
+      支持一下，很好的文章
+    </div>
+    
+
+            </td>
+  </tr>
+  <tr>
+    <td class="postauthor"><a href="http://www.iteye.com/topic/1125183#">返回顶楼</a></td>
+    <td class="postcontent">
+      <div class="icons">
+        <a href="http://dasheng.iteye.com/" class="icon_www" title="浏览作者的博客">&nbsp;</a>
+        <a href="http://dasheng.iteye.com/blog/profile" class="icon_profile" title="浏览作者资料">&nbsp;</a>
+        <a href="http://my.iteye.com/messages/new?message%5Breceiver_name%5D=dasheng" class="icon_pm" title="发送站内短信">&nbsp;</a>
+        <a href="http://dasheng.iteye.com/blog/guest_book" class="icon_guestbook" title="给作者留言">&nbsp;</a>
+        <a href="http://my.iteye.com/feed?subscription%5Bsubscribed_user_name%5D=dasheng" class="icon_rss" onclick="var f = document.createElement(&#39;form&#39;); f.style.display = &#39;none&#39;; this.parentNode.appendChild(f); f.method = &#39;POST&#39;; f.action = this.href;var s = document.createElement(&#39;input&#39;); s.setAttribute(&#39;type&#39;, &#39;hidden&#39;); s.setAttribute(&#39;name&#39;, &#39;authenticity_token&#39;); s.setAttribute(&#39;value&#39;, &#39;SfF1/9U/MxXb3AOPQyQkkTzhWHayuHZfDtsJnYvKF1I=&#39;); f.appendChild(s);f.submit();return false;" title="关注作者">&nbsp;</a>
+                  <a href="http://www.iteye.com/topic/1125183#2362941" title="dasheng回帖:SSL介绍与Java实例">回帖地址</a>
+              </div>
+                        <div id="post_rate_box_2362941" class="post_rate_box"><a href="http://www.iteye.com/topic/1125183#" onclick="return false;" class="good" title="好">0</a> <a href="http://www.iteye.com/topic/1125183#" onclick="return false;" class="hidden" title="差">0</a> 请登录后投票</div>              </td>
+</tr>
+<tr class="sep2"><td colspan="2"></td></tr>
+<tr id="2362951">
+  <td class="postauthor">
+    <ul>
+      <li class="name">wkbulletin</li>
+      <li>等级: 初级会员</li>
+      <li><a href="http://wkbulletin.iteye.com/" target="_blank"><img alt="wkbulletin的博客" class="logo" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/user-logo.gif" title="wkbulletin的博客: " width=""></a></li>
+      <li>性别: <img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_minigender_1.gif" title="男"></li>      <li>文章: 23</li>
+      <li>积分: 10</li>
+      <li>来自: 北京</li>
+      <li><img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/offline.gif"></li>
+    </ul>
+  </td>
+  <td class="postcontent">
+    <div class="postactions">
+      <div class="description">
+        &nbsp;&nbsp;
+        发表时间：2012-07-12&nbsp;&nbsp;
+        
+      </div>
+      <div class="links">
+        
+        
+          
+          
+          
+        
+      </div>
+    </div>
+    <div class="postbody clearfix">
+	    
+      
+      
+      作为资料存储了. 多谢lz分享
+    </div>
+    
+
+            </td>
+  </tr>
+  <tr>
+    <td class="postauthor"><a href="http://www.iteye.com/topic/1125183#">返回顶楼</a></td>
+    <td class="postcontent">
+      <div class="icons">
+        <a href="http://wkbulletin.iteye.com/" class="icon_www" title="浏览作者的博客">&nbsp;</a>
+        <a href="http://wkbulletin.iteye.com/blog/profile" class="icon_profile" title="浏览作者资料">&nbsp;</a>
+        <a href="http://my.iteye.com/messages/new?message%5Breceiver_name%5D=wkbulletin" class="icon_pm" title="发送站内短信">&nbsp;</a>
+        <a href="http://wkbulletin.iteye.com/blog/guest_book" class="icon_guestbook" title="给作者留言">&nbsp;</a>
+        <a href="http://my.iteye.com/feed?subscription%5Bsubscribed_user_name%5D=wkbulletin" class="icon_rss" onclick="var f = document.createElement(&#39;form&#39;); f.style.display = &#39;none&#39;; this.parentNode.appendChild(f); f.method = &#39;POST&#39;; f.action = this.href;var s = document.createElement(&#39;input&#39;); s.setAttribute(&#39;type&#39;, &#39;hidden&#39;); s.setAttribute(&#39;name&#39;, &#39;authenticity_token&#39;); s.setAttribute(&#39;value&#39;, &#39;SfF1/9U/MxXb3AOPQyQkkTzhWHayuHZfDtsJnYvKF1I=&#39;); f.appendChild(s);f.submit();return false;" title="关注作者">&nbsp;</a>
+                  <a href="http://www.iteye.com/topic/1125183#2362951" title="wkbulletin回帖:SSL介绍与Java实例">回帖地址</a>
+              </div>
+                        <div id="post_rate_box_2362951" class="post_rate_box"><a href="http://www.iteye.com/topic/1125183#" onclick="return false;" class="good" title="好">0</a> <a href="http://www.iteye.com/topic/1125183#" onclick="return false;" class="hidden" title="差">0</a> 请登录后投票</div>              </td>
+</tr>
+<tr class="sep2"><td colspan="2"></td></tr>
+<tr id="2362976">
+  <td class="postauthor">
+    <ul>
+      <li class="name">smallbee</li>
+      <li>等级: 初级会员</li>
+      <li><a href="http://smallbee.iteye.com/" target="_blank"><img alt="smallbee的博客" class="logo" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/54ce961d-0490-3faa-9716-ff97f15843b5.jpg" title="smallbee的博客: 蓝色的风—JAVA" width=""></a></li>
+      <li>性别: <img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_minigender_1.gif" title="男"></li>      <li>文章: 87</li>
+      <li>积分: 10</li>
+      <li>来自: 杭州</li>
+      <li><img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/offline.gif"></li>
+    </ul>
+  </td>
+  <td class="postcontent">
+    <div class="postactions">
+      <div class="description">
+        &nbsp;&nbsp;
+        发表时间：2012-07-12&nbsp;&nbsp;
+        
+      </div>
+      <div class="links">
+        
+        
+          
+          
+          
+        
+      </div>
+    </div>
+    <div class="postbody clearfix">
+	    
+      
+      
+      另外，最重要的一点，服务端证书里面的CN一定和服务端的域名统一，我们的证书服务的域名是localhost，那么我们的客户端在连接服务端时一定也要用localhost来连接，否则根据SSL协议标准，域名与证书的CN不匹配，说明这个证书是不安全的，通信将无法正常运行
+<br>此次加入以下代码也可以解决：
+<br> System.setProperty("java.protocol.handler.pkgs", "javax.net.ssl");
+<br>&nbsp;&nbsp;&nbsp;&nbsp; HostnameVerifier hv = new HostnameVerifier() {
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public boolean verify(String urlHostName, SSLSession session) {
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return urlHostName.equals(session.getPeerHost());
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+<br>&nbsp;&nbsp;&nbsp;&nbsp; };
+<br>&nbsp;&nbsp;&nbsp; 
+<br>&nbsp;&nbsp;&nbsp;&nbsp; HttpsURLConnection.setDefaultHostnameVerifier(hv);
+    </div>
+    
+
+            </td>
+  </tr>
+  <tr>
+    <td class="postauthor"><a href="http://www.iteye.com/topic/1125183#">返回顶楼</a></td>
+    <td class="postcontent">
+      <div class="icons">
+        <a href="http://smallbee.iteye.com/" class="icon_www" title="浏览作者的博客">&nbsp;</a>
+        <a href="http://smallbee.iteye.com/blog/profile" class="icon_profile" title="浏览作者资料">&nbsp;</a>
+        <a href="http://my.iteye.com/messages/new?message%5Breceiver_name%5D=smallbee" class="icon_pm" title="发送站内短信">&nbsp;</a>
+        <a href="http://smallbee.iteye.com/blog/guest_book" class="icon_guestbook" title="给作者留言">&nbsp;</a>
+        <a href="http://my.iteye.com/feed?subscription%5Bsubscribed_user_name%5D=smallbee" class="icon_rss" onclick="var f = document.createElement(&#39;form&#39;); f.style.display = &#39;none&#39;; this.parentNode.appendChild(f); f.method = &#39;POST&#39;; f.action = this.href;var s = document.createElement(&#39;input&#39;); s.setAttribute(&#39;type&#39;, &#39;hidden&#39;); s.setAttribute(&#39;name&#39;, &#39;authenticity_token&#39;); s.setAttribute(&#39;value&#39;, &#39;SfF1/9U/MxXb3AOPQyQkkTzhWHayuHZfDtsJnYvKF1I=&#39;); f.appendChild(s);f.submit();return false;" title="关注作者">&nbsp;</a>
+                  <a href="http://www.iteye.com/topic/1125183#2362976" title="smallbee回帖:SSL介绍与Java实例">回帖地址</a>
+              </div>
+                        <div id="post_rate_box_2362976" class="post_rate_box"><a href="http://www.iteye.com/topic/1125183#" onclick="return false;" class="good" title="好">0</a> <a href="http://www.iteye.com/topic/1125183#" onclick="return false;" class="hidden" title="差">0</a> 请登录后投票</div>              </td>
+</tr>
+<tr class="sep2"><td colspan="2"></td></tr>
+<tr id="2362978">
+  <td class="postauthor">
+    <ul>
+      <li class="name">smallbee</li>
+      <li>等级: 初级会员</li>
+      <li><a href="http://smallbee.iteye.com/" target="_blank"><img alt="smallbee的博客" class="logo" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/54ce961d-0490-3faa-9716-ff97f15843b5.jpg" title="smallbee的博客: 蓝色的风—JAVA" width=""></a></li>
+      <li>性别: <img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_minigender_1.gif" title="男"></li>      <li>文章: 87</li>
+      <li>积分: 10</li>
+      <li>来自: 杭州</li>
+      <li><img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/offline.gif"></li>
+    </ul>
+  </td>
+  <td class="postcontent">
+    <div class="postactions">
+      <div class="description">
+        &nbsp;&nbsp;
+        发表时间：2012-07-12&nbsp;&nbsp;
+        
+      </div>
+      <div class="links">
+        
+        
+          
+          
+          
+        
+      </div>
+    </div>
+    <div class="postbody clearfix">
+	    
+      
+      
+      还有我觉得这样就可以了，不知道对不对？至少我能正常通信。
+<br>System.setProperty("javax.net.ssl.keyStore", "D:/server31.keystore"); 
+<br>System.setProperty("javax.net.ssl.keyStorePassword", "password"); 
+<br>System.setProperty("javax.net.ssl.trustStore", "D:/server31.keystore"); 
+<br>System.setProperty("javax.net.ssl.trustStorePassword", "password");
+    </div>
+    
+
+            </td>
+  </tr>
+  <tr>
+    <td class="postauthor"><a href="http://www.iteye.com/topic/1125183#">返回顶楼</a></td>
+    <td class="postcontent">
+      <div class="icons">
+        <a href="http://smallbee.iteye.com/" class="icon_www" title="浏览作者的博客">&nbsp;</a>
+        <a href="http://smallbee.iteye.com/blog/profile" class="icon_profile" title="浏览作者资料">&nbsp;</a>
+        <a href="http://my.iteye.com/messages/new?message%5Breceiver_name%5D=smallbee" class="icon_pm" title="发送站内短信">&nbsp;</a>
+        <a href="http://smallbee.iteye.com/blog/guest_book" class="icon_guestbook" title="给作者留言">&nbsp;</a>
+        <a href="http://my.iteye.com/feed?subscription%5Bsubscribed_user_name%5D=smallbee" class="icon_rss" onclick="var f = document.createElement(&#39;form&#39;); f.style.display = &#39;none&#39;; this.parentNode.appendChild(f); f.method = &#39;POST&#39;; f.action = this.href;var s = document.createElement(&#39;input&#39;); s.setAttribute(&#39;type&#39;, &#39;hidden&#39;); s.setAttribute(&#39;name&#39;, &#39;authenticity_token&#39;); s.setAttribute(&#39;value&#39;, &#39;SfF1/9U/MxXb3AOPQyQkkTzhWHayuHZfDtsJnYvKF1I=&#39;); f.appendChild(s);f.submit();return false;" title="关注作者">&nbsp;</a>
+                  <a href="http://www.iteye.com/topic/1125183#2362978" title="smallbee回帖:SSL介绍与Java实例">回帖地址</a>
+              </div>
+                        <div id="post_rate_box_2362978" class="post_rate_box"><a href="http://www.iteye.com/topic/1125183#" onclick="return false;" class="good" title="好">0</a> <a href="http://www.iteye.com/topic/1125183#" onclick="return false;" class="hidden" title="差">0</a> 请登录后投票</div>              </td>
+</tr>
+<tr class="sep2"><td colspan="2"></td></tr>
+<tr id="2362999">
+  <td class="postauthor">
+    <ul>
+      <li class="name">smallbee</li>
+      <li>等级: 初级会员</li>
+      <li><a href="http://smallbee.iteye.com/" target="_blank"><img alt="smallbee的博客" class="logo" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/54ce961d-0490-3faa-9716-ff97f15843b5.jpg" title="smallbee的博客: 蓝色的风—JAVA" width=""></a></li>
+      <li>性别: <img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_minigender_1.gif" title="男"></li>      <li>文章: 87</li>
+      <li>积分: 10</li>
+      <li>来自: 杭州</li>
+      <li><img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/offline.gif"></li>
+    </ul>
+  </td>
+  <td class="postcontent">
+    <div class="postactions">
+      <div class="description">
+        &nbsp;&nbsp;
+        发表时间：2012-07-12&nbsp;&nbsp;
+        
+      </div>
+      <div class="links">
+        
+        
+          
+          
+          
+        
+      </div>
+    </div>
+    <div class="postbody clearfix">
+	    
+      
+      
+      最近项目也在用Https，其中一个系统1是银行系统，部署在银行内部，另外一个系统2可以部署在行内也可以部署在行外。之前系统2都是行内的，所以走socket通信，现在想增加一个https通信方便行外系统2对接系统1。
+<br>
+<br>后台都是java写的。要求ssl双向认证。
+<br>
+<br>用jdk生成证书然后Https通信都成功了。
+<br>
+<br>想请教下:
+<br>1、这个证书的一个过程是怎么样的？证书是自己做的么？然后去CA认证，还是都是从CA买的，他们帮我们认证好？
+<br>2、从上面的说法，如果想发给服务器，需要把服务器证书倒出来到客户端，让客户端信任服务器证书，然后实现通信。但是如果证书是从CA那里验证过的，是不是不需要导出到客户端这个步骤，直接配置服务器证书就可以了，验证的工作室客户端拿服务器证书去CA认证，这个认证走通信么？会连接CA服务器还是本地证书文件验证？
+    </div>
+    
+
+            </td>
+  </tr>
+  <tr>
+    <td class="postauthor"><a href="http://www.iteye.com/topic/1125183#">返回顶楼</a></td>
+    <td class="postcontent">
+      <div class="icons">
+        <a href="http://smallbee.iteye.com/" class="icon_www" title="浏览作者的博客">&nbsp;</a>
+        <a href="http://smallbee.iteye.com/blog/profile" class="icon_profile" title="浏览作者资料">&nbsp;</a>
+        <a href="http://my.iteye.com/messages/new?message%5Breceiver_name%5D=smallbee" class="icon_pm" title="发送站内短信">&nbsp;</a>
+        <a href="http://smallbee.iteye.com/blog/guest_book" class="icon_guestbook" title="给作者留言">&nbsp;</a>
+        <a href="http://my.iteye.com/feed?subscription%5Bsubscribed_user_name%5D=smallbee" class="icon_rss" onclick="var f = document.createElement(&#39;form&#39;); f.style.display = &#39;none&#39;; this.parentNode.appendChild(f); f.method = &#39;POST&#39;; f.action = this.href;var s = document.createElement(&#39;input&#39;); s.setAttribute(&#39;type&#39;, &#39;hidden&#39;); s.setAttribute(&#39;name&#39;, &#39;authenticity_token&#39;); s.setAttribute(&#39;value&#39;, &#39;SfF1/9U/MxXb3AOPQyQkkTzhWHayuHZfDtsJnYvKF1I=&#39;); f.appendChild(s);f.submit();return false;" title="关注作者">&nbsp;</a>
+                  <a href="http://www.iteye.com/topic/1125183#2362999" title="smallbee回帖:SSL介绍与Java实例">回帖地址</a>
+              </div>
+                        <div id="post_rate_box_2362999" class="post_rate_box"><a href="http://www.iteye.com/topic/1125183#" onclick="return false;" class="good" title="好">0</a> <a href="http://www.iteye.com/topic/1125183#" onclick="return false;" class="hidden" title="差">0</a> 请登录后投票</div>              </td>
+</tr>
+<tr class="sep2"><td colspan="2"></td></tr>
+<tr id="2363003">
+  <td class="postauthor">
+    <ul>
+      <li class="name">阿男bluedash</li>
+      <li>等级: 初级会员</li>
+      <li><a href="http://weli.iteye.com/" target="_blank"><img alt="阿男bluedash的博客" class="logo" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/5bad9481-0b9b-3304-b845-8aa4deba7ae4.jpg" title="阿男bluedash的博客: 排骨藕汤" width=""></a></li>
+      <li>性别: <img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_minigender_1.gif" title="男"></li>      <li>文章: 16</li>
+      <li>积分: 70</li>
+      <li>来自: 北京</li>
+      <li><img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/offline.gif"></li>
+    </ul>
+  </td>
+  <td class="postcontent">
+    <div class="postactions">
+      <div class="description">
+        &nbsp;&nbsp;
+        发表时间：2012-07-12&nbsp;&nbsp;
+        
+      </div>
+      <div class="links">
+        
+        
+          
+          
+          
+        
+      </div>
+    </div>
+    <div class="postbody clearfix">
+	    
+      
+      
+      <div class="quote_title">smallbee 写道</div><div class="quote_div">还有我觉得这样就可以了，不知道对不对？至少我能正常通信。
+<br>System.setProperty("javax.net.ssl.keyStore", "D:/server31.keystore"); 
+<br>System.setProperty("javax.net.ssl.keyStorePassword", "password"); 
+<br>System.setProperty("javax.net.ssl.trustStore", "D:/server31.keystore"); 
+<br>System.setProperty("javax.net.ssl.trustStorePassword", "password");</div>
+<br>
+<br>可以的，keyStore和trustStore可以共用一个文件，没有问题。store就相当于一个钱包，这里面可以放证书也可以放自己的密钥。
+    </div>
+    
+
+            </td>
+  </tr>
+  <tr>
+    <td class="postauthor"><a href="http://www.iteye.com/topic/1125183#">返回顶楼</a></td>
+    <td class="postcontent">
+      <div class="icons">
+        <a href="http://weli.iteye.com/" class="icon_www" title="浏览作者的博客">&nbsp;</a>
+        <a href="http://weli.iteye.com/blog/profile" class="icon_profile" title="浏览作者资料">&nbsp;</a>
+        <a href="http://my.iteye.com/messages/new?message%5Breceiver_name%5D=%E9%98%BF%E7%94%B7bluedash" class="icon_pm" title="发送站内短信">&nbsp;</a>
+        <a href="http://weli.iteye.com/blog/guest_book" class="icon_guestbook" title="给作者留言">&nbsp;</a>
+        <a href="http://my.iteye.com/feed?subscription%5Bsubscribed_user_name%5D=%E9%98%BF%E7%94%B7bluedash" class="icon_rss" onclick="var f = document.createElement(&#39;form&#39;); f.style.display = &#39;none&#39;; this.parentNode.appendChild(f); f.method = &#39;POST&#39;; f.action = this.href;var s = document.createElement(&#39;input&#39;); s.setAttribute(&#39;type&#39;, &#39;hidden&#39;); s.setAttribute(&#39;name&#39;, &#39;authenticity_token&#39;); s.setAttribute(&#39;value&#39;, &#39;SfF1/9U/MxXb3AOPQyQkkTzhWHayuHZfDtsJnYvKF1I=&#39;); f.appendChild(s);f.submit();return false;" title="关注作者">&nbsp;</a>
+                  <a href="http://www.iteye.com/topic/1125183#2363003" title="阿男bluedash回帖:SSL介绍与Java实例">回帖地址</a>
+              </div>
+                        <div id="post_rate_box_2363003" class="post_rate_box"><a href="http://www.iteye.com/topic/1125183#" onclick="return false;" class="good" title="好">0</a> <a href="http://www.iteye.com/topic/1125183#" onclick="return false;" class="hidden" title="差">0</a> 请登录后投票</div>              </td>
+</tr>
+<tr class="sep2"><td colspan="2"></td></tr>
+<tr id="2363006">
+  <td class="postauthor">
+    <ul>
+      <li class="name">阿男bluedash</li>
+      <li>等级: 初级会员</li>
+      <li><a href="http://weli.iteye.com/" target="_blank"><img alt="阿男bluedash的博客" class="logo" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/5bad9481-0b9b-3304-b845-8aa4deba7ae4.jpg" title="阿男bluedash的博客: 排骨藕汤" width=""></a></li>
+      <li>性别: <img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_minigender_1.gif" title="男"></li>      <li>文章: 16</li>
+      <li>积分: 70</li>
+      <li>来自: 北京</li>
+      <li><img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/offline.gif"></li>
+    </ul>
+  </td>
+  <td class="postcontent">
+    <div class="postactions">
+      <div class="description">
+        &nbsp;&nbsp;
+        发表时间：2012-07-12&nbsp;&nbsp;
+        
+      </div>
+      <div class="links">
+        
+        
+          
+          
+          
+        
+      </div>
+    </div>
+    <div class="postbody clearfix">
+	    
+      
+      
+      <div class="quote_title">smallbee 写道</div><div class="quote_div">最近项目也在用Https，其中一个系统1是银行系统，部署在银行内部，另外一个系统2可以部署在行内也可以部署在行外。之前系统2都是行内的，所以走socket通信，现在想增加一个https通信方便行外系统2对接系统1。
+<br>
+<br>后台都是java写的。要求ssl双向认证。
+<br>
+<br>用jdk生成证书然后Https通信都成功了。
+<br>
+<br>想请教下:
+<br>1、这个证书的一个过程是怎么样的？证书是自己做的么？然后去CA认证，还是都是从CA买的，他们帮我们认证好？
+<br>2、从上面的说法，如果想发给服务器，需要把服务器证书倒出来到客户端，让客户端信任服务器证书，然后实现通信。但是如果证书是从CA那里验证过的，是不是不需要导出到客户端这个步骤，直接配置服务器证书就可以了，验证的工作室客户端拿服务器证书去CA认证，这个认证走通信么？会连接CA服务器还是本地证书文件验证？</div>
+<br>
+<br>
+<br>证书，就是用来自己证明身份的证书，你可以自己生成一个，但是没有用。为什么呢？因为数字证书必须由第三方的权威机构签名后才有效。
+<br>权威机构就那几家，你可以打开你的任何浏览器，在选项里面，找高ssl相关的配置，可以看到每个浏览器里面，都有默认的几十家权威机构的数字签名文件。
+<br>对于java环境，这些默认的机构也存在，它们的签名保存在keystore里面，我们自己生成的数字证书，都是自签名的，自己签自己。
+<br>这种默认是不被浏览器或是jvm环境接受的，原因上面说了，因为我们自己签名不算数的，“自己”这个机构不在默认的keystore里面。
+<br>
+<br>所以，现在问题来了，怎么样，让客户端信任服务端这个自签名的证书呢？
+<br>答案你已经知道了，将自己的证书，导进需要信任你的证书的keystore里面。
+<br>
+<br>jvm有自已默认的keystore，在java的安装目录里面，是jre/lib/security/xxx那个。
+<br>/usr/lib/jvm/jre/lib/security/cacerts
+<br>里面包含了很多第三方的权威机构的数字证书。
+<br>但是我们在做项目的时候，不想污染这个默认的库，会产生安全问题。
+<br>所以我们用keytool自己生成一个全新的keystore，其实就是一个文件，你知道的。
+<br>
+<br>对于自签名的证书，肯定是不可能通过验证的
+<br>如果我们把自签名的证书导进这个cacerts里面
+<br>那么我们自己签的所有证书，就都在自己的java环境下面可以认证通过了。
+<br>但是如果你想让别人的环境下面也认你这个证书，就要在别人的环境下面把你的证书给加进信任列表
+<br>如果对方是个浏览器，就把证书导出来，让对方加进浏览器的信任列表
+<br>如果对方是java，就让对方将你的证书导入到他们的keystore
+<br>
+<br>当然，如果你的证书是找Verisign签过名的，那就完全没问题了。
+<br>但是Verisign非常贵，一年好多钱，所以只有生产系统上才用。因为，我们不可能让所有的用户都把服务端自签名证书导到他们的环境里，那是不现实的。而且，浏览器会弹窗报警，说服务端提供的证书不是受信的第三方签名的，用户一看有危险就闪人了。
+<br>
+<br>所以，说了这么半天，你应该明白了一个道理：SSL并不存在服务端和客户端，只存在谁需要信任谁
+<br>
+<br>那么我问个问题，双向握手时，需要几个证书？单向握手时，需要几个证书？
+<br>
+<br>如果服务端强制要求客户端提供证书
+<br>那么他那边必定要给你生成一个能用的证书，在他的信任列表里面
+<br>否则你自己生成的客户端证书是没有用的，必须找对方签名才可以
+<br>因为对方的环境里面不可能信任你自生成的证书
+<br>
+<br>如果是双向握手，为什么需要给你两个证书？
+<br>因为除了客户端要验证服务端身份, 服务器段也要验证客户端身份, 只有允许的客户端, 才能发起请求
+<br>
+<br>所以，如果服务端需要验证客户端身份，那对方必须给你一个他信任的客户端证书，
+<br>要么就是：你自己生成一个客户端证书，让对方去签名。
+<br>
+<br>总之必须由对方提供，你自己生成的自签名证书，是不可能在对方的信任列表里的。
+<br>如果手里现在只有一个证书，应该有两种情况：1. 这个是服务端证书，只需要单向握 2. 需要双向握手，对方少给你一个证书
+<br>
+<br>我文章中单向握手的客户端的例子
+<br>客户端不向服务端提供客户端证书
+<br>客户端只验证服务端证书
+<br>即clientWithoutCert()这个列子
+<br>
+<br>
+<br>理解了原理最重要
+<br>后续的问题就都不难了。
+<br>
+<br>原理特别简单：你自己做张信用卡，自己签个名，去商店买东西，没人要
+<br>于是你找银行给你背书：此信用卡有效，和银行账户绑定，你四处用，就okay了
+<br>但是银行给你签名要花钱，你只是试着玩，于是你找朋友商店，让他给你签个名，你这张卡在他的店里面有效，于是，你的卡在他的店里就能用了
+<br>
+<br>所以不存在谁是客户端，谁是服务端，只是看谁签名，谁信任谁，就这样。把这个印在脑子里，就特别简单。
+<br>
+<br>
+<br>
+    </div>
+    
+
+            </td>
+  </tr>
+  <tr>
+    <td class="postauthor"><a href="http://www.iteye.com/topic/1125183#">返回顶楼</a></td>
+    <td class="postcontent">
+      <div class="icons">
+        <a href="http://weli.iteye.com/" class="icon_www" title="浏览作者的博客">&nbsp;</a>
+        <a href="http://weli.iteye.com/blog/profile" class="icon_profile" title="浏览作者资料">&nbsp;</a>
+        <a href="http://my.iteye.com/messages/new?message%5Breceiver_name%5D=%E9%98%BF%E7%94%B7bluedash" class="icon_pm" title="发送站内短信">&nbsp;</a>
+        <a href="http://weli.iteye.com/blog/guest_book" class="icon_guestbook" title="给作者留言">&nbsp;</a>
+        <a href="http://my.iteye.com/feed?subscription%5Bsubscribed_user_name%5D=%E9%98%BF%E7%94%B7bluedash" class="icon_rss" onclick="var f = document.createElement(&#39;form&#39;); f.style.display = &#39;none&#39;; this.parentNode.appendChild(f); f.method = &#39;POST&#39;; f.action = this.href;var s = document.createElement(&#39;input&#39;); s.setAttribute(&#39;type&#39;, &#39;hidden&#39;); s.setAttribute(&#39;name&#39;, &#39;authenticity_token&#39;); s.setAttribute(&#39;value&#39;, &#39;SfF1/9U/MxXb3AOPQyQkkTzhWHayuHZfDtsJnYvKF1I=&#39;); f.appendChild(s);f.submit();return false;" title="关注作者">&nbsp;</a>
+                  <a href="http://www.iteye.com/topic/1125183#2363006" title="阿男bluedash回帖:SSL介绍与Java实例">回帖地址</a>
+              </div>
+                        <div id="post_rate_box_2363006" class="post_rate_box"><a href="http://www.iteye.com/topic/1125183#" onclick="return false;" class="good" title="好">0</a> <a href="http://www.iteye.com/topic/1125183#" onclick="return false;" class="hidden" title="差">0</a> 请登录后投票</div>              </td>
+</tr>
+<tr class="sep2"><td colspan="2"></td></tr>
+<tr id="2363008">
+  <td class="postauthor">
+    <ul>
+      <li class="name">阿男bluedash</li>
+      <li>等级: 初级会员</li>
+      <li><a href="http://weli.iteye.com/" target="_blank"><img alt="阿男bluedash的博客" class="logo" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/5bad9481-0b9b-3304-b845-8aa4deba7ae4.jpg" title="阿男bluedash的博客: 排骨藕汤" width=""></a></li>
+      <li>性别: <img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/icon_minigender_1.gif" title="男"></li>      <li>文章: 16</li>
+      <li>积分: 70</li>
+      <li>来自: 北京</li>
+      <li><img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/offline.gif"></li>
+    </ul>
+  </td>
+  <td class="postcontent">
+    <div class="postactions">
+      <div class="description">
+        &nbsp;&nbsp;
+        发表时间：2012-07-12&nbsp;&nbsp;
+        
+      </div>
+      <div class="links">
+        
+        
+          
+          
+          
+        
+      </div>
+    </div>
+    <div class="postbody clearfix">
+	    
+      
+      
+      keystore没什么神奇的，就是一个钱包，里面有你自己的卡（自己的证书），可以拿去用，还有几张证书（第三方机构的证书），别人在你这用卡的时候，你对证书查，发现别人的卡是你这证书上面机构发的，你就信任。<br>
+    </div>
+    
+
+            </td>
+  </tr>
+  <tr>
+    <td class="postauthor"><a href="http://www.iteye.com/topic/1125183#">返回顶楼</a></td>
+    <td class="postcontent">
+      <div class="icons">
+        <a href="http://weli.iteye.com/" class="icon_www" title="浏览作者的博客">&nbsp;</a>
+        <a href="http://weli.iteye.com/blog/profile" class="icon_profile" title="浏览作者资料">&nbsp;</a>
+        <a href="http://my.iteye.com/messages/new?message%5Breceiver_name%5D=%E9%98%BF%E7%94%B7bluedash" class="icon_pm" title="发送站内短信">&nbsp;</a>
+        <a href="http://weli.iteye.com/blog/guest_book" class="icon_guestbook" title="给作者留言">&nbsp;</a>
+        <a href="http://my.iteye.com/feed?subscription%5Bsubscribed_user_name%5D=%E9%98%BF%E7%94%B7bluedash" class="icon_rss" onclick="var f = document.createElement(&#39;form&#39;); f.style.display = &#39;none&#39;; this.parentNode.appendChild(f); f.method = &#39;POST&#39;; f.action = this.href;var s = document.createElement(&#39;input&#39;); s.setAttribute(&#39;type&#39;, &#39;hidden&#39;); s.setAttribute(&#39;name&#39;, &#39;authenticity_token&#39;); s.setAttribute(&#39;value&#39;, &#39;SfF1/9U/MxXb3AOPQyQkkTzhWHayuHZfDtsJnYvKF1I=&#39;); f.appendChild(s);f.submit();return false;" title="关注作者">&nbsp;</a>
+                  <a href="http://www.iteye.com/topic/1125183#2363008" title="阿男bluedash回帖:SSL介绍与Java实例">回帖地址</a>
+              </div>
+                        <div id="post_rate_box_2363008" class="post_rate_box"><a href="http://www.iteye.com/topic/1125183#" onclick="return false;" class="good" title="好">0</a> <a href="http://www.iteye.com/topic/1125183#" onclick="return false;" class="hidden" title="差">0</a> 请登录后投票</div>              </td>
+</tr>
+<tr class="sep2"><td colspan="2"></td></tr>
+
+  </tbody>
+</table>
+
+
+<div class="actions">
+  <div class="buttons"></div>
+  <div class="wrapper"><div class="pagination"><span class="disabled prev_page">« 上一页</span> <span class="current">1</span> <a href="http://www.iteye.com/topic/1125183?page=2" rel="next">2</a> <a href="http://www.iteye.com/topic/1125183?page=3">3</a> <a href="http://www.iteye.com/topic/1125183?page=2" class="next_page" rel="next">下一页 »</a></div></div>
+</div>
+
+<div>
+  <div class="crumbs">
+    <a href="http://www.iteye.com/forums">论坛首页</a> <span class="arrow">→</span>
+    <a href="http://www.iteye.com/forums/board/Java">Java企业应用版</a>
+    <br><br>跳转论坛:<select id="forum_urlname" name="forum[urlname]" onchange="window.location=&#39;/forums/board/&#39;+this.value"><option value="mobile">移动开发技术</option>
+<option value="web">Web前端技术</option>
+<option value="Java" selected="selected">Java企业应用</option>
+<option value="language">编程语言技术</option>
+<option value="Tech">综合技术</option>
+<option value="New">入门技术</option>
+<option value="Job">招聘求职</option>
+<option value="Life">海阔天空</option></select>
+    
+  </div>
+
+  
+</div>
+
+<div style="display:none">
+  <form action="http://www.iteye.com/posts/rate" id="post_rate_form" method="post" onsubmit="new Ajax.Request(&#39;/posts/rate&#39;, {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)}); return false;"><div style="margin:0;padding:0;display:inline"><input name="authenticity_token" type="hidden" value="SfF1/9U/MxXb3AOPQyQkkTzhWHayuHZfDtsJnYvKF1I="></div>
+    <input type="hidden" id="post_rate_id" name="id">
+    <input type="hidden" id="post_rate_type" name="type">
+  </form></div>
+
+<script type="text/javascript">
+  function processComment() {
+    fix_image_size($$('div.postbody img'), 760);
+    
+    $$('#forum_main > #posts > tr[id]').each(function(tr){
+      var post_id = tr.id;
+      $$("#"+post_id+" pre[name=code]").each(function(pre, index){
+        var location = window.location;
+        source_url = location.protocol + "//" + location.host + location.pathname + location.search;
+        source_url += "#" + post_id;
+        pre.writeAttribute('codeable_type', 'Post');
+        pre.writeAttribute('codeable_id', post_id);
+        pre.writeAttribute('source_url', source_url);
+        pre.writeAttribute('pre_index', index);
+        pre.writeAttribute('title', 'SSL介绍与Java实例');
+      });
+    });
+  }
+
+  dp.SyntaxHighlighter.HighlightAll('code', true, true);
+  processComment();
+  code_favorites_init();
+
+  function rate_post(id, type) {
+    Element.update('post_rate_box_' + id, '提交中...');
+    new Ajax.Request('/posts/rate', {asynchronous:true, evalScripts:true, parameters:{"id":id, "type":type}});
+  }
+
+  function rate_topic(type) {
+    Element.update('topic_rate_box', '提交中...');
+    new Ajax.Request('/topics/rate', {asynchronous:true, evalScripts:true, parameters:{"id":1125183, "type":type}});
+  }
+</script>
+
+
+
+        </div>
+        <div id="nav">
+  <div class="wrapper">
+    <ul>
+            <li><a href="http://www.iteye.com/">首页</a></li>
+      <li><a href="http://www.iteye.com/news">资讯</a></li>
+      <li><a href="http://www.iteye.com/magazines">精华</a></li>
+      <li><a href="http://www.iteye.com/forums" class="selected">论坛</a></li>
+      <li><a href="http://www.iteye.com/ask">问答</a></li>
+      <li><a href="http://www.iteye.com/blogs">博客</a></li>
+      <li><a href="http://www.iteye.com/blogs/subjects">专栏</a></li>
+      <li><a href="http://www.iteye.com/groups">群组</a></li>
+      <!-- <li><a target="_blank" href="http://job.iteye.com/iteye">招聘</a></li>-->
+      <li><a target="_blank" href="http://lib.csdn.net/">知识库</a></li>
+      <li class="last"><a href="http://www.iteye.com/search">搜索</a></li>
+    </ul>
+  </div>
+</div>
+      </div>
+      <div id="footer">
+  <div id="site_nav">
+    <ul>
+      <li><a href="http://www.iteye.com/index/service">广告服务</a></li>
+      <li><a href="http://webmaster.iteye.com/">ITeye黑板报</a></li>
+      <li><a href="http://www.iteye.com/index/contactus">联系我们</a></li>
+      <li class="last"><a href="http://www.iteye.com/index/friend_links">友情链接</a></li>
+    </ul>
+  </div>
+  <div id="copyright">
+    © 2003-2017 ITeye.com.    [ <a href="http://www.miibeian.gov.cn/">京ICP证070598号</a>  京公网安备11010502027441 ]<br>
+    北京创新乐知信息技术有限公司 版权所有<br>
+  </div>
+</div>
+    </div>
+    <script type="text/javascript">
+  document.write("<img src='http://stat.iteye.com/?url="+ encodeURIComponent(document.location.href) + "&referrer=" + encodeURIComponent(document.referrer) + "&user_id=' width='0' height='0' />");
+</script><img src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/saved_resource" width="0" height="0">
+
+<script src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/tracking.js.下载" type="text/javascript"></script>
+
+    <script language="javascript" type="text/javascript" src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/async_new.js.下载"></script>
+<script src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/jquery-1.11.1.min.js.下载" type="text/javascript"></script>
+<script type="text/javascript">var $csdn_iteye_jq = jQuery.noConflict();// 解决jq与prototype.js命名空间冲突的问题</script>
+<script src="./SSL介绍与Java实例 - Java,Web,Socket,Security,SSL - Java - ITeye论坛_files/tracking.js(1).下载" type="text/javascript"></script>
+  
+
+</body></html>

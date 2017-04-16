@@ -1,0 +1,79 @@
+
+<h1>t-io 1.0.1发布，更快更稳更好用</h1>
+
+更好用的TCP长连接框架，t-io 1.0.1正式版发布，已更新到maven中心仓库，t-io详细介绍请前往: <a href="https://git.oschina.net/tywo45/t-io" target="_blank">https://git.oschina.net/tywo45/t-io</a>
+
+<br>
+
+
+
+<ol>
+	<li>
+		<h3>
+		更快
+		</h3>
+		本次优化过后，直接把每秒收发条数从<strong>138万</strong>提升到<strong>283万</strong>，快到令人窒息。
+	</li>
+	<li>
+		<h3>
+		更稳
+		</h3>
+		<strong>南京皓叶腾信息科技有限公司</strong>免费为t-io提供了专业的测试，让人更放心
+	</li>
+	<li>
+		<h3>
+		更好用
+		</h3>
+		API多处优化，更符合普通人的思维，体现<strong>API自注释能力</strong>
+	</li>
+</ol>
+
+<h3>
+修改点
+</h3>
+<li>
+	bytebuffer组合优化，让速度更快
+</li>
+<li>
+	断连后自动连接优化，以前是重连后产生一个新的上下文对象，把原对象的清理工作留给用户，现在重连后仍然用老的上下文，可维护性大大提升
+</li>
+<li>
+	增加当前处于连接成功状态的集合和当前处于关闭状态的集合，管理服务器时会有这样的需求（需要知道哪些服务器连不上了等）
+</li>
+<li>
+	IM例子性能优化，部分交互格式从json转换成protobuf(本项目提供的IM例子，在作者眼中，已经不仅仅是一个例子了，它目前已经是一个性能测试小工具，将来还可能成为talent-im的雏形和灵感来源)
+</li>
+<li>
+	其它零碎问题修改及两处API变动
+</li>
+
+<h3>
+IM例子性能提升
+</h3>
+肩负性能测试任务和监控任务的IM例子，本次又大大提升了性能，原来<strong>每秒发送138万条消息</strong>，本次直接提升到了<strong>每秒发送283万条消息</strong>，每秒整整多发了100万条消息。这个性能的提升主要归功于以下优化点
+<li>
+	优化了消息头的结构，从原来固定的15字节变成4、6、10字节(具体多少字节是根据消息内容来的)，这个调整的灵感来源作者最近实现的<strong><a href='https://git.oschina.net/tywo45/talent-proxy-mysql' target='_blank'>mysql交互协议</a></strong>，用bit标识位来动态决定消息头的长度
+</li>
+<li>
+	部分消息体由原来的json转变成protobuf，这个会让解析更快，体积更小。感谢google提供这么好的工具。
+</li>
+<li>
+	增加消息体压缩功能，为以后传输音视频打下基础
+</li>
+
+
+<h3>性能测试步骤及数据</h3>
+<table>
+	<tr>
+		<td>
+		<img src='https://git.oschina.net/tywo45/t-io/raw/master/docs/step/aio-test-step-4.png?dir=0&filepath=docs%2Fstep%2Faio-test-step-4.png&oid=31c3c780c6e80d8521c525532feda72a4e3e8ef3&sha=354aef69440efde33e55b51dbe564d6029339f6b'>
+		</td>
+	</tr>
+	<tr>
+		<td>
+		<img  src='https://git.oschina.net/tywo45/t-io/raw/master/docs/performance/client-11.png?dir=0&filepath=docs%2Fperformance%2Fclient-11.png&oid=ba5c926ed2d6adf8a4710ac9bb58ab821e165d22&sha=d7818edf0a3f9185465f402f9752d230096eb21b'>
+		</img>
+		</td>
+	</tr>
+</table>
+	

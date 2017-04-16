@@ -1,0 +1,78 @@
+.dp-highlighter
+{
+  font-family: Monaco, DejaVu Sans Mono, Bitstream Vera Sans Mono, Consolas, Courier New, monospace;
+  font-size: 12px;
+  background-color: transparent;
+  width: 97%;
+  overflow: auto;
+  margin-left: 9px;
+  padding: 1px; /* adds a little border on top when controls are hidden */
+  word-break: break-all;
+  word-wrap: break-word;
+}
+
+.dp-highlighter ol 
+{
+  border: 1px solid #D1D7DC;  
+  list-style: decimal; /* for ie */
+  background-color: #fff;
+  margin: 0px 0px 1px 0px; /* 1px bottom margin seems to fix occasional Firefox scrolling */
+  padding: 2px 0;
+  color: #2B91AF;
+}
+
+.dp-highlighter ol li,
+.dp-highlighter .columns div
+{
+  border-left: 1px solid #D1D7DC;
+  background-color: #FAFAFA;
+  padding-left: 10px;
+  line-height: 18px;
+  margin: 0 0 0 38px;
+}
+
+.dp-highlighter .columns 
+{
+  color: gray;
+  overflow: hidden;
+  width: 100%;
+}
+
+.dp-highlighter .columns div 
+{
+  padding-bottom: 5px;
+}
+
+.dp-highlighter ol li span 
+{
+  color: Black;
+}
+
+/* Styles for the tools */
+
+.dp-highlighter .tools 
+{
+  padding: 3px;
+  text-align: left;
+  margin: 0;
+  color: black;
+  font-weight: bold;
+}
+
+/* About dialog styles */
+
+.dp-about { background-color: #fff; margin: 0px; padding: 0px; }
+.dp-about table { width: 100%; height: 100%; font-size: 11px; font-family: Tahoma, Verdana, Arial, sans-serif !important; }
+.dp-about td { padding: 10px; vertical-align: top; }
+.dp-about .copy { border-bottom: 1px solid #ACA899; height: 95%; }
+.dp-about .title { color: red; font-weight: bold; }
+.dp-about .para { margin: 0 0 4px 0; }
+.dp-about .footer { background-color: #ECEADB; border-top: 1px solid #fff; text-align: right; }
+.dp-about .close { font-size: 11px; font-family: Tahoma, Verdana, Arial, sans-serif !important; background-color: #ECEADB; width: 60px; height: 22px; }
+
+/* Language specific styles */
+
+.dp-highlighter .comment, .dp-highlighter .comments { color: #008200; padding: 0; margin: 0; width: auto; border: 0}
+.dp-highlighter .string { color: blue; }
+.dp-highlighter .keyword { color: #7f0055; font-weight: bold; }
+.dp-highlighter .preprocessor { color: gray; }

@@ -1,0 +1,18 @@
+@charset "utf-8";
+/* CSS Document */
+.commentform{/*padding:0 0 20px 0;*/}
+.commentform ul{clear: both; margin:0 20px 5px 20px; /*overflow: hidden;*/ font:normal 12px/24px Arial, Helvetica, sans-serif;}
+.commentform .left{float: left; display: block; width:80px;}
+.commentform .right{display: block; margin-left:90px;}
+.commentform textarea{padding:5px; border:solid 1px #ddd; color:#555; font:normal 14px/24px Arial, Helvetica, sans-serif;}
+
+
+/*修改过的代码：*/
+#lang_list{ width:388px; background-color: #FFFFFF;  border:solid 1px #ccc;font-size:12px;}
+#lang_list a {display: inline-block; cursor: pointer; border-right: 1px solid #ccc; border-bottom: 1px solid #ccc;padding: 0px 5px; text-align: center; float: left;}
+#lang_list a:hover { background-color:#666; color:#fff;}
+
+/*新增代码：*/
+.long_name{ width:70px;}
+.duan_name{ width:25px;}
+.zhong_name{ width:48px;}

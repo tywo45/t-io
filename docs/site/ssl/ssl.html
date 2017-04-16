@@ -1,0 +1,40 @@
+
+<ol>
+<li>
+<h3>为服务端生成一个数字证书</h3>
+keytool -genkey -v -alias bluedash-ssl-demo-server -keyalg RSA -keystore c:/server_ks -dname "CN=localhost,OU=cn,O=cn,L=cn,ST=cn,C=cn" -storepass server -keypass 123123
+</li>
+
+<li>
+<h3>生成一个客户端的证书仓库，因为keytool不能仅生成一个空白仓库，所以和服务端一样，我们还是生成一个证书加一个仓库（客户端证书加仓库）</h3>
+keytool -genkey -v -alias bluedash-ssl-demo-client -keyalg RSA -keystore c:/client_ks -dname "CN=localhost,OU=cn,O=cn,L=cn,ST=cn,C=cn" -storepass client -keypass 456456
+</li>
+
+<li>
+<h3>把服务端的证书导出来，并导入到客户端的仓库。第一步是导出服务端的证书</h3>
+keytool -export -alias bluedash-ssl-demo-server -keystore c:/server_ks -file c:/server_key.cer<br>
+注意密码是 storepass 变量指示的值，此处为server
+</li>
+
+
+
+<li>
+<h3>把导出的证书导入到客户端证书仓库</h3>
+keytool -import -trustcacerts -alias bluedash-ssl-demo-server -file c:/server_key.cer -keystore c:/client_ks
+<br>
+注意密码是 storepass 变量指示的值，此处为client
+</li>
+
+
+
+
+
+<li>
+<h3>把客户端的证书导出来，并导入到服务端的证书仓库</h3>
+keytool -export -alias bluedash-ssl-demo-client -keystore c:/client_ks -file c:/client_key.cer
+<br>
+注意密码是 storepass 变量指示的值，此处为client
+</li>
+
+
+</ol>
