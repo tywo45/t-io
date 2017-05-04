@@ -1,6 +1,5 @@
 package org.tio.core;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,15 +11,14 @@ import org.tio.core.intf.Packet;
 import org.tio.json.Json;
 
 import com.xiaoleilu.hutool.date.DatePattern;
-import com.xiaoleilu.hutool.date.DateUtil;
+import com.xiaoleilu.hutool.date.DateTime;
 
 /**
  * @author tanyaowu 
  * 2017年4月16日 下午6:45:21
  */
-public class DefaultClientTraceHandler<SessionContext, P extends Packet, R> implements ClientTraceHandler<SessionContext, P, R>
-{
-	private static Logger log = LoggerFactory.getLogger(DefaultClientTraceHandler.class);
+public class DefaultClientTraceHandler<SessionContext, P extends Packet, R> implements ClientTraceHandler<SessionContext, P, R> {
+	//	private static Logger log = LoggerFactory.getLogger(DefaultClientTraceHandler.class);
 
 	private Logger clientTraceLog = LoggerFactory.getLogger("tio-client-trace-log");
 
@@ -28,38 +26,33 @@ public class DefaultClientTraceHandler<SessionContext, P extends Packet, R> impl
 	 * 
 	 * @author: tanyaowu
 	 */
-	public DefaultClientTraceHandler()
-	{
+	public DefaultClientTraceHandler() {
 	}
 
 	/** 
 	 * @param channelContext
 	 * @param clientAction
 	 * @param packet
-	 * @param msg
+	 * @param extmsg
 	 * @author: tanyaowu
 	 */
 	@Override
-	public void traceClient(ChannelContext<SessionContext, P, R> channelContext, ClientAction clientAction, Packet packet, Map<String, Object> msg)
-	{
+	public void traceClient(ChannelContext<SessionContext, P, R> channelContext, ClientAction clientAction, Packet packet, Map<String, Object> extmsg) {
 		Map<String, Object> map = new HashMap<>();
-		map.put("time", DateUtil.format(new Date(), DatePattern.NORM_DATETIME_MS_PATTERN));
+		map.put("time", DateTime.now().toString(DatePattern.NORM_DATETIME_MS_FORMAT));
 		map.put("action", clientAction);
 		map.put("c_id", channelContext.getId());
-
+		map.put("c", channelContext.toString());
 		MDC.put("tio_client", channelContext.getClientNodeTraceFilename());
 
-		if (packet != null)
-		{
-			map.put("p_id", packet.getId());
+		if (packet != null) {
+			map.put("p_id", channelContext.getClientNode().getPort() + "_" + packet.getId()); //packet id
 			map.put("p_respId", packet.getRespId());
-
 			map.put("packet", packet.logstr());
 		}
 
-		if (msg != null)
-		{
-			map.putAll(msg);
+		if (extmsg != null) {
+			map.putAll(extmsg);
 		}
 		clientTraceLog.info(Json.toJson(map));
 	}

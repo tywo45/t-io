@@ -14,8 +14,7 @@ import org.tio.core.intf.Packet;
  * @author tanyaowu 
  * 2017年4月1日 上午9:31:16
  */
-public class ClientChannelContext<SessionContext, P extends Packet, R> extends ChannelContext<SessionContext, P, R>
-{
+public class ClientChannelContext<SessionContext, P extends Packet, R> extends ChannelContext<SessionContext, P, R> {
 
 	private String bindIp;
 
@@ -28,8 +27,7 @@ public class ClientChannelContext<SessionContext, P extends Packet, R> extends C
 	 * @author: tanyaowu
 	 * 
 	 */
-	public ClientChannelContext(GroupContext<SessionContext, P, R> groupContext, AsynchronousSocketChannel asynchronousSocketChannel)
-	{
+	public ClientChannelContext(GroupContext<SessionContext, P, R> groupContext, AsynchronousSocketChannel asynchronousSocketChannel) {
 		super(groupContext, asynchronousSocketChannel);
 	}
 
@@ -44,8 +42,7 @@ public class ClientChannelContext<SessionContext, P extends Packet, R> extends C
 	 * 
 	 */
 	@Override
-	public Node createClientNode(AsynchronousSocketChannel asynchronousSocketChannel) throws IOException
-	{
+	public Node createClientNode(AsynchronousSocketChannel asynchronousSocketChannel) throws IOException {
 		InetSocketAddress inetSocketAddress = (InetSocketAddress) asynchronousSocketChannel.getLocalAddress();
 		Node clientNode = new Node(inetSocketAddress.getHostString(), inetSocketAddress.getPort());
 		return clientNode;
@@ -54,32 +51,28 @@ public class ClientChannelContext<SessionContext, P extends Packet, R> extends C
 	/**
 	 * @return the bindIp
 	 */
-	public String getBindIp()
-	{
+	public String getBindIp() {
 		return bindIp;
 	}
 
 	/**
 	 * @param bindIp the bindIp to set
 	 */
-	public void setBindIp(String bindIp)
-	{
+	public void setBindIp(String bindIp) {
 		this.bindIp = bindIp;
 	}
 
 	/**
 	 * @return the bindPort
 	 */
-	public Integer getBindPort()
-	{
+	public Integer getBindPort() {
 		return bindPort;
 	}
 
 	/**
 	 * @param bindPort the bindPort to set
 	 */
-	public void setBindPort(Integer bindPort)
-	{
+	public void setBindPort(Integer bindPort) {
 		this.bindPort = bindPort;
 	}
 

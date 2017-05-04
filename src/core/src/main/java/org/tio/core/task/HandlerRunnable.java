@@ -21,19 +21,18 @@ import org.tio.core.threadpool.AbstractQueueRunnable;
  * 2012-08-09
  * 
  */
-public class HandlerRunnable<SessionContext, P extends Packet, R> extends AbstractQueueRunnable<P>
-{
+public class HandlerRunnable<SessionContext, P extends Packet, R> extends AbstractQueueRunnable<P> {
 	private static final Logger log = LoggerFactory.getLogger(HandlerRunnable.class);
 
 	private ChannelContext<SessionContext, P, R> channelContext = null;
 
-	public HandlerRunnable(ChannelContext<SessionContext, P, R> channelContext, Executor executor)
-	{
+	public HandlerRunnable(ChannelContext<SessionContext, P, R> channelContext, Executor executor) {
 		super(executor);
-		this.setChannelContext(channelContext);
+		this.channelContext = channelContext;
 	}
+
 	private AtomicLong synFailCount = new AtomicLong();
-	
+
 	/**
 	 * 处理packet
 	 * @param packet
@@ -41,78 +40,45 @@ public class HandlerRunnable<SessionContext, P extends Packet, R> extends Abstra
 	 *
 	 * @author: tanyaowu
 	 */
-	public int handler(P packet)
-	{
+	public int handler(P packet) {
 		int ret = 0;
 
-		try
-		{
+		try {
 			GroupContext<SessionContext, P, R> groupContext = channelContext.getGroupContext();
 
 			Integer synSeq = packet.getSynSeq();
-			if (synSeq != null && synSeq > 0)
-			{
-				ChannelContextMapWithLock<SessionContext, P, R> syns = channelContext.getGroupContext().getSyns();
+			if (synSeq != null && synSeq > 0) {
+				ChannelContextMapWithLock<SessionContext, P, R> syns = channelContext.getGroupContext().getWaitingResps();
 				P initPacket = syns.remove(synSeq);
-				if (initPacket != null)
-				{
-					synchronized (initPacket)
-					{
+				if (initPacket != null) {
+					synchronized (initPacket) {
 						syns.put(synSeq, packet);
 						initPacket.notify();
 					}
 					groupContext.getGroupStat().getHandledPacket().incrementAndGet();
-				} else
-				{
+				} else {
 					log.error("[{}]同步消息失败, synSeq is {}, 但是同步集合中没有对应key值", synFailCount.incrementAndGet(), synSeq);
 				}
-			} else
-			{
+			} else {
 				channelContext.traceClient(ClientAction.BEFORE_HANDLER, packet, null);
 				groupContext.getAioHandler().handler(packet, channelContext);
 				channelContext.traceClient(ClientAction.AFTER_HANDLER, packet, null);
 				groupContext.getGroupStat().getHandledPacket().incrementAndGet();
 			}
 			ret++;
-		} catch (Exception e)
-		{
+		} catch (Exception e) {
 			log.error(e.toString(), e);
 			return ret;
-		} finally
-		{
+		} finally {
 
 		}
-	
+
 		return ret;
 	}
 
-	
-
-	/**
-	 * 清空处理的队列消息
-	 */
-	public void clearMsgQueue()
-	{
-		msgQueue.clear();
-	}
-
-	public ChannelContext<SessionContext, P, R> getChannelContext()
-	{
-		return channelContext;
-	}
-
-	public void setChannelContext(ChannelContext<SessionContext, P, R> channelContext)
-	{
-		this.channelContext = channelContext;
-	}
-
 	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append(this.getClass().getSimpleName()).append(":");
-		builder.append(channelContext.toString());
-		return builder.toString();
+	public String toString() {
+		return this.getClass().getSimpleName() + ":" + channelContext.toString();
 	}
 
 	/** 
@@ -123,11 +89,9 @@ public class HandlerRunnable<SessionContext, P extends Packet, R> extends Abstra
 	 * 
 	 */
 	@Override
-	public void runTask()
-	{
+	public void runTask() {
 		P packet = null;
-		while ((packet = msgQueue.poll()) != null)
-		{
+		while ((packet = msgQueue.poll()) != null) {
 			handler(packet);
 		}
 	}

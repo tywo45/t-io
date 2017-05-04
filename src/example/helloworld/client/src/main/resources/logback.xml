@@ -97,5 +97,33 @@
 		<appender-ref ref="root-file-info"/>
 		<appender-ref ref="root-file-debug"/>
 	</root>
+	
+	
+	
+	<!-- 跟踪客户端行为 -->
+	<appender name="tio-client-trace-log-appender" class="ch.qos.logback.classic.sift.SiftingAppender">
+		<discriminator>
+			<Key>tio_client</Key>
+			<DefaultValue>unknown</DefaultValue>
+		</discriminator>
+		
+		<sift>
+			<appender name="${tio_client}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+				<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+					<fileNamePattern>${log.dir}/tio/client-trace/${tio_client}_%d{yyyyMMdd}.log</fileNamePattern>
+					<maxFileSize>20MB</maxFileSize>
+				</rollingPolicy>
+				<Append>false</Append>
+				<layout class="ch.qos.logback.classic.PatternLayout">
+					<pattern>%m%n</pattern>
+				</layout>
+			</appender>
+		</sift>
+	</appender>
+	
+	<logger name="tio-client-trace-log" additivity="false">
+		<level value="info"/>
+		<appender-ref ref="tio-client-trace-log-appender"/>
+	</logger>
 
 </configuration>

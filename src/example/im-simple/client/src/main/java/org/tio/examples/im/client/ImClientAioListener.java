@@ -231,7 +231,7 @@ public class ImClientAioListener implements ClientAioListener<ImSessionContext, 
 				
 				ClientGroupContext<ImSessionContext, ImPacket, Object> clientGroupContext = (ClientGroupContext<ImSessionContext, ImPacket, Object>) channelContext
 						.getGroupContext();
-				ObjWithLock<Set<ChannelContext<ImSessionContext, ImPacket, Object>>> setWithLock = clientGroupContext.getConnections().getSetWithLock();
+				ObjWithLock<Set<ChannelContext<ImSessionContext, ImPacket, Object>>> setWithLock = clientGroupContext.connections.getSetWithLock();
 				Set<ChannelContext<ImSessionContext, ImPacket, Object>> set = setWithLock.getObj();
 				ReadLock readLock = setWithLock.getLock().readLock();
 

@@ -6,7 +6,6 @@ import java.net.StandardSocketOptions;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,16 +13,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.Node;
 import org.tio.core.intf.Packet;
-import org.tio.core.threadpool.SynThreadPoolExecutor;
-import org.tio.core.threadpool.intf.SynRunnableIntf;
 
 /**
  * 
  * @author tanyaowu 
  *
  */
-public class AioServer<SessionContext, P extends Packet, R>
-{
+public class AioServer<SessionContext, P extends Packet, R> {
 	private static Logger log = LoggerFactory.getLogger(AioServer.class);
 
 	private ServerGroupContext<SessionContext, P, R> serverGroupContext;
@@ -42,8 +38,7 @@ public class AioServer<SessionContext, P extends Packet, R>
 	 * 2017年1月2日 下午5:53:06
 	 *
 	 */
-	public AioServer(ServerGroupContext<SessionContext, P, R> serverGroupContext)
-	{
+	public AioServer(ServerGroupContext<SessionContext, P, R> serverGroupContext) {
 		super();
 		this.serverGroupContext = serverGroupContext;
 	}
@@ -51,33 +46,29 @@ public class AioServer<SessionContext, P extends Packet, R>
 	/**
 	 * @return the serverGroupContext
 	 */
-	public ServerGroupContext<SessionContext, P, R> getServerGroupContext()
-	{
+	public ServerGroupContext<SessionContext, P, R> getServerGroupContext() {
 		return serverGroupContext;
 	}
 
 	/**
 	 * @return the serverSocketChannel
 	 */
-	public AsynchronousServerSocketChannel getServerSocketChannel()
-	{
+	public AsynchronousServerSocketChannel getServerSocketChannel() {
 		return serverSocketChannel;
 	}
 
 	/**
 	 * @param serverGroupContext the serverGroupContext to set
 	 */
-	public void setServerGroupContext(ServerGroupContext<SessionContext, P, R> serverGroupContext)
-	{
+	public void setServerGroupContext(ServerGroupContext<SessionContext, P, R> serverGroupContext) {
 		this.serverGroupContext = serverGroupContext;
 	}
 
-	public void start(String serverIp, int serverPort) throws IOException
-	{
+	public void start(String serverIp, int serverPort) throws IOException {
 		this.serverNode = new Node(serverIp, serverPort);
-		ExecutorService groupExecutor = serverGroupContext.getGroupExecutor();
+		//		ExecutorService groupExecutor = serverGroupContext.getGroupExecutor();
 
-		AsynchronousChannelGroup channelGroup = AsynchronousChannelGroup.withThreadPool(groupExecutor);
+		AsynchronousChannelGroup channelGroup = AsynchronousChannelGroup.withThreadPool(serverGroupContext.getGroupExecutor());
 		serverSocketChannel = AsynchronousServerSocketChannel.open(channelGroup);
 
 		serverSocketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
@@ -85,11 +76,9 @@ public class AioServer<SessionContext, P extends Packet, R>
 
 		InetSocketAddress listenAddress = null;
 
-		if (StringUtils.isBlank(serverIp))
-		{
+		if (StringUtils.isBlank(serverIp)) {
 			listenAddress = new InetSocketAddress(serverPort);
-		} else
-		{
+		} else {
 			listenAddress = new InetSocketAddress(serverIp, serverPort);
 		}
 
@@ -98,7 +87,7 @@ public class AioServer<SessionContext, P extends Packet, R>
 		AcceptCompletionHandler<SessionContext, P, R> acceptCompletionHandler = serverGroupContext.getAcceptCompletionHandler();
 		serverSocketChannel.accept(this, acceptCompletionHandler);
 
-		log.error("t-io server started, listen on {}", this.serverNode);
+		log.warn("t-io server started, listen on {}", this.serverNode);
 	}
 
 	/**
@@ -109,53 +98,30 @@ public class AioServer<SessionContext, P extends Packet, R>
 	 * 2017年2月11日 上午8:04:04
 	 *
 	 */
-	public boolean stop()
-	{
+	public boolean stop() {
 		isWaitingStop = true;
 		boolean ret = true;
-		
-		try
-		{
+
+		try {
 			serverSocketChannel.close();
-		} catch (IOException e1)
-		{
+		} catch (IOException e1) {
 			log.error(e1.toString(), e1);
 		}
-		
+
 		ExecutorService groupExecutor = serverGroupContext.getGroupExecutor();
-		SynThreadPoolExecutor<SynRunnableIntf> executor = serverGroupContext.getHandlerExecutorNormPrior();
-		ThreadPoolExecutor closePoolExecutor = serverGroupContext.getClosePoolExecutor();
-		
+		ExecutorService tioExecutor = serverGroupContext.getTioExecutor();
+
 		groupExecutor.shutdown();
-		executor.shutdown();
-		closePoolExecutor.shutdown();
-		
+		tioExecutor.shutdown();
+
 		serverGroupContext.setStopped(true);
-		try
-		{
+		try {
 			ret = ret && groupExecutor.awaitTermination(6000, TimeUnit.SECONDS);
-		} catch (InterruptedException e)
-		{
+			ret = ret && tioExecutor.awaitTermination(6000, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
 			log.error(e.getLocalizedMessage(), e);
 		}
-		
-		try
-		{
-			ret = ret && executor.awaitTermination(6000, TimeUnit.SECONDS);
-		} catch (InterruptedException e)
-		{
-			log.error(e.getLocalizedMessage(), e);
-		}
-		
-		try
-		{
-			ret = ret && closePoolExecutor.awaitTermination(6000, TimeUnit.SECONDS);
-		} catch (InterruptedException e)
-		{
-			log.error(e.getLocalizedMessage(), e);
-		}
-		
-		System.out.println(this.serverNode + " stopped");
+
 		log.info(this.serverNode + " stopped");
 		return ret;
 	}
@@ -163,24 +129,21 @@ public class AioServer<SessionContext, P extends Packet, R>
 	/**
 	 * @return the serverNode
 	 */
-	public Node getServerNode()
-	{
+	public Node getServerNode() {
 		return serverNode;
 	}
 
 	/**
 	 * @return the isWaitingStop
 	 */
-	public boolean isWaitingStop()
-	{
+	public boolean isWaitingStop() {
 		return isWaitingStop;
 	}
 
 	/**
 	 * @param isWaitingStop the isWaitingStop to set
 	 */
-	public void setWaitingStop(boolean isWaitingStop)
-	{
+	public void setWaitingStop(boolean isWaitingStop) {
 		this.isWaitingStop = isWaitingStop;
 	}
 

@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.t-io</groupId>
 		<artifactId>tio-parent</artifactId>
-		<version>1.6.9.v20170408-RELEASE</version>
+		<version>1.7.0.v20170501-RELEASE</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -20,13 +20,13 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 		</dependency>
-		
+
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
-		
+
 		<!-- slf4j-logback绑定 -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
@@ -38,8 +38,8 @@
 			<artifactId>logback-access</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		
-		
+
+
 		<!-- redirect apache commons logging -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -59,7 +59,7 @@
 			<scope>provided</scope>
 		</dependency>
 
-		
+
 
 		<dependency>
 			<groupId>junit</groupId>
@@ -75,7 +75,6 @@
 		<dependency>
 			<groupId>com.xiaoleilu</groupId>
 			<artifactId>hutool-core</artifactId>
-			<version>3.0.3</version>
 		</dependency>
 		<dependency>
 			<groupId>com.alibaba</groupId>

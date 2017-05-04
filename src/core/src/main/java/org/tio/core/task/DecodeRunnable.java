@@ -12,12 +12,8 @@ import org.tio.core.PacketHandlerMode;
 import org.tio.core.exception.AioDecodeException;
 import org.tio.core.intf.AioListener;
 import org.tio.core.intf.Packet;
-import org.tio.core.threadpool.SynThreadPoolExecutor;
-import org.tio.core.threadpool.intf.SynRunnableIntf;
-import org.tio.core.utils.AioUtils;
 import org.tio.core.utils.ByteBufferUtils;
 import org.tio.core.utils.SystemTimer;
-import org.tio.core.utils.ThreadUtils;
 
 /**
  * 解码
@@ -26,17 +22,16 @@ import org.tio.core.utils.ThreadUtils;
  * 2012-08-09
  * 
  */
-public class DecodeRunnable<SessionContext, P extends Packet, R> implements Runnable
-{
+public class DecodeRunnable<SessionContext, P extends Packet, R> implements Runnable {
 	private static final Logger log = LoggerFactory.getLogger(DecodeRunnable.class);
 
 	private ChannelContext<SessionContext, P, R> channelContext = null;
 
 	/**
-	 * 上一次解码，剩下的数据
+	 * 上一次解码剩下的数据
 	 */
 	private ByteBuffer lastByteBuffer = null;
-	
+
 	/**
 	 * 新收到的数据
 	 */
@@ -45,79 +40,57 @@ public class DecodeRunnable<SessionContext, P extends Packet, R> implements Runn
 	/**
 	 * 
 	 */
-	public DecodeRunnable(ChannelContext<SessionContext, P, R> channelContext)
-	{
+	public DecodeRunnable(ChannelContext<SessionContext, P, R> channelContext) {
 		this.channelContext = channelContext;
 	}
 
 	/**
 	 * 清空处理的队列消息
 	 */
-	public void clearMsgQueue()
-	{
+	public void clearMsgQueue() {
 		lastByteBuffer = null;
 		newByteBuffer = null;
 	}
 
-//	/**
-//	 * 
-//	 * @param packets
-//	 * @param byteCount
-//	 */
-//	private void submit(P packet, int byteCount)
-//	{
-//		handler(channelContext, packet, byteCount);
-//	}
+	//	/**
+	//	 * 
+	//	 * @param packets
+	//	 * @param byteCount
+	//	 */
+	//	private void submit(P packet, int byteCount)
+	//	{
+	//		handler(channelContext, packet, byteCount);
+	//	}
 
 	/**
-	 * Handler.
-	 *
-	 * @param <Ext> the generic type
-	 * @param <P> the generic type
-	 * @param <R> the generic type
-	 * @param channelContext the channel context
-	 * @param packet the packet
+	 * 
+	 * @param channelContext
+	 * @param packet
+	 * @param byteCount
+	 * @author: tanyaowu
 	 */
-	public static <SessionContext, P extends Packet, R> void handler(ChannelContext<SessionContext, P, R> channelContext, P packet, int byteCount)
-	{
-		if (channelContext.isClosed() || channelContext.isRemoved())
-		{
-			log.error("{}, closed:{}, removed:{}, packet:{}, stack:{}", channelContext, channelContext.isClosed(), channelContext.isRemoved(), packet.logstr(), ThreadUtils.stackTrace());
-			return;
-		}
-		
+	public static <SessionContext, P extends Packet, R> void handler(ChannelContext<SessionContext, P, R> channelContext, P packet, int byteCount) {
+		//		if (channelContext.isClosed() || channelContext.isRemoved())
+		//		{
+		//			log.error("{}, closed:{}, removed:{}, packet:{}, stack:{}", channelContext, channelContext.isClosed(), channelContext.isRemoved(), packet.logstr(), ThreadUtils.stackTrace());
+		//			return;
+		//		}
+
 		GroupContext<SessionContext, P, R> groupContext = channelContext.getGroupContext();
 		PacketHandlerMode packetHandlerMode = groupContext.getPacketHandlerMode();
-		
-		HandlerRunnable<SessionContext, P, R> handlerRunnable = AioUtils.selectHandlerRunnable(channelContext, packet);
-		if (packetHandlerMode == PacketHandlerMode.QUEUE)
-		{
-			
+
+		HandlerRunnable<SessionContext, P, R> handlerRunnable = channelContext.getHandlerRunnable();
+		if (packetHandlerMode == PacketHandlerMode.QUEUE) {
 			handlerRunnable.addMsg(packet);
-			SynThreadPoolExecutor<SynRunnableIntf> synThreadPoolExecutor = AioUtils.selectHandlerExecutor(channelContext, packet);
-			synThreadPoolExecutor.execute(handlerRunnable);
-		} else
-		{
+			groupContext.getTioExecutor().execute(handlerRunnable);
+		} else {
 			handlerRunnable.handler(packet);
 		}
 	}
-	public ChannelContext<SessionContext, P, R> getChannelContext()
-	{
-		return channelContext;
-	}
-
-	public void setChannelContext(ChannelContext<SessionContext, P, R> channelContext)
-	{
-		this.channelContext = channelContext;
-	}
 
 	@Override
-	public String toString()
-	{
-		StringBuilder builder = new StringBuilder();
-		builder.append(this.getClass().getSimpleName()).append(":");
-		builder.append(channelContext.toString());
-		return builder.toString();
+	public String toString() {
+		return this.getClass().getSimpleName() + ":" + channelContext.toString();
 	}
 
 	/** 
@@ -128,72 +101,64 @@ public class DecodeRunnable<SessionContext, P extends Packet, R> implements Runn
 	 * 
 	 */
 	@Override
-	public void run()
-	{
+	public void run() {
 		ByteBuffer byteBuffer = newByteBuffer;
-		if (byteBuffer != null)
-		{
-			if (lastByteBuffer != null)
-			{
+		if (byteBuffer != null) {
+			if (lastByteBuffer != null) {
 				byteBuffer = ByteBufferUtils.composite(lastByteBuffer, byteBuffer);
 				lastByteBuffer = null;
 			}
-		} else
-		{
+		} else {
 			return;
 		}
 
-		try
-		{
-			label_2: while (true)
-			{
+		try {
+			label_2: while (true) {
 				int initPosition = byteBuffer.position();
 				P packet = channelContext.getGroupContext().getAioHandler().decode(byteBuffer, channelContext);
 
 				if (packet == null)// 数据不够，组不了包
 				{
-					if (log.isDebugEnabled())
-					{
-						log.debug("{},数据不够，组不了包", channelContext.toString());
-					}
+					//					if (log.isDebugEnabled())
+					//					{
+					//						log.debug("{},数据不够，组不了包", channelContext.toString());
+					//					}
 					lastByteBuffer = ByteBufferUtils.copy(byteBuffer, initPosition, byteBuffer.limit());
 					return;
 				} else //组包成功
 				{
 					channelContext.getStat().setLatestTimeOfReceivedPacket(SystemTimer.currentTimeMillis());
-					
+
 					int afterDecodePosition = byteBuffer.position();
 					int len = afterDecodePosition - initPosition;
-					
-					if (len == 0)
-					{
-						String logstr = channelContext + "解码成功, " + packet.logstr() + "," + byteBuffer + " 但是却只消耗了0字节, 这有可能会导致死循环. " + ThreadUtils.stackTrace();
-						log.error(logstr);
-					}
-					
+
+					//					if (len == 0)
+					//					{
+					//						String logstr = channelContext + "解码成功, " + packet.logstr() + "," + byteBuffer + " 但是却只消耗了0字节, 这有可能会导致死循环. " + ThreadUtils.stackTrace();
+					//						log.error(logstr);
+					//					}
+
 					channelContext.getGroupContext().getGroupStat().getReceivedPacket().incrementAndGet();
 					channelContext.getGroupContext().getGroupStat().getReceivedBytes().addAndGet(len);
-					
+
 					channelContext.traceClient(ClientAction.RECEIVED, packet, null);
-					
+
 					handler(channelContext, packet, len);
-					
+
 					AioListener<SessionContext, P, R> aioListener = channelContext.getGroupContext().getAioListener();
-					try
-					{
-						log.info("{} 收到:{}", channelContext, packet.logstr());
+					try {
+						if (log.isInfoEnabled()) {
+							log.info("{} 收到消息 {}", channelContext, packet.logstr());
+						}
 						aioListener.onAfterReceived(channelContext, packet, len);
-					} catch (Exception e)
-					{
+					} catch (Exception e) {
 						log.error(e.toString(), e);
 					}
-					
 
 					int remainingLength = byteBuffer.limit() - byteBuffer.position();
 					if (remainingLength > 0)//组包后，还剩有数据
 					{
-						if (log.isDebugEnabled())
-						{
+						if (log.isDebugEnabled()) {
 							log.debug("{},组包后，还剩有数据:{}", channelContext, remainingLength);
 						}
 						continue label_2;
@@ -205,8 +170,7 @@ public class DecodeRunnable<SessionContext, P extends Packet, R> implements Runn
 					}
 				}
 			}
-		} catch (AioDecodeException e)
-		{
+		} catch (AioDecodeException e) {
 			log.error(channelContext.toString() + "解码异常", e);
 			Aio.close(channelContext, e, "解码异常:" + e.getMessage());
 			return;
@@ -216,8 +180,7 @@ public class DecodeRunnable<SessionContext, P extends Packet, R> implements Runn
 	/**
 	 * @param newByteBuffer the newByteBuffer to set
 	 */
-	public void setNewByteBuffer(ByteBuffer newByteBuffer)
-	{
+	public void setNewByteBuffer(ByteBuffer newByteBuffer) {
 		this.newByteBuffer = newByteBuffer;
 	}
 

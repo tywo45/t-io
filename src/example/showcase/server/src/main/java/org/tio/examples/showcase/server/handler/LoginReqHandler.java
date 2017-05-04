@@ -10,10 +10,10 @@ import org.tio.examples.showcase.common.ShowcasePacket;
 import org.tio.examples.showcase.common.ShowcaseSessionContext;
 import org.tio.examples.showcase.common.Type;
 import org.tio.examples.showcase.common.intf.AbsShowcaseBsHandler;
-import org.tio.examples.showcase.common.json.Json;
 import org.tio.examples.showcase.common.packets.JoinGroupRespBody;
 import org.tio.examples.showcase.common.packets.LoginReqBody;
 import org.tio.examples.showcase.common.packets.LoginRespBody;
+import org.tio.json.Json;
 
 /**
  * @author tanyaowu 

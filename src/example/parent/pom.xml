@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>org.t-io</groupId>
 		<artifactId>tio-parent</artifactId>
-		<version>1.6.9.v20170408-RELEASE</version>
+		<version>1.7.0.v20170501-RELEASE</version>
 		<relativePath>../../parent/pom.xml</relativePath>
 	</parent>
 
@@ -25,6 +25,7 @@
 		<module>../im-simple/common</module>
 		<module>../im-simple/server</module>
 		<module>../im-simple/client</module>
+		
 
 		<module>../helloworld/common</module>
 		<module>../helloworld/client</module>

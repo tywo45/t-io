@@ -5,8 +5,7 @@ package org.tio.core;
  * @author tanyaowu 
  *
  */
-public enum ClientAction
-{
+public enum ClientAction {
 	/**
 	 * 
 	 */
@@ -20,7 +19,7 @@ public enum ClientAction
 	 * 
 	 */
 	BEFORE_SEND(3),
-	
+
 	/**
 	 * 
 	 */
@@ -35,7 +34,7 @@ public enum ClientAction
 	 * 重连
 	 */
 	RE_CONNECT(6),
-	
+
 	/**
 	 * 
 	 */
@@ -44,7 +43,7 @@ public enum ClientAction
 	 * 
 	 */
 	AFTER_HANDLER(8),
-	
+
 	/**
 	 * 
 	 */
@@ -52,10 +51,8 @@ public enum ClientAction
 
 	private final int value;
 
-	public static ClientAction forNumber(int value)
-	{
-		switch (value)
-		{
+	public static ClientAction forNumber(int value) {
+		switch (value) {
 		case 1:
 			return CONNECT;
 		case 2:
@@ -79,16 +76,14 @@ public enum ClientAction
 		}
 	}
 
-	private ClientAction(int value)
-	{
+	private ClientAction(int value) {
 		this.value = value;
 	}
 
 	/**
 	 * @return the value
 	 */
-	public int getValue()
-	{
+	public int getValue() {
 		return value;
 	}
 }

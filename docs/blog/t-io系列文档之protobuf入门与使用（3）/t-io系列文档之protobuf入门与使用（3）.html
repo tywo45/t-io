@@ -1,0 +1,305 @@
+题外话，本来在写bytebuffer相关知识点的，<a href="https://my.oschina.net/u/257950" target="_blank">天蓬小猪</a>问了个protobuf的问题，而<a href="https://www.oschina.net/p/t-io" target="_blank">t-io</a>的例子中刚好也用到了protobuf，于是就先把protobuf的知识写了一下。
+
+<ol>
+	<li>
+	<h2><strong>为何而写</strong></h2>
+	目前为止（2017-04-23）为止，protobuf是本人比较推崇的一种消息格式，原因如下
+
+	<ol>
+		<li>体积小，同样的对象编码后，其体积约为json的1/8</li>
+		<li>编码解码速度快，这个没什么好说的，谁不喜欢速度快的东西呢？</li>
+		<li>"跨语言"：我们只需要写一份xxx.proto，即可以用工具生成java、python、c++等语言对应的代码</li>
+	</ol>
+	而<a href="https://www.oschina.net/p/t-io" target="_blank">t-io</a>提供的几个案例中，也有用到protobuf的，所以在此整理一下protobuf的相关资料
+	
+	</li>
+	
+	
+	<li>
+		<h2><strong>先认识一下proto源文件</strong></h2>
+		这里就放一个<a href="https://www.oschina.net/p/t-io" target="_blank">t-io</a>提供的im例子所用到的源文件吧，生产级别的例子。考虑到这个例子比较全，我就不一一介绍了，源文件名叫<a href="https://git.oschina.net/tywo45/t-io/raw/master/src/example/im/common/src/main/protobuf/chat.proto" target="_blank">chat.proto</a>
+		。
+<pre>
+<code class="language-python">syntax = "proto3";
+package org.tio.examples.im.common.packets;
+
+option java_package = "org.tio.examples.im.common.packets";  //设置java对应的package
+option java_multiple_files = true;                           //建议设置为true，这样会每个对象放在一个文件中，否则所有对象都在一个java文件中
+
+//类型
+enum DeviceType {
+	DEVICE_TYPE_UNKNOW = 0;
+	DEVICE_TYPE_PC = 1;             //PC
+	DEVICE_TYPE_ANDROID = 2;        //安卓
+	DEVICE_TYPE_IOS = 3;            //IOS
+}
+
+enum Command {
+	COMMAND_UNKNOW = 0;
+	COMMAND_HANDSHAKE_REQ = 1; //握手请求，含http的websocket握手请求
+	COMMAND_HANDSHAKE_RESP = 2; //握手响应，含http的websocket握手响应
+	COMMAND_AUTH_REQ = 3; //鉴权请求
+	COMMAND_AUTH_RESP = 4; // 鉴权响应
+	COMMAND_JOIN_GROUP_REQ = 5; //申请进入群组
+	COMMAND_JOIN_GROUP_RESP = 6; //申请进入群组响应
+	COMMAND_JOIN_GROUP_NOTIFY_RESP = 7; //进入房间通知
+	COMMAND_CHAT_REQ = 8; //聊天请求
+	COMMAND_CHAT_RESP = 9; //聊天响应
+	COMMAND_START_SHOW_REQ = 10; //开播请求
+	COMMAND_START_SHOW_RESP = 11; //开播响应
+	COMMAND_END_SHOW_REQ = 12; //停播请求
+	COMMAND_END_SHOW_NOTIFY_RESP = 13; //停播通知
+	COMMAND_HEARTBEAT_REQ = 14; //心跳请求
+	COMMAND_CLOSE_REQ = 15; //关闭请求
+}
+
+/**
+ * 鉴权请求
+ */
+message AuthReqBody {
+	int64 time = 1;//消息发送时间
+	string deviceId = 2;// device id(手机设备id)
+	string token = 3;
+	DeviceType deviceType = 4;//clienttype客户端类型1-pc 2-android 3-ios
+	string cid = 5;//渠道号
+	string appVersion = 6;//app版本号
+	string deviceInfo = 7;//手机型号信息，譬如华为某型号
+	int64 seq = 8;//序列号
+ 	string sign = 9;//签名
+}
+
+/**
+ * 鉴权响应
+ */
+message AuthRespBody {
+	int64 time = 1;//消息发送时间
+}
+
+/**
+ * 加入群组请求
+ */
+message JoinReqBody {
+	int64 time = 1;//消息发送时间
+	string group = 2;
+}
+
+
+/**
+ * 加入群组申请的结果
+ */
+enum JoinGroupResult {
+	JOIN_GROUP_RESULT_UNKNOW = 0;//不允许进入，原因为其它
+	JOIN_GROUP_RESULT_OK = 1;//允许进入
+	JOIN_GROUP_RESULT_NOT_EXIST = 2;//组不存在
+	JOIN_GROUP_RESULT_GROUP_FULL = 3;//组满
+	JOIN_GROUP_RESULT_IN_BACKLIST = 4;//在黑名单中
+	JOIN_GROUP_RESULT_TAKEOUTED = 5;//被踢
+}
+
+/**
+ * 加入群组响应
+ */
+message JoinRespBody {
+	int64 time = 1;//消息发送时间
+	JoinGroupResult result = 2;
+	string group = 3;
+}
+
+/**
+ * 聊天类型
+ */
+enum ChatType {
+	CHAT_TYPE_UNKNOW = 0;//未知
+	CHAT_TYPE_PUBLIC = 1;//公聊
+	CHAT_TYPE_PRIVATE = 2;//私聊
+}
+/**
+ * 聊天请求
+ */
+message ChatReqBody {
+	int64 time = 1;//消息发送时间
+	ChatType type = 2; //聊天类型
+	string text = 3; //聊天内容
+	string group = 4; //目标组id
+	int32 toId = 5; //目标用户id，
+	string toNick = 6; //目标用户nick
+}
+
+/**
+ * 聊天响应
+ */
+message ChatRespBody {
+	int64 time = 1;//消息发送时间
+	ChatType type = 2; //聊天类型
+	string text = 3; //聊天内容
+	int32 fromId = 4; //发送聊天消息的用户id
+	string fromNick = 5; //发送聊天消息的用户nick
+	int32 toId = 6; //目标用户id
+	string toNick = 7; //目标用户nick
+	string group = 8; //目标组id
+}
+
+
+/**
+ * 开始直播请求
+ */
+message BeginToLiveReqBody {
+	int64 time = 1;//消息发送时间
+}
+
+/**
+ * 开始直播响应
+ */
+message BeginToLiveRespBody {
+	int64 time = 1;//消息发送时间
+	int64 liveid = 2;       //本次直播id
+	string rtmppublishurl = 3;  //rtmp推流地址
+	string rtmpliveurl = 4;  //rtmp播放地址
+}
+
+/**
+ * 结束直播请求
+ */
+message EndLiveReqBody {
+	int64 time = 1;//消息发送时间
+}
+
+/**
+ * 结束直播响应
+ */
+message EndLiveRespBody {
+	int64 time = 1;//消息发送时间
+	int64 liveid = 2;       //本次直播id
+}
+
+</code></pre>
+
+<p>&nbsp;</p>
+
+	
+	</li>
+	
+	
+	<li>
+	<h2><strong>用工具把proto源文件变成我们需要的代码</strong></h2>
+	<ol>
+		<li><h3><strong>下载并安装工具</strong></h3>
+		谷歌提供的工具protoc.exe，可以把proto源文件生成java、c++、python等语言所对应的代码，这个工具在<a href="https://github.com/google/protobuf" target="_blank">https://github.com/google/protobufo</a>中可以找到，如果在这没找到，为了大家的方便，作者已经上传至t-io的工程，请点击<a href="https://git.oschina.net/tywo45/t-io" target="_blank">https://git.oschina.net/tywo45/t-io</a>，然后找到docs/tools目录，里面有protoc.exe文件。下载后，把protoc.exe所以目录添加到你的path。
+		</li>
+		
+		<li><h3><strong>执行命令生成代码</strong></h3>
+		<pre><code class="language-bash">md .\src\c
+md .\src\java
+
+protoc.exe --cpp_out=.\src\c chat.proto
+protoc.exe --java_out=.\src\java chat.proto</code></pre>
+		<a href="https://www.oschina.net/p/t-io" target="_blank">t-io</a>提供了现成的脚本，位置在<a href="https://git.oschina.net/tywo45/t-io" target="_blank">https://git.oschina.net/tywo45/t-io</a>的"src/example/im/common/src/main/protobuf"目录，大家可以直接运行那个generate.bat脚本，看看生成的代码长什么样，这样可以形成感性认识。不过，我们一般是不会关心这个生成的代码的细节的，我们只关注几个方法，看后面的编码示例和解码示例。
+		</li>
+
+		<li><h3><strong>把生成的代码复制到你的工程目录</strong></h3>
+			略，请自行复制
+		</li>
+	</ol>
+	
+
+	
+	</li>
+	
+	
+	<li>
+	<h2><strong>protobuf在t-io中的运用</strong></h2>
+	
+	<ol>
+		<li><h3><strong>引入相关jar</strong></h3>
+			java中要用protobuf，首先需要引入相关的jar，maven的pom坐标如下
+	<pre>
+<code class="language-xml">&lt;dependency&gt;
+	&lt;groupId&gt;com.google.protobuf&lt;/groupId&gt;
+	&lt;artifactId&gt;protobuf-java&lt;/artifactId&gt;
+	&lt;version&gt;3.2.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+		</li>
+
+		<li><h3><strong>编码示例</strong></h3>
+			编码是从java转换为byte[]，见下例
+			<pre>
+<code class="language-java">ChatRespBody.Builder builder = ChatRespBody.newBuilder();
+builder.setType(chatReqBody.getType());
+builder.setText(chatReqBody.getText());
+builder.setFromId(fromId);
+builder.setFromNick(fromNick);
+builder.setToId(toId);
+builder.setToNick(toNick);
+builder.setGroup(toGroup);
+builder.setTime(SystemTimer.currentTimeMillis());
+ChatRespBody chatRespBody = builder.build();
+byte[] bodybyte = chatRespBody.toByteArray();</code></pre>
+代码在:org.tio.examples.im.server.handler.ChatReqHandler.handler(ImPacket, ChannelContext)中
+
+		</li>
+		<li><h3><strong>解码示例</strong></h3>
+			解码是从byte[]转换为java对象，见下例
+			<pre>
+<code class="language-java">ChatReqBody chatReqBody = ChatReqBody.parseFrom(packet.getBody());</code></pre>
+代码在:org.tio.examples.im.server.handler.ChatReqHandler.handler(ImPacket, ChannelContext)中
+		</li>
+	</ol>
+
+
+	
+	</li>
+	
+	
+	<li>
+	<h2><strong>扩展知识</strong></h2>
+
+		<ol>
+			<li><h3><strong>protobuf与json相互转换</strong></h3>
+			具体请参考<a href="https://github.com/bivas/protobuf-java-format" target="_blank">https://github.com/bivas/protobuf-java-format</a>
+			
+
+			<ol>
+				<li>
+					引入jar
+					<pre>
+<code class="language-xml">&lt;dependency&gt;
+	&lt;groupId&gt;com.googlecode.protobuf-java-format&lt;/groupId&gt;
+	&lt;artifactId&gt;protobuf-java-format&lt;/artifactId&gt;
+	&lt;version&gt;1.4&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+				</li>
+
+				<li>
+					从protobuf转json
+					<pre>
+<code class="language-java">Message someProto = SomeProto.getDefaultInstance();
+JsonFormat jsonFormat = new JsonFormat();
+String asJson = jsonFormat.printToString(someProto);</code></pre>
+
+				</li>
+
+				<li>
+					从json转protobuf
+					<pre>
+<code class="language-java">Message.Builder builder = SomeProto.newBuilder();
+String asJson = "{\"name\":\"tan\"}";
+JsonFormat jsonFormat = new JsonFormat();
+jsonFormat.merge(asJson, builder);</code></pre>
+				</li>
+
+			</ol>
+
+			
+
+			</li>
+
+
+		</ol>
+		
+
+
+
+	</li>
+	
+	
+</ol>

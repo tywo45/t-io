@@ -7,8 +7,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class SystemTimer
-{
+public class SystemTimer {
 	/** The Constant executor. */
 	private final static ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
@@ -21,8 +20,7 @@ public class SystemTimer
 	/**
 	 * The Class TimerTicker.
 	 */
-	private static class TimerTicker implements Runnable
-	{
+	private static class TimerTicker implements Runnable {
 
 		/** 
 		 * @see java.lang.Runnable#run()
@@ -32,8 +30,7 @@ public class SystemTimer
 		 * 
 		 */
 		@Override
-		public void run()
-		{
+		public void run() {
 			time = System.currentTimeMillis();
 		}
 	}
@@ -43,19 +40,15 @@ public class SystemTimer
 	 *
 	 * @return the long
 	 */
-	public static long currentTimeMillis()
-	{
+	public static long currentTimeMillis() {
 		return time;
 	}
 
-	static
-	{
+	static {
 		executor.scheduleAtFixedRate(new TimerTicker(), tickUnit, tickUnit, TimeUnit.MILLISECONDS);
-		Runtime.getRuntime().addShutdownHook(new Thread()
-		{
+		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				executor.shutdown();
 			}
 		});

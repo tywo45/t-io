@@ -13,31 +13,27 @@ import org.tio.core.intf.Packet;
  * @author tanyaowu 
  * 2017年4月1日 上午9:35:09
  */
-public class ChannelContextSetWithLock<SessionContext, P extends Packet, R>
-{
+public class ChannelContextSetWithLock<SessionContext, P extends Packet, R> {
 
 	/** remoteAndChannelContext key: "ip:port" value: ChannelContext. */
-	private ObjWithLock<Set<ChannelContext<SessionContext, P, R>>> setWithLock = new ObjWithLock<Set<ChannelContext<SessionContext, P, R>>>(new HashSet<ChannelContext<SessionContext, P, R>>());
+	private ObjWithLock<Set<ChannelContext<SessionContext, P, R>>> setWithLock = new ObjWithLock<Set<ChannelContext<SessionContext, P, R>>>(
+			new HashSet<ChannelContext<SessionContext, P, R>>());
 
 	/**
 	 * Adds the.
 	 *
 	 * @param channelContext the channel context
 	 */
-	public void add(ChannelContext<SessionContext, P, R> channelContext)
-	{
+	public void add(ChannelContext<SessionContext, P, R> channelContext) {
 		Lock lock = setWithLock.getLock().writeLock();
 
-		try
-		{
+		try {
 			lock.lock();
 			Set<ChannelContext<SessionContext, P, R>> m = setWithLock.getObj();
 			m.add(channelContext);
-		} catch (Exception e)
-		{
+		} catch (Exception e) {
 			throw e;
-		} finally
-		{
+		} finally {
 			lock.unlock();
 		}
 	}
@@ -48,38 +44,30 @@ public class ChannelContextSetWithLock<SessionContext, P extends Packet, R>
 	 * @param channelContext the channel context
 	 * @return the channel context
 	 */
-	public boolean remove(ChannelContext<SessionContext, P, R> channelContext)
-	{
+	public boolean remove(ChannelContext<SessionContext, P, R> channelContext) {
 		Lock lock = setWithLock.getLock().writeLock();
 
-		try
-		{
+		try {
 			lock.lock();
 			Set<ChannelContext<SessionContext, P, R>> m = setWithLock.getObj();
 			return m.remove(channelContext);
-		} catch (Exception e)
-		{
+		} catch (Exception e) {
 			throw e;
-		} finally
-		{
+		} finally {
 			lock.unlock();
 		}
 	}
-	
-	public int size()
-	{
+
+	public int size() {
 		Lock lock = setWithLock.getLock().readLock();
 
-		try
-		{
+		try {
 			lock.lock();
 			Set<ChannelContext<SessionContext, P, R>> m = setWithLock.getObj();
 			return m.size();
-		} catch (Exception e)
-		{
+		} catch (Exception e) {
 			throw e;
-		} finally
-		{
+		} finally {
 			lock.unlock();
 		}
 	}
@@ -89,8 +77,7 @@ public class ChannelContextSetWithLock<SessionContext, P extends Packet, R>
 	 *
 	 * @return the map
 	 */
-	public ObjWithLock<Set<ChannelContext<SessionContext, P, R>>> getSetWithLock()
-	{
+	public ObjWithLock<Set<ChannelContext<SessionContext, P, R>>> getSetWithLock() {
 		return setWithLock;
 	}
 

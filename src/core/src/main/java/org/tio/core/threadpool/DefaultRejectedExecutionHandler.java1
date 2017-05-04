@@ -1,0 +1,244 @@
+package org.tio.core.threadpool;
+
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tio.core.threadpool.intf.SynRunnableIntf;
+
+/**
+ * 
+ * @author tanyaowu 
+ * 2017年4月4日 上午9:28:26
+ */
+public class DefaultRejectedExecutionHandler<R extends SynRunnableIntf> implements RejectedExecutionHandler
+{
+
+	/** The log. */
+	private static Logger log = LoggerFactory.getLogger(DefaultRejectedExecutionHandler.class);
+
+	/** The timer seq. */
+	private static AtomicInteger timerSeq = new AtomicInteger();
+
+	/** The rejected count. */
+	private AtomicLong rejectedCount = new AtomicLong();
+
+	/**
+	 * The Class SubmitTaskRunnable.
+	 */
+	public static class SubmitTaskRunnable<R extends SynRunnableIntf> implements Runnable
+	{
+
+		/** The deque. */
+		LinkedBlockingDeque deque = null;
+
+		/** The executor. */
+		SynThreadPoolExecutor executor = null;
+
+		/**
+		 * 
+		 * @param deque
+		 * @param executor
+		 * @author: tanyaowu
+		 */
+		public SubmitTaskRunnable(LinkedBlockingDeque deque, SynThreadPoolExecutor executor)
+		{
+			super();
+			this.deque = deque;
+			this.executor = executor;
+		}
+
+		/**
+		 * 
+		 * 
+		 * @author: tanyaowu
+		 */
+		@Override
+		public void run()
+		{
+			while (true)
+			{
+				try
+				{
+					Runnable r = deque.take();
+					executor.execute(r);
+					log.debug("submit a runnable, {} runnables waiting for submit", deque.size());
+					
+				} catch (java.lang.Throwable e)
+				{
+					log.error(e.toString(), e);
+				}
+			}
+
+		}
+
+		/**
+		 * Gets the deque.
+		 *
+		 * @return the deque
+		 */
+		public LinkedBlockingDeque getDeque()
+		{
+			return deque;
+		}
+
+		/**
+		 * Sets the deque.
+		 *
+		 * @param deque the new deque
+		 */
+		public void setDeque(LinkedBlockingDeque deque)
+		{
+			this.deque = deque;
+		}
+	}
+
+	/** The submit task thread. */
+	private Thread submitTaskThread;
+
+	/** The submit task runnable. */
+	private SubmitTaskRunnable<R> submitTaskRunnable;
+
+	//	public MyTimerTask getMyTimerTask()
+	//	{
+	//		return myTimerTask;
+	//	}
+
+	//	public void setMyTimerTask(MyTimerTask myTimerTask)
+	//	{
+	//		this.myTimerTask = myTimerTask;
+	//	}
+
+	/**
+	 * 
+	 * @param synThreadPoolExecutor
+	 * @author: tanyaowu
+	 */
+	public DefaultRejectedExecutionHandler(SynThreadPoolExecutor synThreadPoolExecutor)
+	{
+		String threadname = synThreadPoolExecutor.getName() + "-rejected-handler-" + timerSeq.incrementAndGet();
+		LinkedBlockingDeque deque = new LinkedBlockingDeque<>();
+		submitTaskRunnable = new SubmitTaskRunnable<>(deque, synThreadPoolExecutor);
+		submitTaskThread = new Thread(submitTaskRunnable, threadname);
+		submitTaskThread.start();
+
+		//		myTimerTask = new MyTimerTask(new LinkedBlockingQueue<Runnable>(), synThreadPoolExecutor);
+		//		timer.schedule(myTimerTask, 1000);
+	}
+
+	/**
+	 * 
+	 * @param r
+	 * @param executor
+	 * @author: tanyaowu
+	 */
+	@Override
+	public void rejectedExecution(Runnable r, ThreadPoolExecutor executor)
+	{
+		SynRunnableIntf rr = null;
+		if (r instanceof SynRunnableIntf)
+		{
+			rr = (SynRunnableIntf) r;
+		} else
+		{
+			log.error("只支持SynRunnableIntf");
+			return;
+		}
+
+		if (rr.isCanceled())
+		{
+			log.error("任务已经取消");
+			return;
+		}
+
+		rejectedCount.incrementAndGet();
+
+		//		LinkedBlockingQueue<Runnable> deque = myTimerTask.getQueue();
+		//		synchronized (deque)
+		//		{
+		LinkedBlockingDeque deque = submitTaskRunnable.deque;
+		//		log.debug("deque in rejectedExecution, size:{}, deque:{}", deque.size(), deque.hashCode());
+		if (deque.contains(r))
+		{
+			log.debug("{} has contained in deque, deque size is {}", r, deque.size());
+		} else
+		{
+			if (submitTaskThread == Thread.currentThread())
+			{
+				log.debug("thread is same--submitTaskThread:{}, currentThread:{}", submitTaskThread, Thread.currentThread());
+				deque.addFirst(rr);
+			} else
+			{
+				log.debug("thread is diff--submitTaskThread:{}, currentThread:{}", submitTaskThread, Thread.currentThread());
+				deque.addLast(rr);
+			}
+		}
+		//		}
+		log.debug("{} is rejected, {} tasks is waiting!", r, deque.size());
+	}
+
+	/**
+	 * Gets the submit task thread.
+	 *
+	 * @return the submit task thread
+	 */
+	public Thread getSubmitTaskThread()
+	{
+		return submitTaskThread;
+	}
+
+	/**
+	 * Sets the submit task thread.
+	 *
+	 * @param submitTaskThread the new submit task thread
+	 */
+	public void setSubmitTaskThread(Thread submitTaskThread)
+	{
+		this.submitTaskThread = submitTaskThread;
+	}
+
+	/**
+	 * Gets the submit task runnable.
+	 *
+	 * @return the submit task runnable
+	 */
+	public SubmitTaskRunnable<R> getSubmitTaskRunnable()
+	{
+		return submitTaskRunnable;
+	}
+
+	/**
+	 * Sets the submit task runnable.
+	 *
+	 * @param submitTaskRunnable the new submit task runnable
+	 */
+	public void setSubmitTaskRunnable(SubmitTaskRunnable<R> submitTaskRunnable)
+	{
+		this.submitTaskRunnable = submitTaskRunnable;
+	}
+
+	/**
+	 * Gets the rejected count.
+	 *
+	 * @return the rejected count
+	 */
+	public AtomicLong getRejectedCount()
+	{
+		return rejectedCount;
+	}
+
+	/**
+	 * Sets the rejected count.
+	 *
+	 * @param rejectedCount the new rejected count
+	 */
+	public void setRejectedCount(AtomicLong rejectedCount)
+	{
+		this.rejectedCount = rejectedCount;
+	}
+
+}

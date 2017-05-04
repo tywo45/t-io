@@ -4,7 +4,7 @@
 	<groupId>org.t-io</groupId>
 	<artifactId>tio-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>1.6.9.v20170408-RELEASE</version>
+	<version>1.7.0.v20170501-RELEASE</version>
 	<name>tio-parent</name>
 	<url>http://maven.apache.org</url>
 
@@ -38,7 +38,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.test.skip>true</maven.test.skip>
-		<maven.version>3.3.9</maven.version>
+		<maven.version>3.5.0</maven.version>
 
 		<logback.version>1.2.3</logback.version>
 		<slf4j.version>1.7.25</slf4j.version>
@@ -48,8 +48,9 @@
 		<commons-lang3.version>3.5</commons-lang3.version>
 		<commons-codec.version>1.10</commons-codec.version>
 		<commons-compress.version>1.13</commons-compress.version>
-		<fastjson.version>1.2.30</fastjson.version>
+		<fastjson.version>1.2.31</fastjson.version>
 		<testng.version>6.11</testng.version>
+		<hutool.version>3.0.5</hutool.version>
 		<protobuf-java.version>3.2.0</protobuf-java.version>
 		<commons-beanutils.version>1.9.3</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
@@ -77,6 +78,11 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>com.xiaoleilu</groupId>
+				<artifactId>hutool-core</artifactId>
+				<version>${hutool.version}</version>
+			</dependency>
 
 			<dependency>
 				<groupId>com.googlecode.protobuf-java-format</groupId>
@@ -189,6 +195,18 @@
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-compress</artifactId>
 				<version>${commons-compress.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>io.springside</groupId>
+				<artifactId>springside-utils</artifactId>
+				<version>5.0.0-RC1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>21.0</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -517,4 +535,5 @@
 			</distributionManagement>
 		</profile>
 	</profiles>
+
 </project>

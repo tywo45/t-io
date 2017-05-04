@@ -1,0 +1,350 @@
+<ol>
+	<li>
+	<h2>先给t-io来个简介</h2>
+
+	<p><strong>t-io</strong>是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置功能丰富、核心代码只有3000多行的即时通讯框架。字母<strong>&nbsp;t&nbsp;</strong>取<strong>talent</strong>（天才）的首字母，也可以理解为<strong>&quot;特快&quot;</strong>，同时也是<strong>作者姓氏</strong>的首字母。一些传送门</p>
+
+	<ul>
+		<li><a href="http://www.t-io.org:9292/" target="_blank">官 网</a></li>
+		<li>开源中国收录地址：<a href="https://www.oschina.net/p/t-io" target="_blank">https://www.oschina.net/p/t-io</a></li>
+		<li>码云地址：<a href="https://git.oschina.net/tywo45/t-io/" target="_blank">https://git.oschina.net/tywo45/t-io/</a></li>
+		<li><a href="http://www.t-io.org:9292/apidocs/index.html" target="_blank">API</a>（先看<a href="http://www.t-io.org:9292/apidocs/org/tio/core/Aio.html" target="_blank">Aio.java</a>的就好，然后就看本系列博客吧）</li>
+		<li><a href="https://my.oschina.net/talenttan/blog/863545" target="_blank">资料及问题汇总</a></li>
+	</ul>
+
+	<p>下面进入正式话题</p>
+	</li>
+	<li>
+	<h2>演示场景简介</h2>
+
+	<p>本例子演示的是一个典型的TCP长连接应用，代码位于example/helloworld目录中。</p>
+
+	<ul>
+		<li>服务端和客户端的消息协议比较简单，消息头为4个字节，用以表示消息体的长度，消息体为一个字符串的byte[]</li>
+		<li>服务端先启动，监听6789端口</li>
+		<li>客户端连接到服务端后，会主动向服务器发送一条消息</li>
+		<li>服务器收到消息后会回应一条消息</li>
+		<li>之后，框架层会自动从客户端发心跳到服务器，服务器也会检测心跳有没有超时</li>
+		<li>框架层会在断链后自动重连（<strong>对t-io来说，只需多一行代码便拥有自动重连功能</strong>）</li>
+	</ul>
+	</li>
+	<li>
+	<h2>公共模块代码</h2>
+
+	<ul>
+		<li>
+		<h3>引入依赖</h3>
+		</li>
+	</ul>
+
+	<pre>
+<code class="language-xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.t-io&lt;/groupId&gt;
+    &lt;artifactId&gt;tio-core&lt;/artifactId&gt;
+    &lt;version&gt;1.6.9.v20170408-RELEASE&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+
+	<ul>
+		<li>
+		<h3>定义业务消息包结构</h3>
+		</li>
+	</ul>
+
+	<p>注：有时候服务器和客户端的业务消息包结构不一样，这种情况下，消息包的定义就不要放在公共模块</p>
+
+	<pre>
+<code class="language-java">public class HelloPacket extends Packet
+{
+    public static final int HEADER_LENGHT = 4;//消息头的长度
+    public static final String CHARSET = "utf-8";
+    private byte[] body;
+ 
+    /**
+     * @return the body
+     */
+    public byte[] getBody()
+    {
+        return body;
+    }
+ 
+    /**
+     * @param body the body to set
+     */
+    public void setBody(byte[] body)
+    {
+        this.body = body;
+    }
+}
+           </code></pre>
+
+	<ul>
+		<li>
+		<h3>实现io通讯中必不可少的编码和解码</h3>
+		</li>
+	</ul>
+
+	<p>注：有时候服务器端和客户端的编码解码算法不一样，这个时候就不要以公共模块中完成编码和解码的代码，而是分别放在服务器端和客户端完成。</p>
+
+	<pre>
+<code class="language-java">/**
+ * hello world版中服务器端和客户端的编码解码算法是一样的，所以抽象一个公共的父类出来
+ * @author tanyaowu 
+ *
+ */
+public abstract class HelloAbsAioHandler implements AioHandler&lt;Object, HelloPacket, Object&gt;
+{
+    /**
+     * 编码：把业务消息包编码为可以发送的ByteBuffer
+     * 总的消息结构：消息头 + 消息体
+     * 消息头结构：    4个字节，存储消息体的长度
+     * 消息体结构：   对象的json串的byte[]
+     */
+    @Override
+    public ByteBuffer encode(HelloPacket packet, GroupContext&lt;Object, HelloPacket, Object&gt; groupContext, ChannelContext&lt;Object, HelloPacket, Object&gt; channelContext)
+    {
+        byte[] body = packet.getBody();
+        int bodyLen = 0;
+        if (body != null)
+        {
+            bodyLen = body.length;
+        }
+ 
+        //bytebuffer的总长度是 = 消息头的长度 + 消息体的长度
+        int allLen = HelloPacket.HEADER_LENGHT + bodyLen;
+        //创建一个新的bytebuffer
+        ByteBuffer buffer = ByteBuffer.allocate(allLen);
+        //设置字节序
+        buffer.order(groupContext.getByteOrder());
+ 
+        //写入消息头----消息头的内容就是消息体的长度
+        buffer.putInt(bodyLen);
+ 
+        //写入消息体
+        if (body != null)
+        {
+            buffer.put(body);
+        }
+        return buffer;
+    }
+ 
+    /**
+     * 解码：把接收到的ByteBuffer，解码成应用可以识别的业务消息包
+     * 总的消息结构：消息头 + 消息体
+     * 消息头结构：    4个字节，存储消息体的长度
+     * 消息体结构：   对象的json串的byte[]
+     */
+    @Override
+    public HelloPacket decode(ByteBuffer buffer, ChannelContext&lt;Object, HelloPacket, Object&gt; channelContext) throws AioDecodeException
+    {
+        int readableLength = buffer.limit() - buffer.position();
+        //收到的数据组不了业务包，则返回null以告诉框架数据不够
+        if (readableLength &lt; HelloPacket.HEADER_LENGHT)
+        {
+            return null;
+        }
+ 
+        //读取消息体的长度
+        int bodyLength = buffer.getInt();
+ 
+        //数据不正确，则抛出AioDecodeException异常
+        if (bodyLength &lt; 0)
+        {
+            throw new AioDecodeException("bodyLength [" + bodyLength + "] is not right, remote:" + channelContext.getClientNode());
+        }
+ 
+        //计算本次需要的数据长度
+        int neededLength = HelloPacket.HEADER_LENGHT + bodyLength;
+        //收到的数据是否足够组包
+        int isDataEnough = readableLength - neededLength;
+        // 不够消息体长度(剩下的buffe组不了消息体)
+        if (isDataEnough &lt; 0)
+        {
+            return null;
+        } else  //组包成功
+        {
+            HelloPacket imPacket = new HelloPacket();
+            if (bodyLength &gt; 0)
+            {
+                byte[] dst = new byte[bodyLength];
+                buffer.get(dst);
+                imPacket.setBody(dst);
+            }
+            return imPacket;
+        }
+    }
+}</code></pre>
+
+	<ul>
+		<li>
+		<h3>定义一下双方约定的端口</h3>
+		</li>
+	</ul>
+
+	<pre>
+<code class="language-java">public interface Const
+{
+    public static final int PORT = 6789;
+}</code></pre>
+	</li>
+	<li>
+	<h2>服务端代码</h2>
+
+	<ul>
+		<li>
+		<h3>实现AioHandler</h3>
+		</li>
+	</ul>
+
+	<p>注：此处继承自HelloAbsAioHandler，父类已经完成编码和解码的工作</p>
+
+	<pre>
+<code class="language-java">public class HelloServerAioHandler extends HelloAbsAioHandler implements ServerAioHandler&lt;Object, HelloPacket, Object&gt;
+{
+    /** 
+     * 处理消息
+     */
+    @Override
+    public Object handler(HelloPacket packet, ChannelContext&lt;Object, HelloPacket, Object&gt; channelContext) throws Exception
+    {
+        byte[] body = packet.getBody();
+        if (body != null)
+        {
+            String str = new String(body, HelloPacket.CHARSET);
+            System.out.println("收到消息：" + str);
+ 
+            HelloPacket resppacket = new HelloPacket();
+            resppacket.setBody(("收到了你的消息，你的消息是:" + str).getBytes(HelloPacket.CHARSET));
+            Aio.send(channelContext, resppacket);
+        }
+        return null;
+    }
+}</code></pre>
+
+	<ul>
+		<li>
+		<h3>启动程序</h3>
+		</li>
+	</ul>
+
+	<pre>
+<code class="language-java">public class HelloServerStarter
+{
+    //handler, 包括编码、解码、消息处理
+    public static ServerAioHandler&lt;Object, HelloPacket, Object&gt; aioHandler = new HelloServerAioHandler();
+     
+    //事件监听器，可以为null，但建议自己实现该接口，可以参考showcase了解些接口
+    public static ServerAioListener&lt;Object, HelloPacket, Object&gt; aioListener = null;
+     
+    //一组连接共用的上下文对象
+    public static ServerGroupContext&lt;Object, HelloPacket, Object&gt; serverGroupContext = new ServerGroupContext&lt;&gt;(aioHandler, aioListener);
+     
+    //aioServer对象
+    public static AioServer&lt;Object, HelloPacket, Object&gt; aioServer = new AioServer&lt;&gt;(serverGroupContext);
+     
+    //有时候需要绑定ip，不需要则null
+    public static String serverIp = null;
+     
+    //监听的端口
+    public static int serverPort = Const.PORT;
+ 
+    /**
+     * 启动程序入口
+     */
+    public static void main(String[] args) throws IOException
+    {
+        aioServer.start(serverIp, serverPort);
+    }
+}</code></pre>
+	</li>
+	<li>
+	<h2>客户端代码</h2>
+
+	<ul>
+		<li>
+		<h3>实现AioHandler</h3>
+		</li>
+	</ul>
+
+	<p>注：此处继承自HelloAbsAioHandler，父类已经完成编码和解码的工作</p>
+
+	<pre>
+<code class="language-java">public class HelloClientAioHandler extends HelloAbsAioHandler implements ClientAioHandler&lt;Object, HelloPacket, Object&gt;
+{
+    /** 
+     * 处理消息
+     */
+    @Override
+    public Object handler(HelloPacket packet, ChannelContext&lt;Object, HelloPacket, Object&gt; channelContext) throws Exception
+    {
+        byte[] body = packet.getBody();
+        if (body != null)
+        {
+            String str = new String(body, HelloPacket.CHARSET);
+            System.out.println("收到消息：" + str);
+        }
+ 
+        return null;
+    }
+ 
+    private static HelloPacket heartbeatPacket = new HelloPacket();
+ 
+    /** 
+     * 此方法如果返回null，框架层面则不会发心跳；如果返回非null，框架层面会定时发本方法返回的消息包
+     */
+    @Override
+    public HelloPacket heartbeatPacket()
+    {
+        return heartbeatPacket;
+    }
+}</code></pre>
+
+	<ul>
+		<li>
+		<h3>启动程序</h3>
+		</li>
+	</ul>
+
+	<pre>
+<code class="language-java">public class HelloClientStarter
+{
+    //服务器节点
+    public static Node serverNode = new Node("127.0.0.1", Const.PORT);
+ 
+    //handler, 包括编码、解码、消息处理
+    public static ClientAioHandler&lt;Object, HelloPacket, Object&gt; aioClientHandler = new HelloClientAioHandler();
+     
+    //事件监听器，可以为null，但建议自己实现该接口，可以参考showcase了解些接口
+    public static ClientAioListener&lt;Object, HelloPacket, Object&gt; aioListener = null;
+     
+    //断链后自动连接的，不想自动连接请设为null
+    private static ReconnConf&lt;Object, HelloPacket, Object&gt; reconnConf = new ReconnConf&lt;Object, HelloPacket, Object&gt;(5000L);
+ 
+    //一组连接共用的上下文对象
+    public static ClientGroupContext&lt;Object, HelloPacket, Object&gt; clientGroupContext = new ClientGroupContext&lt;&gt;(aioClientHandler, aioListener, reconnConf);
+ 
+    public static AioClient&lt;Object, HelloPacket, Object&gt; aioClient = null;
+    public static ClientChannelContext&lt;Object, HelloPacket, Object&gt; clientChannelContext = null;
+ 
+    /**
+     * 启动程序入口
+     */
+    public static void main(String[] args) throws Exception
+    {
+        aioClient = new AioClient&lt;&gt;(clientGroupContext);
+        clientChannelContext = aioClient.connect(serverNode);
+ 
+        //连上后，发条消息玩玩
+        send();
+    }
+ 
+    private static void send() throws Exception
+    {
+        HelloPacket packet = new HelloPacket();
+        packet.setBody("hello world".getBytes(HelloPacket.CHARSET));
+        Aio.send(clientChannelContext, packet);
+    }
+}</code></pre>
+
+	<p>&nbsp;</p>
+	</li>
+</ol>

@@ -4,16 +4,13 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 
-public class Node implements Comparable<Node>
-{
+public class Node implements Comparable<Node> {
 	private String ip;
 	private int port;
 
-	public Node(String ip, int port)
-	{
+	public Node(String ip, int port) {
 		super();
-		if (StringUtils.isBlank(ip) || "0:0:0:0:0:0:0:0".equals(ip))
-		{
+		if (StringUtils.isBlank(ip) || "0:0:0:0:0:0:0:0".equals(ip)) {
 			ip = "0.0.0.0";
 		}
 
@@ -22,16 +19,13 @@ public class Node implements Comparable<Node>
 	}
 
 	@Override
-	public int hashCode()
-	{
+	public int hashCode() {
 		return (ip + ":" + port).hashCode();
 	}
 
 	@Override
-	public boolean equals(Object obj)
-	{
-		if (obj == null)
-		{
+	public boolean equals(Object obj) {
+		if (obj == null) {
 			return false;
 		}
 		Node other = (Node) obj;
@@ -39,47 +33,38 @@ public class Node implements Comparable<Node>
 	}
 
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(ip).append(":").append(port);
 		return builder.toString();
 	}
 
-	public String getIp()
-	{
+	public String getIp() {
 		return ip;
 	}
 
-	public void setIp(String ip)
-	{
+	public void setIp(String ip) {
 		this.ip = ip;
 	}
 
-	public int getPort()
-	{
+	public int getPort() {
 		return port;
 	}
 
-	public void setPort(int port)
-	{
+	public void setPort(int port) {
 		this.port = port;
 	}
-	
+
 	@Override
-	public int compareTo(Node other)
-	{
-		if (other == null)
-		{
+	public int compareTo(Node other) {
+		if (other == null) {
 			return -1;
 		}
 		//		RemoteNode other = (RemoteNode) obj;
 
-		if (Objects.equals(ip, other.getIp()) && Objects.equals(port, other.getPort()))
-		{
+		if (Objects.equals(ip, other.getIp()) && Objects.equals(port, other.getPort())) {
 			return 0;
-		} else
-		{
+		} else {
 			return this.toString().compareTo(other.toString());
 		}
 	}

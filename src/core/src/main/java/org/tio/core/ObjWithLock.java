@@ -7,8 +7,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *
  * @author tanyaowu
  */
-public class ObjWithLock<T>
-{
+public class ObjWithLock<T> {
 
 	/** The obj. */
 	private T obj = null;
@@ -28,8 +27,7 @@ public class ObjWithLock<T>
 	 * @author: tanyaowu
 	 * 2016年11月5日 下午1:50:34
 	 */
-	public ObjWithLock(T obj)
-	{
+	public ObjWithLock(T obj) {
 		this(obj, new ReentrantReadWriteLock());
 	}
 
@@ -41,8 +39,7 @@ public class ObjWithLock<T>
 	 * @author: tanyaowu
 	 * 2016年11月7日 上午10:16:08
 	 */
-	public ObjWithLock(T obj, ReentrantReadWriteLock lock)
-	{
+	public ObjWithLock(T obj, ReentrantReadWriteLock lock) {
 		super();
 		this.obj = obj;
 		this.lock = lock;
@@ -55,8 +52,7 @@ public class ObjWithLock<T>
 	 * @author: tanyaowu
 	 * 2016年11月7日 上午10:17:27
 	 */
-	public ReentrantReadWriteLock getLock()
-	{
+	public ReentrantReadWriteLock getLock() {
 		return lock;
 	}
 
@@ -79,8 +75,7 @@ public class ObjWithLock<T>
 	 * @author: tanyaowu
 	 * 2016年11月7日 上午10:17:34
 	 */
-	public T getObj()
-	{
+	public T getObj() {
 		return obj;
 	}
 
@@ -91,8 +86,7 @@ public class ObjWithLock<T>
 	 * @author: tanyaowu
 	 * 2016年11月7日 上午10:17:37
 	 */
-	public void setObj(T obj)
-	{
+	public void setObj(T obj) {
 		this.obj = obj;
 	}
 }

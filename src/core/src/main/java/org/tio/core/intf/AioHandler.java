@@ -13,8 +13,7 @@ import org.tio.core.exception.AioDecodeException;
  * @param <P> the generic type
  * @param <R> the generic type
  */
-public interface AioHandler<SessionContext, P extends Packet, R>
-{
+public interface AioHandler<SessionContext, P extends Packet, R> {
 
 	/**
 	 * 处理消息包

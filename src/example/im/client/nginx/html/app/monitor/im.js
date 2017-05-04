@@ -2,8 +2,8 @@ var ByteBuffer = window.dcodeIO.ByteBuffer;
 
 var websockets = [];
 var reconnInterval = 10;    //重连间隔
-var reconnLock = false;      //避免重复连接
-var needconn = true;      //是否需要重连
+// var reconnLock = false;      //避免重复连接
+// var needconn = true;      //是否需要重连
 
 var lastInteractionTime = 0;//上一次交互时间
 var heartbeatTimeout = 60 * 1000;
@@ -43,6 +43,13 @@ function loadClass(root) {
 	console.dir(Command);
 }
 
+var connection_info = new Vue({
+  el: '#connection_info',
+  data: {
+    count: 0
+  }
+});
+
 function initWs(url) {
 	try {
 		var ws = new WebSocket(url);
@@ -58,14 +65,12 @@ function initWs(url) {
 
 function initWsEvent(ws, url){
 	ws.onopen = function(event) {
-		
 		var ws = event.srcElement;
 		
 		stat.connCount++;
 		console.log(ws);
-		var tipele = document.getElementById('tip');
 		websockets.push(ws);
-		tipele.innerHTML = "已经连接到" + ws.url + ", 当前连接数:" + websockets.length;
+		connection_info.count = websockets.length;
 		
 		console.log(event);
 		
@@ -105,33 +110,35 @@ function initWsEvent(ws, url){
 
 	ws.onclose = function(event) {
 		var ws = event.srcElement;		
+		websockets.remove(ws);
+		connection_info.count = websockets.length;
 		reconn(url, event, null);
 	};
 
 	ws.onerror = function(event){
 		var ws = event.srcElement;
 		console.log("error", event);
-		reconn(url, event, null)
+		//reconn(url, event, null)
 	};
 }
 function reconn(url, event, e) {
-	if (!needconn) {
-		console.log("已经不需要重连了", event, e);
-		return;
-	}
+// 	if (!needconn) {
+// 		console.log("已经不需要重连了", event, e);
+// 		return;
+// 	}
 	
-	if (reconnLock) {
-		console.log("没有拿到重连权限", event, e);
-		return;
-	}
+// 	if (reconnLock) {
+// 		console.log("没有拿到重连权限", event, e);
+// 		return;
+// 	}
 	
-	reconnLock = true;
+// 	reconnLock = true;
 	stat.reconnCount++;
 
 	setTimeout(function() {
 				console.log("开始第次" + stat.reconnCount + "重连:" + url, event, e);
 				initWs(url);
-				reconnLock = false;
+// 				reconnLock = false;
 			}, reconnInterval);
 }
 
@@ -197,6 +204,9 @@ function ping()
 	}
 }
 setInterval("ping()", heartbeatSendInterval);
+
+
+
 
 
 /**

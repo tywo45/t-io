@@ -2,8 +2,7 @@ package org.tio.core.threadpool.intf;
 
 import java.util.concurrent.locks.ReadWriteLock;
 
-public interface SynRunnableIntf extends Runnable
-{
+public interface SynRunnableIntf extends Runnable {
 	public ReadWriteLock runningLock();
 
 	public boolean isNeededExecute();

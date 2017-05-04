@@ -114,8 +114,7 @@ public enum JoinGroupResult
   public static final int JOIN_GROUP_RESULT_TAKEOUTED_VALUE = 5;
 
 
-  @Override
-public final int getNumber() {
+  public final int getNumber() {
     if (this == UNRECOGNIZED) {
       throw new java.lang.IllegalArgumentException(
           "Can't get the number of an unknown enum value.");
@@ -150,19 +149,16 @@ public final int getNumber() {
   private static final com.google.protobuf.Internal.EnumLiteMap<
       JoinGroupResult> internalValueMap =
         new com.google.protobuf.Internal.EnumLiteMap<JoinGroupResult>() {
-          @Override
-		public JoinGroupResult findValueByNumber(int number) {
+          public JoinGroupResult findValueByNumber(int number) {
             return JoinGroupResult.forNumber(number);
           }
         };
 
-  @Override
-public final com.google.protobuf.Descriptors.EnumValueDescriptor
+  public final com.google.protobuf.Descriptors.EnumValueDescriptor
       getValueDescriptor() {
     return getDescriptor().getValues().get(ordinal());
   }
-  @Override
-public final com.google.protobuf.Descriptors.EnumDescriptor
+  public final com.google.protobuf.Descriptors.EnumDescriptor
       getDescriptorForType() {
     return getDescriptor();
   }

@@ -5,30 +5,26 @@ import java.util.concurrent.Executor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.core.threadpool.intf.QueueRunnableIntf;
 
 /**
  * 
  * @author tanyaowu 
  * 2017年4月4日 上午9:23:12
  */
-public abstract class AbstractQueueRunnable<T> extends AbstractSynRunnable implements QueueRunnableIntf<T>
-{
+public abstract class AbstractQueueRunnable<T> extends AbstractSynRunnable {
 	private static final Logger log = LoggerFactory.getLogger(AbstractQueueRunnable.class);
-	
+
 	/**
 	 * 
 	 * @param executor
 	 * @author: tanyaowu
 	 */
-	public AbstractQueueRunnable(Executor executor)
-	{
+	public AbstractQueueRunnable(Executor executor) {
 		super(executor);
 	}
 
 	@Override
-	public boolean isNeededExecute()
-	{
+	public boolean isNeededExecute() {
 		return msgQueue.size() > 0;
 	}
 
@@ -36,36 +32,32 @@ public abstract class AbstractQueueRunnable<T> extends AbstractSynRunnable imple
 	protected ConcurrentLinkedQueue<T> msgQueue = new ConcurrentLinkedQueue<T>();
 
 	/**
+	 * @return 
 	 * 
 	 */
-	public void addMsg(T t)
-	{
-		if (this.isCanceled())
-		{
+	public boolean addMsg(T t) {
+		if (this.isCanceled()) {
 			log.error("任务已经取消");
-			return;
+			return false;
 		}
-		
-		getMsgQueue().add(t);
+
+		return msgQueue.add(t);
 	}
 
 	/**
-	 * 
+	 * 清空处理的队列消息
 	 */
-	@Override
-	public ConcurrentLinkedQueue<T> getMsgQueue()
-	{
-		return msgQueue;
+	public void clearMsgQueue() {
+		msgQueue.clear();
 	}
 
-	/**
-	 * Sets the msg queue.
-	 *
-	 * @param msgQueue the new msg queue
-	 */
-	public void setMsgQueue(ConcurrentLinkedQueue<T> msgQueue)
-	{
-		this.msgQueue = msgQueue;
-	}
+	//	/**
+	//	 * 
+	//	 */
+	//	@Override
+	//	public ConcurrentLinkedQueue<T> getMsgQueue()
+	//	{
+	//		return msgQueue;
+	//	}
 
 }

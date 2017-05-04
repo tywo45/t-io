@@ -16,8 +16,7 @@ import org.tio.core.utils.SystemTimer;
  * @author tanyaowu 
  * 2017年4月1日 上午9:33:00
  */
-public class ReconnConf<SessionContext, P extends Packet, R>
-{
+public class ReconnConf<SessionContext, P extends Packet, R> {
 	private static Logger log = LoggerFactory.getLogger(ChannelContext.class);
 
 	/**
@@ -41,16 +40,12 @@ public class ReconnConf<SessionContext, P extends Packet, R>
 	 * @author: tanyaowu
 	 * 
 	 */
-	public ReconnConf()
-	{
-		if (threadPoolExecutor == null)
-		{
-			synchronized (ReconnConf.class)
-			{
-				if (threadPoolExecutor == null)
-				{
+	public ReconnConf() {
+		if (threadPoolExecutor == null) {
+			synchronized (ReconnConf.class) {
+				if (threadPoolExecutor == null) {
 					threadPoolExecutor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors(), 60L, TimeUnit.SECONDS,
-							new LinkedBlockingQueue<Runnable>(), DefaultThreadFactory.getInstance("t-aio-client-reconn"));
+							new LinkedBlockingQueue<Runnable>(), DefaultThreadFactory.getInstance("tio-client-reconn"));
 				}
 			}
 
@@ -64,8 +59,7 @@ public class ReconnConf<SessionContext, P extends Packet, R>
 	 * @author: tanyaowu
 	 * 
 	 */
-	public ReconnConf(long interval)
-	{
+	public ReconnConf(long interval) {
 		this();
 		this.setInterval(interval);
 	}
@@ -77,34 +71,27 @@ public class ReconnConf<SessionContext, P extends Packet, R>
 	 * @author: tanyaowu
 	 * 
 	 */
-	public ReconnConf(long interval, int retryCount)
-	{
+	public ReconnConf(long interval, int retryCount) {
 		this();
 		this.interval = interval;
 		this.retryCount = retryCount;
 	}
-	
-	public static <SessionContext, P extends Packet, R> void put(ClientChannelContext<SessionContext, P, R> clientChannelContext)
-	{
+
+	public static <SessionContext, P extends Packet, R> void put(ClientChannelContext<SessionContext, P, R> clientChannelContext) {
 		isNeedReconn(clientChannelContext, true);
 	}
-	
-	public static <SessionContext, P extends Packet, R> boolean isNeedReconn(ClientChannelContext<SessionContext, P, R> clientChannelContext, boolean putIfTrue)
-	{
+
+	public static <SessionContext, P extends Packet, R> boolean isNeedReconn(ClientChannelContext<SessionContext, P, R> clientChannelContext, boolean putIfTrue) {
 		ClientGroupContext<SessionContext, P, R> clientGroupContext = (ClientGroupContext<SessionContext, P, R>) clientChannelContext.getGroupContext();
 		ReconnConf<SessionContext, P, R> reconnConf = clientGroupContext.getReconnConf();
-		if (reconnConf != null && reconnConf.getInterval() > 0)
-		{
-			if (reconnConf.getRetryCount() <= 0 || reconnConf.getRetryCount() >= clientChannelContext.getReconnCount())
-			{
-				if (putIfTrue)
-				{
+		if (reconnConf != null && reconnConf.getInterval() > 0) {
+			if (reconnConf.getRetryCount() <= 0 || reconnConf.getRetryCount() >= clientChannelContext.getReconnCount()) {
+				if (putIfTrue) {
 					clientChannelContext.getStat().setTimeInReconnQueue(SystemTimer.currentTimeMillis());
 					reconnConf.getQueue().add(clientChannelContext);
 				}
 				return true;
-			} else
-			{
+			} else {
 				log.info("不需要重连{}", clientChannelContext);
 				return false;
 			}
@@ -116,57 +103,51 @@ public class ReconnConf<SessionContext, P extends Packet, R>
 	/**
 	 * @return the interval
 	 */
-	public long getInterval()
-	{
+	public long getInterval() {
 		return interval;
 	}
 
 	/**
 	 * @param interval the interval to set
 	 */
-	public void setInterval(long interval)
-	{
+	public void setInterval(long interval) {
 		this.interval = interval;
 	}
 
 	/**
 	 * @return the queue
 	 */
-	public LinkedBlockingQueue<ChannelContext<SessionContext, P, R>> getQueue()
-	{
+	public LinkedBlockingQueue<ChannelContext<SessionContext, P, R>> getQueue() {
 		return queue;
 	}
 
 	/**
 	 * @return the retryCount
 	 */
-	public int getRetryCount()
-	{
+	public int getRetryCount() {
 		return retryCount;
 	}
 
 	/**
 	 * @param retryCount the retryCount to set
 	 */
-	public void setRetryCount(int retryCount)
-	{
+	public void setRetryCount(int retryCount) {
 		this.retryCount = retryCount;
 	}
 
 	/**
 	 * @return the threadPoolExecutor
 	 */
-	public ThreadPoolExecutor getThreadPoolExecutor()
-	{
+	public ThreadPoolExecutor getThreadPoolExecutor() {
 		return threadPoolExecutor;
 	}
 
-//	/**
-//	 * @param threadPoolExecutor the threadPoolExecutor to set
-//	 */
-//	public void setThreadPoolExecutor(ThreadPoolExecutor threadPoolExecutor)
-//	{
-//		this.threadPoolExecutor = threadPoolExecutor;
-//	}
+	//	/**
+	//	 * @param threadPoolExecutor the threadPoolExecutor to set
+	//	 */
+	//	public void setThreadPoolExecutor(ThreadPoolExecutor threadPoolExecutor)
+	//	{
+	//		this.threadPoolExecutor = threadPoolExecutor;
+	//	}
 
 }

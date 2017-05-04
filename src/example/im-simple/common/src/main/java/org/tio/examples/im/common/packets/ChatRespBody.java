@@ -113,13 +113,12 @@ public  final class ChatRespBody extends
   }
   public static final com.google.protobuf.Descriptors.Descriptor
       getDescriptor() {
-    return org.tio.examples.im.common.packets.Chat.internal_static_com_talent_aio_examples_im_common_packets_ChatRespBody_descriptor;
+    return org.tio.examples.im.common.packets.Chat.internal_static_org_tio_examples_im_common_packets_ChatRespBody_descriptor;
   }
 
-  @Override
-protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+  protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return org.tio.examples.im.common.packets.Chat.internal_static_com_talent_aio_examples_im_common_packets_ChatRespBody_fieldAccessorTable
+    return org.tio.examples.im.common.packets.Chat.internal_static_org_tio_examples_im_common_packets_ChatRespBody_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
             org.tio.examples.im.common.packets.ChatRespBody.class, org.tio.examples.im.common.packets.ChatRespBody.Builder.class);
   }
@@ -133,8 +132,7 @@ protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
    *
    * <code>int64 time = 1;</code>
    */
-  @Override
-public long getTime() {
+  public long getTime() {
     return time_;
   }
 
@@ -147,8 +145,7 @@ public long getTime() {
    *
    * <code>.org.tio.examples.im.common.packets.ChatType type = 2;</code>
    */
-  @Override
-public int getTypeValue() {
+  public int getTypeValue() {
     return type_;
   }
   /**
@@ -158,8 +155,7 @@ public int getTypeValue() {
    *
    * <code>.org.tio.examples.im.common.packets.ChatType type = 2;</code>
    */
-  @Override
-public org.tio.examples.im.common.packets.ChatType getType() {
+  public org.tio.examples.im.common.packets.ChatType getType() {
     org.tio.examples.im.common.packets.ChatType result = org.tio.examples.im.common.packets.ChatType.valueOf(type_);
     return result == null ? org.tio.examples.im.common.packets.ChatType.UNRECOGNIZED : result;
   }
@@ -173,8 +169,7 @@ public org.tio.examples.im.common.packets.ChatType getType() {
    *
    * <code>string text = 3;</code>
    */
-  @Override
-public java.lang.String getText() {
+  public java.lang.String getText() {
     java.lang.Object ref = text_;
     if (ref instanceof java.lang.String) {
       return (java.lang.String) ref;
@@ -193,8 +188,7 @@ public java.lang.String getText() {
    *
    * <code>string text = 3;</code>
    */
-  @Override
-public com.google.protobuf.ByteString
+  public com.google.protobuf.ByteString
       getTextBytes() {
     java.lang.Object ref = text_;
     if (ref instanceof java.lang.String) {
@@ -217,8 +211,7 @@ public com.google.protobuf.ByteString
    *
    * <code>int32 fromId = 4;</code>
    */
-  @Override
-public int getFromId() {
+  public int getFromId() {
     return fromId_;
   }
 
@@ -231,8 +224,7 @@ public int getFromId() {
    *
    * <code>string fromNick = 5;</code>
    */
-  @Override
-public java.lang.String getFromNick() {
+  public java.lang.String getFromNick() {
     java.lang.Object ref = fromNick_;
     if (ref instanceof java.lang.String) {
       return (java.lang.String) ref;
@@ -251,8 +243,7 @@ public java.lang.String getFromNick() {
    *
    * <code>string fromNick = 5;</code>
    */
-  @Override
-public com.google.protobuf.ByteString
+  public com.google.protobuf.ByteString
       getFromNickBytes() {
     java.lang.Object ref = fromNick_;
     if (ref instanceof java.lang.String) {
@@ -275,8 +266,7 @@ public com.google.protobuf.ByteString
    *
    * <code>int32 toId = 6;</code>
    */
-  @Override
-public int getToId() {
+  public int getToId() {
     return toId_;
   }
 
@@ -289,8 +279,7 @@ public int getToId() {
    *
    * <code>string toNick = 7;</code>
    */
-  @Override
-public java.lang.String getToNick() {
+  public java.lang.String getToNick() {
     java.lang.Object ref = toNick_;
     if (ref instanceof java.lang.String) {
       return (java.lang.String) ref;
@@ -309,8 +298,7 @@ public java.lang.String getToNick() {
    *
    * <code>string toNick = 7;</code>
    */
-  @Override
-public com.google.protobuf.ByteString
+  public com.google.protobuf.ByteString
       getToNickBytes() {
     java.lang.Object ref = toNick_;
     if (ref instanceof java.lang.String) {
@@ -333,8 +321,7 @@ public com.google.protobuf.ByteString
    *
    * <code>string group = 8;</code>
    */
-  @Override
-public java.lang.String getGroup() {
+  public java.lang.String getGroup() {
     java.lang.Object ref = group_;
     if (ref instanceof java.lang.String) {
       return (java.lang.String) ref;
@@ -353,8 +340,7 @@ public java.lang.String getGroup() {
    *
    * <code>string group = 8;</code>
    */
-  @Override
-public com.google.protobuf.ByteString
+  public com.google.protobuf.ByteString
       getGroupBytes() {
     java.lang.Object ref = group_;
     if (ref instanceof java.lang.String) {
@@ -369,8 +355,7 @@ public com.google.protobuf.ByteString
   }
 
   private byte memoizedIsInitialized = -1;
-  @Override
-public final boolean isInitialized() {
+  public final boolean isInitialized() {
     byte isInitialized = memoizedIsInitialized;
     if (isInitialized == 1) return true;
     if (isInitialized == 0) return false;
@@ -379,8 +364,7 @@ public final boolean isInitialized() {
     return true;
   }
 
-  @Override
-public void writeTo(com.google.protobuf.CodedOutputStream output)
+  public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
     if (time_ != 0L) {
       output.writeInt64(1, time_);
@@ -408,8 +392,7 @@ public void writeTo(com.google.protobuf.CodedOutputStream output)
     }
   }
 
-  @Override
-public int getSerializedSize() {
+  public int getSerializedSize() {
     int size = memoizedSize;
     if (size != -1) return size;
 
@@ -564,16 +547,14 @@ public int getSerializedSize() {
         .parseWithIOException(PARSER, input, extensionRegistry);
   }
 
-  @Override
-public Builder newBuilderForType() { return newBuilder(); }
+  public Builder newBuilderForType() { return newBuilder(); }
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
   public static Builder newBuilder(org.tio.examples.im.common.packets.ChatRespBody prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
-  @Override
-public Builder toBuilder() {
+  public Builder toBuilder() {
     return this == DEFAULT_INSTANCE
         ? new Builder() : new Builder().mergeFrom(this);
   }
@@ -598,13 +579,12 @@ public Builder toBuilder() {
       org.tio.examples.im.common.packets.ChatRespBodyOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return org.tio.examples.im.common.packets.Chat.internal_static_com_talent_aio_examples_im_common_packets_ChatRespBody_descriptor;
+      return org.tio.examples.im.common.packets.Chat.internal_static_org_tio_examples_im_common_packets_ChatRespBody_descriptor;
     }
 
-    @Override
-	protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return org.tio.examples.im.common.packets.Chat.internal_static_com_talent_aio_examples_im_common_packets_ChatRespBody_fieldAccessorTable
+      return org.tio.examples.im.common.packets.Chat.internal_static_org_tio_examples_im_common_packets_ChatRespBody_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               org.tio.examples.im.common.packets.ChatRespBody.class, org.tio.examples.im.common.packets.ChatRespBody.Builder.class);
     }
@@ -624,8 +604,7 @@ public Builder toBuilder() {
               .alwaysUseFieldBuilders) {
       }
     }
-    @Override
-	public Builder clear() {
+    public Builder clear() {
       super.clear();
       time_ = 0L;
 
@@ -646,19 +625,16 @@ public Builder toBuilder() {
       return this;
     }
 
-    @Override
-	public com.google.protobuf.Descriptors.Descriptor
+    public com.google.protobuf.Descriptors.Descriptor
         getDescriptorForType() {
-      return org.tio.examples.im.common.packets.Chat.internal_static_com_talent_aio_examples_im_common_packets_ChatRespBody_descriptor;
+      return org.tio.examples.im.common.packets.Chat.internal_static_org_tio_examples_im_common_packets_ChatRespBody_descriptor;
     }
 
-    @Override
-	public org.tio.examples.im.common.packets.ChatRespBody getDefaultInstanceForType() {
+    public org.tio.examples.im.common.packets.ChatRespBody getDefaultInstanceForType() {
       return org.tio.examples.im.common.packets.ChatRespBody.getDefaultInstance();
     }
 
-    @Override
-	public org.tio.examples.im.common.packets.ChatRespBody build() {
+    public org.tio.examples.im.common.packets.ChatRespBody build() {
       org.tio.examples.im.common.packets.ChatRespBody result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
@@ -666,8 +642,7 @@ public Builder toBuilder() {
       return result;
     }
 
-    @Override
-	public org.tio.examples.im.common.packets.ChatRespBody buildPartial() {
+    public org.tio.examples.im.common.packets.ChatRespBody buildPartial() {
       org.tio.examples.im.common.packets.ChatRespBody result = new org.tio.examples.im.common.packets.ChatRespBody(this);
       result.time_ = time_;
       result.type_ = type_;
@@ -681,40 +656,33 @@ public Builder toBuilder() {
       return result;
     }
 
-    @Override
-	public Builder clone() {
-      return super.clone();
+    public Builder clone() {
+      return (Builder) super.clone();
     }
-    @Override
-	public Builder setField(
+    public Builder setField(
         com.google.protobuf.Descriptors.FieldDescriptor field,
         Object value) {
-      return super.setField(field, value);
+      return (Builder) super.setField(field, value);
     }
-    @Override
-	public Builder clearField(
+    public Builder clearField(
         com.google.protobuf.Descriptors.FieldDescriptor field) {
-      return super.clearField(field);
+      return (Builder) super.clearField(field);
     }
-    @Override
-	public Builder clearOneof(
+    public Builder clearOneof(
         com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-      return super.clearOneof(oneof);
+      return (Builder) super.clearOneof(oneof);
     }
-    @Override
-	public Builder setRepeatedField(
+    public Builder setRepeatedField(
         com.google.protobuf.Descriptors.FieldDescriptor field,
         int index, Object value) {
-      return super.setRepeatedField(field, index, value);
+      return (Builder) super.setRepeatedField(field, index, value);
     }
-    @Override
-	public Builder addRepeatedField(
+    public Builder addRepeatedField(
         com.google.protobuf.Descriptors.FieldDescriptor field,
         Object value) {
-      return super.addRepeatedField(field, value);
+      return (Builder) super.addRepeatedField(field, value);
     }
-    @Override
-	public Builder mergeFrom(com.google.protobuf.Message other) {
+    public Builder mergeFrom(com.google.protobuf.Message other) {
       if (other instanceof org.tio.examples.im.common.packets.ChatRespBody) {
         return mergeFrom((org.tio.examples.im.common.packets.ChatRespBody)other);
       } else {
@@ -757,13 +725,11 @@ public Builder toBuilder() {
       return this;
     }
 
-    @Override
-	public final boolean isInitialized() {
+    public final boolean isInitialized() {
       return true;
     }
 
-    @Override
-	public Builder mergeFrom(
+    public Builder mergeFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -789,8 +755,7 @@ public Builder toBuilder() {
      *
      * <code>int64 time = 1;</code>
      */
-    @Override
-	public long getTime() {
+    public long getTime() {
       return time_;
     }
     /**
@@ -828,8 +793,7 @@ public Builder toBuilder() {
      *
      * <code>.org.tio.examples.im.common.packets.ChatType type = 2;</code>
      */
-    @Override
-	public int getTypeValue() {
+    public int getTypeValue() {
       return type_;
     }
     /**
@@ -851,8 +815,7 @@ public Builder toBuilder() {
      *
      * <code>.org.tio.examples.im.common.packets.ChatType type = 2;</code>
      */
-    @Override
-	public org.tio.examples.im.common.packets.ChatType getType() {
+    public org.tio.examples.im.common.packets.ChatType getType() {
       org.tio.examples.im.common.packets.ChatType result = org.tio.examples.im.common.packets.ChatType.valueOf(type_);
       return result == null ? org.tio.examples.im.common.packets.ChatType.UNRECOGNIZED : result;
     }
@@ -894,8 +857,7 @@ public Builder toBuilder() {
      *
      * <code>string text = 3;</code>
      */
-    @Override
-	public java.lang.String getText() {
+    public java.lang.String getText() {
       java.lang.Object ref = text_;
       if (!(ref instanceof java.lang.String)) {
         com.google.protobuf.ByteString bs =
@@ -914,8 +876,7 @@ public Builder toBuilder() {
      *
      * <code>string text = 3;</code>
      */
-    @Override
-	public com.google.protobuf.ByteString
+    public com.google.protobuf.ByteString
         getTextBytes() {
       java.lang.Object ref = text_;
       if (ref instanceof String) {
@@ -985,8 +946,7 @@ public Builder toBuilder() {
      *
      * <code>int32 fromId = 4;</code>
      */
-    @Override
-	public int getFromId() {
+    public int getFromId() {
       return fromId_;
     }
     /**
@@ -1024,8 +984,7 @@ public Builder toBuilder() {
      *
      * <code>string fromNick = 5;</code>
      */
-    @Override
-	public java.lang.String getFromNick() {
+    public java.lang.String getFromNick() {
       java.lang.Object ref = fromNick_;
       if (!(ref instanceof java.lang.String)) {
         com.google.protobuf.ByteString bs =
@@ -1044,8 +1003,7 @@ public Builder toBuilder() {
      *
      * <code>string fromNick = 5;</code>
      */
-    @Override
-	public com.google.protobuf.ByteString
+    public com.google.protobuf.ByteString
         getFromNickBytes() {
       java.lang.Object ref = fromNick_;
       if (ref instanceof String) {
@@ -1115,8 +1073,7 @@ public Builder toBuilder() {
      *
      * <code>int32 toId = 6;</code>
      */
-    @Override
-	public int getToId() {
+    public int getToId() {
       return toId_;
     }
     /**
@@ -1154,8 +1111,7 @@ public Builder toBuilder() {
      *
      * <code>string toNick = 7;</code>
      */
-    @Override
-	public java.lang.String getToNick() {
+    public java.lang.String getToNick() {
       java.lang.Object ref = toNick_;
       if (!(ref instanceof java.lang.String)) {
         com.google.protobuf.ByteString bs =
@@ -1174,8 +1130,7 @@ public Builder toBuilder() {
      *
      * <code>string toNick = 7;</code>
      */
-    @Override
-	public com.google.protobuf.ByteString
+    public com.google.protobuf.ByteString
         getToNickBytes() {
       java.lang.Object ref = toNick_;
       if (ref instanceof String) {
@@ -1245,8 +1200,7 @@ public Builder toBuilder() {
      *
      * <code>string group = 8;</code>
      */
-    @Override
-	public java.lang.String getGroup() {
+    public java.lang.String getGroup() {
       java.lang.Object ref = group_;
       if (!(ref instanceof java.lang.String)) {
         com.google.protobuf.ByteString bs =
@@ -1265,8 +1219,7 @@ public Builder toBuilder() {
      *
      * <code>string group = 8;</code>
      */
-    @Override
-	public com.google.protobuf.ByteString
+    public com.google.protobuf.ByteString
         getGroupBytes() {
       java.lang.Object ref = group_;
       if (ref instanceof String) {
@@ -1327,14 +1280,12 @@ public Builder toBuilder() {
       onChanged();
       return this;
     }
-    @Override
-	public final Builder setUnknownFields(
+    public final Builder setUnknownFields(
         final com.google.protobuf.UnknownFieldSet unknownFields) {
       return this;
     }
 
-    @Override
-	public final Builder mergeUnknownFields(
+    public final Builder mergeUnknownFields(
         final com.google.protobuf.UnknownFieldSet unknownFields) {
       return this;
     }
@@ -1355,8 +1306,7 @@ public Builder toBuilder() {
 
   private static final com.google.protobuf.Parser<ChatRespBody>
       PARSER = new com.google.protobuf.AbstractParser<ChatRespBody>() {
-    @Override
-	public ChatRespBody parsePartialFrom(
+    public ChatRespBody parsePartialFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
@@ -1373,8 +1323,7 @@ public Builder toBuilder() {
     return PARSER;
   }
 
-  @Override
-public org.tio.examples.im.common.packets.ChatRespBody getDefaultInstanceForType() {
+  public org.tio.examples.im.common.packets.ChatRespBody getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
 

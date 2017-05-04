@@ -8,10 +8,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * 
  * @author tanyaowu 
- * 2017年4月4日 上午9:18:43
+ * 2017年4月28日 下午1:30:39
  */
-public class DefaultThreadFactory implements ThreadFactory
-{
+public class DefaultThreadFactory implements ThreadFactory {
 
 	/** The thread pool name. */
 	private String threadPoolName = null;
@@ -32,14 +31,11 @@ public class DefaultThreadFactory implements ThreadFactory
 	 * @param priority the priority
 	 * @return single instance of DefaultThreadFactory
 	 */
-	public static DefaultThreadFactory getInstance(String threadName, Integer priority)
-	{
+	public static DefaultThreadFactory getInstance(String threadName, Integer priority) {
 		DefaultThreadFactory defaultThreadFactory = mapOfNameAndThreadFactory.get(threadName);
-		if (defaultThreadFactory == null)
-		{
+		if (defaultThreadFactory == null) {
 			defaultThreadFactory = new DefaultThreadFactory();
-			if (priority != null)
-			{
+			if (priority != null) {
 				defaultThreadFactory.priority = priority;
 			}
 
@@ -50,18 +46,17 @@ public class DefaultThreadFactory implements ThreadFactory
 		return defaultThreadFactory;
 	}
 
-	public static DefaultThreadFactory getInstance(String threadName)
-	{
+	public static DefaultThreadFactory getInstance(String threadName) {
 		return getInstance(threadName, Thread.NORM_PRIORITY);
 	}
 
 	/**
 	 * Instantiates a new default thread factory.
 	 */
-	private DefaultThreadFactory()
-	{
+	private DefaultThreadFactory() {
 
 	}
+
 	/** 
 	 * @see java.util.concurrent.ThreadFactory#newThread(java.lang.Runnable)
 	 * 
@@ -72,9 +67,8 @@ public class DefaultThreadFactory implements ThreadFactory
 	 * 
 	 */
 	@Override
-	public Thread newThread(Runnable r)
-	{
-		AioThread thread = new AioThread(r);
+	public Thread newThread(Runnable r) {
+		Thread thread = new Thread(r);
 		thread.setName(this.getThreadPoolName() + "-" + mapOfNameAndAtomicInteger.get(this.getThreadPoolName()).incrementAndGet());
 		thread.setPriority(priority);
 		return thread;
@@ -85,8 +79,7 @@ public class DefaultThreadFactory implements ThreadFactory
 	 *
 	 * @return the thread pool name
 	 */
-	public String getThreadPoolName()
-	{
+	public String getThreadPoolName() {
 		return threadPoolName;
 	}
 
@@ -95,8 +88,7 @@ public class DefaultThreadFactory implements ThreadFactory
 	 *
 	 * @param threadName the new thread name
 	 */
-	public void setThreadName(String threadName)
-	{
+	public void setThreadName(String threadName) {
 		this.threadPoolName = threadName;
 	}
 

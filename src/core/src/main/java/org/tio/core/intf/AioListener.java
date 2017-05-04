@@ -7,8 +7,7 @@ import org.tio.core.ChannelContext;
  * @author tanyaowu 
  * 2017年4月1日 上午9:34:08
  */
-public interface AioListener<SessionContext, P extends Packet, R>
-{
+public interface AioListener<SessionContext, P extends Packet, R> {
 	/**
 	 * 建链后触发本方法，注：建链不一定成功，需要关注参数isConnected
 	 * @param channelContext
@@ -42,17 +41,17 @@ public interface AioListener<SessionContext, P extends Packet, R>
 	 */
 	void onAfterReceived(ChannelContext<SessionContext, P, R> channelContext, P packet, int packetSize) throws Exception;
 
-//	/**
-//	 * 连接关闭前触发本方法
-//	 *
-//	 * @param channelContext the channelcontext
-//	 * @param throwable the throwable 有可能为空
-//	 * @param remark the remark 有可能为空
-//	 * @param isRemove
-//	 * @author: tanyaowu
-//	 */
-//	void onBeforeClose(ChannelContext<SessionContext, P, R> channelContext, Throwable throwable, String remark, boolean isRemove);
-	
+	//	/**
+	//	 * 连接关闭前触发本方法
+	//	 *
+	//	 * @param channelContext the channelcontext
+	//	 * @param throwable the throwable 有可能为空
+	//	 * @param remark the remark 有可能为空
+	//	 * @param isRemove
+	//	 * @author: tanyaowu
+	//	 */
+	//	void onBeforeClose(ChannelContext<SessionContext, P, R> channelContext, Throwable throwable, String remark, boolean isRemove);
+
 	/**
 	 * 连接关闭前后触发本方法
 	 *

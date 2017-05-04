@@ -110,13 +110,13 @@ public class JFrameMain extends javax.swing.JFrame
 			NumberFormat numberFormat = NumberFormat.getInstance();
 
 			ClientGroupContext<ImSessionContext, ImPacket, Object> clientGroupContext = imClientStarter.getClientGroupContext();
-			int connectionCount = clientGroupContext.getConnections().size();
+			int connectionCount = clientGroupContext.connections.size();
 			instance.connectionCountLabel.setText("总连接" + numberFormat.format(connectionCount));
 
-			int connectedCount = clientGroupContext.getConnecteds().size();
+			int connectedCount = clientGroupContext.connecteds.size();
 			instance.connectedCountLabel.setText("正常链路" + numberFormat.format(connectedCount));
 
-			int closedCount = clientGroupContext.getCloseds().size();
+			int closedCount = clientGroupContext.closeds.size();
 			instance.closedCountLabel.setText("断链" + numberFormat.format(closedCount));
 			
 			
@@ -269,7 +269,7 @@ public class JFrameMain extends javax.swing.JFrame
         sentLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("talent-im-client-1.6.9.v20170408-RELEASE");
+        setTitle("talent-im-simple-client-1.7.0.v20170501-RELEASE");
 
         serverip.setText("127.0.0.1");
         serverip.addActionListener(new java.awt.event.ActionListener() {
@@ -689,13 +689,13 @@ public class JFrameMain extends javax.swing.JFrame
 //		String id = imClientStarter.getClientGroupContext().getId();
 		ClientGroupContext<ImSessionContext, ImPacket, Object> clientGroupContext = imClientStarter.getClientGroupContext();
 
-		ObjWithLock<Set<ChannelContext<ImSessionContext, ImPacket, Object>>> connectionsSetWithLock = clientGroupContext.getConnections().getSetWithLock();
+		ObjWithLock<Set<ChannelContext<ImSessionContext, ImPacket, Object>>> connectionsSetWithLock = clientGroupContext.connections.getSetWithLock();
 		Set<ChannelContext<ImSessionContext, ImPacket, Object>> connectionsSet = connectionsSetWithLock.getObj();
 
-		ObjWithLock<Set<ChannelContext<ImSessionContext, ImPacket, Object>>> connectedsSetWithLock = clientGroupContext.getConnecteds().getSetWithLock();
+		ObjWithLock<Set<ChannelContext<ImSessionContext, ImPacket, Object>>> connectedsSetWithLock = clientGroupContext.connecteds.getSetWithLock();
 		Set<ChannelContext<ImSessionContext, ImPacket, Object>> connectedsSet = connectedsSetWithLock.getObj();
 
-		ObjWithLock<Set<ChannelContext<ImSessionContext, ImPacket, Object>>> closedsSetWithLock = clientGroupContext.getCloseds().getSetWithLock();
+		ObjWithLock<Set<ChannelContext<ImSessionContext, ImPacket, Object>>> closedsSetWithLock = clientGroupContext.closeds.getSetWithLock();
 		Set<ChannelContext<ImSessionContext, ImPacket, Object>> closedsSet = closedsSetWithLock.getObj();
 
 		ClientGroupStat clientGroupStat = clientGroupContext.getClientGroupStat();

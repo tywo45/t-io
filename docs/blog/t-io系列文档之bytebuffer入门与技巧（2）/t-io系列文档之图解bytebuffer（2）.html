@@ -1,0 +1,137 @@
+<ol>
+	<li>
+	<h2><strong>为何而写</strong></h2>
+	网上关于bytebuffer的文章真的很多，为何在此还要写一篇呢？主要是基于以下几点考虑
+
+	<ol>
+		<li>很多人在使用<a href="https://www.oschina.net/p/t-io" target="_blank">t-io</a>时，还不会bytebuffer，只会照着<a href="https://www.oschina.net/p/t-io" target="_blank">t-io</a>提供的例子照猫画虎，不利于灵活运用</li>
+		<li>网上搜到的一些相关文章，讲得不是太易懂，不利于初学者灵活运用bytebuffer</li>
+		<li>本文旨在讲解灵活运用bytebuffer所需的最小知识，以帮助用户快速掌握bytebuffer</li>
+	</ol>
+	</li>
+	
+	
+	<li>
+		
+		<h2><strong>用极易的方式认识一下bytebuffer</strong></h2>
+		<ol>
+			<li>
+				<h3><strong>bytebuffer之第一眼印象</strong></h3>
+				
+				我们可以把bytebuffer理解成如下几个成员组成的一个新对象，对，就是一个普通的java对象，像string一样的java对象。（<span style="color:#006400"><strong>强调一下，这里只是说这样理解，实际上有些bytebuffer的实现类并非这样实现，并且这里只列出掌握bytebuffer所需要的最小知识集合，其它诸如mark等字段本文并不介绍，以免增加初学者的惑度</strong></span>）
+
+				<ol>
+					<li><strong>byte[] bytes</strong>: 用来存储数据</li>
+					<li><strong>int capacity</strong>: 用来表示bytes的容量，那么可以想像capacity就等于bytes.size()，此值在初始化bytes后，是<span style="color:#FF0000"><strong>不可变</strong></span>的。</li>
+					<li><strong>int limit</strong>: 用来表示bytes实际装了多少数据，可以容易想像得到limit &lt;= capacity，此值是<strong><span style="color:#FF0000">可灵活变动的</span></strong></li>
+					<li><strong>int position</strong>: 用来表示在哪个位置开始往bytes写数据或是读数据，此值是<strong><span style="color:#FF0000">可灵活变动的</span></strong></li>
+				</ol>
+				通过下图，对bytebuffer形成一个感观认识吧<br><img alt=""  src="https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bbytebuffer%E5%85%A5%E9%97%A8%E4%B8%8E%E6%8A%80%E5%B7%A7%EF%BC%882%EF%BC%89/bytebuffer-1.png"  />
+				
+			</li>
+			<li><h3><strong>bytebuffer之常用操作及各操作对内部变量带来的变化</strong></h3>
+				<ol>
+					<li><h4>创建bytebuffer: ByteBuffer.allocate(6)</h4>
+						<div><img alt="" src="https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bbytebuffer%E5%85%A5%E9%97%A8%E4%B8%8E%E6%8A%80%E5%B7%A7%EF%BC%882%EF%BC%89/allocate.png"  /></div>
+					</li>
+					<li><h4>写入一个字节: byteBuffer.put((byte)3)</h4>
+						<div><img alt="" src="https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bbytebuffer%E5%85%A5%E9%97%A8%E4%B8%8E%E6%8A%80%E5%B7%A7%EF%BC%882%EF%BC%89/put.png"  /></div>
+					</li>
+					<li><h4>读取一个字节: byte bs = byteBuffer.get()</h4>
+						对于刚刚写好的bytebuffer，我们要读取它的内容，需要先设置一下position和limit，否则读的位置就不对
+						<pre>
+<code class="language-java">
+byteBuffer.position(0);  //设置position到0位置，这样读数据时就从这个位置开始读
+byteBuffer.limit(1);     //设置limit为1，表示当前bytebuffer的有效数据长度是1
+</code></pre>
+我们看一下，设置position和limit后，bytebuffer的内部变化
+						<div><img alt="" src="https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bbytebuffer%E5%85%A5%E9%97%A8%E4%B8%8E%E6%8A%80%E5%B7%A7%EF%BC%882%EF%BC%89/positionAndLimit.png"  /></div>
+
+						接下来，我们就可以读取刚才写入的数据了
+						<pre>
+<code class="language-java">
+byte bs = byteBuffer.get();
+</code></pre>
+						<div><img alt="" src="https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bbytebuffer%E5%85%A5%E9%97%A8%E4%B8%8E%E6%8A%80%E5%B7%A7%EF%BC%882%EF%BC%89/get.png"  /></div>
+					</li>
+				</ol>
+			
+			</li>
+			
+			
+			<li><h3><strong>bytebuffer之使用心得</strong></h3>
+			这里说的是作者本人使用bytebuffer的一些心得，这些与其说是心得，不如说是实践+测试得来的一些经验，所以并不保证就是权威的，欢迎有更深研究的朋友来合理讨论，如果有不同意见，可以以更好的论据来说服对方。
+			<ol>
+				<li>
+					<h4><strong>ByteBuffer.get(byte[], int, int)效率不如 System.arraycopy()</strong></h4>
+					前者实现的原理是用for循环来做的，后者是内存复制，t-io一般是用后者来做bytebuffer的组合，譬如SendRunnable.java的下面这段代码
+
+<pre>
+<code class="language-java">
+ByteBuffer allByteBuffer = ByteBuffer.allocate(allBytebufferCapacity);
+byte[] dest = allByteBuffer.array();
+for (ByteBuffer byteBuffer : byteBuffers) {
+	if (byteBuffer != null) {
+		int length = byteBuffer.limit();
+		int position = allByteBuffer.position();
+		System.arraycopy(byteBuffer.array(), 0, dest, position, length);
+		allByteBuffer.position(position + length);
+	}
+}
+</code></pre>
+				</li>
+				<li><h4><strong>jdk自带的bytebuffer已经足够好用</strong></h4>
+					有一些nio/aio框架喜欢自己弄一套bytebuffer来，既增加了作者自己的工作量，又增加了用户的学习成本，但我们要知道一点，nio/aio在发送数据时，最终的参数是jdk的bytebuffer，我们真的有必要再作一次转换和计算吗？尽管某些中间过程是“零拷贝”（这个“零拷贝”也是有额外的计算成本的）的，但是jdk版bytebuffer的诞生到发送完毕，这整个过程经历了哪些操作呢？真的是如某书某博客上所说的“零拷贝”吗？更不应该把某些对象池的做法也牵强附会到“零拷贝”的概念中来----对象池属对象重复利用范畴，既然是重复利用自然便已经默认有零拷贝的属性了，但是对象池本身的维护也是需要消耗资源的，所以并不是所有场景说用了对象池，性能就提升了，有时候用不好反而增加负担，所以万事要以测试数据为准，不应盲目人云亦云！
+				</li>
+			</ol>
+
+			</li>
+		</ol>
+		
+		
+	
+	</li>
+	
+	
+	
+	
+	
+	<li>
+	<h2><strong>最后附上bytebuffer的示例程序</strong></h2>
+	这里附上bytebuffer的示例程序，用户可以自己debug观察观察，增加bytebuffer的相关概念，以便更灵活的运用bytebuffer
+<pre>
+<code class="language-java">
+import java.nio.ByteBuffer;
+
+/**
+ * @author tanyaowu 
+ * 2017年5月1日 上午9:00:50
+ */
+public class Ts {
+
+	/**
+	 * 
+	 * @author: tanyaowu
+	 */
+	public Ts() {
+	}
+
+	/**
+	 * @param args
+	 * @author: tanyaowu
+	 */
+	public static void main(String[] args) {
+		ByteBuffer byteBuffer = ByteBuffer.allocate(6);
+		byteBuffer.put((byte)3);
+		
+		byteBuffer.position(0);  //设置position到0位置，这样读数据时就从这个位置开始读
+		byteBuffer.limit(1);     //设置limit为1，表示当前bytebuffer的有效数据长度是1
+		
+		byte bs = byteBuffer.get();
+		System.out.println(byteBuffer);
+	}
+}
+</code></pre>
+
+	</li>
+</ol>

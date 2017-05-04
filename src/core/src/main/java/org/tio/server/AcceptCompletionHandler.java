@@ -19,12 +19,13 @@ import org.tio.server.intf.ServerAioListener;
  * @author tanyaowu 
  * 2017年4月4日 上午9:27:45
  */
-public class AcceptCompletionHandler<SessionContext, P extends Packet, R> implements CompletionHandler<AsynchronousSocketChannel, AioServer<SessionContext, P, R>>
-{
+public class AcceptCompletionHandler<SessionContext, P extends Packet, R> implements CompletionHandler<AsynchronousSocketChannel, AioServer<SessionContext, P, R>> {
 
 	private static Logger log = LoggerFactory.getLogger(AioServer.class);
-	public AcceptCompletionHandler()
-	{}
+
+	public AcceptCompletionHandler() {
+	}
+
 	/**
 	 * 
 	 * @param asynchronousSocketChannel
@@ -32,10 +33,8 @@ public class AcceptCompletionHandler<SessionContext, P extends Packet, R> implem
 	 * @author: tanyaowu
 	 */
 	@Override
-	public void completed(AsynchronousSocketChannel asynchronousSocketChannel, AioServer<SessionContext, P, R> aioServer)
-	{
-		try
-		{
+	public void completed(AsynchronousSocketChannel asynchronousSocketChannel, AioServer<SessionContext, P, R> aioServer) {
+		try {
 			ServerGroupContext<SessionContext, P, R> serverGroupContext = aioServer.getServerGroupContext();
 			ServerGroupStat serverGroupStat = serverGroupContext.getServerGroupStat();
 			serverGroupStat.getAccepted().incrementAndGet();
@@ -51,32 +50,25 @@ public class AcceptCompletionHandler<SessionContext, P extends Packet, R> implem
 			ServerAioListener<SessionContext, P, R> serverAioListener = serverGroupContext.getServerAioListener();
 			channelContext.getStat().setTimeFirstConnected(SystemTimer.currentTimeMillis());
 			channelContext.traceClient(ClientAction.CONNECT, null, null);
-			try
-			{
+			try {
 				serverAioListener.onAfterConnected(channelContext, true, false);
-			} catch (Exception e)
-			{
+			} catch (Exception e) {
 				log.error(e.toString(), e);
 			}
 
-			if (!aioServer.isWaitingStop())
-			{
+			if (!aioServer.isWaitingStop()) {
 				ReadCompletionHandler<SessionContext, P, R> readCompletionHandler = channelContext.getReadCompletionHandler();
 				ByteBuffer readByteBuffer = readCompletionHandler.getReadByteBuffer();//ByteBuffer.allocateDirect(channelContext.getGroupContext().getReadBufferSize());
 				readByteBuffer.position(0);
 				readByteBuffer.limit(readByteBuffer.capacity());
 				asynchronousSocketChannel.read(readByteBuffer, readByteBuffer, readCompletionHandler);
 			}
-		} catch (Exception e)
-		{
+		} catch (Exception e) {
 			log.error("", e);
-		} finally
-		{
-			if (aioServer.isWaitingStop())
-			{
+		} finally {
+			if (aioServer.isWaitingStop()) {
 				log.info("{}即将关闭服务器，不再接受新请求", aioServer.getServerNode());
-			} else
-			{
+			} else {
 				AsynchronousServerSocketChannel serverSocketChannel = aioServer.getServerSocketChannel();
 				serverSocketChannel.accept(aioServer, this);
 			}
@@ -90,8 +82,7 @@ public class AcceptCompletionHandler<SessionContext, P extends Packet, R> implem
 	 * @author: tanyaowu
 	 */
 	@Override
-	public void failed(Throwable exc, AioServer<SessionContext, P, R> aioServer)
-	{
+	public void failed(Throwable exc, AioServer<SessionContext, P, R> aioServer) {
 		AsynchronousServerSocketChannel serverSocketChannel = aioServer.getServerSocketChannel();
 		serverSocketChannel.accept(aioServer, this);
 
