@@ -3,11 +3,22 @@
 </h3>
 
 
+
 <ol>
 	
 	
 	<li><h3>简 介</h3>
-		 <strong>t-io</strong>是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置功能丰富、核心代码只有4000多行的即时通讯框架。字母<strong> t </strong>取<strong>talent</strong>（天才）的首字母，也可以理解为<strong>"特快"</strong>，同时也是<strong>作者姓氏</strong>的首字母。
+		 <strong>t-io</strong>是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置功能丰富、核心代码只有3000多行的即时通讯框架。字母<strong> t </strong>取<strong>talent</strong>（天才）的首字母，也可以理解为<strong>"特快"</strong>，同时也是<strong>作者姓氏</strong>的首字母。
+	</li>
+
+	<li>
+	<h3><strong>最新maven坐标</strong></h3>
+<pre>
+<code class="language-xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.t-io&lt;/groupId&gt;
+    &lt;artifactId&gt;tio-core&lt;/artifactId&gt;
+    &lt;version&gt;1.7.0.v20170501-RELEASE&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
 	</li>
 	
 	<li><h3>各种传送门</h3>
@@ -197,29 +208,29 @@ send.count=1
 <pre>
 ├─bin<font color='#06AD3'>----------------脚本目录（方便快速操作）</font>
 │      clean.bat<font color='#06AD3'>----------------清空所有工程的target目录</font>
-│      clean.sh<font color='#06AD3'>----------------清空所有工程的target目录</font>
+│      clean.sh<font color='#06AD3'></font>
 │      deploy.bat<font color='#06AD3'>----------------作者用来发布到maven中心仓库的脚本，放出来主要是供大家参考</font>
-│      deploy.sh<font color='#06AD3'>----------------作者用来发布到maven中心仓库的脚本，放出来主要是供大家参考</font>
+│      deploy.sh<font color='#06AD3'></font>
 │      dist-examples.bat<font color='#06AD3'>----------------把所有的例子打包到dist目录，方便用户直接执行</font>
-│      dist-examples.sh<font color='#06AD3'>----------------把所有的例子打包到dist目录，方便用户直接执行</font>
+│      dist-examples.sh<font color='#06AD3'></font>
 │      install.bat<font color='#06AD3'>----------------安装工程到本地仓库</font>
-│      install.sh<font color='#06AD3'>----------------安装工程到本地仓库</font>
+│      install.sh<font color='#06AD3'></font>
 │      start-helloworld-client.bat<font color='#06AD3'>----------------启动helloworld的客户端</font>
-│      start-helloworld-client.sh<font color='#06AD3'>----------------启动helloworld的客户端</font>
+│      start-helloworld-client.sh<font color='#06AD3'></font>
 │      start-helloworld-server.bat<font color='#06AD3'>----------------启动helloworld的服务端</font>
-│      start-helloworld-server.sh<font color='#06AD3'>----------------启动helloworld的服务端</font>
+│      start-helloworld-server.sh<font color='#06AD3'></font>
 │      start-im-client.bat<font color='#06AD3'>----------------启动im的客户端</font>
-│      start-im-client.sh<font color='#06AD3'>----------------启动im的客户端</font>
+│      start-im-client.sh<font color='#06AD3'></font>
 │      start-im-server.bat<font color='#06AD3'>----------------启动im的服务端</font>
-│      start-im-server.sh<font color='#06AD3'>----------------启动im的服务端</font>
+│      start-im-server.sh<font color='#06AD3'></font>
 │      start-im-simple-client.bat<font color='#06AD3'>----------------启动简化版协议的im的客户端</font>
-│      start-im-simple-client.sh<font color='#06AD3'>----------------启动简化版协议的im的客户端</font>
+│      start-im-simple-client.sh<font color='#06AD3'></font>
 │      start-im-simple-server.bat<font color='#06AD3'>----------------启动简化版协议的im的服务端</font>
-│      start-im-simple-server.sh<font color='#06AD3'>----------------启动简化版协议的im的服务端</font>
+│      start-im-simple-server.sh<font color='#06AD3'></font>
 │      start-showcase-client.bat<font color='#06AD3'>----------------启动showcase的客户端</font>
-│      start-showcase-client.sh<font color='#06AD3'>----------------启动showcase的客户端</font>
+│      start-showcase-client.sh<font color='#06AD3'></font>
 │      start-showcase-server.bat<font color='#06AD3'>----------------启动showcase的服务端</font>
-│      start-showcase-server.sh<font color='#06AD3'>----------------启动showcase的服务端</font>
+│      start-showcase-server.sh<font color='#06AD3'></font>
 ├─docs
 │  │  
 │  ├─blog<font color='#06AD3'>----------------本人博客草稿（大部分博客是在线编辑，所以此处就没有了）</font>
@@ -258,7 +269,7 @@ send.count=1
 	│  │  ├─client
 	│  │  ├─common
 	│  │  └─server
-	│  └─showcase<font color='#06AD3'>----------------showcase的源代码</font>
+	│  └─showcase<font color='#06AD3'>----------------showcase的源代码，这个例子是为了帮助用户学习t-io专门写的</font>
 	│      ├─client
 	│      ├─common
 	│      └─server
@@ -267,13 +278,28 @@ send.count=1
 </h3>
 			</li>
 			
-			<li><h4>花30分钟学习hello world</h4>
-				传送门: <a href="http://www.t-io.org:9292/quickstart.html" target="_blank">30分钟极速入门</a>
+			<li id="import-to-eclipse">
+				<h4>了解t-io源代码及用于学习的例子</h4>
+				去<a href="https://git.oschina.net/tywo45/t-io" target="_blank">https://git.oschina.net/tywo45/t-io</a>下载源代码及例子，里面的showcase例子是专门为学习t-io而写的，其设计也是准生产级别的，可以直接拿来做您项目的手脚架。下载完成后，请按下面步骤导入到eclipse中
+				<div>
+					<a href="https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-1.png" target="_blank"><img src="https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-1.png"></a>
+				</div>
+				<div>
+					<a href="https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-2.png" target="_blank"><img src="https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-2.png"></a>
+				</div>
+				<div>
+					<a href="https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-3.png" target="_blank"><img src="https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-3.png"></a>
+				</div>
+			</li>
+
+
+
+			<li><h4>花30分钟看一下t-io的helloworld，了解一下TCP编程的大概流程</h4>
+				传送门: <a href="https://my.oschina.net/talenttan/blog/884806" target="_blank">t-io系列文档之hello world（1）</a>
 			</li>
 			
-			<li><h4>花点时间学习showcase</h4>
-				代码正在开发中，文档暂未开始... ...尽量在2017年4月30号前提供，在此之前有问题可以和作者沟通。有什么需求可以在这里反馈给我：
-				<a href="https://my.oschina.net/talenttan/tweet/12616527" target="_blank">showcase需求反馈</a>
+			<li><h4>花半天时间学习showcase</h4>
+				下载例子代码学习即可，很容易懂，<a href="https://git.oschina.net/kobe577590/im" target="_blank">天蓬元帅</a>就是这样学习的，可以和他交流，他后面会出详细的教程。
 			</li>
 		</ol>
 	</li>
@@ -332,19 +358,20 @@ send.count=1
 			</span>
 			以便随时掌握本项目的动态
 			</li>
-			
-			
-			
-
-			
 		</ol>
 	</li>
-	
-	
-	
+
+
+	<li><h3>捐赠t-io</h3>
+		<p>由于各种原因，当然根本原因是作者自身的问题，t-io曾经有三天是要打算闭源的，并且在此期间关闭了所有捐赠渠道包括码云官方的捐赠渠道（你现在点下面的捐赠会提示你 “该项目还没开启捐赠功能，快去开启吧！”），作者也无意再次打扰码云的小伙伴们。</p>
+		<p>昨天发了1.7.0版本后，有几个朋友问到了如何捐赠，那么就在此处也放一个巨幅捐赠传送门吧</p>
+		<p><a href="http://www.t-io.org:9292/donate.html?v=1" target="_blank"><h1>t-io捐赠传送门</h1></a></p>
+		<p>捐赠不是必须，求勿喷或轻喷！</p>
+		<p>捐赠不是必须，求勿喷或轻喷！</p>
+		<p>捐赠不是必须，求勿喷或轻喷！</p>
+		<p>不是重复了，而是重要的事说3遍！</p>
+	</li>
 </ol>
-
-
 
 
 
