@@ -2,7 +2,6 @@
 ## **最新版的代码在码云：https://git.oschina.net/tywo45/t-io**
 
 
-
 ## **t-io: 百万级TCP长连接即时通讯框架，让天下没有难开发的即时通讯**
 
 ## **简 介**
@@ -74,20 +73,18 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
         Aio.sendToGroup(groupContext, groupid, packet);
         //方法2
         Aio.sendToGroup(groupContext, groupid, packet, channelContextFilter);
-        
         ```
     - 发消息给所有连接
         ```
         Aio.sendToAll(groupContext, packet, channelContextFilter);
         ```
-
     - 发消息给用户
         ```
         Aio.sendToUser(groupContext, userid, packet);
         ```
     - 各项消息统计等功能，全部一键内置搞定，省却各种烦恼
-    
         ```
+        //某条链路的统计数据
         public class ChannelStat {
     	/**
     	 * 最近一次收到业务消息包的时间(一个完整的业务消息包，一部分消息不算)
@@ -153,7 +150,7 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
     	}
     	
     	
-    	
+    	//某一组条链路的统计数据(一般情况下这一组就是代表所有链路)
     	public class GroupStat {
     	/**
     	 * 关闭了多少连接
@@ -183,7 +180,6 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
     	// getter and setter
     	}
         ```
-
 
 ## **性能数据**
  - IM实例收发速度500万条/秒----此数据系网友提供（i7 6700 + 固态硬盘 + win10），我本地只能跑到333万/秒
@@ -389,3 +385,4 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
   [4]: http://www.t-io.org:9292/apidocs/org/tio/core/Aio.html
   [5]: https://my.oschina.net/talenttan/blog/863545
   [6]: https://my.oschina.net/talenttan/blog
+
