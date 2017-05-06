@@ -1,4 +1,6 @@
 
+## **最新版的代码在码云：https://git.oschina.net/tywo45/t-io**
+
 ## **t-io: 百万级TCP长连接即时通讯框架，让天下没有难开发的即时通讯**
 
 ## **简 介**
@@ -209,6 +211,19 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
 - [redisx](https://git.oschina.net/websterlu/redisx)
 - [talent_dubbo](https://git.oschina.net/kangjie1209/talent_dubbo)
 - 某移动省公司CRM业务受理消息采集平台(数据采集)
+
+## 列一下作者本人用过的国产开源软件
+网上经常有人说国产开源怎么怎么的，没别的意思，此处就列一下作者本人用到过的，而且一直在用的，列的可能不全，主要是给大家参考，现在国产开源软件有很多好的，当然列的软件中有的是有争议的，也有暴过漏洞的，但是我们想一下struts和netty这些国外知名软件不也暴过严重漏洞吗？所以用着好就用，不好不用就行了。
+1. [https://www.oschina.net/p/weixin-java-tools-new](https://www.oschina.net/p/weixin-java-tools-new) （使用一年）
+2. [https://www.oschina.net/p/ztree](https://www.oschina.net/p/ztree) （使用五年以上吧）
+3. [https://www.oschina.net/p/echarts](https://www.oschina.net/p/echarts) （使用两年以上吧）
+4. [http://git.oschina.net/tywo45/talent-validate](http://git.oschina.net/tywo45/talent-validate) （使用十年了，开源出来有五年以上吧，原来是博客开源，现在移到开源中国了）
+5. [https://www.oschina.net/p/hutool](https://www.oschina.net/p/hutool)（使用两个月）
+6. [https://www.oschina.net/p/t-io](https://www.oschina.net/p/t-io)（使用五年了，开源出来半年）
+7. [https://www.oschina.net/p/druid](https://www.oschina.net/p/druid)（使用三年以上吧）
+8. [https://www.oschina.net/p/dubbo](https://www.oschina.net/p/dubbo)（使用两年）
+9. [https://git.oschina.net/jfinal/jfinal-weixin](https://git.oschina.net/jfinal/jfinal-weixin/)（使用一年左右）
+10. [https://www.oschina.net/p/fastjson](https://www.oschina.net/p/fastjson)（使用三年以上）
 
 ## 参与t-io
 - t-io是将多线程技巧运用到极致的框架，所以一旦您参与到本项目，将会从本项目中学到很多关于多线程的技巧。
