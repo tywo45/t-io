@@ -1,6 +1,8 @@
 
 ## **最新版的代码在码云：https://git.oschina.net/tywo45/t-io**
 
+
+
 ## **t-io: 百万级TCP长连接即时通讯框架，让天下没有难开发的即时通讯**
 
 ## **简 介**
@@ -41,9 +43,147 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
     - 心跳检测
     - 心跳发送
     - 自动重连
-    - 绑定用户id
-    - 绑定群组id
+        ```
+        //只需要设置ReconnConf对象即可
+        ReconnConf<Object, HelloPacket, Object> reconnConf = new ReconnConf<Object, HelloPacket, Object>(5000L);
+        ClientGroupContext<Object, HelloPacket, Object> clientGroupContext = new ClientGroupContext<>(aioClientHandler, aioListener, reconnConf);
+        ```
+    - 绑定用户
+        ```
+        Aio.bindUser(channelContext, userid);
+        ```
+    - 解绑用户
+        ```
+        Aio.unBindUser(channelContext);
+        ```
+    - 绑定群组
+        ```
+        Aio.bindGroup(channelContext, groupid);
+        ```
+    - 解绑所有群组
+        ```
+        Aio.unbindGroup(channelContext);
+        ```
+    - 解绑指定群组
+        ```
+        Aio.unbindGroup(group, channelContext);
+        ```
+    - 发消息到群组
+        ```
+        //方法1
+        Aio.sendToGroup(groupContext, groupid, packet);
+        //方法2
+        Aio.sendToGroup(groupContext, groupid, packet, channelContextFilter);
+        
+        ```
+    - 发消息给所有连接
+        ```
+        Aio.sendToAll(groupContext, packet, channelContextFilter);
+        ```
+
+    - 发消息给用户
+        ```
+        Aio.sendToUser(groupContext, userid, packet);
+        ```
     - 各项消息统计等功能，全部一键内置搞定，省却各种烦恼
+    
+        ```
+        public class ChannelStat {
+    	/**
+    	 * 最近一次收到业务消息包的时间(一个完整的业务消息包，一部分消息不算)
+    	 */
+    	private long latestTimeOfReceivedPacket = SystemTimer.currentTimeMillis();
+    
+    	/**
+    	 * 最近一次发送业务消息包的时间(一个完整的业务消息包，一部分消息不算)
+    	 */
+    	private long latestTimeOfSentPacket = SystemTimer.currentTimeMillis();
+    
+    	/**
+    	 * ChannelContext对象创建的时间
+    	 */
+    	private long timeCreated = SystemTimer.currentTimeMillis();
+    
+    	/**
+    	 * 第一次连接成功的时间
+    	 */
+    	private Long timeFirstConnected = null;
+    
+    	/**
+    	 * 连接关闭的时间
+    	 */
+    	private long timeClosed = SystemTimer.currentTimeMillis();
+    
+    	/**
+    	 * 进入重连队列时间
+    	 */
+    	private long timeInReconnQueue = SystemTimer.currentTimeMillis();
+    
+    	/**
+    	 * 本连接已发送的字节数
+    	 */
+    	private AtomicLong sentBytes = new AtomicLong();
+    
+    	/**
+    	 * 本连接已发送的packet数
+    	 */
+    	private AtomicLong sentPackets = new AtomicLong();
+    
+    	/**
+    	 * 本连接已处理的字节数
+    	 */
+    	private AtomicLong handledBytes = new AtomicLong();
+    
+    	/**
+    	 * 本连接已处理的packet数
+    	 */
+    	private AtomicLong handledPackets = new AtomicLong();
+    
+    	/**
+    	 * 本连接已接收的字节数
+    	 */
+    	private AtomicLong receivedBytes = new AtomicLong();
+    
+    	/**
+    	 * 本连接已接收的packet数
+    	 */
+    	private AtomicLong receivedPackets = new AtomicLong();
+    	
+    	// getter and setter
+    	}
+    	
+    	
+    	
+    	public class GroupStat {
+    	/**
+    	 * 关闭了多少连接
+    	 */
+    	private AtomicLong closed = new AtomicLong();
+    	/**
+    	 * 接收到的消息包
+    	 */
+    	private AtomicLong receivedPacket = new AtomicLong();
+    	/**
+    	 * 接收到的消息字节数
+    	 */
+    	private AtomicLong receivedBytes = new AtomicLong();
+    	/**
+    	 * 处理了的消息包数
+    	 */
+    	private AtomicLong handledPacket = new AtomicLong();
+    	/**
+    	 * 发送了的消息包数
+    	 */
+    	private AtomicLong sentPacket = new AtomicLong();
+    
+    	/**
+    	 * 发送了的字节数
+    	 */
+    	private AtomicLong sentBytes = new AtomicLong();
+    	// getter and setter
+    	}
+        ```
+
 
 ## **性能数据**
  - IM实例收发速度500万条/秒----此数据系网友提供（i7 6700 + 固态硬盘 + win10），我本地只能跑到333万/秒
@@ -231,15 +371,13 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
 - 点击右上方的 Star 以便随时掌握本项目的动态（据说star过t-io的用户会受到作者特别对待^_^）
 
 ## 赞助t-io
-由于各种原因，当然根本原因是作者自身的问题，t-io曾经有三天是要打算闭源的，并且在此期间关闭了所有捐赠渠道包括码云官方的捐赠渠道（你现在点下面的捐赠会提示你 “该项目还没开启捐赠功能，快去开启吧！”），作者也无意再次打扰码云的小伙伴们。
+由于各种原因，当然根本原因是作者自身的问题，t-io曾经有三天是要打算闭源的----[请点这查看](https://my.oschina.net/talenttan/blog/880666)，并且在此期间关闭了所有捐赠渠道包括码云官方的捐赠渠道（你现在点下面的捐赠会提示你 “该项目还没开启捐赠功能，快去开启吧！”），作者也无意再次打扰码云的小伙伴们。
 
-昨天发了1.7.0版本后，有几个朋友问到了如何捐赠，那么就在此处也放一个巨幅捐赠传送门吧
-## 赞助t-io传送门：[http://www.t-io.org:9292/donate.html](http://www.t-io.org:9292/donate.html)
-第一遍：赞助不是必须，已经习惯免费享受开源成果的筒子们请自行忽略！
-
-第二遍：赞助不是必须，已经习惯免费享受开源成果的筒子们请自行忽略！
-
-第三遍：赞助不是必须，已经习惯免费享受开源成果的筒子们请自行忽略！
+昨天发了1.7.0版本后，继续开通赞助渠道
+## [赞助t-io请点击](http://www.t-io.org:9292/donate.html)
+- 赞助不是必须，已经习惯免费享受开源成果的筒子们请自行忽略！
+- 赞助不是必须，已经习惯免费享受开源成果的筒子们请自行忽略！
+- 赞助不是必须，已经习惯免费享受开源成果的筒子们请自行忽略！
 
 
 
