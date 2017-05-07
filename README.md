@@ -4,9 +4,9 @@
 
 ## **t-io: 百万级TCP长连接即时通讯框架，让天下没有难开发的即时通讯**
 
-## **简 介**
-t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置功能丰富、核心代码只有3000多行的即时通讯框架。字母 t 取talent（天才）的首字母，也可以理解为"特快"，同时也是作者姓氏的首字母。
-## **最新maven坐标**
+**t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置功能丰富、核心代码只有3000多行的即时通讯框架，字母 t 寓意talent。**
+
+## maven坐标
 ```
 <dependency>
     <groupId>org.t-io</groupId>
@@ -29,13 +29,13 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
  - [资料及问题汇总][5]
 
 ## **常见应用场景**
-- IM（官方提供了im例子，含web端）
-- 实时监控
-- 推送服务（已内置API）
-- RPC
-- 游戏
-- 物联网（已有很多案例）
-- 其它实时通讯类型的场景，不一一列举
+    IM（官方提供了im例子，含web端）
+    实时监控
+    推送服务（已内置API）
+    RPC
+    游戏
+    物联网（已有很多案例）
+    其它实时通讯类型的场景，不一一列举
 
 ## **t-io特点**
 - **极简洁、清晰、易懂的API**
@@ -107,6 +107,7 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
     ```
     
     - 各项消息统计等功能，全部一键内置搞定，省却各种烦恼
+    
     ```
     //某条链路的统计数据
     public class ChannelStat {
@@ -206,7 +207,7 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
     ```
 
 ## **性能数据**
- - IM实例收发速度500万条/秒----此数据系网友提供（i7 6700 + 固态硬盘 + win10），我本地只能跑到333万/秒
+ - IM实例收发速度500万条/秒----此数据系网友提供（i7 6700 + 固态硬盘 + win10），作者本地只跑到了333万/秒
  - IM实例17.82万TCP长连接且正常收发消息只消耗800M内存，CPU使用率极低，目测t-io可以支撑200万长连接
  - 17.82万长连接 + 各种破坏性测试，服务器内存保持稳定（600多M到900M间）
 
@@ -236,23 +237,23 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
         - 在centos上运行 "bin/start-im-server.sh" 启动im server
         - 修改dist\examples\im\client\config\app.conf，参考下面的值，注意把server指向centos的ip
         ```
-            #服务器
-            server=127.0.0.1
-            
-            #服务器port
-            port=9321
-            
-            #连接多少个连接到服务器
-            client.count=16200
-            
-            #进入到哪个组
-            group=g
-            
-            #聊天消息发的内容
-            chat.content=he
-            
-            #一次发多少条(这个数字不要太大)
-            send.count=1
+        #服务器
+        server=127.0.0.1
+        
+        #服务器port
+        port=9321
+        
+        #连接多少个连接到服务器
+        client.count=16200
+        
+        #进入到哪个组
+        group=g
+        
+        #聊天消息发的内容
+        chat.content=he
+        
+        #一次发多少条(这个数字不要太大)
+        send.count=1
         ```
         - 把dist\examples\im\client拷到各客户机并运行"bin/start-im-client.bat"
     3. 测试结果
@@ -348,7 +349,7 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
     ```
 
 3. ### 导入t-io官方提供的例子
-    去[https://git.oschina.net/tywo45/t-io](https://git.oschina.net/tywo45/t-io)下载源代码及例子，里面的showcase例子是专门为学习t-io而写的，其设计也是准生产级别的，**可以直接拿来做您项目的手脚架**。下载完成后，请按下面步骤导入到eclipse中
+    去[t-io码云托管地址](https://git.oschina.net/tywo45/t-io)下载源代码及例子，里面的showcase例子是专门为学习t-io而写的，其设计也是准生产级别的，**可以直接拿来做您项目的手脚架**。下载完成后，请按下面步骤导入到eclipse中
 [![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-1.png)](https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-1.png)
 ---
 [![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-2.png)](https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-2.png)
