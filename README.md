@@ -48,144 +48,162 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
     - 心跳检测
     - 心跳发送
     - 自动重连
-        ```
-        //只需要设置ReconnConf对象即可
-        ReconnConf<Object, HelloPacket, Object> reconnConf = new ReconnConf<Object, HelloPacket, Object>(5000L);
-        ClientGroupContext<Object, HelloPacket, Object> clientGroupContext = new ClientGroupContext<>(aioClientHandler, aioListener, reconnConf);
-        ```
+    
+    ```
+    //只需要设置ReconnConf对象即可
+    ReconnConf<Object, HelloPacket, Object> reconnConf = new ReconnConf<Object, HelloPacket, Object>(5000L);
+    ClientGroupContext<Object, HelloPacket, Object> clientGroupContext = new ClientGroupContext<>(aioClientHandler, aioListener, reconnConf);
+    ```
+    
     - 绑定用户
-        ```
-        Aio.bindUser(channelContext, userid);
-        ```
+        
+    ```
+    Aio.bindUser(channelContext, userid);
+    ```
+        
     - 解绑用户
-        ```
-        Aio.unBindUser(channelContext);
-        ```
+    
+    ```
+    Aio.unBindUser(channelContext);
+    ```
+    
     - 绑定群组
-        ```
-        Aio.bindGroup(channelContext, groupid);
-        ```
+    
+    ```
+    Aio.bindGroup(channelContext, groupid);
+    ```
+    
     - 解绑所有群组
-        ```
-        Aio.unbindGroup(channelContext);
-        ```
+    
+    ```
+    Aio.unbindGroup(channelContext);
+    ```
+    
     - 解绑指定群组
-        ```
-        Aio.unbindGroup(group, channelContext);
-        ```
+    
+    ```
+    Aio.unbindGroup(group, channelContext);
+    ```
+    
     - 发消息到群组
-        ```
-        //方法1
-        Aio.sendToGroup(groupContext, groupid, packet);
-        //方法2
-        Aio.sendToGroup(groupContext, groupid, packet, channelContextFilter);
-        ```
+    
+    ```
+    //方法1
+    Aio.sendToGroup(groupContext, groupid, packet);
+    //方法2
+    Aio.sendToGroup(groupContext, groupid, packet, channelContextFilter);
+    ```
+    
     - 发消息给所有连接
-        ```
-        Aio.sendToAll(groupContext, packet, channelContextFilter);
-        ```
+    
+    ```
+    Aio.sendToAll(groupContext, packet, channelContextFilter);
+    ```
+    
     - 发消息给用户
-        ```
-        Aio.sendToUser(groupContext, userid, packet);
-        ```
+    
+    ```
+    Aio.sendToUser(groupContext, userid, packet);
+    ```
+    
     - 各项消息统计等功能，全部一键内置搞定，省却各种烦恼
-        ```
-        //某条链路的统计数据
-        public class ChannelStat {
-    	/**
-    	 * 最近一次收到业务消息包的时间(一个完整的业务消息包，一部分消息不算)
-    	 */
-    	private long latestTimeOfReceivedPacket = SystemTimer.currentTimeMillis();
-    
-    	/**
-    	 * 最近一次发送业务消息包的时间(一个完整的业务消息包，一部分消息不算)
-    	 */
-    	private long latestTimeOfSentPacket = SystemTimer.currentTimeMillis();
-    
-    	/**
-    	 * ChannelContext对象创建的时间
-    	 */
-    	private long timeCreated = SystemTimer.currentTimeMillis();
-    
-    	/**
-    	 * 第一次连接成功的时间
-    	 */
-    	private Long timeFirstConnected = null;
-    
-    	/**
-    	 * 连接关闭的时间
-    	 */
-    	private long timeClosed = SystemTimer.currentTimeMillis();
-    
-    	/**
-    	 * 进入重连队列时间
-    	 */
-    	private long timeInReconnQueue = SystemTimer.currentTimeMillis();
-    
-    	/**
-    	 * 本连接已发送的字节数
-    	 */
-    	private AtomicLong sentBytes = new AtomicLong();
-    
-    	/**
-    	 * 本连接已发送的packet数
-    	 */
-    	private AtomicLong sentPackets = new AtomicLong();
-    
-    	/**
-    	 * 本连接已处理的字节数
-    	 */
-    	private AtomicLong handledBytes = new AtomicLong();
-    
-    	/**
-    	 * 本连接已处理的packet数
-    	 */
-    	private AtomicLong handledPackets = new AtomicLong();
-    
-    	/**
-    	 * 本连接已接收的字节数
-    	 */
-    	private AtomicLong receivedBytes = new AtomicLong();
-    
-    	/**
-    	 * 本连接已接收的packet数
-    	 */
-    	private AtomicLong receivedPackets = new AtomicLong();
-    	
-    	// getter and setter
-    	}
-    	
-    	
-    	//某一组条链路的统计数据(一般情况下这一组就是代表所有链路)
-    	public class GroupStat {
-    	/**
-    	 * 关闭了多少连接
-    	 */
-    	private AtomicLong closed = new AtomicLong();
-    	/**
-    	 * 接收到的消息包
-    	 */
-    	private AtomicLong receivedPacket = new AtomicLong();
-    	/**
-    	 * 接收到的消息字节数
-    	 */
-    	private AtomicLong receivedBytes = new AtomicLong();
-    	/**
-    	 * 处理了的消息包数
-    	 */
-    	private AtomicLong handledPacket = new AtomicLong();
-    	/**
-    	 * 发送了的消息包数
-    	 */
-    	private AtomicLong sentPacket = new AtomicLong();
-    
-    	/**
-    	 * 发送了的字节数
-    	 */
-    	private AtomicLong sentBytes = new AtomicLong();
-    	// getter and setter
-    	}
-        ```
+    ```
+    //某条链路的统计数据
+    public class ChannelStat {
+	/**
+	 * 最近一次收到业务消息包的时间(一个完整的业务消息包，一部分消息不算)
+	 */
+	private long latestTimeOfReceivedPacket = SystemTimer.currentTimeMillis();
+
+	/**
+	 * 最近一次发送业务消息包的时间(一个完整的业务消息包，一部分消息不算)
+	 */
+	private long latestTimeOfSentPacket = SystemTimer.currentTimeMillis();
+
+	/**
+	 * ChannelContext对象创建的时间
+	 */
+	private long timeCreated = SystemTimer.currentTimeMillis();
+
+	/**
+	 * 第一次连接成功的时间
+	 */
+	private Long timeFirstConnected = null;
+
+	/**
+	 * 连接关闭的时间
+	 */
+	private long timeClosed = SystemTimer.currentTimeMillis();
+
+	/**
+	 * 进入重连队列时间
+	 */
+	private long timeInReconnQueue = SystemTimer.currentTimeMillis();
+
+	/**
+	 * 本连接已发送的字节数
+	 */
+	private AtomicLong sentBytes = new AtomicLong();
+
+	/**
+	 * 本连接已发送的packet数
+	 */
+	private AtomicLong sentPackets = new AtomicLong();
+
+	/**
+	 * 本连接已处理的字节数
+	 */
+	private AtomicLong handledBytes = new AtomicLong();
+
+	/**
+	 * 本连接已处理的packet数
+	 */
+	private AtomicLong handledPackets = new AtomicLong();
+
+	/**
+	 * 本连接已接收的字节数
+	 */
+	private AtomicLong receivedBytes = new AtomicLong();
+
+	/**
+	 * 本连接已接收的packet数
+	 */
+	private AtomicLong receivedPackets = new AtomicLong();
+	
+	// getter and setter
+	}
+	
+	
+	//某一组条链路的统计数据(一般情况下这一组就是代表所有链路)
+	public class GroupStat {
+	/**
+	 * 关闭了多少连接
+	 */
+	private AtomicLong closed = new AtomicLong();
+	/**
+	 * 接收到的消息包
+	 */
+	private AtomicLong receivedPacket = new AtomicLong();
+	/**
+	 * 接收到的消息字节数
+	 */
+	private AtomicLong receivedBytes = new AtomicLong();
+	/**
+	 * 处理了的消息包数
+	 */
+	private AtomicLong handledPacket = new AtomicLong();
+	/**
+	 * 发送了的消息包数
+	 */
+	private AtomicLong sentPacket = new AtomicLong();
+
+	/**
+	 * 发送了的字节数
+	 */
+	private AtomicLong sentBytes = new AtomicLong();
+	// getter and setter
+	}
+    ```
 
 ## **性能数据**
  - IM实例收发速度500万条/秒----此数据系网友提供（i7 6700 + 固态硬盘 + win10），我本地只能跑到333万/秒
@@ -373,7 +391,7 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
 - **点击右上方的 Star 以便随时掌握本项目的动态（据说star过t-io的用户会受到作者特别对待^_^）**
 
 
-# [赞助t-io请点击](http://www.t-io.org:9292/donate.html?v=3)
+## [赞助t-io](http://www.t-io.org:9292/donate.html?v=3)
 由于各种原因，t-io曾经有三天是要打算闭源的----并且在此期间**关闭了所有捐赠渠道，包括码云官方的捐赠渠道**。**昨天t-io发布1.7.0版本，今天重新开放赞助渠道**
 
 
