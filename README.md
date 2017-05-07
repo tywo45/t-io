@@ -67,7 +67,7 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
     - 解绑用户
     
     ```
-    Aio.unBindUser(channelContext);
+    Aio.unbindUser(channelContext);
     ```
     
     - 绑定群组
@@ -114,99 +114,99 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
     ```
     //某条链路的统计数据
     public class ChannelStat {
-	/**
-	 * 最近一次收到业务消息包的时间(一个完整的业务消息包，一部分消息不算)
-	 */
-	private long latestTimeOfReceivedPacket = SystemTimer.currentTimeMillis();
+    /**
+     * 最近一次收到业务消息包的时间(一个完整的业务消息包，一部分消息不算)
+     */
+    private long latestTimeOfReceivedPacket = SystemTimer.currentTimeMillis();
 
-	/**
-	 * 最近一次发送业务消息包的时间(一个完整的业务消息包，一部分消息不算)
-	 */
-	private long latestTimeOfSentPacket = SystemTimer.currentTimeMillis();
+    /**
+     * 最近一次发送业务消息包的时间(一个完整的业务消息包，一部分消息不算)
+     */
+    private long latestTimeOfSentPacket = SystemTimer.currentTimeMillis();
 
-	/**
-	 * ChannelContext对象创建的时间
-	 */
-	private long timeCreated = SystemTimer.currentTimeMillis();
+    /**
+     * ChannelContext对象创建的时间
+     */
+    private long timeCreated = SystemTimer.currentTimeMillis();
 
-	/**
-	 * 第一次连接成功的时间
-	 */
-	private Long timeFirstConnected = null;
+    /**
+     * 第一次连接成功的时间
+     */
+    private Long timeFirstConnected = null;
 
-	/**
-	 * 连接关闭的时间
-	 */
-	private long timeClosed = SystemTimer.currentTimeMillis();
+    /**
+     * 连接关闭的时间
+     */
+    private long timeClosed = SystemTimer.currentTimeMillis();
 
-	/**
-	 * 进入重连队列时间
-	 */
-	private long timeInReconnQueue = SystemTimer.currentTimeMillis();
+    /**
+     * 进入重连队列时间
+     */
+    private long timeInReconnQueue = SystemTimer.currentTimeMillis();
 
-	/**
-	 * 本连接已发送的字节数
-	 */
-	private AtomicLong sentBytes = new AtomicLong();
+    /**
+     * 本连接已发送的字节数
+     */
+    private AtomicLong sentBytes = new AtomicLong();
 
-	/**
-	 * 本连接已发送的packet数
-	 */
-	private AtomicLong sentPackets = new AtomicLong();
+    /**
+     * 本连接已发送的packet数
+     */
+    private AtomicLong sentPackets = new AtomicLong();
 
-	/**
-	 * 本连接已处理的字节数
-	 */
-	private AtomicLong handledBytes = new AtomicLong();
+    /**
+     * 本连接已处理的字节数
+     */
+    private AtomicLong handledBytes = new AtomicLong();
 
-	/**
-	 * 本连接已处理的packet数
-	 */
-	private AtomicLong handledPackets = new AtomicLong();
+    /**
+     * 本连接已处理的packet数
+     */
+    private AtomicLong handledPackets = new AtomicLong();
 
-	/**
-	 * 本连接已接收的字节数
-	 */
-	private AtomicLong receivedBytes = new AtomicLong();
+    /**
+     * 本连接已接收的字节数
+     */
+    private AtomicLong receivedBytes = new AtomicLong();
 
-	/**
-	 * 本连接已接收的packet数
-	 */
-	private AtomicLong receivedPackets = new AtomicLong();
-	
-	// getter and setter
-	}
-	
-	
-	//某一组条链路的统计数据(一般情况下这一组就是代表所有链路)
-	public class GroupStat {
-	/**
-	 * 关闭了多少连接
-	 */
-	private AtomicLong closed = new AtomicLong();
-	/**
-	 * 接收到的消息包
-	 */
-	private AtomicLong receivedPacket = new AtomicLong();
-	/**
-	 * 接收到的消息字节数
-	 */
-	private AtomicLong receivedBytes = new AtomicLong();
-	/**
-	 * 处理了的消息包数
-	 */
-	private AtomicLong handledPacket = new AtomicLong();
-	/**
-	 * 发送了的消息包数
-	 */
-	private AtomicLong sentPacket = new AtomicLong();
+    /**
+     * 本连接已接收的packet数
+     */
+    private AtomicLong receivedPackets = new AtomicLong();
+    
+    // getter and setter
+    }
+    
+    
+    //某一组条链路的统计数据(一般情况下这一组就是代表所有链路)
+    public class GroupStat {
+    /**
+     * 关闭了多少连接
+     */
+    private AtomicLong closed = new AtomicLong();
+    /**
+     * 接收到的消息包
+     */
+    private AtomicLong receivedPacket = new AtomicLong();
+    /**
+     * 接收到的消息字节数
+     */
+    private AtomicLong receivedBytes = new AtomicLong();
+    /**
+     * 处理了的消息包数
+     */
+    private AtomicLong handledPacket = new AtomicLong();
+    /**
+     * 发送了的消息包数
+     */
+    private AtomicLong sentPacket = new AtomicLong();
 
-	/**
-	 * 发送了的字节数
-	 */
-	private AtomicLong sentBytes = new AtomicLong();
-	// getter and setter
-	}
+    /**
+     * 发送了的字节数
+     */
+    private AtomicLong sentBytes = new AtomicLong();
+    // getter and setter
+    }
     ```
 
 ## **性能数据**
@@ -240,23 +240,23 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
         - 在centos上运行 "bin/start-im-server.sh" 启动im server
         - 修改dist\examples\im\client\config\app.conf，参考下面的值，注意把server指向centos的ip
         ```
-        #服务器
-        server=127.0.0.1
-        
-        #服务器port
-        port=9321
-        
-        #连接多少个连接到服务器
-        client.count=16200
-        
-        #进入到哪个组
-        group=g
-        
-        #聊天消息发的内容
-        chat.content=he
-        
-        #一次发多少条(这个数字不要太大)
-        send.count=1
+            #服务器
+            server=127.0.0.1
+            
+            #服务器port
+            port=9321
+            
+            #连接多少个连接到服务器
+            client.count=16200
+            
+            #进入到哪个组
+            group=g
+            
+            #聊天消息发的内容
+            chat.content=he
+            
+            #一次发多少条(这个数字不要太大)
+            send.count=1
         ```
         - 把dist\examples\im\client拷到各客户机并运行"bin/start-im-client.bat"
     3. 测试结果
@@ -329,26 +329,26 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
     │          ├─client----------------showcase的客户端
     │          └─server----------------showcase的服务端
     └─src
-    	├─core----------------t-io的核心代码
-    	├─example----------------用t-io写的例子的源代码
-    	│  ├─parent----------------例子的maven parent
-    	│  ├─helloworld----------------helloworld的源代码
-    	│  │  ├─client
-    	│  │  ├─common
-    	│  │  └─server
-    	│  ├─im----------------im的源代码
-    	│  │  ├─client
-    	│  │  ├─common
-    	│  │  └─server
-    	│  ├─im-simple----------------简化版协议的im的源代码
-    	│  │  ├─client
-    	│  │  ├─common
-    	│  │  └─server
-    	│  └─showcase----------------showcase的源代码，这个例子是为了帮助用户学习t-io专门写的
-    	│      ├─client
-    	│      ├─common
-    	│      └─server
-    	└─parent----------------maven工程的parent
+        ├─core----------------t-io的核心代码
+        ├─example----------------用t-io写的例子的源代码
+        │  ├─parent----------------例子的maven parent
+        │  ├─helloworld----------------helloworld的源代码
+        │  │  ├─client
+        │  │  ├─common
+        │  │  └─server
+        │  ├─im----------------im的源代码
+        │  │  ├─client
+        │  │  ├─common
+        │  │  └─server
+        │  ├─im-simple----------------简化版协议的im的源代码
+        │  │  ├─client
+        │  │  ├─common
+        │  │  └─server
+        │  └─showcase----------------showcase的源代码，这个例子是为了帮助用户学习t-io专门写的
+        │      ├─client
+        │      ├─common
+        │      └─server
+        └─parent----------------maven工程的parent
     ```
 
 3. ### 导入t-io官方提供的例子
