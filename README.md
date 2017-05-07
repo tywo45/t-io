@@ -329,22 +329,22 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
     	└─parent----------------maven工程的parent
     ```
 
-3. ### 了解t-io源代码及用于学习的例子
-    去[https://git.oschina.net/tywo45/t-io](https://git.oschina.net/tywo45/t-io)下载源代码及例子，里面的showcase例子是专门为学习t-io而写的，其设计也是准生产级别的，可以直接拿来做您项目的手脚架。下载完成后，请按下面步骤导入到eclipse中
+3. ### 导入t-io官方提供的例子
+    去[https://git.oschina.net/tywo45/t-io](https://git.oschina.net/tywo45/t-io)下载源代码及例子，里面的showcase例子是专门为学习t-io而写的，其设计也是准生产级别的，**可以直接拿来做您项目的手脚架**。下载完成后，请按下面步骤导入到eclipse中
 [![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-1.png)](https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-1.png)
 ---
 [![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-2.png)](https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-2.png)
 ---
 [![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-3.png)](https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-3.png)
 
-4. ### 万能的helloworld
-    花30分钟看一下t-io官方提供的helloworld，了解一下TCP编程的大概流程，传送门: [https://my.oschina.net/talenttan/blog/884806](https://my.oschina.net/talenttan/blog/884806)
+4. ### 学习万能的helloworld例子
+    花30分钟看一下t-io官方提供的helloworld，了解一下TCP编程的大概流程，文档传送门: [t-io的hello world](https://my.oschina.net/talenttan/blog/884806)
 
-5. ### 自带文档功能的showcase
-    t-io官方提供了用于进一步掌握API的showcase例子，很容易懂，[天蓬元帅](https://git.oschina.net/kobe577590/im)就是这样学习的，可以和他交流，他后面会出详细的教程。
+5. ### 学习用于进阶的showcase例子
+    showcase一词是从springside借来的，放这很应景，[天蓬元帅](https://git.oschina.net/kobe577590/im)就是这样学习的，可以和他交流，他后面会出详细的教程。
 
 ## 案 例
-案例太多，此处仅列举t-io开源第一个月内的案例，你也可以来[https://www.oschina.net/p/t-io](https://www.oschina.net/p/t-io)看看其它网友们反馈的案例
+案例太多，此处仅列举t-io开源第一个月内的案例，你也可以来[t-io开源中国收录地址](https://www.oschina.net/p/t-io)看看其它网友们反馈的案例
 - 某网管系统(管理数百台刀片服务器的系统)
 - 某直播平台(视频直播+聊天)
 - 某智能设备检测系统(数据采集)
@@ -355,7 +355,7 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
 - 某移动省公司CRM业务受理消息采集平台(数据采集)
 
 ## 列一下作者本人用过的国产开源软件
-网上经常有人说国产开源怎么怎么的，没别的意思，此处就列一下作者本人用到过的，而且一直在用的，列的可能不全，主要是给大家参考，现在国产开源软件有很多好的，当然列的软件中有的是有争议的，也有暴过漏洞的，但是我们想一下struts和netty这些国外知名软件不也暴过严重漏洞吗？所以用着好就用，不好不用就行了。
+网上很多人对国产开源的印象还停留在n年前，此处列一下作者本人一直在用的部分国产开源软件，其中有的是有争议的，也有暴过漏洞的，但是我们想一下struts、netty、mongodb这些国外知名软件不也暴过严重漏洞吗？
 1. [https://www.oschina.net/p/weixin-java-tools-new](https://www.oschina.net/p/weixin-java-tools-new) （使用一年）
 2. [https://www.oschina.net/p/ztree](https://www.oschina.net/p/ztree) （使用五年以上吧）
 3. [https://www.oschina.net/p/echarts](https://www.oschina.net/p/echarts) （使用两年以上吧）
@@ -370,16 +370,23 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
 ## 参与t-io
 - t-io是将多线程技巧运用到极致的框架，所以一旦您参与到本项目，将会从本项目中学到很多关于多线程的技巧。
 - 提交Issue 给项目提出有意义的新需求，或是帮项目发现BUG，或是上传你本地测试的一些数据让作者参考以便进一步优化。
-- 点击右上方的 Star 以便随时掌握本项目的动态（据说star过t-io的用户会受到作者特别对待^_^）
+- **点击右上方的 Star 以便随时掌握本项目的动态（据说star过t-io的用户会受到作者特别对待^_^）**
 
-## 赞助t-io
-由于各种原因，当然根本原因是作者自身的问题，t-io曾经有三天是要打算闭源的----[请点这体会一下当时状况](https://my.oschina.net/talenttan/blog/880666)，并且在此期间**关闭了所有捐赠渠道包括码云官方的捐赠渠道**（你现在点下面的捐赠会提示你 “该项目还没开启捐赠功能，快去开启吧！”），作者也无意再次打扰码云的小伙伴们。
 
-**昨天t-io发布1.7.0版本，重新开通赞助渠道，希望大天朝可以一起出一份力^^**
-## [**赞助t-io请点**击](http://www.t-io.org:9292/donate.html)
-1. 赞助不是必须，已经习惯享受免费开源成果的筒子们请自行忽略！
-2. 赞助不是必须，已经习惯享受免费开源成果的筒子们请自行忽略！
-3. 赞助不是必须，已经习惯享受免费开源成果的筒子们请自行忽略！
+# [赞助t-io请点击](http://www.t-io.org:9292/donate.html)
+由于各种原因，t-io曾经有三天是要打算闭源的----并且在此期间**关闭了所有捐赠渠道，包括码云官方的捐赠渠道**。**昨天t-io发布1.7.0版本，今天重新开放赞助渠道**
+
+
+微信赞助 | 马云赞助 | t-io官方QQ群
+---|---|---
+![微信赞助](https://git.oschina.net/tywo45/t-io/raw/master/docs/pay/wechat_300px.png) | ![马云赞助](https://git.oschina.net/tywo45/t-io/raw/master/docs/pay/ali_300px.png)| ![t-io官方QQ群](https://git.oschina.net/tywo45/t-io/raw/master/docs/qq/qq_300px.png)
+[赞助后请私我一下](http://wpa.qq.com/msgrd?v=3&uin=33745965&site=qq&menu=yes) | [赞助后请私我一](http://wpa.qq.com/msgrd?v=3&uin=33745965&site=qq&menu=yes)下| [请先看t-io入群规范](https://my.oschina.net/talenttan/blog/888808)
+
+1. 赞助还是要有的，万一有人想帮作者实现全职t-io及其生态发展的**幻想**呢！
+2. 赞助还是要有的，万一有人想帮作者实现全职t-io及其生态发展的**幻想**呢！
+3. 赞助还是要有的，万一有人想帮作者实现全职t-io及其生态发展的**幻想**呢！
+
+
 
 
 
