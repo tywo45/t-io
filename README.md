@@ -397,16 +397,16 @@ showcase一词是从springside借来的，放这很应景，[天蓬元帅](https
 - **点击右上方的 Star 以便随时掌握本项目的动态（据说star过t-io的用户会受到作者特别对待^_^）**
 
 
-## [助力t-io生态](http://www.t-io.org:9292/donate.html?v=3)
+## [大家一起助力t-io生态发展](http://www.t-io.org:9292/donate.html?v=3)
 - 由于各种原因，t-io曾经有三天是要打算闭源的----并且在此期间关闭了所有捐赠渠道，包括码云官方的捐赠渠道。
 - 2017年5月4号 t-io 1.7.0发布后，重新开放了助力渠道
-- t-io本身不需要助力也能活得很好，**t-io生态系统**，还是需要大家**一起助力**才能活起来。
+- t-io本身不需要助力也能活得很好，**t-io生态系统发展，还希望大家助一臂之力**。
 
 
-微信助力 | 马云助力 | t-io官方QQ群
+[助力后请私我一下](http://wpa.qq.com/msgrd?v=3&uin=33745965&site=qq&menu=yes) | [助力后请私我一下](http://wpa.qq.com/msgrd?v=3&uin=33745965&site=qq&menu=yes) | [请先看t-io入群规范](https://my.oschina.net/talenttan/blog/888808)
 ---|---|---
 ![微信赞助](https://git.oschina.net/tywo45/t-io/raw/master/docs/pay/wechat_300px.png?9) | ![马云赞助](https://git.oschina.net/tywo45/t-io/raw/master/docs/pay/ali_300px.png?9)| ![t-io官方QQ群](https://git.oschina.net/tywo45/t-io/raw/master/docs/qq/qq_300px.png)
-[助力后请私我一下](http://wpa.qq.com/msgrd?v=3&uin=33745965&site=qq&menu=yes) | [助力后请私我一下](http://wpa.qq.com/msgrd?v=3&uin=33745965&site=qq&menu=yes)| [请先看t-io入群规范](https://my.oschina.net/talenttan/blog/888808)
+
 
 
 
