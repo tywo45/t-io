@@ -13,6 +13,11 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
 - 物联网（已有很多案例）
 - 其它实时通讯类型的场景，不一一列举
 
+## 重点强调
+-  [**社区提问规范**](http://www.t-io.cn:9292/howtoqa.html)
+-  [**入群提问规范**](https://my.oschina.net/talenttan/blog/888808)
+-  **请陌生的朋友不要再私下提问**
+
 ## maven坐标
 ```
 <dependency>
@@ -49,63 +54,41 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
 ###  对开发人员极体贴的内置功能
 - 心跳检测
 - 心跳发送
-- 自动重连
-    
+- 各种便捷的绑定API
+
+```
+//绑定用户
+Aio.bindUser(channelContext, userid);
+//解绑用户
+Aio.unbindUser(channelContext);
+//绑定群组
+Aio.bindGroup(channelContext, groupid);
+//解绑所有群组
+Aio.unbindGroup(channelContext);
+//解绑指定群组
+Aio.unbindGroup(group, channelContext);
+```
+
+- 各种便捷的发送API
+
+```
+//组群发
+Aio.sendToGroup(groupContext, groupid, packet);
+//组群发
+Aio.sendToGroup(groupContext, groupid, packet, channelContextFilter);
+//发消息给所有连接
+Aio.sendToAll(groupContext, packet, channelContextFilter);
+//发消息给用户
+Aio.sendToUser(groupContext, userid, packet);
+// ... ...还有其它常规发送API，不一一列举
+```
+
+- 一行代码拥有自动重连功能
+
 ```
 //只需要设置ReconnConf对象即可
 ReconnConf<Object, HelloPacket, Object> reconnConf = new ReconnConf<Object, HelloPacket, Object>(5000L);
 ClientGroupContext<Object, HelloPacket, Object> clientGroupContext = new ClientGroupContext<>(aioClientHandler, aioListener, reconnConf);
-```
-    
-- 绑定用户
-    
-```
-Aio.bindUser(channelContext, userid);
-```
-    
-- 解绑用户
-
-```
-Aio.unbindUser(channelContext);
-```
-
-- 绑定群组
-
-```
-Aio.bindGroup(channelContext, groupid);
-```
-
-- 解绑所有群组
-
-```
-Aio.unbindGroup(channelContext);
-```
-
-- 解绑指定群组
-
-```
-Aio.unbindGroup(group, channelContext);
-```
-
-- 发消息到群组
-
-```
-//方法1
-Aio.sendToGroup(groupContext, groupid, packet);
-//方法2
-Aio.sendToGroup(groupContext, groupid, packet, channelContextFilter);
-```
-
-- 发消息给所有连接
-
-```
-Aio.sendToAll(groupContext, packet, channelContextFilter);
-```
-
-- 发消息给用户
-
-```
-Aio.sendToUser(groupContext, userid, packet);
 ```
 
 - 各项消息统计等功能，全部一键内置搞定，省却各种烦恼
@@ -400,7 +383,7 @@ showcase一词是从springside借来的，放这很应景，[天蓬元帅](https
 - t-io本身不需要助力也能活得很好，**t-io生态系统发展，还希望大家助一臂之力**。
 
 
-[助力后请私我一下](http://wpa.qq.com/msgrd?v=3&uin=33745965&site=qq&menu=yes) | [助力后请私我一下](http://wpa.qq.com/msgrd?v=3&uin=33745965&site=qq&menu=yes) | [请先看t-io入群规范](https://my.oschina.net/talenttan/blog/888808)
+微信渠道 | 支付宝渠道 | [请先看t-io入群规范](https://my.oschina.net/talenttan/blog/888808)
 ---|---|---
 ![微信赞助](https://git.oschina.net/tywo45/t-io/raw/master/docs/pay/wechat_300px.png?9) | ![马云赞助](https://git.oschina.net/tywo45/t-io/raw/master/docs/pay/ali_300px.png?9)| ![t-io官方QQ群](https://git.oschina.net/tywo45/t-io/raw/master/docs/qq/qq_300px.png)
 
