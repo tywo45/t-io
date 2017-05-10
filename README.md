@@ -52,9 +52,9 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
 - 最高时，每秒可以收发500万条消息，约165M
 
 ###  对开发人员极体贴的内置功能
-- 心跳检测
-- 心跳发送
-- 各种便捷的绑定API
+- **内置心跳检测**
+- **内置心跳发送**
+- **各种便捷的绑定API**
 
 ```
 //绑定用户
@@ -69,7 +69,7 @@ Aio.unbindGroup(channelContext);
 Aio.unbindGroup(group, channelContext);
 ```
 
-- 各种便捷的发送API
+- **各种便捷的发送API**
 
 ```
 //组群发
@@ -83,7 +83,7 @@ Aio.sendToUser(groupContext, userid, packet);
 // ... ...还有其它常规发送API，不一一列举
 ```
 
-- 一行代码拥有自动重连功能
+- **一行代码拥有自动重连功能**
 
 ```
 //只需要设置ReconnConf对象即可
@@ -91,7 +91,7 @@ ReconnConf<Object, HelloPacket, Object> reconnConf = new ReconnConf<Object, Hell
 ClientGroupContext<Object, HelloPacket, Object> clientGroupContext = new ClientGroupContext<>(aioClientHandler, aioListener, reconnConf);
 ```
 
-- 各项消息统计等功能，全部一键内置搞定，省却各种烦恼
+- **各项消息统计等功能，全部一键内置搞定，省却各种烦恼**
 
 ```
 //某条链路的统计数据
