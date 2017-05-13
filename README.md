@@ -1,7 +1,8 @@
+## [最新代码在码云，欢迎兄弟们过来](https://git.oschina.net/tywo45/t-io)
 
 ## **t-io: 百万级TCP长连接即时通讯框架，让天下没有难开发的即时通讯**
 
-t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置功能丰富、核心代码只有3000多行的即时通讯框架，字母 t 寓意talent。
+t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、**将多线程运用到极致**、内置功能丰富、核心代码只有3000多行(2017年05月13号统计)的即时通讯框架(广义上的即时通讯，并非指im)，字母 t 寓意talent。
 
 ####  **常见应用场景**
     
@@ -12,6 +13,24 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、内置
 - 游戏
 - 物联网（已有很多案例）
 - 其它实时通讯类型的场景，不一一列举
+
+####  **晒一下作者花两天时间用t-io和[layim](http://layim.layui.com/)做的[web im](http://www.t-io.org:9292/im/app/im/index.html)**
+  
+- 先感谢一下贤心提供这么好的ui作品，也欢迎大家去捐赠获取[layim](http://layim.layui.com/)，本人捐赠了[layim](http://layim.layui.com/)，**只是贤心又零差价地回捐了t-io**。  
+- 东西刚刚出来，还需要打磨，有问题在所难免，毕竟只花了两天时间。
+- [演示地址](http://www.t-io.org:9292/im/app/im/index.html)（2M带宽，请勿压测，谢谢！）
+- 截图
+
+---
+
+![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/tchat/1.png)
+
+---
+
+![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/tchat/2.png)
+
+---
+
 
 ## 重点强调
 -  [**社区提问规范**](http://www.t-io.cn:9292/howtoqa.html)
@@ -334,7 +353,6 @@ private AtomicLong sentBytes = new AtomicLong();
 ```
 
 ### 导入t-io官方提供的例子
-
 去[t-io码云托管地址](https://git.oschina.net/tywo45/t-io)下载源代码及例子，里面的showcase例子是专门为学习t-io而写的，其设计也是准生产级别的，**可以直接拿来做您项目的手脚架**。下载完成后，请按下面步骤导入到eclipse中
 [![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-1.png)](https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-1.png)
 ---
