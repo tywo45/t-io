@@ -48,6 +48,7 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、**将�
 ```
 ## **各种传送门**
 
+ - [t-io生态圈建设](http://www.t-io.org:9292/ecosphere.html?t_io_v=34344545676)
  - [t-io + layim开发的足够风骚的web im](http://www.t-io.org:9292/im/app/im/index.html?t_io_v=34344545676)
  - [官 网][1]
  - [代码托管平台码云](https://git.oschina.net/tywo45/t-io)
@@ -407,7 +408,7 @@ showcase一词是从springside借来的，放这很应景，[天蓬元帅](https
 - **点击右上方的 Star 以便随时掌握本项目的动态（据说star过t-io的用户会受到作者特别对待^_^）**
 
 
-## [助力t-io生态圈建设](http://www.t-io.org:9292/donate.html?t_io_v=34344545676)
+## [助力t-io生态圈建设](http://www.t-io.org:9292/ecosphere.html?t_io_v=34344545676)
 - 由于各种原因，t-io曾经有三天是要打算闭源的----并且在此期间关闭了所有捐赠渠道，包括码云官方的捐赠渠道。
 - 2017年5月4号 t-io 1.7.0发布后，重新开放了助力渠道
 - t-io本身不需要助力也能活得很好，**t-io生态圈建设，还希望大家助一臂之力**。
