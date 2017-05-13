@@ -15,11 +15,11 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、**将�
 - 物联网（已有很多案例）
 - 其它实时通讯类型的场景，不一一列举
 
-####  **晒一下作者花两天时间用t-io和[layim](http://layim.layui.com/)做的[web im](http://www.t-io.org:9292/im/app/im/index.html)**
+####  **晒一下作者花两天时间用t-io和[layim](http://layim.layui.com/)做的[web im](http://www.t-io.org:9292/im/app/im/index.html?t_io_v=34344545676)**
   
 - 先感谢一下贤心提供这么好的ui作品，也欢迎大家去捐赠获取[layim](http://layim.layui.com/)，本人捐赠了[layim](http://layim.layui.com/)，**只是贤心又零差价地回捐了t-io**。  
 - 东西刚刚出来，还需要打磨，有问题在所难免，毕竟只花了两天时间。
-- [演示地址](http://www.t-io.org:9292/im/app/im/index.html)（2M带宽，请勿压测，谢谢！）
+- [演示地址](http://www.t-io.org:9292/im/app/im/index.html?t_io_v=34344545676)（2M带宽，请勿压测，谢谢！）
 - 截图
 
 ---
@@ -48,7 +48,7 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、**将�
 ```
 ## **各种传送门**
 
- - [t-io + layim开发的足够风骚的web im](http://www.t-io.org:9292/im/app/im/index.html)
+ - [t-io + layim开发的足够风骚的web im](http://www.t-io.org:9292/im/app/im/index.html?t_io_v=34344545676)
  - [官 网][1]
  - [代码托管平台码云](https://git.oschina.net/tywo45/t-io)
  - [开源中国收录地址](https://www.oschina.net/p/t-io)
@@ -407,7 +407,7 @@ showcase一词是从springside借来的，放这很应景，[天蓬元帅](https
 - **点击右上方的 Star 以便随时掌握本项目的动态（据说star过t-io的用户会受到作者特别对待^_^）**
 
 
-## [助力t-io生态圈建设](http://www.t-io.org:9292/donate.html?v=3)
+## [助力t-io生态圈建设](http://www.t-io.org:9292/donate.html?t_io_v=34344545676)
 - 由于各种原因，t-io曾经有三天是要打算闭源的----并且在此期间关闭了所有捐赠渠道，包括码云官方的捐赠渠道。
 - 2017年5月4号 t-io 1.7.0发布后，重新开放了助力渠道
 - t-io本身不需要助力也能活得很好，**t-io生态圈建设，还希望大家助一臂之力**。
@@ -426,9 +426,9 @@ showcase一词是从springside借来的，放这很应景，[天蓬元帅](https
 
 
 
-  [1]: http://www.t-io.org:9292/
+  [1]: http://www.t-io.org:9292?t_io_v=34344545676
   [2]: https://my.oschina.net/talenttan/blog/884806
-  [3]: http://www.t-io.org:9292/apidocs/org/tio/core/Aio.html
-  [4]: http://www.t-io.org:9292/apidocs/org/tio/core/Aio.html
+  [3]: http://www.t-io.org:9292/apidocs/org/tio/core/Aio.html?t_io_v=34344545676
+  [4]: http://www.t-io.org:9292/apidocs/org/tio/core/Aio.html?t_io_v=34344545676
   [5]: https://my.oschina.net/talenttan/blog/863545
   [6]: https://my.oschina.net/talenttan/blog
