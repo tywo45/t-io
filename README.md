@@ -24,11 +24,11 @@ t-io是基于jdk aio实现的易学易用、稳定耐操、性能强悍、**将�
 
 ---
 
-![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/tchat/1.png)
+![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/tchat/1.png?v=89)
 
 ---
 
-![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/tchat/2.png)
+![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/tchat/2.png?v=89)
 
 ---
 
@@ -409,15 +409,10 @@ showcase一词是从springside借来的，放这很应景，[天蓬元帅](https
 
 
 ## [助力t-io生态圈建设](http://www.t-io.org:9292/ecosphere.html?t_io_v=34344545676)
-- 由于各种原因，t-io曾经有三天是要打算闭源的----并且在此期间关闭了所有捐赠渠道，包括码云官方的捐赠渠道。
-- 2017年5月4号 t-io 1.7.0发布后，重新开放了助力渠道
-- t-io本身不需要助力也能活得很好，**t-io生态圈建设，还希望大家助一臂之力**。
+t-io本身是类似netty这样的框架的，它可以完成很多功能，譬如rpc、im等，**把rpc、im比作鱼，t-io就是渔具**，指望作者一个去用这个渔捞很多鱼，然后分给大家，这个不太现实的。天朝的环境，做有口碑的开源极难，不光要免费提供很多服务，还要忍受喷子槽子黑子谣言谩骂，所以作者计划**建立一个t-io生态圈建设**，目的是让有志之士用t-io这个超级捕渔利器来捕获更多的鱼，然后把这些鱼卖了变现或免费分享给大家
 
 
-微信渠道 | 支付宝渠道 | [请先看t-io入群规范](https://my.oschina.net/talenttan/blog/888808)
----|---|---
-![微信赞助](https://git.oschina.net/tywo45/t-io/raw/master/docs/pay/wechat_300px.png?6) | ![马云赞助](https://git.oschina.net/tywo45/t-io/raw/master/docs/pay/ali_300px.png?6)| ![t-io官方QQ群](https://git.oschina.net/tywo45/t-io/raw/master/docs/qq/qq_300px.png)
-
+![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/pay/all.png)
 
 
 
