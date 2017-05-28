@@ -1,6 +1,7 @@
 ## [最新代码在码云，因为码云可以用SVN等其它功能](https://git.oschina.net/tywo45/t-io)
 
 
+
 ## **t-io: 百万级TCP长连接即时通讯框架，让天下没有难开发的即时通讯**
 
 - t-io是基于jdk aio实现的易学易用、稳定、性能强悍、**将多线程运用到极致**、内置功能丰富、核心代码只有3000多行(2017年05月13号统计)的即时通讯框架(广义上的即时通讯，并非指im)，字母 t 寓意talent。
@@ -16,7 +17,7 @@
 - 物联网（已有很多案例）
 - 其它实时通讯类型的场景，不一一列举
 
-####  **晒一下作者花两天时间用t-io和[layim](http://layim.layui.com/)做的[web im](http://www.t-io.org:9292/newim/)**
+####  **晒一下作者花两天时间用t-io和[layim](http://layim.layui.com/)做的[web im](http://www.t-io.org:9292/newim/)**（服务器由某公司免费提供，只有2M带宽，最近被Ddos攻击，所以随时都可能暂停而导致你访问失败）
   
 - 先感谢一下贤心提供这么好的ui作品，也欢迎大家去捐赠获取[layim](http://layim.layui.com/)，本人捐赠了[layim](http://layim.layui.com/)，**只是贤心又零差价地回捐了t-io**。  
 - 东西刚刚出来，还需要打磨，有问题在所难免，毕竟只花了两天时间。
@@ -76,7 +77,7 @@
 ## **各种传送门**
 
  - [t-io生态圈建设](http://www.t-io.org:9292/ecosphere.html?t_io_v=34344545676)
- - [t-io + layim + vue + ivivew + webpack + google-protobuf开发的web im](http://www.t-io.org:9292/newim?t_io_v=34344545676)（服务器由某公司免费提供，只有2M带宽，最近被Ddos攻击，所以随时都可能暂时而导致你访问失败）
+ - [t-io + layim + vue + ivivew + webpack + google-protobuf开发的web im](http://www.t-io.org:9292/newim?t_io_v=34344545676)（服务器由某公司免费提供，只有2M带宽，最近被Ddos攻击，所以随时都可能暂停而导致你访问失败）
  - [官 网][1]
  - [代码托管平台码云](https://git.oschina.net/tywo45/t-io)
  - [开源中国收录地址](https://www.oschina.net/p/t-io)
@@ -294,7 +295,7 @@ showcase一词是从springside借来的，放这很应景，[天蓬元帅](https
 ## 参与t-io
 - t-io是将多线程技巧运用到极致的框架，所以一旦您参与到本项目，将会从本项目中学到很多关于多线程的技巧。
 - 提交Issue 给项目提出有意义的新需求，或是帮项目发现BUG，或是上传你本地测试的一些数据让作者参考以便进一步优化。
-- **点击右上方的star以示精神支持，点击fork以备不时之需**
+- **点击右上方的watch可以时刻掌握t-io的动态，点击star以示精神支持，点击fork以备不时之需**
 
 
 ## [助力t-io生态圈建设](http://www.t-io.org:9292/ecosphere.html?t_io_v=34344545676)
