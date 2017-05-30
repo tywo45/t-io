@@ -9,38 +9,32 @@ import java.util.Calendar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * 
  * 本类的write部分摘自(感谢作者贡献):https://github.com/sea-boat/mysql-protocol.git<br>
  * read部分自写
  */
-public class BufferUtil
-{
+public class BufferUtil {
 	private static Logger log = LoggerFactory.getLogger(BufferUtil.class);
 
-	public static byte read(ByteBuffer buffer)
-	{
+	public static byte read(ByteBuffer buffer) {
 		return buffer.get();
 	}
 
-	public static int readUB2(ByteBuffer buffer)
-	{
+	public static int readUB2(ByteBuffer buffer) {
 		int ret = buffer.get() & 0xff;
 		ret |= (buffer.get() & 0xff) << 8;
 		return ret;
 	}
 
-	public static int readUB3(ByteBuffer buffer)
-	{
+	public static int readUB3(ByteBuffer buffer) {
 		int ret = buffer.get() & 0xff;
 		ret |= (buffer.get() & 0xff) << 8;
 		ret |= (buffer.get() & 0xff) << 16;
 		return ret;
 	}
 
-	public static long readUB4(ByteBuffer buffer)
-	{
+	public static long readUB4(ByteBuffer buffer) {
 		long ret = buffer.get() & 0xff;
 		ret |= (long) (buffer.get() & 0xff) << 8;
 		ret |= (long) (buffer.get() & 0xff) << 16;
@@ -48,8 +42,7 @@ public class BufferUtil
 		return ret;
 	}
 
-	public static int readInt(ByteBuffer buffer)
-	{
+	public static int readInt(ByteBuffer buffer) {
 
 		int i = buffer.get() & 0xff;
 		i |= (buffer.get() & 0xff) << 8;
@@ -58,8 +51,7 @@ public class BufferUtil
 		return i;
 	}
 
-	public static float readFloat(ByteBuffer buffer)
-	{
+	public static float readFloat(ByteBuffer buffer) {
 		return Float.intBitsToFloat(readInt(buffer));
 	}
 
@@ -72,26 +64,20 @@ public class BufferUtil
 	 * 2017年1月23日 下午3:07:31
 	 *
 	 */
-	public static long readLong(ByteBuffer buffer)
-	{
+	public static long readLong(ByteBuffer buffer) {
 		return buffer.getLong();
 	}
 
-	public static double readDouble(ByteBuffer buffer)
-	{
+	public static double readDouble(ByteBuffer buffer) {
 		return buffer.getDouble();
 	}
 
-
-	public static String readString(ByteBuffer buffer)
-	{
+	public static String readString(ByteBuffer buffer) {
 		return readString(buffer, null);
 	}
 
-	public static String readString(ByteBuffer buffer, String charset)
-	{
-		if (!buffer.hasRemaining())
-		{
+	public static String readString(ByteBuffer buffer, String charset) {
+		if (!buffer.hasRemaining()) {
 			return null;
 		}
 		//		String s = new String(data, position, length - position, charset);
@@ -101,27 +87,22 @@ public class BufferUtil
 		return s;
 	}
 
-	public static String readStringWithNull(ByteBuffer buffer, String charset)
-	{
+	public static String readStringWithNull(ByteBuffer buffer, String charset) {
 
-		if (!buffer.hasRemaining())
-		{
+		if (!buffer.hasRemaining()) {
 			return null;
 		}
 		int offset = -1;
 		int position = buffer.position();
 		int length = buffer.limit();
 		boolean needPlus1 = true;
-		for (int i = position; i < length; i++)
-		{
-			if (buffer.get(i) == 0)
-			{
+		for (int i = position; i < length; i++) {
+			if (buffer.get(i) == 0) {
 				offset = i;
 				break;
 			}
 		}
-		if (offset == -1)
-		{
+		if (offset == -1) {
 			needPlus1 = false;
 			offset = buffer.limit();
 			//			String s = new String(b, position, length - position);
@@ -130,21 +111,18 @@ public class BufferUtil
 			//			buffer.position(buffer.limit());
 			//			return s;
 		}
-		if (offset > position)
-		{
+		if (offset > position) {
 			//			String s = new String(b, position, offset - position);
 			//			position = offset + 1;
 			int bytelength = offset - buffer.position();
 			String s = readString(buffer, bytelength, charset);
 
-			if (needPlus1)
-			{
+			if (needPlus1) {
 				buffer.position(buffer.position() + 1);
 			}
 
 			return s;
-		} else
-		{
+		} else {
 			//			position++;
 			buffer.position(buffer.position() + 1);
 			return null;
@@ -162,40 +140,29 @@ public class BufferUtil
 	 * 2017年1月25日 下午12:12:07
 	 *
 	 */
-	public static String readString(ByteBuffer buffer, int length, String charset)
-	{
+	public static String readString(ByteBuffer buffer, int length, String charset) {
 		int bytelength = length;
 		byte[] dst = new byte[bytelength];
 		buffer.get(dst, 0, bytelength);
 		String s = null;
-		if (charset != null)
-		{
-			try
-			{
+		if (charset != null) {
+			try {
 				s = new String(dst, charset);
-			} catch (UnsupportedEncodingException e)
-			{
+			} catch (UnsupportedEncodingException e) {
 				log.error(e.toString(), e);
 				s = new String(dst);
 			}
-		} else
-		{
+		} else {
 			s = new String(dst);
 		}
 		return s;
 	}
 
-	public static String readStringWithNull(ByteBuffer buffer)
-	{
+	public static String readStringWithNull(ByteBuffer buffer) {
 		return readStringWithNull(buffer, null);
 	}
 
-
-
-
-
-	public static java.sql.Time readTime(ByteBuffer buffer)
-	{
+	public static java.sql.Time readTime(ByteBuffer buffer) {
 		move(6, buffer);
 		int hour = read(buffer);
 		int minute = read(buffer);
@@ -205,8 +172,7 @@ public class BufferUtil
 		return new Time(cal.getTimeInMillis());
 	}
 
-	public static java.util.Date readDate(ByteBuffer buffer)
-	{
+	public static java.util.Date readDate(ByteBuffer buffer) {
 		byte length = read(buffer);
 		int year = readUB2(buffer);
 		byte month = read(buffer);
@@ -214,70 +180,58 @@ public class BufferUtil
 		int hour = read(buffer);
 		int minute = read(buffer);
 		int second = read(buffer);
-		if (length == 11)
-		{
+		if (length == 11) {
 			long nanos = readUB4(buffer);
 			Calendar cal = getLocalCalendar();
 			cal.set(year, --month, date, hour, minute, second);
 			Timestamp time = new Timestamp(cal.getTimeInMillis());
 			time.setNanos((int) nanos);
 			return time;
-		} else
-		{
+		} else {
 			Calendar cal = getLocalCalendar();
 			cal.set(year, --month, date, hour, minute, second);
 			return new java.sql.Date(cal.getTimeInMillis());
 		}
 	}
 
-
-
-	public static void move(int i, ByteBuffer buffer)
-	{
+	public static void move(int i, ByteBuffer buffer) {
 		buffer.position(buffer.position() + i);
 	}
 
-	public static void position(int i, ByteBuffer buffer)
-	{
+	public static void position(int i, ByteBuffer buffer) {
 		buffer.position(i);
 	}
 
-	public static final void writeUB2(ByteBuffer buffer, int i)
-	{
+	public static final void writeUB2(ByteBuffer buffer, int i) {
 		buffer.put((byte) (i & 0xff));
 		buffer.put((byte) (i >>> 8));
 	}
 
-	public static final void writeUB3(ByteBuffer buffer, int i)
-	{
+	public static final void writeUB3(ByteBuffer buffer, int i) {
 		buffer.put((byte) (i & 0xff));
 		buffer.put((byte) (i >>> 8));
 		buffer.put((byte) (i >>> 16));
 	}
 
-	public static final void writeInt(ByteBuffer buffer, int i)
-	{
+	public static final void writeInt(ByteBuffer buffer, int i) {
 		buffer.put((byte) (i & 0xff));
 		buffer.put((byte) (i >>> 8));
 		buffer.put((byte) (i >>> 16));
 		buffer.put((byte) (i >>> 24));
 	}
 
-	public static final void writeFloat(ByteBuffer buffer, float f)
-	{
+	public static final void writeFloat(ByteBuffer buffer, float f) {
 		writeInt(buffer, Float.floatToIntBits(f));
 	}
 
-	public static final void writeUB4(ByteBuffer buffer, long l)
-	{
+	public static final void writeUB4(ByteBuffer buffer, long l) {
 		buffer.put((byte) (l & 0xff));
 		buffer.put((byte) (l >>> 8));
 		buffer.put((byte) (l >>> 16));
 		buffer.put((byte) (l >>> 24));
 	}
 
-	public static final void writeLong(ByteBuffer buffer, long l)
-	{
+	public static final void writeLong(ByteBuffer buffer, long l) {
 		buffer.put((byte) (l & 0xff));
 		buffer.put((byte) (l >>> 8));
 		buffer.put((byte) (l >>> 16));
@@ -288,112 +242,85 @@ public class BufferUtil
 		buffer.put((byte) (l >>> 56));
 	}
 
-	public static final void writeDouble(ByteBuffer buffer, double d)
-	{
+	public static final void writeDouble(ByteBuffer buffer, double d) {
 		writeLong(buffer, Double.doubleToLongBits(d));
 	}
 
-	public static final void writeLength(ByteBuffer buffer, long l)
-	{
-		if (l < 251)
-		{
+	public static final void writeLength(ByteBuffer buffer, long l) {
+		if (l < 251) {
 			buffer.put((byte) l);
-		} else if (l < 0x10000L)
-		{
+		} else if (l < 0x10000L) {
 			buffer.put((byte) 252);
 			writeUB2(buffer, (int) l);
-		} else if (l < 0x1000000L)
-		{
+		} else if (l < 0x1000000L) {
 			buffer.put((byte) 253);
 			writeUB3(buffer, (int) l);
-		} else
-		{
+		} else {
 			buffer.put((byte) 254);
 			writeLong(buffer, l);
 		}
 	}
 
-	public static final void writeWithNull(ByteBuffer buffer, byte[] src)
-	{
+	public static final void writeWithNull(ByteBuffer buffer, byte[] src) {
 		buffer.put(src);
 		buffer.put((byte) 0);
 	}
 
-	public static final void writeWithLength(ByteBuffer buffer, byte[] src)
-	{
+	public static final void writeWithLength(ByteBuffer buffer, byte[] src) {
 		int length = src.length;
-		if (length < 251)
-		{
+		if (length < 251) {
 			buffer.put((byte) length);
-		} else if (length < 0x10000L)
-		{
+		} else if (length < 0x10000L) {
 			buffer.put((byte) 252);
 			writeUB2(buffer, length);
-		} else if (length < 0x1000000L)
-		{
+		} else if (length < 0x1000000L) {
 			buffer.put((byte) 253);
 			writeUB3(buffer, length);
-		} else
-		{
+		} else {
 			buffer.put((byte) 254);
 			writeLong(buffer, length);
 		}
 		buffer.put(src);
 	}
 
-	public static final void writeWithLength(ByteBuffer buffer, byte[] src, byte nullValue)
-	{
-		if (src == null)
-		{
+	public static final void writeWithLength(ByteBuffer buffer, byte[] src, byte nullValue) {
+		if (src == null) {
 			buffer.put(nullValue);
-		} else
-		{
+		} else {
 			writeWithLength(buffer, src);
 		}
 	}
 
-	public static final int getLength(long length)
-	{
-		if (length < 251)
-		{
+	public static final int getLength(long length) {
+		if (length < 251) {
 			return 1;
-		} else if (length < 0x10000L)
-		{
+		} else if (length < 0x10000L) {
 			return 3;
-		} else if (length < 0x1000000L)
-		{
+		} else if (length < 0x1000000L) {
 			return 4;
-		} else
-		{
+		} else {
 			return 9;
 		}
 	}
 
-	public static final int getLength(byte[] src)
-	{
+	public static final int getLength(byte[] src) {
 		int length = src.length;
-		if (length < 251)
-		{
+		if (length < 251) {
 			return 1 + length;
-		} else if (length < 0x10000L)
-		{
+		} else if (length < 0x10000L) {
 			return 3 + length;
-		} else if (length < 0x1000000L)
-		{
+		} else if (length < 0x1000000L) {
 			return 4 + length;
-		} else
-		{
+		} else {
 			return 9 + length;
 		}
 	}
 
 	private static final ThreadLocal<Calendar> localCalendar = new ThreadLocal<Calendar>();
 
-	private static final Calendar getLocalCalendar()
-	{
+	private static final Calendar getLocalCalendar() {
 		Calendar cal = localCalendar.get();
-		if (cal == null)
-		{
+		if (cal == null) {
 			cal = Calendar.getInstance();
 			localCalendar.set(cal);
 		}

@@ -12,8 +12,7 @@ import com.alibaba.fastjson.annotation.JSONField;
  * @author tanyaowu 
  *
  */
-public class ImPacket extends Packet
-{
+public class ImPacket extends Packet {
 
 	private static Logger log = LoggerFactory.getLogger(ImPacket.class);
 
@@ -21,7 +20,7 @@ public class ImPacket extends Packet
 	 * 心跳字节
 	 */
 	public static final byte HEARTBEAT_BYTE = -128;
-	
+
 	/**
 	 * 握手字节
 	 */
@@ -62,71 +61,58 @@ public class ImPacket extends Packet
 	 */
 	public static final byte FIRST_BYTE_MASK_VERSION = 0B00001111;
 
-//	/**
-//	 * 是否压缩消息体
-//	 */
-//	private boolean isCompress = false;
+	//	/**
+	//	 * 是否压缩消息体
+	//	 */
+	//	private boolean isCompress = false;
 
-//	/**
-//	 * 是否带有同步序列号
-//	 */
-//	private boolean hasSynSeq = false;
+	//	/**
+	//	 * 是否带有同步序列号
+	//	 */
+	//	private boolean hasSynSeq = false;
 
-//	/**
-//	 * 是否用4字节来表示消息体的长度，false:2字节，true:4字节
-//	 */
-//	private boolean is4ByteLength = false;
+	//	/**
+	//	 * 是否用4字节来表示消息体的长度，false:2字节，true:4字节
+	//	 */
+	//	private boolean is4ByteLength = false;
 
-	public static boolean decodeCompress(byte version)
-	{
+	public static boolean decodeCompress(byte version) {
 		return (FIRST_BYTE_MASK_COMPRESS & version) != 0;
 	}
 
-	public static byte encodeCompress(byte bs, boolean isCompress)
-	{
-		if (isCompress)
-		{
+	public static byte encodeCompress(byte bs, boolean isCompress) {
+		if (isCompress) {
 			return (byte) (bs | FIRST_BYTE_MASK_COMPRESS);
-		} else
-		{
+		} else {
 			return (byte) (bs & (FIRST_BYTE_MASK_COMPRESS ^ 0b01111111));
 		}
 	}
 
-	public static boolean decodeHasSynSeq(byte firstByte)
-	{
+	public static boolean decodeHasSynSeq(byte firstByte) {
 		return (FIRST_BYTE_MASK_HAS_SYNSEQ & firstByte) != 0;
 	}
 
-	public static byte encodeHasSynSeq(byte bs, boolean hasSynSeq)
-	{
-		if (hasSynSeq)
-		{
+	public static byte encodeHasSynSeq(byte bs, boolean hasSynSeq) {
+		if (hasSynSeq) {
 			return (byte) (bs | FIRST_BYTE_MASK_HAS_SYNSEQ);
-		} else
-		{
+		} else {
 			return (byte) (bs & (FIRST_BYTE_MASK_HAS_SYNSEQ ^ 0b01111111));
 		}
 	}
 
-	public static boolean decode4ByteLength(byte version)
-	{
+	public static boolean decode4ByteLength(byte version) {
 		return (FIRST_BYTE_MASK_4_BYTE_LENGTH & version) != 0;
 	}
 
-	public static byte encode4ByteLength(byte bs, boolean is4ByteLength)
-	{
-		if (is4ByteLength)
-		{
+	public static byte encode4ByteLength(byte bs, boolean is4ByteLength) {
+		if (is4ByteLength) {
 			return (byte) (bs | FIRST_BYTE_MASK_4_BYTE_LENGTH);
-		} else
-		{
+		} else {
 			return (byte) (bs & (FIRST_BYTE_MASK_4_BYTE_LENGTH ^ 0b01111111));
 		}
 	}
 
-	public static byte decodeVersion(byte version)
-	{
+	public static byte decodeVersion(byte version) {
 		return (byte) (FIRST_BYTE_MASK_VERSION & version);
 	}
 
@@ -138,15 +124,12 @@ public class ImPacket extends Packet
 	 * 2017年1月31日 下午5:32:26
 	 *
 	 */
-	public int calcHeaderLength(boolean is4byteLength)
-	{
+	public int calcHeaderLength(boolean is4byteLength) {
 		int ret = LEAST_HEADER_LENGHT;
-		if (is4byteLength)
-		{
+		if (is4byteLength) {
 			ret += 2;
 		}
-		if (this.getSynSeq() > 0)
-		{
+		if (this.getSynSeq() > 0) {
 			ret += 4;
 		}
 		return ret;
@@ -165,29 +148,25 @@ public class ImPacket extends Packet
 
 	private byte[] body;
 
-	public ImPacket(byte[] body, Command command)
-	{
+	public ImPacket(byte[] body, Command command) {
 		super();
 		this.body = body;
 		this.setCommand(command);
 	}
 
-	public ImPacket(Command command)
-	{
+	public ImPacket(Command command) {
 		super();
 		this.setCommand(command);
 	}
 
-	public ImPacket()
-	{
+	public ImPacket() {
 
 	}
 
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 		int xx2x = Integer.MAX_VALUE;
 		byte b = Byte.MAX_VALUE;
 		short fd = Short.MAX_VALUE;
@@ -212,17 +191,16 @@ public class ImPacket extends Packet
 	}
 
 	@JSONField(serialize = false)
-//	private int bodyLen;
+	//	private int bodyLen;
 
 	private Command command;
 
-//	public int getBodyLen()
-//	{
-//		return bodyLen;
-//	}
+	//	public int getBodyLen()
+	//	{
+	//		return bodyLen;
+	//	}
 
-	public Command getCommand()
-	{
+	public Command getCommand() {
 		return command;
 	}
 
@@ -246,13 +224,12 @@ public class ImPacket extends Packet
 	//		this.seqNo = seqNo;
 	//	}
 
-//	public void setBodyLen(int bodyLen)
-//	{
-//		this.bodyLen = bodyLen;
-//	}
+	//	public void setBodyLen(int bodyLen)
+	//	{
+	//		this.bodyLen = bodyLen;
+	//	}
 
-	public void setCommand(Command type)
-	{
+	public void setCommand(Command type) {
 		this.command = type;
 		//		if (com.talent.im.common.command.Command.COMMAND_PRIORITY_HANDLER_COMMANDS.contains(type))
 		//		{
@@ -263,16 +240,14 @@ public class ImPacket extends Packet
 	/**
 	 * @return the body
 	 */
-	public byte[] getBody()
-	{
+	public byte[] getBody() {
 		return body;
 	}
 
 	/**
 	 * @param body the body to set
 	 */
-	public void setBody(byte[] body)
-	{
+	public void setBody(byte[] body) {
 		this.body = body;
 	}
 
@@ -285,57 +260,56 @@ public class ImPacket extends Packet
 	 * 
 	 */
 	@Override
-	public String logstr()
-	{
+	public String logstr() {
 		return this.command.name();
 	}
 
-//	/**
-//	 * @return the isCompress
-//	 */
-//	public boolean isCompress()
-//	{
-//		return isCompress;
-//	}
-//
-//	/**
-//	 * @param isCompress the isCompress to set
-//	 */
-//	public void setCompress(boolean isCompress)
-//	{
-//		this.isCompress = isCompress;
-//	}
+	//	/**
+	//	 * @return the isCompress
+	//	 */
+	//	public boolean isCompress()
+	//	{
+	//		return isCompress;
+	//	}
+	//
+	//	/**
+	//	 * @param isCompress the isCompress to set
+	//	 */
+	//	public void setCompress(boolean isCompress)
+	//	{
+	//		this.isCompress = isCompress;
+	//	}
 
-//	/**
-//	 * @return the hasSynSeq
-//	 */
-//	public boolean isHasSynSeq()
-//	{
-//		return hasSynSeq;
-//	}
-//
-//	/**
-//	 * @param hasSynSeq the hasSynSeq to set
-//	 */
-//	public void setHasSynSeq(boolean hasSynSeq)
-//	{
-//		this.hasSynSeq = hasSynSeq;
-//	}
+	//	/**
+	//	 * @return the hasSynSeq
+	//	 */
+	//	public boolean isHasSynSeq()
+	//	{
+	//		return hasSynSeq;
+	//	}
+	//
+	//	/**
+	//	 * @param hasSynSeq the hasSynSeq to set
+	//	 */
+	//	public void setHasSynSeq(boolean hasSynSeq)
+	//	{
+	//		this.hasSynSeq = hasSynSeq;
+	//	}
 
-//	/**
-//	 * @return the is4byteLength
-//	 */
-//	public boolean isIs4ByteLength()
-//	{
-//		return is4ByteLength;
-//	}
-//
-//	/**
-//	 * @param is4ByteLength the is4byteLength to set
-//	 */
-//	public void setIs4byteLength(boolean is4ByteLength)
-//	{
-//		this.is4ByteLength = is4ByteLength;
-//	}
+	//	/**
+	//	 * @return the is4byteLength
+	//	 */
+	//	public boolean isIs4ByteLength()
+	//	{
+	//		return is4ByteLength;
+	//	}
+	//
+	//	/**
+	//	 * @param is4ByteLength the is4byteLength to set
+	//	 */
+	//	public void setIs4byteLength(boolean is4ByteLength)
+	//	{
+	//		this.is4ByteLength = is4ByteLength;
+	//	}
 
 }

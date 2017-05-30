@@ -2,7 +2,9 @@
  * 
  */
 package org.tio.examples.im.common.bs;
+
 import org.tio.core.utils.SystemTimer;
+
 /**
  * 
  * 
@@ -22,33 +24,28 @@ import org.tio.core.utils.SystemTimer;
  * </tbody>
  * </table>
  */
-public abstract class BaseRespBody
-{
-	
+public abstract class BaseRespBody {
+
 	private Long time;
+
 	/**
 	 * 
 	 */
-	public BaseRespBody()
-	{
+	public BaseRespBody() {
 		time = SystemTimer.currentTimeMillis();
 	}
 
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args)
-	{}
+	public static void main(String[] args) {
+	}
 
-	public Long getTime()
-	{
+	public Long getTime() {
 		return time;
 	}
 
-	public void setTime(Long time)
-	{
+	public void setTime(Long time) {
 		this.time = time;
 	}
 }
-
-

@@ -4,15 +4,15 @@
 package org.tio.examples.im.common.packets;
 
 public interface BeginToLiveReqBodyOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:org.tio.examples.im.common.packets.BeginToLiveReqBody)
-    com.google.protobuf.MessageOrBuilder {
+		// @@protoc_insertion_point(interface_extends:org.tio.examples.im.common.packets.BeginToLiveReqBody)
+		com.google.protobuf.MessageOrBuilder {
 
-  /**
-   * <pre>
-   *消息发送时间
-   * </pre>
-   *
-   * <code>int64 time = 1;</code>
-   */
-  long getTime();
+	/**
+	 * <pre>
+	 *消息发送时间
+	 * </pre>
+	 *
+	 * <code>int64 time = 1;</code>
+	 */
+	long getTime();
 }

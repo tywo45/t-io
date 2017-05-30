@@ -61,7 +61,7 @@ public class ServerGroupContext<SessionContext, P extends Packet, R> extends Gro
 			public void run() {
 
 				while (!isStopped()) {
-//					long sleeptime = heartbeatTimeout;
+					//					long sleeptime = heartbeatTimeout;
 					if (heartbeatTimeout <= 0) {
 						log.warn("用户取消了框架层面的心跳检测，请用户自己去完成心跳机制");
 						break;

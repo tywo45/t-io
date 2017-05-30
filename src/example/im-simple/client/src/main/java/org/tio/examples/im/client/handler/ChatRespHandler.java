@@ -27,32 +27,26 @@ import org.tio.examples.im.common.ImSessionContext;
  * </tbody>
  * </table>
  */
-public class ChatRespHandler implements ImAioHandlerIntf
-{
+public class ChatRespHandler implements ImAioHandlerIntf {
 	private static Logger log = LoggerFactory.getLogger(ChatRespHandler.class);
 
 	/**
 	 * 
 	 */
-	public ChatRespHandler()
-	{
+	public ChatRespHandler() {
 
 	}
 
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 
 	}
 
-	
-
 	@Override
-	public Object handler(ImPacket packet, ChannelContext<ImSessionContext, ImPacket, Object> channelContext) throws Exception
-	{
-		
+	public Object handler(ImPacket packet, ChannelContext<ImSessionContext, ImPacket, Object> channelContext) throws Exception {
+
 		return null;
 	}
 }

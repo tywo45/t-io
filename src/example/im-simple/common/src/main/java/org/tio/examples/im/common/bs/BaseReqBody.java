@@ -2,7 +2,9 @@
  * 
  */
 package org.tio.examples.im.common.bs;
+
 import org.tio.core.utils.SystemTimer;
+
 /**
  * 
  * @filename:	 org.tio.examples.common.im.bs.BaseReqBody
@@ -21,33 +23,28 @@ import org.tio.core.utils.SystemTimer;
  * </tbody>
  * </table>
  */
-public class BaseReqBody
-{
-	
+public class BaseReqBody {
+
 	private Long time;
+
 	/**
 	 * 
 	 */
-	public BaseReqBody()
-	{
+	public BaseReqBody() {
 		time = SystemTimer.currentTimeMillis();
 	}
 
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args)
-	{}
+	public static void main(String[] args) {
+	}
 
-	public Long getTime()
-	{
+	public Long getTime() {
 		return time;
 	}
 
-	public void setTime(Long time)
-	{
+	public void setTime(Long time) {
 		this.time = time;
 	}
 }
-
-

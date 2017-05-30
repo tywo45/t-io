@@ -22,6 +22,9 @@ public class PacketWithMeta<P extends Packet> {
 		super();
 		this.packet = packet;
 		this.countDownLatch = countDownLatch;
+		if (countDownLatch != null) {
+			this.packet.setBlockSend(true);
+		}
 	}
 
 	/**

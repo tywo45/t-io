@@ -19,24 +19,21 @@ import org.tio.json.Json;
  * @author tanyaowu 
  * 2017年3月27日 下午9:51:28
  */
-public class LoginReqHandler extends AbsShowcaseBsHandler<LoginReqBody>
-{
+public class LoginReqHandler extends AbsShowcaseBsHandler<LoginReqBody> {
 	private static Logger log = LoggerFactory.getLogger(LoginReqHandler.class);
 
 	/**
 	 * 
 	 * @author: tanyaowu
 	 */
-	public LoginReqHandler()
-	{
+	public LoginReqHandler() {
 	}
 
 	/**
 	 * @param args
 	 * @author: tanyaowu
 	 */
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 
 	}
 
@@ -45,15 +42,13 @@ public class LoginReqHandler extends AbsShowcaseBsHandler<LoginReqBody>
 	 * @author: tanyaowu
 	 */
 	@Override
-	public Class<LoginReqBody> bodyClass()
-	{
+	public Class<LoginReqBody> bodyClass() {
 		return LoginReqBody.class;
 	}
 
 	java.util.concurrent.atomic.AtomicLong tokenSeq = new AtomicLong();
 
-	private String newToken()
-	{
+	private String newToken() {
 		return System.currentTimeMillis() + "_" + tokenSeq.incrementAndGet();
 	}
 
@@ -66,8 +61,7 @@ public class LoginReqHandler extends AbsShowcaseBsHandler<LoginReqBody>
 	 * @author: tanyaowu
 	 */
 	@Override
-	public Object handler(ShowcasePacket packet, LoginReqBody bsBody, ChannelContext<ShowcaseSessionContext, ShowcasePacket, Object> channelContext) throws Exception
-	{
+	public Object handler(ShowcasePacket packet, LoginReqBody bsBody, ChannelContext<ShowcaseSessionContext, ShowcasePacket, Object> channelContext) throws Exception {
 		log.info("收到登录请求消息:{}", Json.toJson(bsBody));
 		LoginRespBody loginRespBody = new LoginRespBody();
 		loginRespBody.setCode(JoinGroupRespBody.Code.SUCCESS);
@@ -75,7 +69,7 @@ public class LoginReqHandler extends AbsShowcaseBsHandler<LoginReqBody>
 
 		String userid = bsBody.getLoginname();
 		Aio.bindUser(channelContext, userid);
-		
+
 		ShowcaseSessionContext showcaseSessionContext = channelContext.getSessionContext();
 		showcaseSessionContext.setUserid(userid);
 

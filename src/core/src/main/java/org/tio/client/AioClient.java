@@ -22,7 +22,7 @@ import org.tio.core.Aio;
 import org.tio.core.ChannelContext;
 import org.tio.core.ChannelStat;
 import org.tio.core.Node;
-import org.tio.core.ObjWithLock;
+import org.tio.core.SetWithLock;
 import org.tio.core.intf.Packet;
 import org.tio.core.threadpool.SynThreadPoolExecutor;
 import org.tio.core.utils.SystemTimer;
@@ -142,7 +142,7 @@ public class AioClient<SessionContext, P extends Packet, R> {
 	}
 
 	/**
-	 * 
+	 * 此方法生产环境中用不到，暂未测试
 	 * @return
 	 *
 	 * @author: tanyaowu
@@ -297,7 +297,7 @@ public class AioClient<SessionContext, P extends Packet, R> {
 	private void startHeartbeatTask() {
 		final ClientGroupStat clientGroupStat = clientGroupContext.getClientGroupStat();
 		final ClientAioHandler<SessionContext, P, R> aioHandler = clientGroupContext.getClientAioHandler();
-		
+
 		final String id = clientGroupContext.getId();
 		new Thread(new Runnable() {
 			@Override
@@ -310,10 +310,10 @@ public class AioClient<SessionContext, P extends Packet, R> {
 					}
 					ReadLock readLock = null;
 					try {
-						ObjWithLock<Set<ChannelContext<SessionContext, P, R>>> objWithLock = clientGroupContext.connecteds.getSetWithLock();
-						readLock = objWithLock.getLock().readLock();
+						SetWithLock<ChannelContext<SessionContext, P, R>> setWithLock = clientGroupContext.connecteds.getSetWithLock();
+						readLock = setWithLock.getLock().readLock();
 						readLock.lock();
-						Set<ChannelContext<SessionContext, P, R>> set = objWithLock.getObj();
+						Set<ChannelContext<SessionContext, P, R>> set = setWithLock.getObj();
 						long currtime = SystemTimer.currentTimeMillis();
 						for (ChannelContext<SessionContext, P, R> entry : set) {
 							ClientChannelContext<SessionContext, P, R> channelContext = (ClientChannelContext<SessionContext, P, R>) entry;

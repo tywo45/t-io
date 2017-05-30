@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.ClientAction;
+import org.tio.core.ChannelAction;
 import org.tio.core.GroupContext;
 import org.tio.core.intf.Packet;
 import org.tio.core.maintain.ChannelContextMapWithLock;
@@ -40,11 +40,11 @@ public class HandlerRunnable<SessionContext, P extends Packet, R> extends Abstra
 	 *
 	 * @author: tanyaowu
 	 */
-	public int handler(P packet) {
-		int ret = 0;
+	public void handler(P packet) {
+		//		int ret = 0;
 
+		GroupContext<SessionContext, P, R> groupContext = channelContext.getGroupContext();
 		try {
-			GroupContext<SessionContext, P, R> groupContext = channelContext.getGroupContext();
 
 			Integer synSeq = packet.getSynSeq();
 			if (synSeq != null && synSeq > 0) {
@@ -55,25 +55,26 @@ public class HandlerRunnable<SessionContext, P extends Packet, R> extends Abstra
 						syns.put(synSeq, packet);
 						initPacket.notify();
 					}
-					groupContext.getGroupStat().getHandledPacket().incrementAndGet();
 				} else {
 					log.error("[{}]同步消息失败, synSeq is {}, 但是同步集合中没有对应key值", synFailCount.incrementAndGet(), synSeq);
 				}
 			} else {
-				channelContext.traceClient(ClientAction.BEFORE_HANDLER, packet, null);
 				groupContext.getAioHandler().handler(packet, channelContext);
-				channelContext.traceClient(ClientAction.AFTER_HANDLER, packet, null);
-				groupContext.getGroupStat().getHandledPacket().incrementAndGet();
 			}
-			ret++;
+			//			ret++;
 		} catch (Exception e) {
 			log.error(e.toString(), e);
-			return ret;
+			//			return ret;
 		} finally {
+			channelContext.getStat().getHandledPackets().incrementAndGet();
+			channelContext.getStat().getHandledBytes().addAndGet(packet.getByteCount());
+
+			groupContext.getGroupStat().getHandledPacket().incrementAndGet();
+			groupContext.getGroupStat().getHandledBytes().addAndGet(packet.getByteCount());
 
 		}
 
-		return ret;
+		//		return ret;
 	}
 
 	@Override

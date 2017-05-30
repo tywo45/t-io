@@ -33,17 +33,15 @@ import org.slf4j.LoggerFactory;
  * </tbody>
  * </table>
  */
-public class BeanUtils
-{
-	
+public class BeanUtils {
+
 	/** The log. */
 	private static Logger log = LoggerFactory.getLogger(BeanUtils.class);
 
 	/**
 	 * Instantiates a new bean utils.
 	 */
-	public BeanUtils()
-	{
+	public BeanUtils() {
 
 	}
 
@@ -53,9 +51,8 @@ public class BeanUtils
 	 * @param args the arguments
 	 * @throws Exception 
 	 */
-	public static void main(String[] args) throws Exception
-	{
-		
+	public static void main(String[] args) throws Exception {
+
 	}
 
 	/**
@@ -66,32 +63,26 @@ public class BeanUtils
 	 * @author: tanyaowu
 	 * 2016年5月10日 下午1:41:53
 	 */
-	public static Map<String, Object> beanToMap(Object src)
-	{
+	public static Map<String, Object> beanToMap(Object src) {
 
-		if (src == null)
-		{
+		if (src == null) {
 			return null;
 		}
 		Map<String, Object> map = new HashMap<String, Object>();
-		try
-		{
+		try {
 			BeanInfo beanInfo = Introspector.getBeanInfo(src.getClass());
 			PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
-			for (PropertyDescriptor property : propertyDescriptors)
-			{
+			for (PropertyDescriptor property : propertyDescriptors) {
 				String key = property.getName();
 				// 过滤class属性  
-				if (!"class".equals(key))
-				{
+				if (!"class".equals(key)) {
 					// 得到property对应的getter方法  
 					Method getter = property.getReadMethod();
 					Object value = getter.invoke(src);
 					map.put(key, value);
 				}
 			}
-		} catch (Exception e)
-		{
+		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
 		return map;
@@ -104,22 +95,17 @@ public class BeanUtils
 	 * @param src 不允许为空
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static void copyProperties(Object desc, Object src)
-	{
+	public static void copyProperties(Object desc, Object src) {
 		BeanUtilsBean2 beanUtilsBean2 = new BeanUtilsBean2();
-		try
-		{
-			if (desc instanceof Map)
-			{
+		try {
+			if (desc instanceof Map) {
 				Map<String, Object> map = beanToMap(src);
 				((Map) desc).putAll(map);
-			} else
-			{
+			} else {
 				beanUtilsBean2.copyProperties(desc, src);
 			}
 
-		} catch (Exception e)
-		{
+		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
 	}

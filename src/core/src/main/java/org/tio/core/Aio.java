@@ -27,11 +27,11 @@ public abstract class Aio {
 	/**
 	 * 绑定群组
 	 * @param channelContext
-	 * @param groupid
+	 * @param group
 	 * @author: tanyaowu
 	 */
-	public static <SessionContext, P extends Packet, R> void bindGroup(ChannelContext<SessionContext, P, R> channelContext, String groupid) {
-		channelContext.getGroupContext().groups.bind(groupid, channelContext);
+	public static <SessionContext, P extends Packet, R> void bindGroup(ChannelContext<SessionContext, P, R> channelContext, String group) {
+		channelContext.getGroupContext().groups.bind(group, channelContext);
 	}
 
 	/**
@@ -121,12 +121,13 @@ public abstract class Aio {
 
 	/**
 	 * 根据id获取ChannelContext
-	 * @param id
+	 * @param channelContextId
 	 * @return
 	 * @author: tanyaowu
 	 */
-	public static ChannelContext<?, ?, ?> getChannelContextById(String id) {
-		return GroupContext.ids.find(id);
+	public static <SessionContext, P extends Packet, R> ChannelContext<SessionContext, P, R> getChannelContextById(GroupContext<SessionContext, P, R> groupContext,
+			String channelContextId) {
+		return groupContext.ids.find(channelContextId);
 	}
 
 	/**
@@ -142,15 +143,36 @@ public abstract class Aio {
 	}
 
 	/**
-	 * 一个组有哪些客户端
+	 * 获取一个组的所有客户端
 	 * @param groupContext
-	 * @param groupid
+	 * @param group
 	 * @return
 	 * @author: tanyaowu
 	 */
 	public static <SessionContext, P extends Packet, R> ObjWithLock<Set<ChannelContext<SessionContext, P, R>>> getChannelContextsByGroup(
-			GroupContext<SessionContext, P, R> groupContext, String groupid) {
-		return groupContext.groups.clients(groupid);
+			GroupContext<SessionContext, P, R> groupContext, String group) {
+		return groupContext.groups.clients(group);
+	}
+
+	/**
+	 * 获取所有连接，包括当前处于断开状态的
+	 * @param groupContext
+	 * @return
+	 * @author: tanyaowu
+	 */
+	public static <SessionContext, P extends Packet, R> SetWithLock<ChannelContext<SessionContext, P, R>> getAllChannelContexts(GroupContext<SessionContext, P, R> groupContext) {
+		return groupContext.connections.getSetWithLock();
+	}
+
+	/**
+	 * 获取所有处于正常连接状态的连接
+	 * @param groupContext
+	 * @return
+	 * @author: tanyaowu
+	 */
+	public static <SessionContext, P extends Packet, R> ObjWithLock<Set<ChannelContext<SessionContext, P, R>>> getAllConnectedsChannelContexts(
+			GroupContext<SessionContext, P, R> groupContext) {
+		return groupContext.connecteds.getSetWithLock();
 	}
 
 	/**
@@ -210,36 +232,19 @@ public abstract class Aio {
 	 */
 	private static <SessionContext, P extends Packet, R> Boolean send(final ChannelContext<SessionContext, P, R> channelContext, final P packet, CountDownLatch countDownLatch,
 			PacketSendMode packetSendMode) {
-		if (channelContext.isClosed() || channelContext.isRemoved()) {
-			log.error("{}, isClosed:{}, isRemoved:{}, stack:{} ", channelContext, channelContext.isClosed(), channelContext.isRemoved(), ThreadUtils.stackTrace());
-			return false;
-		}
-
-		boolean isSingleBlock = countDownLatch != null && (packetSendMode == PacketSendMode.SINGLE_BLOCK);
-
-		//		if (isSingleBlock)
-		//		{
-		//			try
-		//			{
-		//				org.tio.core.GroupContext.SYN_SEND_SEMAPHORE.acquire();
-		//			} catch (InterruptedException e)
-		//			{
-		//				log.error(e.toString(), e);
-		//			}
-
-		//			DebugUtils.printCost(new CostIntf()
-		//			{
-		//				@Override
-		//				public void action()
-		//				{
-		//					
-		//				}
-		//
-		//			}, channelContext + " 等发送锁, packet:" + packet.logstr());
-
-		//		}
-
 		try {
+			if (channelContext == null || channelContext.isClosed() || channelContext.isRemoved()) {
+				if (countDownLatch != null) {
+					countDownLatch.countDown();
+				}
+				if (channelContext != null) {
+					log.error("{}, isClosed:{}, isRemoved:{}, stack:{} ", channelContext, channelContext.isClosed(), channelContext.isRemoved(), ThreadUtils.stackTrace());
+				}
+				return false;
+			}
+
+			boolean isSingleBlock = countDownLatch != null && (packetSendMode == PacketSendMode.SINGLE_BLOCK);
+
 			SendRunnable<SessionContext, P, R> sendRunnable = channelContext.getSendRunnable();
 			PacketWithMeta<P> packetWithMeta = null;
 			boolean isAdded = false;
@@ -263,9 +268,7 @@ public abstract class Aio {
 			if (isSingleBlock) {
 				long timeout = 10;
 				try {
-					channelContext.traceSynPacket(SynPacketAction.BEFORE_WAIT, packet, countDownLatch, null);
 					Boolean awaitFlag = countDownLatch.await(timeout, TimeUnit.SECONDS);
-					channelContext.traceSynPacket(SynPacketAction.AFTER__WAIT, packet, countDownLatch, null);
 					//log.error("{} after await, packet:{}, countDownLatch:{}", channelContext, packet.logstr(), countDownLatch);
 
 					if (!awaitFlag) {
@@ -310,15 +313,19 @@ public abstract class Aio {
 	 * @param ip
 	 * @param port
 	 * @param packet
-	 * @param isSyn
+	 * @param isBlock
 	 * @return
 	 * @author: tanyaowu
 	 */
-	private static <SessionContext, P extends Packet, R> Boolean send(GroupContext<SessionContext, P, R> groupContext, String ip, int port, P packet, boolean isSyn) {
+	private static <SessionContext, P extends Packet, R> Boolean send(GroupContext<SessionContext, P, R> groupContext, String ip, int port, P packet, boolean isBlock) {
 		ChannelContext<SessionContext, P, R> channelContext = groupContext.clientNodes.find(ip, port);
 		if (channelContext != null) {
-			send(channelContext, packet);
-			return null;
+			if (isBlock) {
+				return null;
+			} else {
+				send(channelContext, packet);
+				return null;
+			}
 		} else {
 			log.error("can find channelContext by {}:{}", ip, port);
 			return false;
@@ -342,61 +349,61 @@ public abstract class Aio {
 	 * @param groupContext
 	 * @param packet
 	 * @param channelContextFilter
-	 * @param isSyn
+	 * @param isBlock
 	 * @author: tanyaowu
 	 */
 	private static <SessionContext, P extends Packet, R> Boolean sendToAll(GroupContext<SessionContext, P, R> groupContext, P packet,
-			ChannelContextFilter<SessionContext, P, R> channelContextFilter, boolean isSyn) {
+			ChannelContextFilter<SessionContext, P, R> channelContextFilter, boolean isBlock) {
 		ObjWithLock<Set<ChannelContext<SessionContext, P, R>>> setWithLock = groupContext.connections.getSetWithLock();
 		if (setWithLock == null) {
 			log.debug("没有任何连接");
 			return false;
 		}
 
-		return sendToSet(groupContext, setWithLock, packet, channelContextFilter, isSyn);
+		return sendToSet(groupContext, setWithLock, packet, channelContextFilter, isBlock);
 	}
 
 	/**
 	 * 发消息到组
 	 * @param groupContext
-	 * @param groupid
+	 * @param group
 	 * @param packet
 	 * @author: tanyaowu
 	 */
-	public static <SessionContext, P extends Packet, R> void sendToGroup(GroupContext<SessionContext, P, R> groupContext, String groupid, P packet) {
-		sendToGroup(groupContext, groupid, packet, null);
+	public static <SessionContext, P extends Packet, R> void sendToGroup(GroupContext<SessionContext, P, R> groupContext, String group, P packet) {
+		sendToGroup(groupContext, group, packet, null);
 	}
 
 	/**
 	 * 发消息到组
 	 * @param groupContext
-	 * @param groupid
+	 * @param group
 	 * @param packet
 	 * @param channelContextFilter
 	 * @author: tanyaowu
 	 */
-	public static <SessionContext, P extends Packet, R> void sendToGroup(GroupContext<SessionContext, P, R> groupContext, String groupid, P packet,
+	public static <SessionContext, P extends Packet, R> void sendToGroup(GroupContext<SessionContext, P, R> groupContext, String group, P packet,
 			ChannelContextFilter<SessionContext, P, R> channelContextFilter) {
-		sendToGroup(groupContext, groupid, packet, channelContextFilter, false);
+		sendToGroup(groupContext, group, packet, channelContextFilter, false);
 	}
 
 	/**
 	 * 发消息到组
 	 * @param groupContext
-	 * @param groupid
+	 * @param group
 	 * @param packet
 	 * @param channelContextFilter
 	 * @author: tanyaowu
 	 */
-	private static <SessionContext, P extends Packet, R> Boolean sendToGroup(GroupContext<SessionContext, P, R> groupContext, String groupid, P packet,
-			ChannelContextFilter<SessionContext, P, R> channelContextFilter, boolean isSyn) {
-		ObjWithLock<Set<ChannelContext<SessionContext, P, R>>> setWithLock = groupContext.groups.clients(groupid);
+	private static <SessionContext, P extends Packet, R> Boolean sendToGroup(GroupContext<SessionContext, P, R> groupContext, String group, P packet,
+			ChannelContextFilter<SessionContext, P, R> channelContextFilter, boolean isBlock) {
+		ObjWithLock<Set<ChannelContext<SessionContext, P, R>>> setWithLock = groupContext.groups.clients(group);
 		if (setWithLock == null) {
-			log.error("组[{}]不存在", groupid);
+			log.error("组[{}]不存在", group);
 			return false;
 		}
 
-		return sendToSet(groupContext, setWithLock, packet, channelContextFilter, isSyn);
+		return sendToSet(groupContext, setWithLock, packet, channelContextFilter, isBlock);
 	}
 
 	/**
@@ -418,12 +425,12 @@ public abstract class Aio {
 	 * @param setWithLock
 	 * @param packet
 	 * @param channelContextFilter
-	 * @param isSyn
+	 * @param isBlock
 	 * @author: tanyaowu
 	 */
 	private static <SessionContext, P extends Packet, R> Boolean sendToSet(GroupContext<SessionContext, P, R> groupContext,
-			ObjWithLock<Set<ChannelContext<SessionContext, P, R>>> setWithLock, P packet, ChannelContextFilter<SessionContext, P, R> channelContextFilter, boolean isSyn) {
-		//		if (isSyn)
+			ObjWithLock<Set<ChannelContext<SessionContext, P, R>>> setWithLock, P packet, ChannelContextFilter<SessionContext, P, R> channelContextFilter, boolean isBlock) {
+		//		if (isBlock)
 		//		{
 		//			try
 		//			{
@@ -449,7 +456,7 @@ public abstract class Aio {
 			}
 
 			CountDownLatch countDownLatch = null;
-			if (isSyn) {
+			if (isBlock) {
 				countDownLatch = new CountDownLatch(set.size());
 			}
 			int sendCount = 0;
@@ -457,7 +464,7 @@ public abstract class Aio {
 				if (channelContextFilter != null) {
 					boolean isfilter = channelContextFilter.filter(channelContext);
 					if (!isfilter) {
-						if (isSyn) {
+						if (isBlock) {
 							countDownLatch.countDown();
 						}
 						continue;
@@ -465,8 +472,7 @@ public abstract class Aio {
 				}
 
 				sendCount++;
-				if (isSyn) {
-					channelContext.traceSynPacket(SynPacketAction.BEFORE_WAIT, packet, countDownLatch, null);
+				if (isBlock) {
 					send(channelContext, packet, countDownLatch, PacketSendMode.GROUP_BLOCK);
 				} else {
 					send(channelContext, packet, null, null);
@@ -479,7 +485,7 @@ public abstract class Aio {
 				return false;
 			}
 
-			if (isSyn) {
+			if (isBlock) {
 				try {
 					long timeout = sendCount / 5;
 					timeout = timeout < 10 ? 10 : timeout;
@@ -503,7 +509,7 @@ public abstract class Aio {
 			log.error(e.toString(), e);
 			return false;
 		} finally {
-			//			if (isSyn)
+			//			if (isBlock)
 			//			{
 			//				org.tio.core.GroupContext.SYN_SEND_SEMAPHORE.release();
 			//			}
@@ -529,14 +535,45 @@ public abstract class Aio {
 	 * @param groupContext
 	 * @param userid
 	 * @param packet
-	 * @param isSyn
+	 * @param isBlock
 	 * @author: tanyaowu
 	 */
-	private static <SessionContext, P extends Packet, R> Boolean sendToUser(GroupContext<SessionContext, P, R> groupContext, String userid, P packet, boolean isSyn) {
+	private static <SessionContext, P extends Packet, R> Boolean sendToUser(GroupContext<SessionContext, P, R> groupContext, String userid, P packet, boolean isBlock) {
 		ChannelContext<SessionContext, P, R> channelContext = groupContext.users.find(userid);
-		send(channelContext, packet);
-		return null;
+		if (isBlock) {
+			return null;
+		} else {
+			send(channelContext, packet);
+			return null;
+		}
+	}
 
+	/**
+	 * 发消息给指定ChannelContext id
+	 * @param channelContextId
+	 * @param packet
+	 * @author: tanyaowu
+	 */
+	public static <SessionContext, P extends Packet, R> void sendToId(GroupContext<SessionContext, P, R> groupContext, String channelContextId, P packet) {
+		sendToId(groupContext, channelContextId, packet, false);
+	}
+
+	/**
+	 * 发消息给指定ChannelContext id
+	 * @param channelContextId
+	 * @param packet
+	 * @param isBlock
+	 * @return
+	 * @author: tanyaowu
+	 */
+	private static <SessionContext, P extends Packet, R> Boolean sendToId(GroupContext<SessionContext, P, R> groupContext, String channelContextId, P packet, boolean isBlock) {
+		ChannelContext<SessionContext, P, R> channelContext = (ChannelContext<SessionContext, P, R>) Aio.getChannelContextById(groupContext, channelContextId);
+		if (isBlock) {
+			return null;
+		} else {
+			send(channelContext, packet);
+			return null;
+		}
 	}
 
 	/**
@@ -566,4 +603,5 @@ public abstract class Aio {
 	public static <SessionContext, P extends Packet, R> void unbindUser(ChannelContext<SessionContext, P, R> channelContext) {
 		channelContext.getGroupContext().users.unbind(channelContext);
 	}
+
 }

@@ -37,13 +37,11 @@ import org.tio.server.intf.ServerAioHandler;
  * @author tanyaowu 
  *
  */
-public class ImServerAioHandler implements ServerAioHandler<ImSessionContext, ImPacket, Object>
-{
+public class ImServerAioHandler implements ServerAioHandler<ImSessionContext, ImPacket, Object> {
 	private static Logger log = LoggerFactory.getLogger(ImServerAioHandler.class);
 
 	private static Map<Command, ImBsHandlerIntf> handlerMap = new HashMap<>();
-	static
-	{
+	static {
 		handlerMap.put(Command.COMMAND_HANDSHAKE_REQ, new HandshakeReqHandler());
 		handlerMap.put(Command.COMMAND_AUTH_REQ, new AuthReqHandler());
 		handlerMap.put(Command.COMMAND_CHAT_REQ, new ChatReqHandler());
@@ -60,8 +58,7 @@ public class ImServerAioHandler implements ServerAioHandler<ImSessionContext, Im
 	 * 2016年11月18日 上午9:13:15
 	 * 
 	 */
-	public ImServerAioHandler()
-	{
+	public ImServerAioHandler() {
 	}
 
 	/**
@@ -71,8 +68,7 @@ public class ImServerAioHandler implements ServerAioHandler<ImSessionContext, Im
 	 * 2016年11月18日 上午9:13:15
 	 * 
 	 */
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 	}
 
 	/** 
@@ -86,17 +82,14 @@ public class ImServerAioHandler implements ServerAioHandler<ImSessionContext, Im
 	 * 
 	 */
 	@Override
-	public Object handler(ImPacket packet, ChannelContext<ImSessionContext, ImPacket, Object> channelContext) throws Exception
-	{
+	public Object handler(ImPacket packet, ChannelContext<ImSessionContext, ImPacket, Object> channelContext) throws Exception {
 		Command command = packet.getCommand();
 		ImBsHandlerIntf handler = handlerMap.get(command);
-		if (handler != null)
-		{
+		if (handler != null) {
 			Object obj = handler.handler(packet, channelContext);
 			CommandStat.getCount(command).handled.incrementAndGet();
 			return obj;
-		} else
-		{
+		} else {
 			CommandStat.getCount(command).handled.incrementAndGet();
 			log.warn("找不到对应的命令码[{}]处理类", command);
 			return null;
@@ -114,51 +107,41 @@ public class ImServerAioHandler implements ServerAioHandler<ImSessionContext, Im
 	 * 
 	 */
 	@Override
-	public ByteBuffer encode(ImPacket packet, GroupContext<ImSessionContext, ImPacket, Object> groupContext, ChannelContext<ImSessionContext, ImPacket, Object> channelContext)
-	{
+	public ByteBuffer encode(ImPacket packet, GroupContext<ImSessionContext, ImPacket, Object> groupContext, ChannelContext<ImSessionContext, ImPacket, Object> channelContext) {
 		ImSessionContext imSessionContext = channelContext.getSessionContext();
 		boolean isWebsocket = imSessionContext.isWebsocket();
 
-		if (packet.getCommand() == Command.COMMAND_HANDSHAKE_RESP)
-		{
-			if (isWebsocket)
-			{
+		if (packet.getCommand() == Command.COMMAND_HANDSHAKE_RESP) {
+			if (isWebsocket) {
 				return HttpResponseEncoder.encode((HttpResponsePacket) packet, groupContext, channelContext);
-			} else
-			{
+			} else {
 				ByteBuffer buffer = ByteBuffer.allocate(1);
 				buffer.put(ImPacket.HANDSHAKE_BYTE);
 				return buffer;
 			}
 		}
 
-		if (isWebsocket)
-		{
+		if (isWebsocket) {
 			return WebsocketEncoder.encode(packet, groupContext, channelContext);
 		}
 
 		byte[] body = packet.getBody();
 		int bodyLen = 0;
 		boolean isCompress = false;
-		if (body != null)
-		{
+		if (body != null) {
 			bodyLen = body.length;
 
-			if (bodyLen > 200)
-			{
-				try
-				{
+			if (bodyLen > 200) {
+				try {
 					byte[] gzipedbody = GzipUtils.gZip(body);
-					if (gzipedbody.length < body.length)
-					{
+					if (gzipedbody.length < body.length) {
 						log.error("压缩前:{}, 压缩后:{}", body.length, gzipedbody.length);
 						body = gzipedbody;
 						packet.setBody(gzipedbody);
 						bodyLen = gzipedbody.length;
 						isCompress = true;
 					}
-				} catch (IOException e)
-				{
+				} catch (IOException e) {
 					log.error(e.getMessage(), e);
 				}
 			}
@@ -171,12 +154,11 @@ public class ImServerAioHandler implements ServerAioHandler<ImSessionContext, Im
 
 		buffer.put(ImPacket.VERSION);
 		buffer.put((byte) packet.getCommand().getNumber());
-		buffer.put(isCompress ? (byte)1 : (byte)0);
+		buffer.put(isCompress ? (byte) 1 : (byte) 0);
 		buffer.putInt(packet.getSynSeq());
-		buffer.putShort((short)bodyLen);
+		buffer.putShort((short) bodyLen);
 
-		if (body != null)
-		{
+		if (body != null) {
 			buffer.put(body);
 		}
 		return buffer;
@@ -203,23 +185,19 @@ public class ImServerAioHandler implements ServerAioHandler<ImSessionContext, Im
 	 * 
 	 */
 	@Override
-	public ImPacket decode(ByteBuffer buffer, ChannelContext<ImSessionContext, ImPacket, Object> channelContext) throws AioDecodeException
-	{
+	public ImPacket decode(ByteBuffer buffer, ChannelContext<ImSessionContext, ImPacket, Object> channelContext) throws AioDecodeException {
 		ImSessionContext imSessionContext = channelContext.getSessionContext();
 		int initPosition = buffer.position();
 		byte firstbyte = buffer.get(initPosition);
 
-		if (!imSessionContext.isHandshaked())  //如果还没有握手，则先进行握手操作
+		if (!imSessionContext.isHandshaked()) //如果还没有握手，则先进行握手操作
 		{
-			if (ImPacket.HANDSHAKE_BYTE == firstbyte)
-			{
+			if (ImPacket.HANDSHAKE_BYTE == firstbyte) {
 				buffer.position(1 + initPosition);
 				return handshakePacket;
-			} else
-			{
+			} else {
 				HttpRequestPacket httpRequestPacket = HttpRequestDecoder.decode(buffer);
-				if (httpRequestPacket == null)
-				{
+				if (httpRequestPacket == null) {
 					return null;
 				}
 
@@ -231,52 +209,42 @@ public class ImServerAioHandler implements ServerAioHandler<ImSessionContext, Im
 
 		boolean isWebsocket = imSessionContext.isWebsocket();
 
-		if (isWebsocket)  //走的websocket协议
+		if (isWebsocket) //走的websocket协议
 		{
 			WebsocketPacket websocketPacket = WebsocketDecoder.decode(buffer, channelContext);
-			if (websocketPacket == null)
-			{
+			if (websocketPacket == null) {
 				return null;
 			}
 
 			Opcode opcode = websocketPacket.getWsOpcode();
-			if (opcode == Opcode.BINARY)
-			{
+			if (opcode == Opcode.BINARY) {
 				byte[] wsBody = websocketPacket.getWsBody();
-				if (wsBody == null || wsBody.length == 0)
-				{
+				if (wsBody == null || wsBody.length == 0) {
 					throw new AioDecodeException("错误的websocket包，body为空");
 				}
 
 				Command command = Command.forNumber(wsBody[0]);
 				ImPacket imPacket = new ImPacket(command);
 
-				if (wsBody.length > 1)
-				{
+				if (wsBody.length > 1) {
 					byte[] dst = new byte[wsBody.length - 1];
 					System.arraycopy(wsBody, 1, dst, 0, dst.length);
 					imPacket.setBody(dst);
 				}
 				return imPacket;
-			} else if (opcode == Opcode.PING || opcode == Opcode.PONG)
-			{
+			} else if (opcode == Opcode.PING || opcode == Opcode.PONG) {
 				return heartbeatPacket;
-			} else if (opcode == Opcode.CLOSE)
-			{
+			} else if (opcode == Opcode.CLOSE) {
 				ImPacket imPacket = new ImPacket(Command.COMMAND_CLOSE_REQ);
 				return imPacket;
-			} else if (opcode == Opcode.TEXT)
-			{
+			} else if (opcode == Opcode.TEXT) {
 				throw new AioDecodeException("错误的websocket包，不支持TEXT类型的数据");
-			} else
-			{
+			} else {
 				throw new AioDecodeException("错误的websocket包，错误的Opcode");
 			}
 
-		} else
-		{
-			if (ImPacket.HEARTBEAT_BYTE == firstbyte)
-			{
+		} else {
+			if (ImPacket.HEARTBEAT_BYTE == firstbyte) {
 				buffer.position(1 + initPosition);
 				return heartbeatPacket;
 			}
@@ -288,24 +256,20 @@ public class ImServerAioHandler implements ServerAioHandler<ImSessionContext, Im
 		ImPacket imPacket = null;
 		firstbyte = buffer.get();
 		byte version = firstbyte;
-		
-		if (readableLength < headerLength)
-		{
+
+		if (readableLength < headerLength) {
 			return null;
 		}
 		Byte code = buffer.get();
-		Command command = Command.forNumber(code);  
-		
-		boolean isCompress = buffer.get() == 1;  //是否压缩了消息体
-		int seq = buffer.getInt();               //同步序列号		
-		
+		Command command = Command.forNumber(code);
+
+		boolean isCompress = buffer.get() == 1; //是否压缩了消息体
+		int seq = buffer.getInt(); //同步序列号		
+
 		int bodyLength = buffer.getShort();
-		if (bodyLength > ImPacket.MAX_LENGTH_OF_BODY || bodyLength < 0)
-		{
+		if (bodyLength > ImPacket.MAX_LENGTH_OF_BODY || bodyLength < 0) {
 			throw new AioDecodeException("bodyLength [" + bodyLength + "] is not right, remote:" + channelContext.getClientNode());
 		}
-
-		
 
 		//		@SuppressWarnings("unused")
 		//		int reserve = buffer.getInt();//保留字段
@@ -317,33 +281,26 @@ public class ImServerAioHandler implements ServerAioHandler<ImSessionContext, Im
 		{
 			//			packetMeta.setNeededLength(neededLength);
 			return null;
-		} else
-		{
+		} else {
 			imPacket = new ImPacket();
 			imPacket.setCommand(command);
 
-			if (seq != 0)
-			{
+			if (seq != 0) {
 				imPacket.setSynSeq(seq);
 			}
 
-			if (bodyLength > 0)
-			{
+			if (bodyLength > 0) {
 				byte[] dst = new byte[bodyLength];
 				buffer.get(dst);
-				if (isCompress)
-				{
-					try
-					{
+				if (isCompress) {
+					try {
 						byte[] unGzippedBytes = GzipUtils.unGZip(dst);
 						imPacket.setBody(unGzippedBytes);
 						//						imPacket.setBodyLen(unGzippedBytes.length);
-					} catch (IOException e)
-					{
+					} catch (IOException e) {
 						throw new AioDecodeException(e);
 					}
-				} else
-				{
+				} else {
 					imPacket.setBody(dst);
 					//					imPacket.setBodyLen(dst.length);
 				}

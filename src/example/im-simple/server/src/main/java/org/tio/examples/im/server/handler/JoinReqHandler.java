@@ -19,23 +19,19 @@ import org.tio.examples.im.common.packets.JoinRespBody;
  * @author tanyaowu 
  *
  */
-public class JoinReqHandler implements ImBsHandlerIntf
-{
+public class JoinReqHandler implements ImBsHandlerIntf {
 	private static Logger log = LoggerFactory.getLogger(JoinReqHandler.class);
 
 	@Override
-	public Object handler(ImPacket packet, ChannelContext<ImSessionContext, ImPacket, Object> channelContext) throws Exception
-	{
-		if (packet.getBody() == null)
-		{
+	public Object handler(ImPacket packet, ChannelContext<ImSessionContext, ImPacket, Object> channelContext) throws Exception {
+		if (packet.getBody() == null) {
 			throw new Exception("body is null");
 		}
 
 		JoinReqBody reqBody = JoinReqBody.parseFrom(packet.getBody());
-		
+
 		String group = reqBody.getGroup();
-		if (StringUtils.isBlank(group))
-		{
+		if (StringUtils.isBlank(group)) {
 			log.error("group is null,{}", channelContext);
 			Aio.close(channelContext, "group is null when join group");
 			return null;
@@ -43,17 +39,16 @@ public class JoinReqHandler implements ImBsHandlerIntf
 
 		Aio.bindGroup(channelContext, group);
 
-		
 		JoinGroupResult joinGroupResult = JoinGroupResult.JOIN_GROUP_RESULT_OK;
 		JoinRespBody joinRespBody = JoinRespBody.newBuilder().setTime(SystemTimer.currentTimeMillis()).setResult(joinGroupResult).setGroup(group).build();
 		byte[] body = joinRespBody.toByteArray();
-		
+
 		ImPacket respPacket = new ImPacket();
 		respPacket.setCommand(Command.COMMAND_JOIN_GROUP_RESP);
 		respPacket.setBody(body);
-		
+
 		Aio.send(channelContext, respPacket);
-	
+
 		return null;
 	}
 }

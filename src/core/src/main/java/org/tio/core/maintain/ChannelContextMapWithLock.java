@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
-import org.tio.core.ObjWithLock;
+import org.tio.core.MapWithLock;
 import org.tio.core.intf.Packet;
 
 /**
@@ -13,7 +13,7 @@ import org.tio.core.intf.Packet;
 public class ChannelContextMapWithLock<SessionContext, P extends Packet, R> {
 
 	/** remoteAndChannelContext key: "ip:port" value: ChannelContext. */
-	private ObjWithLock<Map<Integer, P>> map = new ObjWithLock<Map<Integer, P>>(new HashMap<Integer, P>());
+	private MapWithLock<Integer, P> map = new MapWithLock<Integer, P>(new HashMap<Integer, P>());
 
 	/**
 	 * Adds the.
@@ -52,7 +52,7 @@ public class ChannelContextMapWithLock<SessionContext, P extends Packet, R> {
 	 *
 	 * @return the map
 	 */
-	public ObjWithLock<Map<Integer, P>> getMap() {
+	public MapWithLock<Integer, P> getMap() {
 		return map;
 	}
 

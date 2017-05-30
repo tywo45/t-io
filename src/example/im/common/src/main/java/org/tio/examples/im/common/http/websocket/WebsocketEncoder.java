@@ -17,8 +17,7 @@ import org.tio.examples.im.common.packets.Command;
  * @author tanyaowu 
  *
  */
-public class WebsocketEncoder
-{
+public class WebsocketEncoder {
 	@SuppressWarnings("unused")
 	private static Logger log = LoggerFactory.getLogger(WebsocketEncoder.class);
 
@@ -28,40 +27,34 @@ public class WebsocketEncoder
 	 * 2017年2月22日 下午4:06:42
 	 * 
 	 */
-	public WebsocketEncoder()
-	{
+	public WebsocketEncoder() {
 
 	}
 
 	public static final int MAX_HEADER_LENGTH = 20480;
 
 	public static ByteBuffer encode(ImPacket imPacket, GroupContext<ImSessionContext, ImPacket, Object> groupContext,
-			ChannelContext<ImSessionContext, ImPacket, Object> channelContext)
-	{
+			ChannelContext<ImSessionContext, ImPacket, Object> channelContext) {
 		byte[] websocketHeader;
 		byte[] imBody = imPacket.getBody();
 		int wsBodyLength = 1; //固定有一个命令码，占一位
-		if (imBody != null)
-		{
+		if (imBody != null) {
 			wsBodyLength += imBody.length;
 		}
 
 		byte header0 = (byte) (0x8f & (Opcode.BINARY.getCode() | 0xf0));
 
-		if (wsBodyLength < 126)
-		{
+		if (wsBodyLength < 126) {
 			websocketHeader = new byte[2];
 			websocketHeader[0] = header0;
 			websocketHeader[1] = (byte) wsBodyLength;
-		} else if (wsBodyLength < ((1 << 16) - 1))
-		{
+		} else if (wsBodyLength < ((1 << 16) - 1)) {
 			websocketHeader = new byte[4];
 			websocketHeader[0] = header0;
 			websocketHeader[1] = 126;
 			websocketHeader[3] = (byte) (wsBodyLength & 0xff);
 			websocketHeader[2] = (byte) ((wsBodyLength >> 8) & 0x80);
-		} else
-		{
+		} else {
 			websocketHeader = new byte[6];
 			websocketHeader[0] = header0;
 			websocketHeader[1] = 127;
@@ -73,16 +66,14 @@ public class WebsocketEncoder
 		Command command = imPacket.getCommand();
 		buf.put((byte) command.getNumber());
 
-		if (imBody != null)
-		{
+		if (imBody != null) {
 			buf.put(imBody);
 		}
 
 		return buf;
 	}
 
-	public static void int2Byte(byte[] bytes, int value, int offset)
-	{
+	public static void int2Byte(byte[] bytes, int value, int offset) {
 		checkLength(bytes, 4, offset);
 
 		bytes[offset + 3] = (byte) ((value & 0xff));
@@ -91,20 +82,16 @@ public class WebsocketEncoder
 		bytes[offset + 0] = (byte) ((value >> 8 * 3));
 	}
 
-	private static void checkLength(byte[] bytes, int length, int offset)
-	{
-		if (bytes == null)
-		{
+	private static void checkLength(byte[] bytes, int length, int offset) {
+		if (bytes == null) {
 			throw new IllegalArgumentException("null");
 		}
 
-		if (offset < 0)
-		{
+		if (offset < 0) {
 			throw new IllegalArgumentException("invalidate offset " + offset);
 		}
 
-		if (bytes.length - offset < length)
-		{
+		if (bytes.length - offset < length) {
 			throw new IllegalArgumentException("invalidate length " + bytes.length);
 		}
 	}
@@ -116,8 +103,7 @@ public class WebsocketEncoder
 	 * 2017年2月22日 下午4:06:42
 	 * 
 	 */
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 
 	}
 

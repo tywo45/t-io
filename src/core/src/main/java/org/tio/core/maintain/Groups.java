@@ -9,7 +9,10 @@ import java.util.concurrent.locks.Lock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.ObjWithLock;
+import org.tio.core.GroupContext;
+import org.tio.core.MapWithLock;
+import org.tio.core.SetWithLock;
+import org.tio.core.intf.GroupListener;
 import org.tio.core.intf.Packet;
 
 public class Groups<SessionContext, P extends Packet, R> {
@@ -21,27 +24,27 @@ public class Groups<SessionContext, P extends Packet, R> {
 	 * key: groupid
 	 * value: Set<ChannelContext<?, ?, ?>
 	 */
-	private ObjWithLock<Map<String, ObjWithLock<Set<ChannelContext<SessionContext, P, R>>>>> groupmap = new ObjWithLock<Map<String, ObjWithLock<Set<ChannelContext<SessionContext, P, R>>>>>(
-			new ConcurrentHashMap<String, ObjWithLock<Set<ChannelContext<SessionContext, P, R>>>>());
+	private MapWithLock<String, SetWithLock<ChannelContext<SessionContext, P, R>>> groupmap = new MapWithLock<String, SetWithLock<ChannelContext<SessionContext, P, R>>>(
+			new ConcurrentHashMap<String, SetWithLock<ChannelContext<SessionContext, P, R>>>());
 
 	/** 一个客户端在哪组组中
 	 *  key: ChannelContext
 	 *  value: Set<groupid<?, ?, ?>
 	 */
-	private ObjWithLock<Map<ChannelContext<SessionContext, P, R>, ObjWithLock<Set<String>>>> channelmap = new ObjWithLock<Map<ChannelContext<SessionContext, P, R>, ObjWithLock<Set<String>>>>(
-			new ConcurrentHashMap<ChannelContext<SessionContext, P, R>, ObjWithLock<Set<String>>>());
+	private MapWithLock<ChannelContext<SessionContext, P, R>, SetWithLock<String>> channelmap = new MapWithLock<ChannelContext<SessionContext, P, R>, SetWithLock<String>>(
+			new ConcurrentHashMap<ChannelContext<SessionContext, P, R>, SetWithLock<String>>());
 
 	/**
 	 * @return the groupmap
 	 */
-	public ObjWithLock<Map<String, ObjWithLock<Set<ChannelContext<SessionContext, P, R>>>>> getGroupmap() {
+	public MapWithLock<String, SetWithLock<ChannelContext<SessionContext, P, R>>> getGroupmap() {
 		return groupmap;
 	}
 
 	/**
 	 * @return the channelmap
 	 */
-	public ObjWithLock<Map<ChannelContext<SessionContext, P, R>, ObjWithLock<Set<String>>>> getChannelmap() {
+	public MapWithLock<ChannelContext<SessionContext, P, R>, SetWithLock<String>> getChannelmap() {
 		return channelmap;
 	}
 
@@ -53,10 +56,10 @@ public class Groups<SessionContext, P extends Packet, R> {
 	public void unbind(ChannelContext<SessionContext, P, R> channelContext) {
 		Lock lock = channelmap.getLock().writeLock();
 		try {
-			ObjWithLock<Set<String>> set = null;
+			SetWithLock<String> set = null;
 			try {
 				lock.lock();
-				Map<ChannelContext<SessionContext, P, R>, ObjWithLock<Set<String>>> m = channelmap.getObj();
+				Map<ChannelContext<SessionContext, P, R>, SetWithLock<String>> m = channelmap.getObj();
 				set = m.get(channelContext);
 				m.remove(channelContext);
 			} catch (Exception e) {
@@ -66,10 +69,20 @@ public class Groups<SessionContext, P extends Packet, R> {
 			}
 
 			if (set != null) {
+				GroupContext<SessionContext, P, R> groupContext = channelContext.getGroupContext();
+				GroupListener<SessionContext, P, R> groupListener = groupContext.getGroupListener();
 				Set<String> groups = set.getObj();
 				if (groups != null && groups.size() > 0) {
 					for (String groupid : groups) {
 						unbind(groupid, channelContext);
+						if (groupListener != null) {
+							try {
+								groupListener.onAfterUnbind(channelContext, groupid);
+							} catch (Exception e) {
+								log.error(e.toString(), e);
+							}
+						}
+						//groupListener.onAfterUnbind
 					}
 				}
 			}
@@ -85,7 +98,7 @@ public class Groups<SessionContext, P extends Packet, R> {
 	 * @author: tanyaowu
 	 */
 	public void unbind(String groupid, ChannelContext<SessionContext, P, R> channelContext) {
-		ObjWithLock<Set<ChannelContext<SessionContext, P, R>>> set = groupmap.getObj().get(groupid);
+		SetWithLock<ChannelContext<SessionContext, P, R>> set = groupmap.getObj().get(groupid);
 
 		if (set != null) {
 			Lock lock1 = set.getLock().writeLock();
@@ -120,12 +133,12 @@ public class Groups<SessionContext, P extends Packet, R> {
 	 */
 	public void bind(String groupid, ChannelContext<SessionContext, P, R> channelContext) {
 		Lock lock1 = groupmap.getLock().writeLock();
-		ObjWithLock<Set<ChannelContext<SessionContext, P, R>>> channelContexts = null;
+		SetWithLock<ChannelContext<SessionContext, P, R>> channelContexts = null;
 		try {
 			lock1.lock();
 			channelContexts = groupmap.getObj().get(groupid);
 			if (channelContexts == null) {
-				channelContexts = new ObjWithLock<Set<ChannelContext<SessionContext, P, R>>>(new HashSet<ChannelContext<SessionContext, P, R>>());
+				channelContexts = new SetWithLock<ChannelContext<SessionContext, P, R>>(new HashSet<ChannelContext<SessionContext, P, R>>());
 			}
 			groupmap.getObj().put(groupid, channelContexts);
 		} catch (Exception e) {
@@ -147,12 +160,12 @@ public class Groups<SessionContext, P extends Packet, R> {
 		}
 
 		Lock lock2 = channelmap.getLock().writeLock();
-		ObjWithLock<Set<String>> groups = null;// = channelmap.getObj().get(channelContext);
+		SetWithLock<String> groups = null;// = channelmap.getObj().get(channelContext);
 		try {
 			lock2.lock();
 			groups = channelmap.getObj().get(channelContext);
 			if (groups == null) {
-				groups = new ObjWithLock<Set<String>>(new HashSet<String>());
+				groups = new SetWithLock<String>(new HashSet<String>());
 			}
 			channelmap.getObj().put(channelContext, groups);
 		} catch (Exception e) {
@@ -180,8 +193,9 @@ public class Groups<SessionContext, P extends Packet, R> {
 	 * @return
 	 * @author: tanyaowu
 	 */
-	public ObjWithLock<Set<ChannelContext<SessionContext, P, R>>> clients(String groupid) {
-		ObjWithLock<Set<ChannelContext<SessionContext, P, R>>> set = groupmap.getObj().get(groupid);
+	public SetWithLock<ChannelContext<SessionContext, P, R>> clients(String groupid) {
+		Map<String, SetWithLock<ChannelContext<SessionContext, P, R>>> map = groupmap.getObj();
+		SetWithLock<ChannelContext<SessionContext, P, R>> set = map.get(groupid);
 		return set;
 	}
 
@@ -191,8 +205,9 @@ public class Groups<SessionContext, P extends Packet, R> {
 	 * @return
 	 * @author: tanyaowu
 	 */
-	public ObjWithLock<Set<String>> groups(ChannelContext<SessionContext, P, R> channelContext) {
-		ObjWithLock<Set<String>> set = channelmap.getObj().get(channelContext);
+	public SetWithLock<String> groups(ChannelContext<SessionContext, P, R> channelContext) {
+		Map<ChannelContext<SessionContext, P, R>, SetWithLock<String>> map = channelmap.getObj();
+		SetWithLock<String> set = map.get(channelContext);
 		return set;
 	}
 }

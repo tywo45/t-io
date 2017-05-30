@@ -8,60 +8,53 @@ import org.slf4j.LoggerFactory;
  * @author tanyaowu 
  * 2017年3月25日 下午12:07:25
  */
-public class ShowcaseSessionContext
-{
+public class ShowcaseSessionContext {
 	private static Logger log = LoggerFactory.getLogger(ShowcaseSessionContext.class);
-	
+
 	private String token = null;
-	
+
 	private String userid = null;
-	
+
 	/**
 	 * 
 	 * @author: tanyaowu
 	 */
-	public ShowcaseSessionContext()
-	{
+	public ShowcaseSessionContext() {
 	}
 
 	/**
 	 * @param args
 	 * @author: tanyaowu
 	 */
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 
 	}
 
 	/**
 	 * @return the token
 	 */
-	public String getToken()
-	{
+	public String getToken() {
 		return token;
 	}
 
 	/**
 	 * @param token the token to set
 	 */
-	public void setToken(String token)
-	{
+	public void setToken(String token) {
 		this.token = token;
 	}
 
 	/**
 	 * @return the userid
 	 */
-	public String getUserid()
-	{
+	public String getUserid() {
 		return userid;
 	}
 
 	/**
 	 * @param userid the userid to set
 	 */
-	public void setUserid(String userid)
-	{
+	public void setUserid(String userid) {
 		this.userid = userid;
 	}
 }

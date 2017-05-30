@@ -14,33 +14,30 @@ import org.tio.json.Json;
  * @author tanyaowu 
  * 2017年3月27日 下午9:51:28
  */
-public class JoinGroupRespHandler extends AbsShowcaseBsHandler<JoinGroupRespBody>
-{
+public class JoinGroupRespHandler extends AbsShowcaseBsHandler<JoinGroupRespBody> {
 	private static Logger log = LoggerFactory.getLogger(JoinGroupRespHandler.class);
 
 	/**
 	 * 
 	 * @author: tanyaowu
 	 */
-	public JoinGroupRespHandler()
-	{
+	public JoinGroupRespHandler() {
 	}
 
 	/**
 	 * @param args
 	 * @author: tanyaowu
 	 */
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 
 	}
+
 	/** 
 	 * @return
 	 * @author: tanyaowu
 	 */
 	@Override
-	public Class<JoinGroupRespBody> bodyClass()
-	{
+	public Class<JoinGroupRespBody> bodyClass() {
 		return JoinGroupRespBody.class;
 	}
 
@@ -53,16 +50,14 @@ public class JoinGroupRespHandler extends AbsShowcaseBsHandler<JoinGroupRespBody
 	 * @author: tanyaowu
 	 */
 	@Override
-	public Object handler(ShowcasePacket packet, JoinGroupRespBody bsBody, ChannelContext<ShowcaseSessionContext, ShowcasePacket, Object> channelContext) throws Exception
-	{
+	public Object handler(ShowcasePacket packet, JoinGroupRespBody bsBody, ChannelContext<ShowcaseSessionContext, ShowcasePacket, Object> channelContext) throws Exception {
 		System.out.println("收到进群响应消息:" + Json.toJson(bsBody));
-		
-		if (JoinGroupRespBody.Code.SUCCESS.equals(bsBody.getCode()) )
-		{
+
+		if (JoinGroupRespBody.Code.SUCCESS.equals(bsBody.getCode())) {
 			Aio.bindGroup(channelContext, bsBody.getGroup());
-			System.out.println("进入群组["+bsBody.getGroup()+"]成功");
+			System.out.println("进入群组[" + bsBody.getGroup() + "]成功");
 		}
-		
+
 		return null;
 	}
 }

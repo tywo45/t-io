@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
 import org.tio.core.ChannelContext;
-import org.tio.core.ObjWithLock;
+import org.tio.core.SetWithLock;
 import org.tio.core.intf.Packet;
 
 /**
@@ -16,14 +16,9 @@ import org.tio.core.intf.Packet;
 public class ChannelContextSetWithLock<SessionContext, P extends Packet, R> {
 
 	/** remoteAndChannelContext key: "ip:port" value: ChannelContext. */
-	private ObjWithLock<Set<ChannelContext<SessionContext, P, R>>> setWithLock = new ObjWithLock<Set<ChannelContext<SessionContext, P, R>>>(
+	private SetWithLock<ChannelContext<SessionContext, P, R>> setWithLock = new SetWithLock<ChannelContext<SessionContext, P, R>>(
 			new HashSet<ChannelContext<SessionContext, P, R>>());
 
-	/**
-	 * Adds the.
-	 *
-	 * @param channelContext the channel context
-	 */
 	public void add(ChannelContext<SessionContext, P, R> channelContext) {
 		Lock lock = setWithLock.getLock().writeLock();
 
@@ -38,12 +33,6 @@ public class ChannelContextSetWithLock<SessionContext, P extends Packet, R> {
 		}
 	}
 
-	/**
-	 * Removes the.
-	 *
-	 * @param channelContext the channel context
-	 * @return the channel context
-	 */
 	public boolean remove(ChannelContext<SessionContext, P, R> channelContext) {
 		Lock lock = setWithLock.getLock().writeLock();
 
@@ -72,12 +61,7 @@ public class ChannelContextSetWithLock<SessionContext, P extends Packet, R> {
 		}
 	}
 
-	/**
-	 * Gets the map.
-	 *
-	 * @return the map
-	 */
-	public ObjWithLock<Set<ChannelContext<SessionContext, P, R>>> getSetWithLock() {
+	public SetWithLock<ChannelContext<SessionContext, P, R>> getSetWithLock() {
 		return setWithLock;
 	}
 

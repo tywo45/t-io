@@ -21,20 +21,17 @@ package org.tio.examples.im.common.vo;
  * </tbody>
  * </table>
  */
-public class AuthResultVo
-{
+public class AuthResultVo {
 
 	/**
 	 * 
 	 */
-	public AuthResultVo()
-	{
+	public AuthResultVo() {
 	}
 
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 	}
 }

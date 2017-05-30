@@ -18,8 +18,7 @@ import org.tio.examples.im.common.http.websocket.WebsocketPacket.Opcode;
  * @author tanyaowu 
  *
  */
-public class WebsocketDecoder
-{
+public class WebsocketDecoder {
 	private static Logger log = LoggerFactory.getLogger(WebsocketDecoder.class);
 
 	/**
@@ -29,77 +28,64 @@ public class WebsocketDecoder
 	 * 2017年2月22日 下午4:06:42
 	 * 
 	 */
-	public WebsocketDecoder()
-	{
+	public WebsocketDecoder() {
 
 	}
 
 	//	public static final int MAX_HEADER_LENGTH = 20480;
 
-	public static WebsocketPacket decode(ByteBuffer buf, ChannelContext<ImSessionContext, ImPacket, Object> channelContext) throws AioDecodeException
-	{
+	public static WebsocketPacket decode(ByteBuffer buf, ChannelContext<ImSessionContext, ImPacket, Object> channelContext) throws AioDecodeException {
 		//第一阶段解析
 		int initPosition = buf.position();
 		int readableLength = buf.limit() - initPosition;
 
 		int headLength = WebsocketPacket.MINIMUM_HEADER_LENGTH;
 
-		if (readableLength < headLength)
-		{
+		if (readableLength < headLength) {
 			return null;
 		}
 
 		byte b = buf.get();
 		boolean eof = ((b & 0xFF) >> 7) == 1;
-		if (!eof)
-		{
+		if (!eof) {
 			log.error("不是最后一帖{}", channelContext);
 		}
 		Opcode opcode = Opcode.valueOf((byte) (b & 0xF));
 		b = buf.get();
 		boolean hasMask = ((b & 0xFF) >> 7) == 1;
-		if (hasMask)
-		{
+		if (hasMask) {
 			headLength += 4;
 		}
 
 		int bodyLength = (b & 0x7f);
-		if (bodyLength == 126)
-		{
+		if (bodyLength == 126) {
 			headLength += 2;
-		} else if (bodyLength > 126)
-		{
+		} else if (bodyLength > 126) {
 			headLength += 4;
 		}
 
 		//第二阶段解析
-		if (readableLength < headLength)
-		{
+		if (readableLength < headLength) {
 			return null;
 		}
 
-		if (bodyLength == 126)
-		{
+		if (bodyLength == 126) {
 			bodyLength = ByteBufferUtils.readUB2(buf);//buf.getUnsignedShort();
-		} else if (bodyLength > 126)
-		{
+		} else if (bodyLength > 126) {
 			bodyLength = (int) ByteBufferUtils.readUB4(buf);//buf.getUnsignedInt();
 		}
 
-		if (bodyLength < 0 || bodyLength > WebsocketPacket.MAX_BODY_LENGTH)
-		{
+		if (bodyLength < 0 || bodyLength > WebsocketPacket.MAX_BODY_LENGTH) {
 			throw new AioDecodeException("body length(" + bodyLength + ") is not right");
 		}
 
 		byte[] mask = null;
-		if (hasMask)
-		{
+		if (hasMask) {
 			mask = ByteBufferUtils.readBytes(buf, 4);
 		}
 
 		//第三阶段解析
-		if (readableLength < (headLength + bodyLength))
-		{
+		if (readableLength < (headLength + bodyLength)) {
 			return null;
 		}
 		WebsocketPacket websocketPacket = new WebsocketPacket();
@@ -109,33 +95,26 @@ public class WebsocketDecoder
 		websocketPacket.setWsOpcode(opcode);
 		websocketPacket.setWsBodyLength(bodyLength);
 
-		if (bodyLength == 0)
-		{
+		if (bodyLength == 0) {
 			return websocketPacket;
 		}
 
 		byte[] array = ByteBufferUtils.readBytes(buf, bodyLength);
-		if (hasMask)
-		{
-			for (int i = 0; i < array.length; i++)
-			{
+		if (hasMask) {
+			for (int i = 0; i < array.length; i++) {
 				array[i] = (byte) (array[i] ^ mask[i % 4]);
 			}
 		}
 
 		websocketPacket.setWsBody(array);
 		String text = null;
-		if (opcode == Opcode.BINARY)
-		{
+		if (opcode == Opcode.BINARY) {
 			//throw new AioDecodeException("暂时不支持binary");
-		} else
-		{
-			try
-			{
+		} else {
+			try {
 				text = new String(array, WebsocketPacket.CHARSET_NAME);
 				websocketPacket.setWsBodyText(text);
-			} catch (UnsupportedEncodingException e)
-			{
+			} catch (UnsupportedEncodingException e) {
 				log.error(e.toString(), e);
 			}
 		}
@@ -144,8 +123,7 @@ public class WebsocketDecoder
 
 	}
 
-	public static enum Step
-	{
+	public static enum Step {
 		header, remain_header, data,
 	}
 
@@ -156,8 +134,7 @@ public class WebsocketDecoder
 	 * 2017年2月22日 下午4:06:42
 	 * 
 	 */
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 
 	}
 

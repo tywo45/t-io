@@ -13,8 +13,7 @@ import org.tio.examples.im.common.http.HttpRequestPacket.RequestLine;
  * @author tanyaowu 
  *
  */
-public class HttpRequestDecoder
-{
+public class HttpRequestDecoder {
 
 	/**
 	 * 
@@ -23,16 +22,14 @@ public class HttpRequestDecoder
 	 * 2017年2月22日 下午4:06:42
 	 * 
 	 */
-	public HttpRequestDecoder()
-	{
+	public HttpRequestDecoder() {
 
 	}
 
 	public static final int MAX_HEADER_LENGTH = 20480;
 
 	public static HttpRequestPacket decode(ByteBuffer buffer/**, ChannelContext<ImSessionContext, HttpRequestPacket, Object> channelContext*/
-	) throws AioDecodeException
-	{
+	) throws AioDecodeException {
 		int count = 0;
 		Step step = Step.firstline;
 		StringBuilder currLine = new StringBuilder();
@@ -40,46 +37,35 @@ public class HttpRequestDecoder
 		int contentLength = 0;
 		byte[] httpRequestBody = null;
 		RequestLine firstLine = null;
-		while (buffer.hasRemaining())
-		{
+		while (buffer.hasRemaining()) {
 			count++;
-			if (count > MAX_HEADER_LENGTH)
-			{
+			if (count > MAX_HEADER_LENGTH) {
 				throw new AioDecodeException("max http header length " + MAX_HEADER_LENGTH);
 			}
 
 			byte b = buffer.get();
 
-			if (b == '\n')
-			{
-				if (currLine.length() == 0)
-				{
+			if (b == '\n') {
+				if (currLine.length() == 0) {
 					String contentLengthStr = headers.get("Content-Length");
-					if (StringUtils.isBlank(contentLengthStr))
-					{
+					if (StringUtils.isBlank(contentLengthStr)) {
 						contentLength = 0;
-					} else
-					{
+					} else {
 						contentLength = Integer.parseInt(contentLengthStr);
 					}
 
 					int readableLength = buffer.limit() - buffer.position();
-					if (readableLength >= contentLength)
-					{
+					if (readableLength >= contentLength) {
 						step = Step.body;
 						break;
-					} else
-					{
+					} else {
 						return null;
 					}
-				} else
-				{
-					if (step == Step.firstline)
-					{
+				} else {
+					if (step == Step.firstline) {
 						firstLine = parseRequestLine(currLine.toString());
 						step = Step.header;
-					} else if (step == Step.header)
-					{
+					} else if (step == Step.header) {
 						KeyValue keyValue = parseHeaderLine(currLine.toString());
 						headers.put(keyValue.getKey(), keyValue.getValue());
 					}
@@ -87,22 +73,18 @@ public class HttpRequestDecoder
 					currLine.setLength(0);
 				}
 				continue;
-			} else if (b == '\r')
-			{
+			} else if (b == '\r') {
 				continue;
-			} else
-			{
+			} else {
 				currLine.append((char) b);
 			}
 		}
 
-		if (step != Step.body)
-		{
+		if (step != Step.body) {
 			return null;
 		}
 
-		if (contentLength > 0)
-		{
+		if (contentLength > 0) {
 			httpRequestBody = new byte[contentLength];
 			buffer.get(httpRequestBody);
 		}
@@ -125,8 +107,7 @@ public class HttpRequestDecoder
 	 * 2017年2月23日 下午1:37:51
 	 *
 	 */
-	public static RequestLine parseRequestLine(String line)
-	{
+	public static RequestLine parseRequestLine(String line) {
 		int index1 = line.indexOf(' ');
 		String method = line.substring(0, index1);
 		int index2 = line.indexOf(' ', index1 + 1);
@@ -149,12 +130,10 @@ public class HttpRequestDecoder
 	 * 2017年2月23日 下午1:37:58
 	 *
 	 */
-	public static KeyValue parseHeaderLine(String line)
-	{
+	public static KeyValue parseHeaderLine(String line) {
 		KeyValue keyValue = new KeyValue();
 		int p = line.indexOf(":");
-		if (p == -1)
-		{
+		if (p == -1) {
 			keyValue.setKey(line);
 			return keyValue;
 		}
@@ -168,10 +147,7 @@ public class HttpRequestDecoder
 		return keyValue;
 	}
 
-	
-
-	public static enum Step
-	{
+	public static enum Step {
 		firstline, header, body
 	}
 
@@ -182,8 +158,7 @@ public class HttpRequestDecoder
 	 * 2017年2月22日 下午4:06:42
 	 * 
 	 */
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 
 	}
 

@@ -9,8 +9,7 @@ import org.tio.examples.im.common.ImSessionContext;
  * @author tanyaowu 
  *
  */
-public interface ImAioHandlerIntf
-{
+public interface ImAioHandlerIntf {
 	/**
 	 * 
 	 * @param packet
@@ -22,5 +21,5 @@ public interface ImAioHandlerIntf
 	 * 2017年2月22日 下午2:02:30
 	 *
 	 */
-	public Object handler(ImPacket packet, ChannelContext<ImSessionContext, ImPacket, Object> channelContext)  throws Exception;
+	public Object handler(ImPacket packet, ChannelContext<ImSessionContext, ImPacket, Object> channelContext) throws Exception;
 }

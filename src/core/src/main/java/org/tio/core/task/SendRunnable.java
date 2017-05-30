@@ -9,7 +9,7 @@ import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.ClientAction;
+import org.tio.core.ChannelAction;
 import org.tio.core.GroupContext;
 import org.tio.core.WriteCompletionHandler;
 import org.tio.core.intf.AioHandler;
@@ -73,7 +73,6 @@ public class SendRunnable<SessionContext, P extends Packet, R> extends AbstractQ
 			packet = packetWithMeta.getPacket();
 		}
 
-		channelContext.traceClient(ClientAction.BEFORE_SEND, packet, null);
 		GroupContext<SessionContext, P, R> groupContext = channelContext.getGroupContext();
 		ByteBuffer byteBuffer = getByteBuffer(packet, groupContext, groupContext.getAioHandler());
 		int packetCount = 1;
@@ -118,13 +117,13 @@ public class SendRunnable<SessionContext, P extends Packet, R> extends AbstractQ
 		AsynchronousSocketChannel asynchronousSocketChannel = channelContext.getAsynchronousSocketChannel();
 		WriteCompletionHandler<SessionContext, P, R> writeCompletionHandler = channelContext.getWriteCompletionHandler();
 		try {
-//			long start = SystemTimer.currentTimeMillis();
+			//			long start = SystemTimer.currentTimeMillis();
 			writeCompletionHandler.getWriteSemaphore().acquire();
-//			long end = SystemTimer.currentTimeMillis();
-//			long iv = end - start;
-//			if (iv > 100) {
-//				//log.error("{} 等发送锁耗时:{} ms", channelContext, iv);
-//			}
+			//			long end = SystemTimer.currentTimeMillis();
+			//			long iv = end - start;
+			//			if (iv > 100) {
+			//				//log.error("{} 等发送锁耗时:{} ms", channelContext, iv);
+			//			}
 
 		} catch (InterruptedException e) {
 			log.error(e.toString(), e);
@@ -133,7 +132,6 @@ public class SendRunnable<SessionContext, P extends Packet, R> extends AbstractQ
 
 		channelContext.getStat().setLatestTimeOfSentPacket(SystemTimer.currentTimeMillis());
 	}
-
 
 	@Override
 	public String toString() {
@@ -177,8 +175,6 @@ public class SendRunnable<SessionContext, P extends Packet, R> extends AbstractQ
 					}
 
 					ByteBuffer byteBuffer = getByteBuffer(p, groupContext, aioHandler);
-
-					channelContext.traceClient(ClientAction.BEFORE_SEND, p, null);
 
 					allBytebufferCapacity += byteBuffer.limit();
 					packetCount++;

@@ -1,5 +1,6 @@
 package org.tio.server;
 
+import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousServerSocketChannel;
@@ -8,7 +9,6 @@ import java.nio.channels.CompletionHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.core.ClientAction;
 import org.tio.core.ReadCompletionHandler;
 import org.tio.core.intf.Packet;
 import org.tio.core.utils.SystemTimer;
@@ -35,7 +35,11 @@ public class AcceptCompletionHandler<SessionContext, P extends Packet, R> implem
 	@Override
 	public void completed(AsynchronousSocketChannel asynchronousSocketChannel, AioServer<SessionContext, P, R> aioServer) {
 		try {
+
 			ServerGroupContext<SessionContext, P, R> serverGroupContext = aioServer.getServerGroupContext();
+			InetSocketAddress inetSocketAddress = (InetSocketAddress) asynchronousSocketChannel.getRemoteAddress();
+			String clientIp = inetSocketAddress.getHostString();
+
 			ServerGroupStat serverGroupStat = serverGroupContext.getServerGroupStat();
 			serverGroupStat.getAccepted().incrementAndGet();
 
@@ -49,7 +53,6 @@ public class AcceptCompletionHandler<SessionContext, P extends Packet, R> implem
 			channelContext.setServerNode(aioServer.getServerNode());
 			ServerAioListener<SessionContext, P, R> serverAioListener = serverGroupContext.getServerAioListener();
 			channelContext.getStat().setTimeFirstConnected(SystemTimer.currentTimeMillis());
-			channelContext.traceClient(ClientAction.CONNECT, null, null);
 			try {
 				serverAioListener.onAfterConnected(channelContext, true, false);
 			} catch (Exception e) {

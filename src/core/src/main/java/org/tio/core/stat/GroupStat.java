@@ -19,6 +19,9 @@ public class GroupStat {
 	 * 处理了的消息包数
 	 */
 	private AtomicLong handledPacket = new AtomicLong();
+
+	private AtomicLong handledBytes = new AtomicLong();
+
 	/**
 	 * 发送了的消息包数
 	 */
@@ -83,6 +86,20 @@ public class GroupStat {
 	 */
 	public void setReceivedBytes(AtomicLong receivedBytes) {
 		this.receivedBytes = receivedBytes;
+	}
+
+	/**
+	 * @return the handledBytes
+	 */
+	public AtomicLong getHandledBytes() {
+		return handledBytes;
+	}
+
+	/**
+	 * @param handledBytes the handledBytes to set
+	 */
+	public void setHandledBytes(AtomicLong handledBytes) {
+		this.handledBytes = handledBytes;
 	}
 
 }

@@ -2,8 +2,6 @@ package org.tio.core;
 
 import java.io.IOException;
 import java.nio.channels.AsynchronousSocketChannel;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,23 +10,14 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import org.tio.core.intf.Packet;
 import org.tio.core.intf.PacketWithMeta;
 import org.tio.core.task.DecodeRunnable;
 import org.tio.core.task.HandlerRunnable;
 import org.tio.core.task.SendRunnable;
-import org.tio.json.Json;
-
-import com.xiaoleilu.hutool.date.DatePattern;
-import com.xiaoleilu.hutool.date.DateTime;
 
 public abstract class ChannelContext<SessionContext, P extends Packet, R> {
 	private static Logger log = LoggerFactory.getLogger(ChannelContext.class);
-
-	private boolean isTraceClient = false;
-
-	private boolean isTraceSynPacket = false;
 
 	public static final String UNKNOWN_ADDRESS_IP = "$UNKNOWN";
 
@@ -79,7 +68,7 @@ public abstract class ChannelContext<SessionContext, P extends Packet, R> {
 	public ChannelContext(GroupContext<SessionContext, P, R> groupContext, AsynchronousSocketChannel asynchronousSocketChannel) {
 		super();
 		id = java.util.UUID.randomUUID().toString();
-		GroupContext.ids.bind(this);
+		groupContext.ids.bind(this);
 		this.setGroupContext(groupContext);
 		this.setAsynchronousSocketChannel(asynchronousSocketChannel);
 		this.readCompletionHandler = new ReadCompletionHandler<>(this);
@@ -362,95 +351,6 @@ public abstract class ChannelContext<SessionContext, P extends Packet, R> {
 		return this.id.hashCode();
 	}
 
-	//	/**
-	//	 * 
-	//	 * @param obj
-	//	 * @return
-	//	 * @author: tanyaowu
-	//	 */
-	//	@Override
-	//	public boolean equals(Object obj)
-	//	{
-	//		if (obj == null)
-	//		{
-	//			return false;
-	//		}
-	//		if (getClass() != obj.getClass())
-	//		{
-	//			return false;
-	//		}
-	//		@SuppressWarnings("unchecked")
-	//		ChannelContext<SessionContext, P, R> other = (ChannelContext<SessionContext, P, R>) obj;
-	//		return Objects.equals(other.id, this.id);
-	//	}
-
-	/**
-	 * 跟踪消息
-	 * @param clientAction
-	 * @param packet
-	 * @param extmsg
-	 * @author: tanyaowu
-	 */
-	public void traceClient(ClientAction clientAction, Packet packet, Map<String, Object> extmsg) {
-		if (isTraceClient) {
-			this.getGroupContext().getClientTraceHandler().traceClient(this, clientAction, packet, extmsg);
-		}
-	}
-
-	private Logger traceSynPacketLog = LoggerFactory.getLogger("tio-client-trace-syn-log");
-
-	/**
-	 * 跟踪同步消息，主要是跟踪锁的情况，用于问题排查。
-	 * @param synPacketAction
-	 * @param packet
-	 * @param extmsg
-	 * @author: tanyaowu
-	 */
-	public void traceSynPacket(SynPacketAction synPacketAction, Packet packet, CountDownLatch countDownLatch, Map<String, Object> extmsg) {
-		if (isTraceSynPacket) {
-			ChannelContext<SessionContext, P, R> channelContext = this;
-			Map<String, Object> map = new HashMap<>();
-			map.put("time", DateTime.now().toString(DatePattern.NORM_DATETIME_MS_FORMAT));
-			map.put("c_id", channelContext.getId());
-			map.put("c", channelContext.toString());
-			map.put("action", synPacketAction);
-
-			MDC.put("tio_client_syn", channelContext.getClientNodeTraceFilename());
-
-			if (packet != null) {
-				map.put("p_id", channelContext.getClientNode().getPort() + "_" + packet.getId()); //packet id
-				map.put("p_respId", packet.getRespId());
-				map.put("packet", packet.logstr());
-			}
-
-			if (countDownLatch != null) {
-				map.put("countDownLatch", countDownLatch.hashCode() + " " + countDownLatch.getCount());
-			}
-
-			if (extmsg != null) {
-				map.putAll(extmsg);
-			}
-			String logstr = Json.toJson(map);
-			traceSynPacketLog.info(logstr);
-			log.error(logstr);
-
-		}
-	}
-
-	/**
-	 * @return the isTraceClient
-	 */
-	public boolean isTraceClient() {
-		return isTraceClient;
-	}
-
-	/**
-	 * @param isTraceClient the isTraceClient to set
-	 */
-	public void setTraceClient(boolean isTraceClient) {
-		this.isTraceClient = isTraceClient;
-	}
-
 	/**
 	 * @return the clientNodeTraceFilename
 	 */
@@ -482,28 +382,21 @@ public abstract class ChannelContext<SessionContext, P extends Packet, R> {
 			packetWithMeta = (PacketWithMeta<P>) obj;
 			packet = packetWithMeta.getPacket();
 			CountDownLatch countDownLatch = packetWithMeta.getCountDownLatch();
-			traceSynPacket(SynPacketAction.BEFORE_DOWN, packet, countDownLatch, null);
 			countDownLatch.countDown();
 		}
 		try {
+			log.info("{} 已经发送 {}", this, packet.logstr());
 			groupContext.getAioListener().onAfterSent(this, packet, isSentSuccess == null ? false : isSentSuccess);
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		}
-	}
 
-	/**
-	 * @return the isTraceSynPacket
-	 */
-	public boolean isTraceSynPacket() {
-		return isTraceSynPacket;
+		if (packet.getPacketListener() != null) {
+			try {
+				packet.getPacketListener().onAfterSent(this, packet, isSentSuccess);
+			} catch (Exception e) {
+				log.error(e.toString(), e);
+			}
+		}
 	}
-
-	/**
-	 * @param isTraceSynPacket the isTraceSynPacket to set
-	 */
-	public void setTraceSynPacket(boolean isTraceSynPacket) {
-		this.isTraceSynPacket = isTraceSynPacket;
-	}
-
 }

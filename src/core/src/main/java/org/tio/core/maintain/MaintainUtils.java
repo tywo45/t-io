@@ -24,7 +24,7 @@ public class MaintainUtils {
 			groupContext.connections.remove(channelContext);
 			groupContext.connecteds.remove(channelContext);
 			groupContext.closeds.remove(channelContext);
-			GroupContext.ids.unbind(channelContext);
+			groupContext.ids.unbind(channelContext);
 			if (StringUtils.isNotBlank(channelContext.getUserid())) {
 				try {
 					Aio.unbindUser(channelContext);

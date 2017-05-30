@@ -12,24 +12,21 @@ import org.tio.json.Json;
  * @author tanyaowu 
  * 2017年3月26日 下午8:20:51
  */
-public class ShowcaseClientAioListener implements ClientAioListener<ShowcaseSessionContext, ShowcasePacket, Object>
-{
+public class ShowcaseClientAioListener implements ClientAioListener<ShowcaseSessionContext, ShowcasePacket, Object> {
 	private static Logger log = LoggerFactory.getLogger(ShowcaseClientAioListener.class);
 
 	/**
 	 * 
 	 * @author: tanyaowu
 	 */
-	public ShowcaseClientAioListener()
-	{
+	public ShowcaseClientAioListener() {
 	}
 
 	/**
 	 * @param args
 	 * @author: tanyaowu
 	 */
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 
 	}
 
@@ -41,8 +38,7 @@ public class ShowcaseClientAioListener implements ClientAioListener<ShowcaseSess
 	 * @author: tanyaowu
 	 */
 	@Override
-	public void onAfterConnected(ChannelContext<ShowcaseSessionContext, ShowcasePacket, Object> channelContext, boolean isConnected, boolean isReconnect) throws Exception
-	{
+	public void onAfterConnected(ChannelContext<ShowcaseSessionContext, ShowcasePacket, Object> channelContext, boolean isConnected, boolean isReconnect) throws Exception {
 		log.info("onAfterConnected channelContext:{}, isConnected:{}, isReconnect:{}", channelContext, isConnected, isReconnect);
 
 		//连接后，需要把连接会话对象设置给channelContext
@@ -58,8 +54,7 @@ public class ShowcaseClientAioListener implements ClientAioListener<ShowcaseSess
 	 * @author: tanyaowu
 	 */
 	@Override
-	public void onAfterSent(ChannelContext<ShowcaseSessionContext, ShowcasePacket, Object> channelContext, ShowcasePacket packet, boolean isSentSuccess) throws Exception
-	{
+	public void onAfterSent(ChannelContext<ShowcaseSessionContext, ShowcasePacket, Object> channelContext, ShowcasePacket packet, boolean isSentSuccess) throws Exception {
 		log.info("onAfterSent channelContext:{}, packet:{}, isSentSuccess:{}", channelContext, Json.toJson(packet), isSentSuccess);
 	}
 
@@ -71,8 +66,7 @@ public class ShowcaseClientAioListener implements ClientAioListener<ShowcaseSess
 	 * @author: tanyaowu
 	 */
 	@Override
-	public void onAfterReceived(ChannelContext<ShowcaseSessionContext, ShowcasePacket, Object> channelContext, ShowcasePacket packet, int packetSize) throws Exception
-	{
+	public void onAfterReceived(ChannelContext<ShowcaseSessionContext, ShowcasePacket, Object> channelContext, ShowcasePacket packet, int packetSize) throws Exception {
 		log.info("onAfterReceived channelContext:{}, packet:{}, packetSize:{}", channelContext, Json.toJson(packet), packetSize);
 	}
 
@@ -85,8 +79,7 @@ public class ShowcaseClientAioListener implements ClientAioListener<ShowcaseSess
 	 * @author: tanyaowu
 	 */
 	@Override
-	public void onAfterClose(ChannelContext<ShowcaseSessionContext, ShowcasePacket, Object> channelContext, Throwable throwable, String remark, boolean isRemove) throws Exception
-	{
+	public void onAfterClose(ChannelContext<ShowcaseSessionContext, ShowcasePacket, Object> channelContext, Throwable throwable, String remark, boolean isRemove) throws Exception {
 		log.info("onAfterClose channelContext:{}, throwable:{}, remark:{}, isRemove:{}", channelContext, throwable, remark, isRemove);
 	}
 

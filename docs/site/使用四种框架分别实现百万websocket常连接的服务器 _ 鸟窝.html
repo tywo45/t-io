@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<!-- saved from url=(0090)http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/ -->
+<html class=""><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  
+  <title>使用四种框架分别实现百万websocket常连接的服务器 | 鸟窝</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="事实上，最近我又增加了几个框架，现在包括 Netty, Undertow, Jetty, Spray, Vert.x, Grizzly 和 Node.js七种框架。测试数据可以看下一篇文章: 七种WebSocket框架的性能比较
+
+著名的 C10K 问题提出的时候, 正是 2001 年。这篇文章可以说是高性能服务器开发的一个标志性文档，它讨论的就是单机为1万个连接提供服务这个问题，当时因为硬件和">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用四种框架分别实现百万websocket常连接的服务器">
+<meta property="og:url" content="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/">
+<meta property="og:site_name" content="鸟窝">
+<meta property="og:description" content="事实上，最近我又增加了几个框架，现在包括 Netty, Undertow, Jetty, Spray, Vert.x, Grizzly 和 Node.js七种框架。测试数据可以看下一篇文章: 七种WebSocket框架的性能比较
+
+著名的 C10K 问题提出的时候, 正是 2001 年。这篇文章可以说是高性能服务器开发的一个标志性文档，它讨论的就是单机为1万个连接提供服务这个问题，当时因为硬件和">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用四种框架分别实现百万websocket常连接的服务器">
+<meta name="twitter:description" content="事实上，最近我又增加了几个框架，现在包括 Netty, Undertow, Jetty, Spray, Vert.x, Grizzly 和 Node.js七种框架。测试数据可以看下一篇文章: 七种WebSocket框架的性能比较
+
+著名的 C10K 问题提出的时候, 正是 2001 年。这篇文章可以说是高性能服务器开发的一个标志性文档，它讨论的就是单机为1万个连接提供服务这个问题，当时因为硬件和">
+
+  
+    <link rel="alternative" href="http://colobu.com/atom.xml" title="鸟窝" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="http://colobu.com/favicon.png">
+  
+  <link rel="stylesheet" href="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/style.css" type="text/css">
+
+  <link href="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/font-awesome.css" rel="stylesheet">
+  
+  <link rel="stylesheet" href="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/jquery.fancybox.css" media="screen" type="text/css">
+  
+  <link rel="stylesheet" href="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/animate.min.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//cdn.staticfile.org/html5shiv/3.7/html5shiv.min.js"></script><![endif]-->
+
+  <script src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/hm.js.下载"></script><script type="text/javascript" async="" src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/ga.js.下载"></script><script type="text/javascript">
+	//visit my previous blog: http://old.colobu.com just like this http://colobu.com/?=123456
+    var blog_url = location.href.toString();
+	if (blog_url.indexOf("http://colobu.com/?p=") >= 0) {
+		blog_url = blog_url.replace("colobu.com", "old.colobu.com");
+		window.location.assign(blog_url);
+	} else if (blog_url.indexOf("http://smallnest.gitcafe.com") >= 0) {
+		blog_url = blog_url.replace("smallnest.gitcafe.com", "colobu.com");
+		window.location.assign(blog_url);
+	}  else if (blog_url.indexOf("http://smallnest.gitcafe.io") >= 0) {
+		blog_url = blog_url.replace("smallnest.gitcafe.io", "colobu.com");
+		window.location.assign(blog_url);
+	}
+</script>
+  <style type="text/css">
+    .news-essay
+    {
+      display: inline !important;
+    }
+    .hot-news
+    {
+      text-align: left !important;
+    }
+  </style>
+<script src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/share.js.下载"></script><script src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/livescript.html" charset="utf-8"></script><script src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/hot_news_script.html" charset="utf-8"></script><link rel="stylesheet" type="text/css" href="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/yunsdk.Rl7sEOY0GRzw.1.css"><script src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/yunsdk.kjZisxGp5HBN.28.js.下载" charset="utf-8"></script><link rel="stylesheet" type="text/css" href="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/hot_news.dGwAyWdgSZec.1.css"><script src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/hot_news.tP8EYrlmqp6G.9.js.下载" charset="utf-8"></script><style type="text/css">.fancybox-margin{margin-right:17px;}</style><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
+.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
+.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_About.MathJax_MousePost {outline: none}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 2px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 2px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: 1em}
+.MathJax_MenuRadioCheck.RTL {right: 1em; left: auto}
+.MathJax_MenuLabel {padding: 2px 2em 4px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #CCCCCC; margin: 4px 1px 0px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: Highlight; color: HighlightText}
+.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
+.MathJax_ContextMenu:focus {outline: none}
+.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
+#MathJax_AboutClose {top: .2em; right: .2em}
+.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
+.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
+.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
+.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_MenuClose:hover span {background-color: #CCC!important}
+.MathJax_MenuClose:hover:focus {outline: none}
+</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
+</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><link rel="stylesheet" href="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/share_style0_24.css"><link rel="stylesheet" type="text/css" href="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/red.1178673.css"><style type="text/css">.MJXp-script {font-size: .8em}
+.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
+.MJXp-bold {font-weight: bold}
+.MJXp-italic {font-style: italic}
+.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-largeop {font-size: 150%}
+.MJXp-largeop.MJXp-int {vertical-align: -.2em}
+.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
+.MJXp-display {display: block; text-align: center; margin: 1em 0}
+.MJXp-math span {display: inline-block}
+.MJXp-box {display: block!important; text-align: center}
+.MJXp-box:after {content: " "}
+.MJXp-rule {display: block!important; margin-top: .1em}
+.MJXp-char {display: block!important}
+.MJXp-mo {margin: 0 .15em}
+.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
+.MJXp-denom {display: inline-table!important; width: 100%}
+.MJXp-denom > * {display: table-row!important}
+.MJXp-surd {vertical-align: top}
+.MJXp-surd > * {display: block!important}
+.MJXp-script-box > *  {display: table!important; height: 50%}
+.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
+.MJXp-script-box > *:last-child > * {vertical-align: bottom}
+.MJXp-script-box > * > * > * {display: block!important}
+.MJXp-mphantom {visibility: hidden}
+.MJXp-munderover {display: inline-table!important}
+.MJXp-over {display: inline-block!important; text-align: center}
+.MJXp-over > * {display: block!important}
+.MJXp-munderover > * {display: table-row!important}
+.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
+.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
+.MJXp-mtr {display: table-row!important}
+.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
+.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-mlabeledtr {display: table-row!important}
+.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
+.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
+.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
+.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
+.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
+.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
+.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
+.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
+.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
+.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
+.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style></head>
+
+<body><div id="MathJax_Message" style="display: none;"></div>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap" class="animated bounceInLeft">
+        <a href="http://colobu.com/" id="logo">鸟窝</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap" class="animated bounceInLeft">
+          <a href="http://colobu.com/" id="subtitle">大道至简 Simplicity is the ultimate form of sophistication</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="http://colobu.com/"><i class="fa fa-home">&nbsp;</i>首页</a>
+        
+          <a class="main-nav-link" href="http://colobu.com/archives"><i class="fa fa-folder-o">&nbsp;</i>归档</a>
+        
+          <a class="main-nav-link" href="https://github.com/smallnest"><i class="fa fa-github">&nbsp;</i>github</a>
+        
+          <a class="main-nav-link" href="http://tr.colobu.com/"><i class="fa fa-spinner fa-pulse">&nbsp;</i>技术流</a>
+        
+          <a class="main-nav-link" href="http://colobu.com/ScalaCollectionsCookbook"><i class="fa fa-book">&nbsp;</i>Scala集合技术手册</a>
+        
+          <a class="main-nav-link" href="http://colobu.com/techreview"><i class="fa fa-newspaper-o">&nbsp;</i>技术快报</a>
+        
+          <a class="main-nav-link" href="http://colobu.com/about"><i class="fa fa-lemon-o">&nbsp;</i>关于</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="http://colobu.com/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="http://www.baidu.com/baidu" method="get" accept-charset="utf-8" class="search-form">
+          <input type="search" name="word" maxlength="20" class="search-form-input" placeholder="Search">
+          <input type="submit" value="" class="search-form-submit">
+          <input name="tn" type="hidden" value="bds">
+          <input name="cl" type="hidden" value="3">
+          <input name="ct" type="hidden" value="2097152">
+          <input type="hidden" name="si" value="colobu.com">
+        </form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-implement-C1000K-servers-by-spray-netty-undertow-and-node-js" class="article article-type-post" itemscope="" itemprop="blogPost">
+  <div class="article-meta">
+    <a href="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/" class="article-date">
+  <time datetime="2015-05-22T08:04:43.000Z" itemprop="datePublished">2015年05月22日</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="http://colobu.com/categories/%E9%AB%98%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/">高并发编程</a>
+  </div>
+
+	
+  <div class="article-author"> by smallnest</div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      使用四种框架分别实现百万websocket常连接的服务器
+	  
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+	  
+	    <h1 id="expanderHead" style="cursor:pointer;">
+		目录 <span id="expanderSign">[−]</span>
+		</h1>
+	    <div id="article-entry-toc" data-role="collapsible" class="article-entry-toc">
+		  <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/#服务器的参数调优"><span class="toc-text">服务器的参数调优</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/#TCP/IP参数配置"><span class="toc-text">TCP/IP参数配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/#最大文件描述符"><span class="toc-text">最大文件描述符</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/#应用运行时调优"><span class="toc-text">应用运行时调优</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/#OutOfMemory_Killer"><span class="toc-text">OutOfMemory Killer</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/#客户端的参数调优"><span class="toc-text">客户端的参数调优</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/#服务器测试"><span class="toc-text">服务器测试</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/#Netty服务器"><span class="toc-text">Netty服务器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/#Spray服务器"><span class="toc-text">Spray服务器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/#Undertow"><span class="toc-text">Undertow</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/#node-js"><span class="toc-text">node.js</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/#参考文档"><span class="toc-text">参考文档</span></a></li></ol>
+	    </div>
+	  
+	  
+      
+        <blockquote>
+<p>事实上，最近我又增加了几个框架，现在包括 Netty, Undertow, Jetty, Spray, Vert.x, Grizzly 和 Node.js七种框架。<br>测试数据可以看下一篇文章: <a href="http://colobu.com/2015/07/14/performance-comparison-of-7-websocket-frameworks">七种WebSocket框架的性能比较</a></p>
+</blockquote>
+<p>著名的 <a href="http://www.kegel.com/c10k.htm" target="_blank" rel="external">C10K</a> 问题提出的时候, 正是 2001 年。这篇文章可以说是高性能服务器开发的一个标志性文档，它讨论的就是单机为1万个连接提供服务这个问题，当时因为硬件和软件的限制，单机1万还是一个非常值得挑战的目标。但是时光荏苒，随着硬件和软件的飞速发展，单机1万的目标已经变成了最简单不过的事情。现在用任何一种主流语言都能提供单机1万的并发处理的能力。所以现在目标早已提高了100倍，变成C1000k，也就是一台服务器为100万连接提供服务。在2010年,2011年已经看到一些实现C1000K的文章了，所以在2015年，实现C1000K应该不是一件困难的事情。</p>
+<p>本文是我在实践过程中的记录，我的目标是使用spran-websocket，netty, undertow和node.js四种框架分别实现C1000K的服务器，看看这几个框架实现的难以程度，性能如何。开发语言为Scala和Javascript。</p>
+<p>当然，谈起性能，我们还必须谈到每秒每个连接有多少个请求，也就是RPS数，还要考虑每条消息的大小。<br>一般来说，我们会选取一个百分比，比如每秒20%的连接会收发消息。我的需求是服务器只是<code>push</code>,客户端不会主动发送消息。 一般每一分钟会为这一百万群发一条消息。<br>所以实现的测试工具每个client建立60000个websocket连接，一共二十个client。实际不可能使用20台机器，我使用了两台AWS C3.2xlarge(8核16G)服务器作为客户端机。每台机器10个客户端。<br>服务器每1分钟群发一条消息。消息内容很简单，只是服务器的当天时间。</p>
+<p>最近看到360用Go实现的消息推送系统，下面是他们的数据：</p>
+<blockquote>
+<p>目前360消息推送系统服务于50+内部产品，万款开发平台App，实时长连接数亿量级，日独数十亿量级，1分钟内可以实现亿量级广播，日下发峰值百亿量级，400台物理机，3000多个实例分布在9个独立集群中，每个集群跨国内外近10个IDC。</p>
+</blockquote>
+<p><strong>四个服务器的代码和Client测试工具代码可以在<a href="https://github.com/smallnest/C1000K-Servers" target="_blank" rel="external">github</a>上下载。</strong> (其实不止四种框架了，现在包括Netty, Undertow, Jetty, Spray-websocket, Vert.x, Grizzly 和 Node.js 七种框架的实现)</p>
+<p>测试下来可以看到每种服务器都能轻松达到同时120万的websocket活动连接，只是资源占用和事务处理时间有差别。120万只是保守数据，在这么多连接情况下服务器依然很轻松，下一步我会进行C2000K的测试。</p>
+<a id="more"></a>
+<p>在测试之前我们需要对服务器/客户机的一些参数进行调优。</p>
+<h3 id="服务器的参数调优">服务器的参数调优</h3>
+<p>一般会修改两个文件，<code>/etc/sysctl.conf</code>和<code>/etc/security/limits.conf</code>， 用来配置TCP/IP参数和最大文件描述符。</p>
+<h4 id="TCP/IP参数配置">TCP/IP参数配置</h4>
+<p>修改文件<code>/etc/sysctl.conf</code>,配置网络参数。</p>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">net.ipv4.<span class="variable">tcp_wmem =</span> <span class="number">4096</span> <span class="number">87380</span> <span class="number">4161536</span></div><div class="line">net.ipv4.<span class="variable">tcp_rmem =</span> <span class="number">4096</span> <span class="number">87380</span> <span class="number">4161536</span></div><div class="line">net.ipv4.<span class="variable">tcp_mem =</span> <span class="number">786432</span> <span class="number">2097152</span> <span class="number">3145728</span></div></pre></td></tr></tbody></table></figure>
+
+<p>数值根据需求进行调整。更多的参数可以看以前整理的一篇文章: <a href="http://colobu.com/2014/09/18/linux-tcpip-tuning/" target="_blank" rel="external">Linux TCP/IP 协议栈调优 </a>。<br>执行<code>/sbin/sysctl -p</code>即时生效。</p>
+<h4 id="最大文件描述符">最大文件描述符</h4>
+<p>Linux内核本身有文件描述符最大值的限制，你可以根据需要更改：</p>
+<ul>
+<li>系统最大打开文件描述符数：/proc/sys/fs/file-max<ol>
+<li>临时性设置：<code>echo 1000000 &gt; /proc/sys/fs/file-max</code></li>
+<li>永久设置：修改<code>/etc/sysctl.conf</code>文件，增加<code>fs.file-max = 1000000</code></li>
+</ol>
+</li>
+<li>进程最大打开文件描述符数<br>使用<code>ulimit -n</code>查看当前设置。使用<code>ulimit -n 1000000</code>进行临时性设置。<br>要想永久生效，你可以修改<code>/etc/security/limits.conf</code>文件，增加下面的行：</li>
+</ul>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="bullet">*         </span>hard    nofile      1000000</div><div class="line"><span class="bullet">*         </span>soft    nofile      1000000</div><div class="line">root      hard    nofile      1000000</div><div class="line">root      soft    nofile      1000000</div></pre></td></tr></tbody></table></figure>
+
+<p>还有一点要注意的就是hard limit不能大于<code>/proc/sys/fs/nr_open</code>，因此有时你也需要修改nr_open的值。<br>执行<code>echo 2000000 &gt; /proc/sys/fs/nr_open</code></p>
+<p>查看当前系统使用的打开文件描述符数，可以使用下面的命令：</p>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# cat <span class="regexp">/proc/</span>sys<span class="regexp">/fs/</span><span class="keyword">file</span>-nr             </div><div class="line"><span class="number">1632</span>    <span class="number">0</span>       <span class="number">1513506</span></div></pre></td></tr></tbody></table></figure>
+
+<p>其中第一个数表示当前系统已分配使用的打开文件描述符数，第二个数为分配后已释放的（目前已不再使用），第三个数等于file-max。</p>
+<p>总结一下：</p>
+<ul>
+<li>所有进程打开的文件描述符数不能超过/proc/sys/fs/file-max</li>
+<li>单个进程打开的文件描述符数不能超过user limit中nofile的soft limit</li>
+<li>nofile的soft limit不能超过其hard limit</li>
+<li>nofile的hard limit不能超过/proc/sys/fs/nr_open</li>
+</ul>
+<h4 id="应用运行时调优">应用运行时调优</h4>
+<ol>
+<li>Java 应用内存调优<br>服务器使用12G内存，吞吐率优先的垃圾回收器：</li>
+</ol>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="constant">JAVA_OPTS</span>=<span class="string">"-Xms12G -Xmx12G -Xss1M -XX:+UseParallelGC"</span></div></pre></td></tr></tbody></table></figure>
+
+<ol>
+<li>V8引擎</li>
+</ol>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">node --nouse-idle-notification --expose-gc --<span class="keyword">max</span>-new-space-<span class="keyword">size</span>=<span class="number">1024</span> --<span class="keyword">max</span>-new-space-<span class="keyword">size</span>=<span class="number">2048</span> --<span class="keyword">max</span>-old-space-<span class="keyword">size</span>=<span class="number">8192</span> ./webserver.js</div></pre></td></tr></tbody></table></figure>
+
+<h4 id="OutOfMemory_Killer">OutOfMemory Killer</h4>
+<p>如果服务器本身内存不大，比如8G，在不到100万连接的情况下，你的服务器进程有可能出现"Killed"的问题。 运行<code>dmesg</code>可以看到</p>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">Out</span> <span class="keyword">of</span> memory: Kill <span class="keyword">process</span> <span class="number">10375</span> (java) score <span class="number">59</span> <span class="keyword">or</span> sacrifice child</div></pre></td></tr></tbody></table></figure>
+
+<p>这是Linux的OOM Killer主动杀死的。 开启oom-killer的话，在/proc/pid下对每个进程都会多出3个与oom打分调节相关的文件。临时对某个进程可以忽略oom-killer可以使用下面的方式:<br><code>echo -17 &gt; /proc/$(pidof java)/oom_adj</code><br>解决办法有多种，可以参看文章最后的参考文章,最好是换一个内存更大的机器。</p>
+<h3 id="客户端的参数调优">客户端的参数调优</h3>
+<p>在一台系统上，连接到一个远程服务时的本地端口是有限的。根据TCP/IP协议，由于端口是16位整数，也就只能是0到 65535，而0到1023是预留端口，所以能分配的端口只是1024到65534，也就是64511个。也就是说，一台机器一个IP只能创建六万多个长连接。<br>要想达到更多的客户端连接，可以用更多的机器或者网卡，也可以使用虚拟IP来实现,比如下面的命令增加了19个IP地址，其中一个给服务器用，其它18个给client,这样<br>可以产生18 * 60000 = 1080000个连接。</p>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="title">ifconfig</span> eth0:<span class="number">0</span> <span class="number">192.168.77.10</span> netmask <span class="number">255.255.255.0</span> up</div><div class="line">ifconfig eth0:<span class="number">1</span> <span class="number">192.168.77.11</span> netmask <span class="number">255.255.255.0</span> up</div><div class="line">ifconfig eth0:<span class="number">2</span> <span class="number">192.168.77.12</span> netmask <span class="number">255.255.255.0</span> up</div><div class="line">ifconfig eth0:<span class="number">3</span> <span class="number">192.168.77.13</span> netmask <span class="number">255.255.255.0</span> up</div><div class="line">ifconfig eth0:<span class="number">4</span> <span class="number">192.168.77.14</span> netmask <span class="number">255.255.255.0</span> up</div><div class="line">ifconfig eth0:<span class="number">5</span> <span class="number">192.168.77.15</span> netmask <span class="number">255.255.255.0</span> up</div><div class="line">ifconfig eth0:<span class="number">6</span> <span class="number">192.168.77.16</span> netmask <span class="number">255.255.255.0</span> up</div><div class="line">ifconfig eth0:<span class="number">7</span> <span class="number">192.168.77.17</span> netmask <span class="number">255.255.255.0</span> up</div><div class="line">ifconfig eth0:<span class="number">8</span> <span class="number">192.168.77.18</span> netmask <span class="number">255.255.255.0</span> up</div><div class="line">ifconfig eth0:<span class="number">9</span> <span class="number">192.168.77.19</span> netmask <span class="number">255.255.255.0</span> up</div><div class="line">ifconfig eth0:<span class="number">10</span> <span class="number">192.168.77.20</span> netmask <span class="number">255.255.255.0</span> up</div><div class="line">ifconfig eth0:<span class="number">11</span> <span class="number">192.168.77.21</span> netmask <span class="number">255.255.255.0</span> up</div><div class="line">ifconfig eth0:<span class="number">12</span> <span class="number">192.168.77.22</span> netmask <span class="number">255.255.255.0</span> up</div><div class="line">ifconfig eth0:<span class="number">13</span> <span class="number">192.168.77.23</span> netmask <span class="number">255.255.255.0</span> up</div><div class="line">ifconfig eth0:<span class="number">14</span> <span class="number">192.168.77.24</span> netmask <span class="number">255.255.255.0</span> up</div><div class="line">ifconfig eth0:<span class="number">15</span> <span class="number">192.168.77.25</span> netmask <span class="number">255.255.255.0</span> up</div><div class="line">ifconfig eth0:<span class="number">16</span> <span class="number">192.168.77.26</span> netmask <span class="number">255.255.255.0</span> up</div><div class="line">ifconfig eth0:<span class="number">17</span> <span class="number">192.168.77.27</span> netmask <span class="number">255.255.255.0</span> up</div><div class="line">ifconfig eth0:<span class="number">18</span> <span class="number">192.168.77.28</span> netmask <span class="number">255.255.255.0</span> up</div></pre></td></tr></tbody></table></figure>
+
+<p>修改<code>/etc/sysctl.conf</code>文件：</p>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">net.ipv4.ip_local_port_range </span>=<span class="string"> 1024 65535</span></div></pre></td></tr></tbody></table></figure>
+
+<p>执行<code>/sbin/sysctl -p</code>即时生效。</p>
+<h3 id="服务器测试">服务器测试</h3>
+<p>实际测试中我使用一台<strong>AWS C3.4xlarge (16 cores, 32G memory)</strong>作为应用服务器，两台<strong>AWS C3.2xlarge (8 cores, 16G memory)</strong>服务器作为客户端。<br>这两台机器作为测试客户端绰绰有余，每台客户端机器创建了十个内网虚拟IP, 每个IP创建60000个websocket连接。</p>
+<p><strong>客户端配置如下</strong>：<br><em><code>/etc/sysctl.conf</code>配置</em></p>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">fs.<span class="variable">file-max =</span> <span class="number">2000000</span></div><div class="line">fs.<span class="variable">nr_open =</span> <span class="number">2000000</span></div><div class="line">net.ipv4.<span class="variable">ip_local_port_range =</span> <span class="number">1024</span> <span class="number">65535</span></div></pre></td></tr></tbody></table></figure>
+
+<p><em><code>/etc/security/limits.conf</code>配置</em></p>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="bullet">* </span>soft    nofile      2000000</div><div class="line"><span class="bullet">* </span>hard    nofile      2000000</div><div class="line"></div><div class="line"><span class="bullet">* </span>soft nproc 2000000</div><div class="line"><span class="bullet">* </span>hard nproc 2000000</div></pre></td></tr></tbody></table></figure>
+
+<p><strong>服务端配置如下</strong>：<br><em><code>/etc/sysctl.conf</code>配置</em></p>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">fs.<span class="variable">file-max =</span> <span class="number">2000000</span></div><div class="line">fs.<span class="variable">nr_open =</span> <span class="number">2000000</span></div><div class="line">net.ipv4.<span class="variable">ip_local_port_range =</span> <span class="number">1024</span> <span class="number">65535</span></div></pre></td></tr></tbody></table></figure>
+
+<p><em><code>/etc/security/limits.conf</code>配置</em></p>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="bullet">* </span>soft    nofile      2000000</div><div class="line"><span class="bullet">* </span>hard    nofile      2000000</div><div class="line"></div><div class="line"><span class="bullet">* </span>soft nproc 2000000</div><div class="line"><span class="bullet">* </span>hard nproc 2000000</div></pre></td></tr></tbody></table></figure>
+
+<h4 id="Netty服务器">Netty服务器</h4>
+<ul>
+<li>建立120万个连接，不发送消息，轻轻松松达到。内存还剩14G未用。</li>
+</ul>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">[roocolobu ~]<span class="preprocessor"># ss -s; free -m</span></div><div class="line"><span class="label">Total:</span> <span class="number">1200231</span> (kernel <span class="number">1200245</span>)</div><div class="line"><span class="label">TCP:</span>   <span class="number">1200006</span> (estab <span class="number">1200002</span>, closed <span class="number">0</span>, orphaned <span class="number">0</span>, synrecv <span class="number">0</span>, timewait <span class="number">0</span>/<span class="number">0</span>), ports <span class="number">4</span></div><div class="line"></div><div class="line">Transport Total     IP        IPv6</div><div class="line">*         <span class="number">1200245</span>   -         -        </div><div class="line">RAW       <span class="number">0</span>         <span class="number">0</span>         <span class="number">0</span>        </div><div class="line">UDP       <span class="number">1</span>         <span class="number">1</span>         <span class="number">0</span>        </div><div class="line">TCP       <span class="number">1200006</span>   <span class="number">1200006</span>   <span class="number">0</span>        </div><div class="line">INET      <span class="number">1200007</span>   <span class="number">1200007</span>   <span class="number">0</span>        </div><div class="line">FRAG      <span class="number">0</span>         <span class="number">0</span>         <span class="number">0</span>        </div><div class="line"></div><div class="line">             total       used       free     shared    buffers     cached</div><div class="line"><span class="label">Mem:</span>         <span class="number">30074</span>      <span class="number">15432</span>      <span class="number">14641</span>          <span class="number">0</span>          <span class="number">9</span>        <span class="number">254</span></div><div class="line">-/+ buffers/cache:      <span class="number">15167</span>      <span class="number">14906</span></div><div class="line"><span class="label">Swap:</span>          <span class="number">815</span>          <span class="number">0</span>        <span class="number">815</span></div></pre></td></tr></tbody></table></figure>
+
+<ul>
+<li>每分钟给所有的120万个websocket发送一条消息，消息内容为当前的服务器的时间。这里发送显示是单线程发送，服务器发送完120万个总用时15秒左右。</li>
+</ul>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">02<span class="pseudo">:15</span><span class="pseudo">:43</span><span class="class">.307</span> <span class="attr_selector">[pool-1-thread-1]</span> <span class="tag">INFO</span>  <span class="tag">com</span><span class="class">.colobu</span><span class="class">.webtest</span><span class="class">.netty</span><span class="class">.WebServer</span>$ <span class="tag">-</span> <span class="tag">send</span> <span class="tag">msg</span> <span class="tag">to</span> <span class="tag">channels</span> <span class="tag">for</span> <span class="tag">c4453a26-bca6-42b6-b29b-43653767f9fc</span></div><div class="line">02<span class="pseudo">:15</span><span class="pseudo">:57</span><span class="class">.190</span> <span class="attr_selector">[pool-1-thread-1]</span> <span class="tag">INFO</span>  <span class="tag">com</span><span class="class">.colobu</span><span class="class">.webtest</span><span class="class">.netty</span><span class="class">.WebServer</span>$ <span class="tag">-</span> <span class="tag">sent</span> 1200000 <span class="tag">channels</span> <span class="tag">for</span> <span class="tag">c4453a26-bca6-42b6-b29b-43653767f9fc</span></div></pre></td></tr></tbody></table></figure>
+
+<p>发送时CPU使用率并不高，网络带宽占用基本在10M左右。</p>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">----total-cpu-usage---- -dsk/total- -net/total- ---paging-- ---system--</div><div class="line">usr sys idl wai hiq siq<span class="string">| read  writ| recv  send|  in   out | int   csw </span></div><div class="line">  <span class="number">0</span>   <span class="number">0</span> <span class="number">100</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span><span class="string">|   0     0 |  60B  540B|   0     0 | 224   440 </span></div><div class="line">  <span class="number">0</span>   <span class="number">0</span> <span class="number">100</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span><span class="string">|   0     0 |  60B  870B|   0     0 | 192   382 </span></div><div class="line">  <span class="number">0</span>   <span class="number">0</span> <span class="number">100</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span><span class="string">|   0     0 |  59k   74k|   0     0 |2306  2166 </span></div><div class="line">  <span class="number">2</span>   <span class="number">7</span>  <span class="number">87</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">4</span><span class="string">|   0     0 |4998k 6134k|   0     0 | 169k  140k</span></div><div class="line">  <span class="number">1</span>   <span class="number">7</span>  <span class="number">87</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">5</span><span class="string">|   0     0 |4996k 6132k|   0     0 | 174k  140k</span></div><div class="line">  <span class="number">1</span>   <span class="number">7</span>  <span class="number">87</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">5</span><span class="string">|   0     0 |4972k 6102k|   0     0 | 176k  140k</span></div><div class="line">  <span class="number">1</span>   <span class="number">7</span>  <span class="number">87</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">5</span><span class="string">|   0     0 |5095k 6253k|   0     0 | 178k  142k</span></div><div class="line">  <span class="number">2</span>   <span class="number">7</span>  <span class="number">87</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">5</span><span class="string">|   0     0 |5238k 6428k|   0     0 | 179k  144k</span></div><div class="line">  <span class="number">1</span>   <span class="number">7</span>  <span class="number">87</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">5</span><span class="string">|   0    24k|4611k 5660k|   0     0 | 166k  129k</span></div><div class="line">  <span class="number">1</span>   <span class="number">7</span>  <span class="number">87</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">5</span><span class="string">|   0     0 |5083k 6238k|   0     0 | 175k  142k</span></div><div class="line">  <span class="number">1</span>   <span class="number">7</span>  <span class="number">87</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">5</span><span class="string">|   0     0 |5277k 6477k|   0     0 | 179k  146k</span></div><div class="line">  <span class="number">1</span>   <span class="number">7</span>  <span class="number">87</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">5</span><span class="string">|   0     0 |5297k 6500k|   0     0 | 179k  146k</span></div><div class="line">  <span class="number">1</span>   <span class="number">7</span>  <span class="number">87</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">5</span><span class="string">|   0     0 |5383k 6607k|   0     0 | 180k  148k</span></div><div class="line">  <span class="number">1</span>   <span class="number">7</span>  <span class="number">87</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">5</span><span class="string">|   0     0 |5504k 6756k|   0     0 | 184k  152k</span></div><div class="line">  <span class="number">1</span>   <span class="number">7</span>  <span class="number">87</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">5</span><span class="string">|   0    48k|5584k 6854k|   0     0 | 183k  152k</span></div><div class="line">  <span class="number">1</span>   <span class="number">7</span>  <span class="number">87</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">5</span><span class="string">|   0     0 |5585k 6855k|   0     0 | 183k  153k</span></div><div class="line">  <span class="number">1</span>   <span class="number">7</span>  <span class="number">87</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">5</span><span class="string">|   0     0 |5589k 6859k|   0     0 | 184k  153k</span></div><div class="line">  <span class="number">1</span>   <span class="number">5</span>  <span class="number">91</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">3</span><span class="string">|   0     0 |4073k 4999k|   0     0 | 135k  110k</span></div><div class="line">  <span class="number">0</span>   <span class="number">0</span> <span class="number">100</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span><span class="string">|   0    32k|  60B  390B|   0     0 |4822   424</span></div></pre></td></tr></tbody></table></figure>
+
+<p>客户端(一共20个，这里选取其中一个查看它的指标)。每个客户端保持6万个连接。每个消息从服务器发送到客户端接收到总用时平均633毫秒，而且标准差很小，每个连接用时差不多。</p>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">Active WebSockets <span class="keyword">for</span> eb810c24-<span class="number">8565</span>-<span class="number">43</span><span class="keyword">ea</span>-bc27-<span class="number">9</span>a0b2c910ca4</div><div class="line">             <span class="built_in">count</span> = <span class="number">60000</span></div><div class="line">WebSocket Errors <span class="keyword">for</span> eb810c24-<span class="number">8565</span>-<span class="number">43</span><span class="keyword">ea</span>-bc27-<span class="number">9</span>a0b2c910ca4</div><div class="line">             <span class="built_in">count</span> = <span class="number">0</span></div><div class="line"></div><div class="line">-- Histograms ------------------------------------------------------------------</div><div class="line">Message latency <span class="keyword">for</span> eb810c24-<span class="number">8565</span>-<span class="number">43</span><span class="keyword">ea</span>-bc27-<span class="number">9</span>a0b2c910ca4</div><div class="line">             <span class="built_in">count</span> = <span class="number">693831</span></div><div class="line">               <span class="built_in">min</span> = <span class="number">627</span></div><div class="line">               <span class="built_in">max</span> = <span class="number">735</span></div><div class="line">              mean = <span class="number">633.06</span></div><div class="line">            stddev = <span class="number">9.61</span></div><div class="line">            median = <span class="number">631.00</span></div><div class="line">              <span class="number">75</span>% &lt;= <span class="number">633.00</span></div><div class="line">              <span class="number">95</span>% &lt;= <span class="number">640.00</span></div><div class="line">              <span class="number">98</span>% &lt;= <span class="number">651.00</span></div><div class="line">              <span class="number">99</span>% &lt;= <span class="number">670.00</span></div><div class="line">            <span class="number">99.9</span>% &lt;= <span class="number">735.00</span></div><div class="line"></div><div class="line">-- Meters ----------------------------------------------------------------------</div><div class="line">Message Rate <span class="keyword">for</span> eb810c24-<span class="number">8565</span>-<span class="number">43</span><span class="keyword">ea</span>-bc27-<span class="number">9</span>a0b2c910ca4</div><div class="line">             <span class="built_in">count</span> = <span class="number">693832</span></div><div class="line">         mean rate = <span class="number">32991.37</span> events/minute</div><div class="line">     <span class="number">1</span>-minute rate = <span class="number">60309.26</span> events/minute</div><div class="line">     <span class="number">5</span>-minute rate = <span class="number">53523.45</span> events/minute</div><div class="line">    <span class="number">15</span>-minute rate = <span class="number">31926.26</span> events/minute</div></pre></td></tr></tbody></table></figure>
+
+<p>平均每个client的RPS = 1000, 总的RPS大约为 20000 requests /seconds.<br>latency平均值为633 ms，最长735 ms，最短627ms。</p>
+<h4 id="Spray服务器">Spray服务器</h4>
+<ul>
+<li>建立120万个连接，不发送消息，轻轻松松达到。它的内存相对较高，内存还剩7G。</li>
+</ul>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">[root@colobu ~]<span class="preprocessor"># ss -s; free -m</span></div><div class="line"><span class="label">Total:</span> <span class="number">1200234</span> (kernel <span class="number">1200251</span>)</div><div class="line"><span class="label">TCP:</span>   <span class="number">1200006</span> (estab <span class="number">1200002</span>, closed <span class="number">0</span>, orphaned <span class="number">0</span>, synrecv <span class="number">0</span>, timewait <span class="number">0</span>/<span class="number">0</span>), ports <span class="number">4</span></div><div class="line"></div><div class="line">Transport Total     IP        IPv6</div><div class="line">*         <span class="number">1200251</span>   -         -        </div><div class="line">RAW       <span class="number">0</span>         <span class="number">0</span>         <span class="number">0</span>        </div><div class="line">UDP       <span class="number">1</span>         <span class="number">1</span>         <span class="number">0</span>        </div><div class="line">TCP       <span class="number">1200006</span>   <span class="number">1200006</span>   <span class="number">0</span>        </div><div class="line">INET      <span class="number">1200007</span>   <span class="number">1200007</span>   <span class="number">0</span>        </div><div class="line">FRAG      <span class="number">0</span>         <span class="number">0</span>         <span class="number">0</span>        </div><div class="line"></div><div class="line">             total       used       free     shared    buffers     cached</div><div class="line"><span class="label">Mem:</span>         <span class="number">30074</span>      <span class="number">22371</span>       <span class="number">7703</span>          <span class="number">0</span>         <span class="number">10</span>        <span class="number">259</span></div><div class="line">-/+ buffers/cache:      <span class="number">22100</span>       <span class="number">7973</span></div><div class="line"><span class="label">Swap:</span>          <span class="number">815</span>          <span class="number">0</span>        <span class="number">815</span></div></pre></td></tr></tbody></table></figure>
+
+<ul>
+<li>每分钟给所有的120万个websocket发送一条消息，消息内容为当前的服务器的时间。<br>CPU使用较高，发送很快，带宽可以达到46M。群发完一次大约需要8秒左右。</li>
+</ul>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="number">05</span>/<span class="number">22</span> <span class="number">04</span>:<span class="number">42</span>:<span class="number">57.569</span> <span class="type">INFO</span> [ool-<span class="number">2</span>-worker-<span class="number">15</span>] <span class="built_in">c</span>.<span class="built_in">c</span>.w.s.<span class="type">WebServer</span> - send msg to workers 。<span class="keyword">for</span> 8454e7d8-b8ca-<span class="number">4881</span>-912b-6cdf3e6787bf</div><div class="line"><span class="number">05</span>/<span class="number">22</span> <span class="number">04</span>:<span class="number">43</span>:<span class="number">05.279</span> <span class="type">INFO</span> [ool-<span class="number">2</span>-worker-<span class="number">15</span>] <span class="built_in">c</span>.<span class="built_in">c</span>.w.s.<span class="type">WebServer</span> - sent msg to workers <span class="keyword">for</span> 8454e7d8-b8ca-<span class="number">4881</span>-912b-6cdf3e6787bf. current workers: <span class="number">1200000</span></div></pre></td></tr></tbody></table></figure>
+
+
+
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">----total-cpu-usage---- -dsk/total- -net/total- ---paging-- ---system--</div><div class="line">usr sys idl wai hiq siq<span class="string">| read  writ| recv  send|  in   out | int   csw </span></div><div class="line"> <span class="number">74</span>   <span class="number">9</span>  <span class="number">14</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">3</span><span class="string">|   0    24k|6330k   20M|   0     0 |  20k 1696 </span></div><div class="line"> <span class="number">70</span>  <span class="number">23</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">6</span><span class="string">|   0    64k|  11M   58M|   0     0 |  18k 2526 </span></div><div class="line"> <span class="number">75</span>  <span class="number">11</span>   <span class="number">6</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">7</span><span class="string">|   0     0 |9362k   66M|   0     0 |  24k   11k</span></div><div class="line"> <span class="number">82</span>   <span class="number">4</span>   <span class="number">8</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">6</span><span class="string">|   0     0 |  11M   35M|   0     0 |  24k   10k</span></div><div class="line"> <span class="number">85</span>   <span class="number">0</span>  <span class="number">14</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">1</span><span class="string">|   0     0 |8334k   12M|   0     0 |  44k  415 </span></div><div class="line"> <span class="number">84</span>   <span class="number">0</span>  <span class="number">15</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">1</span><span class="string">|   0     0 |9109k   16M|   0     0 |  36k  425 </span></div><div class="line"> <span class="number">81</span>   <span class="number">0</span>  <span class="number">19</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span><span class="string">|   0    24k| 919k  858k|   0     0 |  23k  629 </span></div><div class="line"> <span class="number">76</span>   <span class="number">0</span>  <span class="number">23</span>   <span class="number">0</span>   <span class="number">0</span>   <span class="number">0</span><span class="string">|   0     0 | 151k  185k|   0     0 |  18k 1075</span></div></pre></td></tr></tbody></table></figure>
+
+<p>客户端(一共20个，这里选取其中一个查看它的指标)。每个客户端保持6万个连接。每个消息从服务器发送到客户端接收到总用时平均1412毫秒，而且标准差较大，每个连接用时差别较大。</p>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">Active WebSockets for <span class="number">6674</span>c9d8-<span class="number">24</span>c6-<span class="number">4</span>e77-<span class="number">9</span>fc0-<span class="number">58</span>afabe7436f</div><div class="line">             <span class="variable">count =</span> <span class="number">60000</span></div><div class="line">WebSocket Errors for <span class="number">6674</span>c9d8-<span class="number">24</span>c6-<span class="number">4</span>e77-<span class="number">9</span>fc0-<span class="number">58</span>afabe7436f</div><div class="line">             <span class="variable">count =</span> <span class="number">0</span></div><div class="line"></div><div class="line">-- Histograms ------------------------------------------------------------------</div><div class="line">Message latency for <span class="number">6674</span>c9d8-<span class="number">24</span>c6-<span class="number">4</span>e77-<span class="number">9</span>fc0-<span class="number">58</span>afabe7436f</div><div class="line">             <span class="variable">count =</span> <span class="number">454157</span></div><div class="line">               <span class="variable">min =</span> <span class="number">716</span></div><div class="line">               <span class="variable">max =</span> <span class="number">9297</span></div><div class="line">              <span class="variable">mean =</span> <span class="number">1412.77</span></div><div class="line">            <span class="variable">stddev =</span> <span class="number">1102.64</span></div><div class="line">            <span class="variable">median =</span> <span class="number">991.00</span></div><div class="line">              <span class="number">75</span>% &lt;= <span class="number">1449.00</span></div><div class="line">              <span class="number">95</span>% &lt;= <span class="number">4136.00</span></div><div class="line">              <span class="number">98</span>% &lt;= <span class="number">4951.00</span></div><div class="line">              <span class="number">99</span>% &lt;= <span class="number">5308.00</span></div><div class="line">            <span class="number">99.9</span>% &lt;= <span class="number">8854.00</span></div><div class="line"></div><div class="line">-- Meters ----------------------------------------------------------------------</div><div class="line">Message Rate for <span class="number">6674</span>c9d8-<span class="number">24</span>c6-<span class="number">4</span>e77-<span class="number">9</span>fc0-<span class="number">58</span>afabe7436f</div><div class="line">             <span class="variable">count =</span> <span class="number">454244</span></div><div class="line">         mean <span class="variable">rate =</span> <span class="number">18821.51</span> events/minute</div><div class="line">     <span class="number">1</span>-minute <span class="variable">rate =</span> <span class="number">67705.18</span> events/minute</div><div class="line">     <span class="number">5</span>-minute <span class="variable">rate =</span> <span class="number">49917.79</span> events/minute</div><div class="line">    <span class="number">15</span>-minute <span class="variable">rate =</span> <span class="number">24355.57</span> events/minute</div></pre></td></tr></tbody></table></figure>
+
+<h4 id="Undertow">Undertow</h4>
+<ul>
+<li>建立120万个连接，不发送消息，轻轻松松达到。内存占用较少，还剩余11G内存。</li>
+</ul>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">[root@colobu ~]<span class="preprocessor"># ss -s; free -m</span></div><div class="line"><span class="label">Total:</span> <span class="number">1200234</span> (kernel <span class="number">1200240</span>)</div><div class="line"><span class="label">TCP:</span>   <span class="number">1200006</span> (estab <span class="number">1200002</span>, closed <span class="number">0</span>, orphaned <span class="number">0</span>, synrecv <span class="number">0</span>, timewait <span class="number">0</span>/<span class="number">0</span>), ports <span class="number">4</span></div><div class="line"></div><div class="line">Transport Total     IP        IPv6</div><div class="line">*         <span class="number">1200240</span>   -         -        </div><div class="line">RAW       <span class="number">0</span>         <span class="number">0</span>         <span class="number">0</span>        </div><div class="line">UDP       <span class="number">1</span>         <span class="number">1</span>         <span class="number">0</span>        </div><div class="line">TCP       <span class="number">1200006</span>   <span class="number">1200006</span>   <span class="number">0</span>        </div><div class="line">INET      <span class="number">1200007</span>   <span class="number">1200007</span>   <span class="number">0</span>        </div><div class="line">FRAG      <span class="number">0</span>         <span class="number">0</span>         <span class="number">0</span>        </div><div class="line"></div><div class="line">             total       used       free     shared    buffers     cached</div><div class="line"><span class="label">Mem:</span>         <span class="number">30074</span>      <span class="number">18497</span>      <span class="number">11576</span>          <span class="number">0</span>         <span class="number">10</span>        <span class="number">286</span></div><div class="line">-/+ buffers/cache:      <span class="number">18200</span>      <span class="number">11873</span></div><div class="line"><span class="label">Swap:</span>          <span class="number">815</span>          <span class="number">0</span>        <span class="number">815</span></div></pre></td></tr></tbody></table></figure>
+
+<ul>
+<li>每分钟给所有的120万个websocket发送一条消息，消息内容为当前的服务器的时间。<br>群发玩一次大约需要15秒。</li>
+</ul>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">03<span class="pseudo">:19</span><span class="pseudo">:31</span><span class="class">.154</span> <span class="attr_selector">[pool-1-thread-1]</span> <span class="tag">INFO</span>  <span class="tag">c</span><span class="class">.colobu</span><span class="class">.webtest</span><span class="class">.undertow</span><span class="class">.WebServer</span>$ <span class="tag">-</span> <span class="tag">send</span> <span class="tag">msg</span> <span class="tag">to</span> <span class="tag">channels</span> <span class="tag">for</span> <span class="tag">d9b450da-2631-42bc-a802-44285f63a62d</span></div><div class="line">03<span class="pseudo">:19</span><span class="pseudo">:46</span><span class="class">.755</span> <span class="attr_selector">[pool-1-thread-1]</span> <span class="tag">INFO</span>  <span class="tag">c</span><span class="class">.colobu</span><span class="class">.webtest</span><span class="class">.undertow</span><span class="class">.WebServer</span>$ <span class="tag">-</span> <span class="tag">sent</span> 1200000 <span class="tag">channels</span> <span class="tag">for</span> <span class="tag">d9b450da-2631-42bc-a802-44285f63a62d</span></div></pre></td></tr></tbody></table></figure>
+
+<p>客户端(一共20个，这里选取其中一个查看它的指标)。每个客户端保持6万个连接。每个消息从服务器发送到客户端接收到总用时平均672毫秒，而且标准差较小，每个连接用时差别不大。</p>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">Active WebSockets <span class="keyword">for</span> b2e95e8d-b17a-<span class="number">4</span>cfa-<span class="number">94</span>d5-e70832034d4d</div><div class="line">             count = <span class="number">60000</span></div><div class="line">WebSocket Errors <span class="keyword">for</span> b2e95e8d-b17a-<span class="number">4</span>cfa-<span class="number">94</span>d5-e70832034d4d</div><div class="line">             count = <span class="number">0</span></div><div class="line"></div><div class="line">-- Histograms ------------------------------------------------------------------</div><div class="line">Message latency <span class="keyword">for</span> b2e95e8d-b17a-<span class="number">4</span>cfa-<span class="number">94</span>d5-e70832034d4d</div><div class="line">             count = <span class="number">460800</span></div><div class="line">               min = <span class="number">667</span></div><div class="line">               max = <span class="number">781</span></div><div class="line">              mean = <span class="number">672.12</span></div><div class="line">            stddev = <span class="number">5.90</span></div><div class="line">            median = <span class="number">671.00</span></div><div class="line">              <span class="number">75</span><span class="comment">% &lt;= 672.00</span></div><div class="line">              <span class="number">95</span><span class="comment">% &lt;= 678.00</span></div><div class="line">              <span class="number">98</span><span class="comment">% &lt;= 684.00</span></div><div class="line">              <span class="number">99</span><span class="comment">% &lt;= 690.00</span></div><div class="line">            <span class="number">99.9</span><span class="comment">% &lt;= 776.00</span></div><div class="line"></div><div class="line">-- Meters ----------------------------------------------------------------------</div><div class="line">Message Rate <span class="keyword">for</span> b2e95e8d-b17a-<span class="number">4</span>cfa-<span class="number">94</span>d5-e70832034d4d</div><div class="line">             count = <span class="number">460813</span></div><div class="line">         mean rate = <span class="number">27065.85</span> <span class="keyword">events</span>/minute</div><div class="line">     <span class="number">1</span>-minute rate = <span class="number">69271.67</span> <span class="keyword">events</span>/minute</div><div class="line">     <span class="number">5</span>-minute rate = <span class="number">48641.78</span> <span class="keyword">events</span>/minute</div><div class="line">    <span class="number">15</span>-minute rate = <span class="number">24128.67</span> <span class="keyword">events</span>/minute</div><div class="line">Setup Rate <span class="keyword">for</span> b2e95e8d-b17a-<span class="number">4</span>cfa-<span class="number">94</span>d5-e70832034d4d</div></pre></td></tr></tbody></table></figure>
+
+<h4 id="node-js">node.js</h4>
+<p>node.js不是我要考虑的框架，列在这里只是作为参考。性能也不错。</p>
+<figure class="highlight"><table><tbody><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">Active WebSockets for <span class="number">537</span>c7f0d-e58b-<span class="number">4996</span>-b29e-<span class="number">098</span>fe2682dcf</div><div class="line">             <span class="variable">count =</span> <span class="number">60000</span></div><div class="line">WebSocket Errors for <span class="number">537</span>c7f0d-e58b-<span class="number">4996</span>-b29e-<span class="number">098</span>fe2682dcf</div><div class="line">             <span class="variable">count =</span> <span class="number">0</span></div><div class="line"></div><div class="line">-- Histograms ------------------------------------------------------------------</div><div class="line">Message latency for <span class="number">537</span>c7f0d-e58b-<span class="number">4996</span>-b29e-<span class="number">098</span>fe2682dcf</div><div class="line">             <span class="variable">count =</span> <span class="number">180000</span></div><div class="line">               <span class="variable">min =</span> <span class="number">808</span></div><div class="line">               <span class="variable">max =</span> <span class="number">847</span></div><div class="line">              <span class="variable">mean =</span> <span class="number">812.10</span></div><div class="line">            <span class="variable">stddev =</span> <span class="number">1.95</span></div><div class="line">            <span class="variable">median =</span> <span class="number">812.00</span></div><div class="line">              <span class="number">75</span>% &lt;= <span class="number">812.00</span></div><div class="line">              <span class="number">95</span>% &lt;= <span class="number">813.00</span></div><div class="line">              <span class="number">98</span>% &lt;= <span class="number">814.00</span></div><div class="line">              <span class="number">99</span>% &lt;= <span class="number">815.00</span></div><div class="line">            <span class="number">99.9</span>% &lt;= <span class="number">847.00</span></div><div class="line"></div><div class="line">-- Meters ----------------------------------------------------------------------</div><div class="line">Message Rate for <span class="number">537</span>c7f0d-e58b-<span class="number">4996</span>-b29e-<span class="number">098</span>fe2682dcf</div><div class="line">             <span class="variable">count =</span> <span class="number">180000</span></div><div class="line">         mean <span class="variable">rate =</span> <span class="number">7191.98</span> events/minute</div><div class="line">     <span class="number">1</span>-minute <span class="variable">rate =</span> <span class="number">10372.33</span> events/minute</div><div class="line">     <span class="number">5</span>-minute <span class="variable">rate =</span> <span class="number">16425.78</span> events/minute</div><div class="line">    <span class="number">15</span>-minute <span class="variable">rate =</span> <span class="number">9080.53</span> events/minute</div></pre></td></tr></tbody></table></figure>
+
+<h3 id="参考文档">参考文档</h3>
+<ol>
+<li><a href="http://www.linuxde.net/2013/08/15150.html" target="_blank" rel="external">HTTP长连接200万尝试及调优</a></li>
+<li><a href="http://blog.csdn.net/superchanon/article/details/13303705" target="_blank" rel="external">Linux最大打开文件描述符数 </a></li>
+<li><a href="http://www.blogjava.net/yongboy/archive/2013/04/11/397677.html" target="_blank" rel="external">100万并发连接服务器笔记之1M并发连接目标达成</a></li>
+<li><a href="http://www.zhihu.com/question/20831000" target="_blank" rel="external">知乎：如何实现单服务器300万个长连接的？</a></li>
+<li><a href="http://www.ideawu.net/blog/archives/740.html" target="_blank" rel="external">构建C1000K的服务器</a></li>
+<li><a href="http://www.csdn.net/article/2013-05-16/2815317-The-Secret-to-10M-Concurrent-Connections" target="_blank" rel="external">千万级并发实现的秘密</a></li>
+<li><a href="http://blog.csdn.net/solstice/article/details/26363901" target="_blank" rel="external">C1000k 新思路：用户态 TCP/IP 协议栈</a></li>
+<li><a href="https://github.com/xiaojiaqi/C1000kPracticeGuide" target="_blank" rel="external">https://github.com/xiaojiaqi/C1000kPracticeGuide</a></li>
+<li><a href="http://www.jayway.com/2015/04/13/600k-concurrent-websocket-connections-on-aws-using-node-js/" target="_blank" rel="external">600k concurrent websocket connections on AWS using Node.js</a></li>
+<li><a href="https://plumbr.eu/blog/memory-leaks/out-of-memory-kill-process-or-sacrifice-child?utm_source=feedly&amp;utm_reader=feedly&amp;utm_medium=rss&amp;utm_campaign=rss" target="_blank" rel="external">https://plumbr.eu/blog/memory-leaks/out-of-memory-kill-process-or-sacrifice-child?utm_source=feedly&amp;utm_reader=feedly&amp;utm_medium=rss&amp;utm_campaign=rss</a></li>
+<li><a href="http://it.deepinmind.com/java/2014/06/12/out-of-memory-kill-process-or-sacrifice-child.html" target="_blank" rel="external">http://it.deepinmind.com/java/2014/06/12/out-of-memory-kill-process-or-sacrifice-child.html</a></li>
+<li><a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Performance_Tuning_Guide/s-memory-captun.html" target="_blank" rel="external">https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Performance_Tuning_Guide/s-memory-captun.html</a></li>
+<li><a href="http://www.nateware.com/linux-network-tuning-for-2013.html#.VV0s6kawqgQ" target="_blank" rel="external">http://www.nateware.com/linux-network-tuning-for-2013.html#.VV0s6kawqgQ</a></li>
+<li><a href="http://warmjade.blogspot.jp/2014_03_22_archive.html" target="_blank" rel="external">http://warmjade.blogspot.jp/2014_03_22_archive.html</a></li>
+<li><a href="http://mp.weixin.qq.com/s?__biz=MjM5NzAwNDI4Mg==&amp;mid=209282398&amp;idx=1&amp;sn=9ffef32b3ab93d1e239c9dc753a3a9bb" target="_blank" rel="external">http://mp.weixin.qq.com/s?__biz=MjM5NzAwNDI4Mg==&amp;mid=209282398&amp;idx=1&amp;sn=9ffef32b3ab93d1e239c9dc753a3a9bb</a></li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+	
+<div class="bdsharebuttonbox bdshare-button-style0-24" data-bd-bind="1494470979843"><a title="分享到新浪微博" class="bds_tsina" href="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/#" data-cmd="tsina"></a><a title="分享到微信" class="bds_weixin" href="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/#" data-cmd="weixin"></a><a title="分享到QQ空间" class="bds_qzone" href="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/#" data-cmd="qzone"></a><a title="分享到印象笔记" class="bds_evernotecn" href="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/#" data-cmd="evernotecn"></a><a title="分享到有道云笔记" class="bds_youdao" href="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/#" data-cmd="youdao"></a><a title="分享到百度云收藏" class="bds_bdysc" href="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/#" data-cmd="bdysc"></a><a class="bds_more" href="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/#" data-cmd="more"></a></div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+      
+
+	  
+        <a href="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/#comments" class="article-comment-link">评论</a>
+      
+
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="http://colobu.com/tags/netty/">netty</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="http://colobu.com/tags/node-js/">node.js</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="http://colobu.com/tags/spray/">spray</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="http://colobu.com/tags/undertow/">undertow</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="http://colobu.com/2015/05/28/Akka-actor-scheduling/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          akka actor的运行原理
+        
+      </div>
+    </a>
+  
+  
+    <a href="http://colobu.com/2015/05/22/Mean-Mode-Median-and-Standard-Deviation/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">平均值，众数，中值和标准差</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<section id="comments">
+<div id="cloud-tie-wrapper" class="cloud-tie-wrapper"><div id="yun-tie-sdk-wrap"><div class="tie-title-bar"><span class="tie-title">网友跟贴</span><div class="active-wrap"><span class="tie-actCount">35</span><span class="tie-join-txt">人参与</span></div></div><div class="tie-input-bar"><div class="input-box" ne-id="tieBox" ne-tmpl="formTpl"><textarea rows="8" cols="80" class="tie-textarea" name="content" ne-focus="hideInputTip()" ne-blur="showInputTip()" ne-model="boxTie.content"></textarea><div class="input-tips" ne-click="hideInputTip()">抵制低俗，文明上网，登录发贴</div><div class="tie-submit-row"><div class="user-bar" ne-id="userBar" ne-tmpl="userBar"><div class="tie-quick-login flt-lft"><span class="quick-txt">快速登录：</span><span class="icon i-mail" title="邮箱账号登录" ne-click="showLoginWin()" ne-stat="stat(type-163Login|area-2)"></span><span class="icon i-weibo" title="微博账号登录" ne-click="thirdOauth(https://reg.163.com/outerLogin/oauth2/connect.do?target=3&amp;product=gentie&amp;url=https://api.gentie.163.com/pc/refresh.html&amp;url2=https://api.gentie.163.com/pc/refresh.html)" ne-stat="stat(type-sinaLogin|area-2)"></span><span class="icon i-qq" title="QQ账号登录" ne-click="thirdOauth(https://reg.163.com/outerLogin/oauth2/connect.do?target=1&amp;product=gentie&amp;url=https://api.gentie.163.com/pc/refresh.html&amp;url2=https://api.gentie.163.com/pc/refresh.html)" ne-stat="stat(type-qqLogin|area-2)"></span></div></div><span class="tie-submit-btn" ne-click="submitTie()"><i class="icon"></i>发表跟贴</span><div ne-id="tipBox" ne-tmpl="tipTpl" ne-data=""></div></div></div></div><div class="tie-tab-bar"><ul><li class="z-fcs" ne-click="changeTab(xin)" ne-stat="stat(type-newList|area-2)"><span>最新</span></li></ul><p class="promote-txt" ne-stat="stat(type-wordsLink|area-2)"></p></div><div class="tie-panel-bar"><div class="panel-new" style="display: block;"><div class="tie-list" style="display: block;"><div class="single-tie"><div class="photo" ne-click="showIwin(5)" ne-stat="stat(type-avatar|area-2|userId-|loginType-)"><img src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/photo_default_62.png.39x39.100.jpg"></div><div class="tie-bdy"><div class="bdy-inner"><div class="tie-author"><span class="name-nick" ne-click="showIwin(5)" ne-stat="stat(type-nickname|area-2|userId-|loginType-)">有态度网友06GrGz</span><span class="name-desp">[鸟窝香港网友]</span><span class="tie-time">2017-03-10 11:41:16</span></div><div class="floor-tie"><div class="floor-tie"><div class="floor-tie"><div class="floor-tie"><div class="floor-tie-self"><div class="tie-author"><span class="name-nick" ne-click="showIwin(1)" ne-stat="stat(type-nickname|area-2|userId-|loginType-)">有态度网友06GrGz</span><span class="name-desp">[鸟窝香港网友]</span><span class="floor-NO">1</span></div><p class="tie-cnt">菜鸟有几个问题想请教一下作者。<br>客户端创建虚拟IP时有一句话不理解，“其中一个给服务器用，其它18个给client”，这里给服务器怎么用啊？linux不很熟，是跟NAT有关吗？<br>比如我建的虚拟ip如下：<br>ifconfig eth0:0 192.168.55.10 netmask 255.255.255.0 up<br>ifconfig eth0:1 192.168.55.11 netmask 255.255.255.0 up<br>...<br>按照作者的意思，应该还有一步是把这个给服务器用的虚拟IP跟服务器的真实IP联系起来对吗？如果是的话，这里应该怎么做？能给出具体的操作步骤吗？非常感谢！<br>我自己用netty写的服务端和客户端。客户端代码如下：<br>bootstrap.bind(new InetSocketAddress(localIp, 0));//localIp为虚拟IP<br>for (int i = 0; i  clientCount; i++){<br>    ChannelFuture f = bootstrap.connect(serverIp, serverPort).sync();//这里的serverIP是传入实际的服务器ip对把？<br>    ...<br>}</p><div ne-id="toolBar" ne-tmpl="operateTpl" ne-data="1"><div class="tool-bar "><div ne-click="upTie(1)" ne-id="upTie:1" ne-tmpl="upTieTpl" ne-data="1" class=""><span class="icon i-up"></span><span class="u-num">0</span></div><div ne-click="downTie(1)" ne-id="downTie:1" ne-tmpl="downTieTpl" ne-data="1" class=""><span class="icon i-down"></span><span class="u-num">0</span></div><span class="i-split">|</span><div class="ygt-share-btn" ne-click="shareWin(1)" ne-stat="stat(type-share|area-2|commentId-631245230)" ne-id="shareBtn" ne-tmpl="shareTieTpl" ne-data="1"><span class="">分享</span></div><span class="i-split">|</span><div ne-click="buildReplyBox(1)" ne-stat="stat(type-replyClick|area-2)"><span class="">回复</span></div></div><div ne-id="replyBox" ne-tmpl="&gt;replyTpl" ne-data="1"></div></div></div></div><div class="floor-tie-self"><div class="tie-author"><span class="name-nick" ne-click="showIwin(2)" ne-stat="stat(type-nickname|area-2|userId-|loginType-)">有态度网友06GrDl</span><span class="name-desp">[鸟窝北京市网友]</span><span class="floor-NO">2</span></div><p class="tie-cnt">比如服务器用192.168.55.10， 客户端用192.168.55.11 ~ 192.168.55.28</p><div ne-id="toolBar" ne-tmpl="operateTpl" ne-data="2"><div class="tool-bar "><div ne-click="upTie(2)" ne-id="upTie:2" ne-tmpl="upTieTpl" ne-data="2" class=""><span class="icon i-up"></span><span class="u-num">0</span></div><div ne-click="downTie(2)" ne-id="downTie:2" ne-tmpl="downTieTpl" ne-data="2" class=""><span class="icon i-down"></span><span class="u-num">0</span></div><span class="i-split">|</span><div class="ygt-share-btn" ne-click="shareWin(2)" ne-stat="stat(type-share|area-2|commentId-631245231)" ne-id="shareBtn" ne-tmpl="shareTieTpl" ne-data="2"><span class="">分享</span></div><span class="i-split">|</span><div ne-click="buildReplyBox(2)" ne-stat="stat(type-replyClick|area-2)"><span class="">回复</span></div></div><div ne-id="replyBox" ne-tmpl="&gt;replyTpl" ne-data="2"></div></div></div></div><div class="floor-tie-self"><div class="tie-author"><span class="name-nick" ne-click="showIwin(3)" ne-stat="stat(type-nickname|area-2|userId-|loginType-)">有态度网友06GrGz</span><span class="name-desp">[鸟窝香港网友]</span><span class="floor-NO">3</span></div><p class="tie-cnt">不好意思还是不太明白- -！这里从10-28都是在客户端机器上虚拟出来的IP地址对吧？比如我有两台机器AB，A作为服务端，真实IP是IP1，上面放了我的服务端程序。B作为客户端，真实IP是IP2，上面有创建了19个虚拟IP。客户端程序在连接服务端时分别绑定本地18个虚拟IP，那么另外一个虚拟IP是如何给服务端用的呢？</p><div ne-id="toolBar" ne-tmpl="operateTpl" ne-data="3"><div class="tool-bar "><div ne-click="upTie(3)" ne-id="upTie:3" ne-tmpl="upTieTpl" ne-data="3" class=""><span class="icon i-up"></span><span class="u-num">0</span></div><div ne-click="downTie(3)" ne-id="downTie:3" ne-tmpl="downTieTpl" ne-data="3" class=""><span class="icon i-down"></span><span class="u-num">0</span></div><span class="i-split">|</span><div class="ygt-share-btn" ne-click="shareWin(3)" ne-stat="stat(type-share|area-2|commentId-631245232)" ne-id="shareBtn" ne-tmpl="shareTieTpl" ne-data="3"><span class="">分享</span></div><span class="i-split">|</span><div ne-click="buildReplyBox(3)" ne-stat="stat(type-replyClick|area-2)"><span class="">回复</span></div></div><div ne-id="replyBox" ne-tmpl="&gt;replyTpl" ne-data="3"></div></div></div></div><div class="floor-tie-self"><div class="tie-author"><span class="name-nick" ne-click="showIwin(4)" ne-stat="stat(type-nickname|area-2|userId-|loginType-)">有态度网友06GrDl</span><span class="name-desp">[鸟窝北京市网友]</span><span class="floor-NO">4</span></div><p class="tie-cnt">另一个虚拟IP在A上创建,让服务器使用。相当于在你的本地网络上创建了一个VLAN。</p><div ne-id="toolBar" ne-tmpl="operateTpl" ne-data="4"><div class="tool-bar "><div ne-click="upTie(4)" ne-id="upTie:4" ne-tmpl="upTieTpl" ne-data="4" class=""><span class="icon i-up"></span><span class="u-num">0</span></div><div ne-click="downTie(4)" ne-id="downTie:4" ne-tmpl="downTieTpl" ne-data="4" class=""><span class="icon i-down"></span><span class="u-num">0</span></div><span class="i-split">|</span><div class="ygt-share-btn" ne-click="shareWin(4)" ne-stat="stat(type-share|area-2|commentId-631245233)" ne-id="shareBtn" ne-tmpl="shareTieTpl" ne-data="4"><span class="">分享</span></div><span class="i-split">|</span><div ne-click="buildReplyBox(4)" ne-stat="stat(type-replyClick|area-2)"><span class="">回复</span></div></div><div ne-id="replyBox" ne-tmpl="&gt;replyTpl" ne-data="4"></div></div></div></div><p class="tie-cnt">折腾了一阵，两台机器不在同一网段，虚拟ip是不是玩不转了... - -#</p><div ne-id="toolBar" ne-tmpl="operateTpl" ne-data="5"><div class="tool-bar "><div ne-click="upTie(5)" ne-id="upTie:5" ne-tmpl="upTieTpl" ne-data="5" class=""><span class="icon i-up"></span><span class="u-num">0</span></div><div ne-click="downTie(5)" ne-id="downTie:5" ne-tmpl="downTieTpl" ne-data="5" class=""><span class="icon i-down"></span><span class="u-num">0</span></div><span class="i-split">|</span><div class="ygt-share-btn" ne-click="shareWin(5)" ne-stat="stat(type-share|area-2|commentId-631245234)" ne-id="shareBtn" ne-tmpl="shareTieTpl" ne-data="5"><span class="">分享</span></div><span class="i-split">|</span><div ne-click="buildReplyBox(5)" ne-stat="stat(type-replyClick|area-2)"><span class="">回复</span></div></div><div ne-id="replyBox" ne-tmpl="&gt;replyTpl" ne-data="5"></div></div></div></div></div><div class="single-tie"><div class="photo" ne-click="showIwin(6)" ne-stat="stat(type-avatar|area-2|userId-|loginType-)"><img src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/photo_default_62.png.39x39.100.jpg"></div><div class="tie-bdy"><div class="bdy-inner"><div class="tie-author"><span class="name-nick" ne-click="showIwin(6)" ne-stat="stat(type-nickname|area-2|userId-|loginType-)">有态度网友06GrFv</span><span class="name-desp">[鸟窝美国网友]</span><span class="tie-time">2016-08-15 13:14:48</span></div><p class="tie-cnt">能请教一下你后面给出Histograms以及Meters这些数据是用什么命令或者工具生成的么？谢谢:)</p><div ne-id="toolBar" ne-tmpl="operateTpl" ne-data="6"><div class="tool-bar "><div ne-click="upTie(6)" ne-id="upTie:6" ne-tmpl="upTieTpl" ne-data="6" class=""><span class="icon i-up"></span><span class="u-num">0</span></div><div ne-click="downTie(6)" ne-id="downTie:6" ne-tmpl="downTieTpl" ne-data="6" class=""><span class="icon i-down"></span><span class="u-num">0</span></div><span class="i-split">|</span><div class="ygt-share-btn" ne-click="shareWin(6)" ne-stat="stat(type-share|area-2|commentId-631245191)" ne-id="shareBtn" ne-tmpl="shareTieTpl" ne-data="6"><span class="">分享</span></div><span class="i-split">|</span><div ne-click="buildReplyBox(6)" ne-stat="stat(type-replyClick|area-2)"><span class="">回复</span></div></div><div ne-id="replyBox" ne-tmpl="&gt;replyTpl" ne-data="6"></div></div></div></div></div><div class="single-tie"><div class="photo" ne-click="showIwin(7)" ne-stat="stat(type-avatar|area-2|userId-|loginType-)"><img src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/photo_default_62.png.39x39.100.jpg"></div><div class="tie-bdy"><div class="bdy-inner"><div class="tie-author"><span class="name-nick" ne-click="showIwin(7)" ne-stat="stat(type-nickname|area-2|userId-|loginType-)">magicdawn</span><span class="name-desp">[鸟窝北京市网友]</span><span class="tie-time">2016-08-10 15:25:27</span></div><p class="tie-cnt">4实例 * 每实例 3GB = 12GB, 40W连接, server 是 sails 里面自带的 socket.io + 一小段业务代码...</p><div ne-id="toolBar" ne-tmpl="operateTpl" ne-data="7"><div class="tool-bar "><div ne-click="upTie(7)" ne-id="upTie:7" ne-tmpl="upTieTpl" ne-data="7" class=""><span class="icon i-up"></span><span class="u-num">0</span></div><div ne-click="downTie(7)" ne-id="downTie:7" ne-tmpl="downTieTpl" ne-data="7" class=""><span class="icon i-down"></span><span class="u-num">0</span></div><span class="i-split">|</span><div class="ygt-share-btn" ne-click="shareWin(7)" ne-stat="stat(type-share|area-2|commentId-631245187)" ne-id="shareBtn" ne-tmpl="shareTieTpl" ne-data="7"><span class="">分享</span></div><span class="i-split">|</span><div ne-click="buildReplyBox(7)" ne-stat="stat(type-replyClick|area-2)"><span class="">回复</span></div></div><div ne-id="replyBox" ne-tmpl="&gt;replyTpl" ne-data="7"></div></div></div></div></div><div class="single-tie"><div class="photo" ne-click="showIwin(8)" ne-stat="stat(type-avatar|area-2|userId-|loginType-)"><img src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/photo_default_62.png.39x39.100.jpg"></div><div class="tie-bdy"><div class="bdy-inner"><div class="tie-author"><span class="name-nick" ne-click="showIwin(8)" ne-stat="stat(type-nickname|area-2|userId-|loginType-)">magicdawn</span><span class="name-desp">[鸟窝北京市网友]</span><span class="tie-time">2016-08-10 15:23:14</span></div><p class="tie-cnt">node.js + socket.io 一定要多实例启动, 一个 cpu 干不过来, 可能就会出现大量的 CLOSE_WAIT / SYN_SENT, 再把心跳间隔调高点...这样连接就能保持住了</p><div ne-id="toolBar" ne-tmpl="operateTpl" ne-data="8"><div class="tool-bar "><div ne-click="upTie(8)" ne-id="upTie:8" ne-tmpl="upTieTpl" ne-data="8" class=""><span class="icon i-up"></span><span class="u-num">0</span></div><div ne-click="downTie(8)" ne-id="downTie:8" ne-tmpl="downTieTpl" ne-data="8" class=""><span class="icon i-down"></span><span class="u-num">0</span></div><span class="i-split">|</span><div class="ygt-share-btn" ne-click="shareWin(8)" ne-stat="stat(type-share|area-2|commentId-631245186)" ne-id="shareBtn" ne-tmpl="shareTieTpl" ne-data="8"><span class="">分享</span></div><span class="i-split">|</span><div ne-click="buildReplyBox(8)" ne-stat="stat(type-replyClick|area-2)"><span class="">回复</span></div></div><div ne-id="replyBox" ne-tmpl="&gt;replyTpl" ne-data="8"></div></div></div></div></div><div class="single-tie"><div class="photo" ne-click="showIwin(9)" ne-stat="stat(type-avatar|area-2|userId-|loginType-)"><img src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/photo_default_62.png.39x39.100.jpg"></div><div class="tie-bdy"><div class="bdy-inner"><div class="tie-author"><span class="name-nick" ne-click="showIwin(9)" ne-stat="stat(type-nickname|area-2|userId-|loginType-)">magicdawn</span><span class="name-desp">[鸟窝北京市网友]</span><span class="tie-time">2016-08-10 15:21:25</span></div><p class="tie-cnt">配置成 10.10.255.150 151 ..... 这些就可以, but ... 又出现一堆, CLOSE_WAIT / SYN_SENT  醉了... 是</p><div ne-id="toolBar" ne-tmpl="operateTpl" ne-data="9"><div class="tool-bar "><div ne-click="upTie(9)" ne-id="upTie:9" ne-tmpl="upTieTpl" ne-data="9" class=""><span class="icon i-up"></span><span class="u-num">0</span></div><div ne-click="downTie(9)" ne-id="downTie:9" ne-tmpl="downTieTpl" ne-data="9" class=""><span class="icon i-down"></span><span class="u-num">0</span></div><span class="i-split">|</span><div class="ygt-share-btn" ne-click="shareWin(9)" ne-stat="stat(type-share|area-2|commentId-631245185)" ne-id="shareBtn" ne-tmpl="shareTieTpl" ne-data="9"><span class="">分享</span></div><span class="i-split">|</span><div ne-click="buildReplyBox(9)" ne-stat="stat(type-replyClick|area-2)"><span class="">回复</span></div></div><div ne-id="replyBox" ne-tmpl="&gt;replyTpl" ne-data="9"></div></div></div></div></div><div class="single-tie"><div class="photo" ne-click="showIwin(12)" ne-stat="stat(type-avatar|area-2|userId-|loginType-)"><img src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/photo_default_62.png.39x39.100.jpg"></div><div class="tie-bdy"><div class="bdy-inner"><div class="tie-author"><span class="name-nick" ne-click="showIwin(12)" ne-stat="stat(type-nickname|area-2|userId-|loginType-)">magicdawn</span><span class="name-desp">[鸟窝北京市网友]</span><span class="tie-time">2016-08-10 13:51:09</span></div><div class="floor-tie"><div class="floor-tie"><div class="floor-tie-self"><div class="tie-author"><span class="name-nick" ne-click="showIwin(10)" ne-stat="stat(type-nickname|area-2|userId-|loginType-)">magicdawn</span><span class="name-desp">[鸟窝北京市网友]</span><span class="floor-NO">1</span></div><p class="tie-cnt">是防火墙还是啥的...要设置, 我是直接使用文中的 ifconfig 命令, 所建的虚拟ip 也与文中相同</p><div ne-id="toolBar" ne-tmpl="operateTpl" ne-data="10"><div class="tool-bar "><div ne-click="upTie(10)" ne-id="upTie:10" ne-tmpl="upTieTpl" ne-data="10" class=""><span class="icon i-up"></span><span class="u-num">0</span></div><div ne-click="downTie(10)" ne-id="downTie:10" ne-tmpl="downTieTpl" ne-data="10" class=""><span class="icon i-down"></span><span class="u-num">0</span></div><span class="i-split">|</span><div class="ygt-share-btn" ne-click="shareWin(10)" ne-stat="stat(type-share|area-2|commentId-631245181)" ne-id="shareBtn" ne-tmpl="shareTieTpl" ne-data="10"><span class="">分享</span></div><span class="i-split">|</span><div ne-click="buildReplyBox(10)" ne-stat="stat(type-replyClick|area-2)"><span class="">回复</span></div></div><div ne-id="replyBox" ne-tmpl="&gt;replyTpl" ne-data="10"></div></div></div></div><div class="floor-tie-self"><div class="tie-author"><span class="name-nick" ne-click="showIwin(11)" ne-stat="stat(type-nickname|area-2|userId-|loginType-)">有态度网友06GrDl</span><span class="name-desp">[鸟窝北京市网友]</span><span class="floor-NO">2</span></div><p class="tie-cnt">对于网络问题你自己需要检查一下网络，看看IP是否配置成功， ping一下网络是否成功，用 netcat或者telnet 手工连接一下server看看能否连得上。 </p><div ne-id="toolBar" ne-tmpl="operateTpl" ne-data="11"><div class="tool-bar "><div ne-click="upTie(11)" ne-id="upTie:11" ne-tmpl="upTieTpl" ne-data="11" class=""><span class="icon i-up"></span><span class="u-num">0</span></div><div ne-click="downTie(11)" ne-id="downTie:11" ne-tmpl="downTieTpl" ne-data="11" class=""><span class="icon i-down"></span><span class="u-num">0</span></div><span class="i-split">|</span><div class="ygt-share-btn" ne-click="shareWin(11)" ne-stat="stat(type-share|area-2|commentId-631245183)" ne-id="shareBtn" ne-tmpl="shareTieTpl" ne-data="11"><span class="">分享</span></div><span class="i-split">|</span><div ne-click="buildReplyBox(11)" ne-stat="stat(type-replyClick|area-2)"><span class="">回复</span></div></div><div ne-id="replyBox" ne-tmpl="&gt;replyTpl" ne-data="11"></div></div></div></div><p class="tie-cnt">配置成功了, 可以 ping 通虚拟ip  server, telnet 可以连接 server, 问题是client使用ifconfig 造的虚拟ip 时不能连接 server...<br>client ip = 10.10.255.14 / server ip = 10.10.255.21 / client 虚拟 ip = 192.168.77.10 ... 子网掩码 255.255.255.0<br>网络没学好, 是不是因为环境不同, 不能配成这样 ?</p><div ne-id="toolBar" ne-tmpl="operateTpl" ne-data="12"><div class="tool-bar "><div ne-click="upTie(12)" ne-id="upTie:12" ne-tmpl="upTieTpl" ne-data="12" class=""><span class="icon i-up"></span><span class="u-num">0</span></div><div ne-click="downTie(12)" ne-id="downTie:12" ne-tmpl="downTieTpl" ne-data="12" class=""><span class="icon i-down"></span><span class="u-num">0</span></div><span class="i-split">|</span><div class="ygt-share-btn" ne-click="shareWin(12)" ne-stat="stat(type-share|area-2|commentId-631245184)" ne-id="shareBtn" ne-tmpl="shareTieTpl" ne-data="12"><span class="">分享</span></div><span class="i-split">|</span><div ne-click="buildReplyBox(12)" ne-stat="stat(type-replyClick|area-2)"><span class="">回复</span></div></div><div ne-id="replyBox" ne-tmpl="&gt;replyTpl" ne-data="12"></div></div></div></div></div><div class="single-tie"><div class="photo" ne-click="showIwin(13)" ne-stat="stat(type-avatar|area-2|userId-|loginType-)"><img src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/photo_default_62.png.39x39.100.jpg"></div><div class="tie-bdy"><div class="bdy-inner"><div class="tie-author"><span class="name-nick" ne-click="showIwin(13)" ne-stat="stat(type-nickname|area-2|userId-|loginType-)">magicdawn</span><span class="name-desp">[鸟窝北京市网友]</span><span class="tie-time">2016-08-10 12:08:39</span></div><p class="tie-cnt">你好, 现在 client 的 localIp(nodejs 中为 lcoalAddress) 使用虚拟 ip 之后, 连接建立不成功, 有大量的 SYN_SENT ... </p><div ne-id="toolBar" ne-tmpl="operateTpl" ne-data="13"><div class="tool-bar "><div ne-click="upTie(13)" ne-id="upTie:13" ne-tmpl="upTieTpl" ne-data="13" class=""><span class="icon i-up"></span><span class="u-num">0</span></div><div ne-click="downTie(13)" ne-id="downTie:13" ne-tmpl="downTieTpl" ne-data="13" class=""><span class="icon i-down"></span><span class="u-num">0</span></div><span class="i-split">|</span><div class="ygt-share-btn" ne-click="shareWin(13)" ne-stat="stat(type-share|area-2|commentId-631245180)" ne-id="shareBtn" ne-tmpl="shareTieTpl" ne-data="13"><span class="">分享</span></div><span class="i-split">|</span><div ne-click="buildReplyBox(13)" ne-stat="stat(type-replyClick|area-2)"><span class="">回复</span></div></div><div ne-id="replyBox" ne-tmpl="&gt;replyTpl" ne-data="13"></div></div></div></div></div><div class="single-tie"><div class="photo" ne-click="showIwin(17)" ne-stat="stat(type-avatar|area-2|userId-|loginType-)"><img src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/photo_default_62.png.39x39.100.jpg"></div><div class="tie-bdy"><div class="bdy-inner"><div class="tie-author"><span class="name-nick" ne-click="showIwin(17)" ne-stat="stat(type-nickname|area-2|userId-|loginType-)">有态度网友06GrDl</span><span class="name-desp">[鸟窝北京市网友]</span><span class="tie-time">2016-08-08 10:16:47</span></div><div class="floor-tie"><div class="floor-tie"><div class="floor-tie"><div class="floor-tie-self"><div class="tie-author"><span class="name-nick" ne-click="showIwin(14)" ne-stat="stat(type-nickname|area-2|userId-|loginType-)">有态度网友06GrDX</span><span class="name-desp">[鸟窝广东省江门市网友]</span><span class="floor-NO">1</span></div><p class="tie-cnt">1台服务器与保持100万常连接数，但是服务器的端口数只有64511，这是怎么做到的，连接数不受端口影响么？？求指导</p><div ne-id="toolBar" ne-tmpl="operateTpl" ne-data="14"><div class="tool-bar "><div ne-click="upTie(14)" ne-id="upTie:14" ne-tmpl="upTieTpl" ne-data="14" class=""><span class="icon i-up"></span><span class="u-num">0</span></div><div ne-click="downTie(14)" ne-id="downTie:14" ne-tmpl="downTieTpl" ne-data="14" class=""><span class="icon i-down"></span><span class="u-num">0</span></div><span class="i-split">|</span><div class="ygt-share-btn" ne-click="shareWin(14)" ne-stat="stat(type-share|area-2|commentId-631245049)" ne-id="shareBtn" ne-tmpl="shareTieTpl" ne-data="14"><span class="">分享</span></div><span class="i-split">|</span><div ne-click="buildReplyBox(14)" ne-stat="stat(type-replyClick|area-2)"><span class="">回复</span></div></div><div ne-id="replyBox" ne-tmpl="&gt;replyTpl" ne-data="14"></div></div></div></div><div class="floor-tie-self"><div class="tie-author"><span class="name-nick" ne-click="showIwin(15)" ne-stat="stat(type-nickname|area-2|userId-|loginType-)">以下留空</span><span class="name-desp">[鸟窝四川省成都市网友]</span><span class="floor-NO">2</span></div><p class="tie-cnt">是一个ip只有6万多端口，用很多ip</p><div ne-id="toolBar" ne-tmpl="operateTpl" ne-data="15"><div class="tool-bar "><div ne-click="upTie(15)" ne-id="upTie:15" ne-tmpl="upTieTpl" ne-data="15" class=""><span class="icon i-up"></span><span class="u-num">0</span></div><div ne-click="downTie(15)" ne-id="downTie:15" ne-tmpl="downTieTpl" ne-data="15" class=""><span class="icon i-down"></span><span class="u-num">0</span></div><span class="i-split">|</span><div class="ygt-share-btn" ne-click="shareWin(15)" ne-stat="stat(type-share|area-2|commentId-631245133)" ne-id="shareBtn" ne-tmpl="shareTieTpl" ne-data="15"><span class="">分享</span></div><span class="i-split">|</span><div ne-click="buildReplyBox(15)" ne-stat="stat(type-replyClick|area-2)"><span class="">回复</span></div></div><div ne-id="replyBox" ne-tmpl="&gt;replyTpl" ne-data="15"></div></div></div></div><div class="floor-tie-self"><div class="tie-author"><span class="name-nick" ne-click="showIwin(16)" ne-stat="stat(type-nickname|area-2|userId-|loginType-)">有态度网友06GrDg</span><span class="name-desp">[鸟窝浙江省杭州市滨江区网友]</span><span class="floor-NO">3</span></div><p class="tie-cnt">实际测试无效阿，请教以下客户端测试的过程，主要是如何让客户端多ip对服务端生效</p><div ne-id="toolBar" ne-tmpl="operateTpl" ne-data="16"><div class="tool-bar "><div ne-click="upTie(16)" ne-id="upTie:16" ne-tmpl="upTieTpl" ne-data="16" class=""><span class="icon i-up"></span><span class="u-num">0</span></div><div ne-click="downTie(16)" ne-id="downTie:16" ne-tmpl="downTieTpl" ne-data="16" class=""><span class="icon i-down"></span><span class="u-num">0</span></div><span class="i-split">|</span><div class="ygt-share-btn" ne-click="shareWin(16)" ne-stat="stat(type-share|area-2|commentId-631245173)" ne-id="shareBtn" ne-tmpl="shareTieTpl" ne-data="16"><span class="">分享</span></div><span class="i-split">|</span><div ne-click="buildReplyBox(16)" ne-stat="stat(type-replyClick|area-2)"><span class="">回复</span></div></div><div ne-id="replyBox" ne-tmpl="&gt;replyTpl" ne-data="16"></div></div></div></div><p class="tie-cnt">client启动的时候可以指定它使用的本地地址。<br> if (args.length = 1) {<br>    Common.localIP = args(0)<br>  }</p><div ne-id="toolBar" ne-tmpl="operateTpl" ne-data="17"><div class="tool-bar "><div ne-click="upTie(17)" ne-id="upTie:17" ne-tmpl="upTieTpl" ne-data="17" class=""><span class="icon i-up"></span><span class="u-num">1</span></div><div ne-click="downTie(17)" ne-id="downTie:17" ne-tmpl="downTieTpl" ne-data="17" class=""><span class="icon i-down"></span><span class="u-num">0</span></div><span class="i-split">|</span><div class="ygt-share-btn" ne-click="shareWin(17)" ne-stat="stat(type-share|area-2|commentId-631245174)" ne-id="shareBtn" ne-tmpl="shareTieTpl" ne-data="17"><span class="">分享</span></div><span class="i-split">|</span><div ne-click="buildReplyBox(17)" ne-stat="stat(type-replyClick|area-2)"><span class="">回复</span></div></div><div ne-id="replyBox" ne-tmpl="&gt;replyTpl" ne-data="17"></div></div></div></div></div><div class="single-tie"><div class="photo" ne-click="showIwin(18)" ne-stat="stat(type-avatar|area-2|userId-|loginType-)"><img src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/photo_default_62.png.39x39.100.jpg"></div><div class="tie-bdy"><div class="bdy-inner"><div class="tie-author"><span class="name-nick" ne-click="showIwin(18)" ne-stat="stat(type-nickname|area-2|userId-|loginType-)">有态度网友06GrDg</span><span class="name-desp">[鸟窝浙江省杭州市滨江区网友]</span><span class="tie-time">2016-08-06 09:42:25</span></div><p class="tie-cnt">您好，请教一下客户端多ip实现步鄹，谢谢！我这边创建了虚拟ip之后，ssh用各自的ip登录启动链接客户端，但连到服务器显示的地址仍然是原来的地址。</p><div ne-id="toolBar" ne-tmpl="operateTpl" ne-data="18"><div class="tool-bar "><div ne-click="upTie(18)" ne-id="upTie:18" ne-tmpl="upTieTpl" ne-data="18" class=""><span class="icon i-up"></span><span class="u-num">0</span></div><div ne-click="downTie(18)" ne-id="downTie:18" ne-tmpl="downTieTpl" ne-data="18" class=""><span class="icon i-down"></span><span class="u-num">0</span></div><span class="i-split">|</span><div class="ygt-share-btn" ne-click="shareWin(18)" ne-stat="stat(type-share|area-2|commentId-631245172)" ne-id="shareBtn" ne-tmpl="shareTieTpl" ne-data="18"><span class="">分享</span></div><span class="i-split">|</span><div ne-click="buildReplyBox(18)" ne-stat="stat(type-replyClick|area-2)"><span class="">回复</span></div></div><div ne-id="replyBox" ne-tmpl="&gt;replyTpl" ne-data="18"></div></div></div></div></div><div class="single-tie"><div class="photo" ne-click="showIwin(19)" ne-stat="stat(type-avatar|area-2|userId-|loginType-)"><img src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/photo_default_62.png.39x39.100.jpg"></div><div class="tie-bdy"><div class="bdy-inner"><div class="tie-author"><span class="name-nick" ne-click="showIwin(19)" ne-stat="stat(type-nickname|area-2|userId-|loginType-)">有态度网友06GrDg</span><span class="name-desp">[鸟窝四川省成都市网友]</span><span class="tie-time">2016-01-16 12:32:18</span></div><p class="tie-cnt">大牛,这文章亮点是reference啊...居然提供了如此多的link,作者你太给力了,此文创造的价值无法计算.</p><div ne-id="toolBar" ne-tmpl="operateTpl" ne-data="19"><div class="tool-bar "><div ne-click="upTie(19)" ne-id="upTie:19" ne-tmpl="upTieTpl" ne-data="19" class=""><span class="icon i-up"></span><span class="u-num">0</span></div><div ne-click="downTie(19)" ne-id="downTie:19" ne-tmpl="downTieTpl" ne-data="19" class=""><span class="icon i-down"></span><span class="u-num">0</span></div><span class="i-split">|</span><div class="ygt-share-btn" ne-click="shareWin(19)" ne-stat="stat(type-share|area-2|commentId-631245110)" ne-id="shareBtn" ne-tmpl="shareTieTpl" ne-data="19"><span class="">分享</span></div><span class="i-split">|</span><div ne-click="buildReplyBox(19)" ne-stat="stat(type-replyClick|area-2)"><span class="">回复</span></div></div><div ne-id="replyBox" ne-tmpl="&gt;replyTpl" ne-data="19"></div></div></div></div></div></div><div class="tie-empty-tip" data-display="block" style="display: none;"><a href="https://gentie.163.com/" target="_blank">网易云跟贴，有你更精彩</a></div><div class="tie-load-more" ne-click="loadMore()" ne-stat="stat(type-load|area-2)" style="display: block;"><span class="load-sign">+</span><span class="load-txt">加载更多跟贴</span></div><div class="tie-page-wrapper"></div></div><div class="panel-hot" data-display="none" style="display: none;"><div class="tie-list"></div><div class="tie-empty-tip"><a href="https://gentie.163.com/" target="_blank">网易云跟贴，有你更精彩</a></div><div class="tie-load-more" ne-click="loadMore()" ne-stat="stat(type-load|area-2)"><span class="load-sign">+</span><span class="load-txt">加载更多跟贴</span></div><div class="tie-page-wrapper"></div></div></div><div class="tie-i-mask"></div><div class="tie-i-wrap"></div><iframe id="yun-tie-data-ifrm-923" src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/inner.html" style="width:0;height:0;visibility: hidden;"></iframe></div></div>
+</section>
+<script>
+  var cloudTieConfig = {
+    url: document.location.href, 
+    sourceId: "2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/",
+    productKey: "bb59dc3c143c4469940a0163afdb38d8",
+    target: "cloud-tie-wrapper"
+  };
+</script>
+<script src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/loader.js.下载"></script>
+
+</section>
+        
+          <aside id="sidebar">
+  
+      <div class="widget-wrap">
+    <h3 class="widget-title">原创图书</h3>
+    <div class="widget">
+      <a href="http://colobu.com/ScalaCollectionsCookbook/">
+        <img width="100%" src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/scala_collections_cookbook.jpg">
+        <img width="100%" src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/scala_collections_cookbook_tw.png">
+      </a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="http://colobu.com/categories/Android/">Android</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="http://colobu.com/categories/DOTNET/">DOTNET</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="http://colobu.com/categories/Docker/">Docker</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="http://colobu.com/categories/Go/">Go</a><span class="category-list-count">68</span></li><li class="category-list-item"><a class="category-list-link" href="http://colobu.com/categories/Java/">Java</a><span class="category-list-count">59</span></li><li class="category-list-item"><a class="category-list-link" href="http://colobu.com/categories/Linux/">Linux</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="http://colobu.com/categories/Scala/">Scala</a><span class="category-list-count">18</span></li><li class="category-list-item"><a class="category-list-link" href="http://colobu.com/categories/%E5%89%8D%E7%AB%AF%E5%BC%80%E5%8F%91/">前端开发</a><span class="category-list-count">18</span></li><li class="category-list-item"><a class="category-list-link" href="http://colobu.com/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/">大数据</a><span class="category-list-count">55</span></li><li class="category-list-item"><a class="category-list-link" href="http://colobu.com/categories/%E5%B7%A5%E5%85%B7/">工具</a><span class="category-list-count">19</span></li><li class="category-list-item"><a class="category-list-link" href="http://colobu.com/categories/%E6%9E%B6%E6%9E%84/">架构</a><span class="category-list-count">21</span></li><li class="category-list-item"><a class="category-list-link" href="http://colobu.com/categories/%E7%AE%97%E6%B3%95/">算法</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="http://colobu.com/categories/%E7%AE%A1%E7%90%86/">管理</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="http://colobu.com/categories/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/">网络编程</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="http://colobu.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="http://colobu.com/categories/%E8%BF%90%E7%BB%B4/">运维</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="http://colobu.com/categories/%E9%AB%98%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/">高并发编程</a><span class="category-list-count">20</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="http://colobu.com/tags/Android/" style="font-size: 15.71px;">Android</a><a href="http://colobu.com/tags/ApacheBench/" style="font-size: 11.43px;">ApacheBench</a><a href="http://colobu.com/tags/Bower/" style="font-size: 10.00px;">Bower</a><a href="http://colobu.com/tags/C/" style="font-size: 10.00px;">C#</a><a href="http://colobu.com/tags/CDN/" style="font-size: 10.00px;">CDN</a><a href="http://colobu.com/tags/CQRS/" style="font-size: 10.00px;">CQRS</a><a href="http://colobu.com/tags/CRC/" style="font-size: 10.00px;">CRC</a><a href="http://colobu.com/tags/CSS/" style="font-size: 11.43px;">CSS</a><a href="http://colobu.com/tags/CompletableFuture/" style="font-size: 10.00px;">CompletableFuture</a><a href="http://colobu.com/tags/Comsat/" style="font-size: 10.00px;">Comsat</a><a href="http://colobu.com/tags/Curator/" style="font-size: 20.00px;">Curator</a><a href="http://colobu.com/tags/DSL/" style="font-size: 10.00px;">DSL</a><a href="http://colobu.com/tags/Disruptor/" style="font-size: 10.00px;">Disruptor</a><a href="http://colobu.com/tags/Docker/" style="font-size: 11.43px;">Docker</a><a href="http://colobu.com/tags/Ember/" style="font-size: 11.43px;">Ember</a><a href="http://colobu.com/tags/FastJson/" style="font-size: 10.00px;">FastJson</a><a href="http://colobu.com/tags/Fiber/" style="font-size: 10.00px;">Fiber</a><a href="http://colobu.com/tags/GAE/" style="font-size: 10.00px;">GAE</a><a href="http://colobu.com/tags/GC/" style="font-size: 12.86px;">GC</a><a href="http://colobu.com/tags/Gnuplot/" style="font-size: 10.00px;">Gnuplot</a><a href="http://colobu.com/tags/Go/" style="font-size: 11.43px;">Go</a><a href="http://colobu.com/tags/Gradle/" style="font-size: 10.00px;">Gradle</a><a href="http://colobu.com/tags/Grunt/" style="font-size: 10.00px;">Grunt</a><a href="http://colobu.com/tags/Gulp/" style="font-size: 10.00px;">Gulp</a><a href="http://colobu.com/tags/Hadoop/" style="font-size: 10.00px;">Hadoop</a><a href="http://colobu.com/tags/Hazelcast/" style="font-size: 10.00px;">Hazelcast</a><a href="http://colobu.com/tags/Ignite/" style="font-size: 10.00px;">Ignite</a><a href="http://colobu.com/tags/JVM/" style="font-size: 10.00px;">JVM</a><a href="http://colobu.com/tags/Java/" style="font-size: 17.14px;">Java</a><a href="http://colobu.com/tags/Kafka/" style="font-size: 18.57px;">Kafka</a><a href="http://colobu.com/tags/Lambda/" style="font-size: 14.29px;">Lambda</a><a href="http://colobu.com/tags/Linux/" style="font-size: 12.86px;">Linux</a><a href="http://colobu.com/tags/LongAdder/" style="font-size: 10.00px;">LongAdder</a><a href="http://colobu.com/tags/MathJax/" style="font-size: 10.00px;">MathJax</a><a href="http://colobu.com/tags/Maven/" style="font-size: 11.43px;">Maven</a><a href="http://colobu.com/tags/Memcached/" style="font-size: 10.00px;">Memcached</a><a href="http://colobu.com/tags/Metrics/" style="font-size: 10.00px;">Metrics</a><a href="http://colobu.com/tags/Mongo/" style="font-size: 12.86px;">Mongo</a><a href="http://colobu.com/tags/Netty/" style="font-size: 15.71px;">Netty</a><a href="http://colobu.com/tags/Node/" style="font-size: 10.00px;">Node</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2017/05/">May 2017</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2017/04/">April 2017</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2017/03/">March 2017</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2017/02/">February 2017</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2017/01/">January 2017</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2016/12/">December 2016</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2016/11/">November 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2016/10/">October 2016</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2016/09/">September 2016</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2016/08/">August 2016</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2016/07/">July 2016</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2016/06/">June 2016</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2016/05/">May 2016</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2016/04/">April 2016</a><span class="archive-list-count">14</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2016/03/">March 2016</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2016/02/">February 2016</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2016/01/">January 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2015/12/">December 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2015/11/">November 2015</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2015/10/">October 2015</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2015/09/">September 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2015/08/">August 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2015/07/">July 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2015/06/">June 2015</a><span class="archive-list-count">8</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2015/05/">May 2015</a><span class="archive-list-count">7</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2015/04/">April 2015</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2015/03/">March 2015</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2015/02/">February 2015</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2015/01/">January 2015</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2014/12/">December 2014</a><span class="archive-list-count">28</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2014/11/">November 2014</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2014/10/">October 2014</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2014/09/">September 2014</a><span class="archive-list-count">28</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2014/08/">August 2014</a><span class="archive-list-count">19</span></li><li class="archive-list-item"><a class="archive-list-link" href="http://colobu.com/archives/2014/07/">July 2014</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">近期文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="http://colobu.com/2017/05/08/raft-and-network-partitions/">[转]通过 raft 的 leader lease 来解决集群脑裂时的 stale read 问题</a>
+          </li>
+        
+          <li>
+            <a href="http://colobu.com/2017/05/04/golang-runtime-scheduler/">[转]Golang调度器源码分析</a>
+          </li>
+        
+          <li>
+            <a href="http://colobu.com/2017/05/04/go-scheduler/">[译]Go 调度器: M, P 和 G</a>
+          </li>
+        
+          <li>
+            <a href="http://colobu.com/2017/04/28/oauth2-rfc6749/">OAuth2 RFC6749中文翻译</a>
+          </li>
+        
+          <li>
+            <a href="http://colobu.com/2017/04/26/new-in-spring-5-functional-web-framework/">[转]Spring 5 新功能：函数式 Web 框架</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">友情链接</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+			 
+            <a href="http://old.colobu.com/" target="_blank">以前的博客</a>
+			
+          </li>
+        
+          <li>
+			 
+			&nbsp;
+			
+          </li>
+        
+          <li>
+			 
+            <a href="http://stackshare.io/" target="_blank">技术栈</a>
+			
+          </li>
+        
+          <li>
+			 
+			&nbsp;
+			
+          </li>
+        
+          <li>
+			 
+            <a href="http://weekly.manong.io/issues/" target="_blank">码农周刊</a>
+			
+          </li>
+        
+          <li>
+			 
+            <a href="http://www.tuicool.com/mags" target="_blank">编程狂人周刊</a>
+			
+          </li>
+        
+          <li>
+			 
+            <a href="http://www.importnew.com/" target="_blank">importnew</a>
+			
+          </li>
+        
+          <li>
+			 
+            <a href="http://ifeve.com/" target="_blank">并发编程网</a>
+			
+          </li>
+        
+          <li>
+			 
+			&nbsp;
+			
+          </li>
+        
+          <li>
+			 
+            <a href="http://github.com/" target="_blank">github</a>
+			
+          </li>
+        
+          <li>
+			 
+            <a href="http://stackoverflow.com/" target="_blank">stackoverflow</a>
+			
+          </li>
+        
+          <li>
+			 
+            <a href="http://www.javacodegeeks.com/" target="_blank">javacodegeeks</a>
+			
+          </li>
+        
+          <li>
+			 
+            <a href="http://www.infoq.com/" target="_blank">infoq</a>
+			
+          </li>
+        
+          <li>
+			 
+            <a href="http://www.dzone.com/links/index.html" target="_blank">dzone</a>
+			
+          </li>
+        
+          <li>
+			 
+            <a href="https://oj.leetcode.com/problems/" target="_blank">leetcode</a>
+			
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+      <div class="widget-wrap">
+<div id="hot-news-wrap" class="widget"><div class="tie-hot-news"><div class="hot-news-title"><span class="title-txt"> 最热文章</span></div><div class="hot-news-list"><a class="hot-news" href="http://colobu.com/2017/05/08/raft-and-network-partitions/" title="[转]通过 raft 的 leader lease 来解决集群脑裂时的 stale read 问题 | 鸟窝" target="_blank"><span class="news-order z-top-order">1</span><span class="news-split">|</span><span class="news-essay" style="color: #c7c7c7;background-color:#ffffff;">[转]通过 raft 的 leader lease...</span></a><a class="hot-news" href="http://colobu.com/2017/05/04/golang-runtime-scheduler/" title="[转]Golang调度器源码分析 | 鸟窝" target="_blank"><span class="news-order z-top-order">2</span><span class="news-split">|</span><span class="news-essay" style="color: #c7c7c7;background-color:#ffffff;">[转]Golang调度器源码分析 | 鸟...</span></a><a class="hot-news" href="http://colobu.com/2017/05/04/go-scheduler/" title="[译]Go 调度器: M, P 和 G | 鸟窝" target="_blank"><span class="news-order z-top-order">3</span><span class="news-split">|</span><span class="news-essay" style="color: #c7c7c7;background-color:#ffffff;">[译]Go 调度器: M, P 和 G | 鸟...</span></a></div></div></div>
+<script>var yunModuleEnv = true;</script>
+<script src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/loader.js.下载"></script>
+<script>
+  var yunTieProductKey = "bb59dc3c143c4469940a0163afdb38d8";  
+  var yunHotNewsWrap = "hot-news-wrap"; 
+  Tie.loader("aHR0cHM6Ly9hcGkuZ2VudGllLjE2My5jb20vZXh0ZW5kL2hvdF9uZXdzX3NjcmlwdC5odG1s", true);
+</script>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      © 2017 smallnest<br>
+	  Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="http://colobu.com/" class="mobile-nav-link">首页</a>
+  
+    <a href="http://colobu.com/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="https://github.com/smallnest" class="mobile-nav-link">github</a>
+  
+    <a href="http://tr.colobu.com/" class="mobile-nav-link">技术流</a>
+  
+    <a href="http://colobu.com/ScalaCollectionsCookbook" class="mobile-nav-link">Scala集合技术手册</a>
+  
+    <a href="http://colobu.com/techreview" class="mobile-nav-link">技术快报</a>
+  
+    <a href="http://colobu.com/about" class="mobile-nav-link">关于</a>
+  
+</nav>
+    
+<script src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/jquery.min.js.下载"></script>
+<script src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/jquery.lazyload.min.js.下载"></script>
+
+<script src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/jquery.fancybox.pack.js.下载"></script>
+
+
+<script src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/script.js.下载" type="text/javascript"></script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config;executed=true">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  });
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+<script type="text/javascript" src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/MathJax.js.下载">
+</script>
+
+<div id="totop" style="position: fixed; bottom: 150px; right: 10px; cursor: pointer; z-index: 2000; display: block; opacity: 1;">
+	<a title="返回顶部"><img src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/scrollup.png"></a>
+</div>
+<script src="./使用四种框架分别实现百万websocket常连接的服务器 _ 鸟窝_files/totop.js.下载" type="text/javascript"></script>
+
+
+
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-142561-4']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e085d87993250aab11f3e0c15f1c2785";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+  </div>
+
+<div id="x-URS1494470979781.7146"></div></body></html>

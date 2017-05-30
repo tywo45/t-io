@@ -6,17 +6,14 @@ package org.tio.examples.im.common.bs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-public class StartshowRespBody extends BaseRespBody
-{
+public class StartshowRespBody extends BaseRespBody {
 	@SuppressWarnings("unused")
 	private static Logger log = LoggerFactory.getLogger(StartshowRespBody.class);
 
 	/**
 	 * 
 	 */
-	public StartshowRespBody()
-	{
+	public StartshowRespBody() {
 
 	}
 
@@ -24,13 +21,12 @@ public class StartshowRespBody extends BaseRespBody
 	 * 
 	 */
 	private Integer liveshowid;
-	
+
 	/**
 	 * rtmp推流地址
 	 */
 	private java.lang.String rtmppublishurl;
-	
-	
+
 	/**
 	 * rtmp播放地址
 	 */
@@ -39,8 +35,7 @@ public class StartshowRespBody extends BaseRespBody
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 
 	}
 

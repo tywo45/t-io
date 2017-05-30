@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.t-io</groupId>
 		<artifactId>tio-parent</artifactId>
-		<version>1.7.0.v20170501-RELEASE</version>
+		<version>1.7.0.1.v20170601-RELEASE</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -79,6 +79,10 @@
 		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>fastjson</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
 		</dependency>
 	</dependencies>
 	<build>

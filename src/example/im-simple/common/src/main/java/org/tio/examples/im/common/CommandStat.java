@@ -11,28 +11,23 @@ import org.tio.examples.im.common.packets.Command;
  * @author tanyaowu 
  *
  */
-public class CommandStat
-{
+public class CommandStat {
 
 	public final static Map<Command, CommandStat> commandAndCount = new ConcurrentHashMap<>();
-	
+
 	public final AtomicLong received = new AtomicLong();
 	public final AtomicLong handled = new AtomicLong();
 	public final AtomicLong sent = new AtomicLong();
 
-	public static CommandStat getCount(Command command)
-	{
+	public static CommandStat getCount(Command command) {
 		CommandStat ret = commandAndCount.get(command);
-		if (ret != null)
-		{
+		if (ret != null) {
 			return ret;
 		}
 
-		synchronized (commandAndCount)
-		{
+		synchronized (commandAndCount) {
 			ret = commandAndCount.get(command);
-			if (ret != null)
-			{
+			if (ret != null) {
 				return ret;
 			}
 			ret = new CommandStat();
@@ -40,7 +35,6 @@ public class CommandStat
 		}
 		return ret;
 	}
-	
 
 	/**
 	 * 
@@ -49,8 +43,7 @@ public class CommandStat
 	 * 2016年12月6日 下午5:32:31
 	 * 
 	 */
-	public CommandStat()
-	{
+	public CommandStat() {
 	}
 
 	/**
@@ -60,34 +53,27 @@ public class CommandStat
 	 * 2016年12月6日 下午5:32:31
 	 * 
 	 */
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 	}
-
 
 	/**
 	 * @return the receivedCount
 	 */
-	public AtomicLong getReceived()
-	{
+	public AtomicLong getReceived() {
 		return received;
 	}
-
 
 	/**
 	 * @return the handledCount
 	 */
-	public AtomicLong getHandled()
-	{
+	public AtomicLong getHandled() {
 		return handled;
 	}
-
 
 	/**
 	 * @return the sentCount
 	 */
-	public AtomicLong getSent()
-	{
+	public AtomicLong getSent() {
 		return sent;
 	}
 

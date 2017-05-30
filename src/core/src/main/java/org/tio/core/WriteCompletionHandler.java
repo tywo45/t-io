@@ -111,7 +111,6 @@ public class WriteCompletionHandler<SessionContext, P extends Packet, R> impleme
 		}
 
 		try {
-			channelContext.traceClient(ClientAction.AFTER_SEND, packet, null);
 			channelContext.processAfterSent(obj, isSentSuccess);
 		} catch (Exception e) {
 			log.error(e.toString(), e);

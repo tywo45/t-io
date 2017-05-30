@@ -13,8 +13,7 @@ import org.tio.server.intf.ServerAioListener;
  * @author tanyaowu 
  *
  */
-public class ImServerAioListener implements ServerAioListener<ImSessionContext, ImPacket, Object>
-{
+public class ImServerAioListener implements ServerAioListener<ImSessionContext, ImPacket, Object> {
 	@SuppressWarnings("unused")
 	private static Logger log = LoggerFactory.getLogger(ImServerAioListener.class);
 
@@ -25,8 +24,7 @@ public class ImServerAioListener implements ServerAioListener<ImSessionContext, 
 	 * 2016年12月16日 下午5:52:06
 	 * 
 	 */
-	public ImServerAioListener()
-	{
+	public ImServerAioListener() {
 	}
 
 	/**
@@ -36,8 +34,7 @@ public class ImServerAioListener implements ServerAioListener<ImSessionContext, 
 	 * 2016年12月16日 下午5:52:06
 	 * 
 	 */
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 	}
 
 	/** 
@@ -50,15 +47,14 @@ public class ImServerAioListener implements ServerAioListener<ImSessionContext, 
 	 * 2016年12月20日 上午11:03:45
 	 * 
 	 */
-//	@Override
-//	public boolean onAfterAccepted(AsynchronousSocketChannel asynchronousSocketChannel, AioServer<ImSessionContext, ImPacket, Object> aioServer)
-//	{
-//		return true;
-//	}
+	//	@Override
+	//	public boolean onAfterAccepted(AsynchronousSocketChannel asynchronousSocketChannel, AioServer<ImSessionContext, ImPacket, Object> aioServer)
+	//	{
+	//		return true;
+	//	}
 
 	@Override
-	public void onAfterConnected(ChannelContext<ImSessionContext, ImPacket, Object> channelContext, boolean isConnected, boolean isReconnect)
-	{
+	public void onAfterConnected(ChannelContext<ImSessionContext, ImPacket, Object> channelContext, boolean isConnected, boolean isReconnect) {
 		ImSessionContext imSessionContext = new ImSessionContext();
 		channelContext.setSessionContext(imSessionContext);
 		return;
@@ -74,13 +70,10 @@ public class ImServerAioListener implements ServerAioListener<ImSessionContext, 
 	 * 
 	 */
 	@Override
-	public void onAfterSent(ChannelContext<ImSessionContext, ImPacket, Object> channelContext, ImPacket packet, boolean isSentSuccess)
-	{
-		if (isSentSuccess)
-		{
+	public void onAfterSent(ChannelContext<ImSessionContext, ImPacket, Object> channelContext, ImPacket packet, boolean isSentSuccess) {
+		if (isSentSuccess) {
 			CommandStat.getCount(packet.getCommand()).sent.incrementAndGet();
 		}
-		
 
 	}
 
@@ -95,8 +88,7 @@ public class ImServerAioListener implements ServerAioListener<ImSessionContext, 
 	 * 
 	 */
 	@Override
-	public void onAfterReceived(ChannelContext<ImSessionContext, ImPacket, Object> channelContext, ImPacket packet, int packetSize)
-	{
+	public void onAfterReceived(ChannelContext<ImSessionContext, ImPacket, Object> channelContext, ImPacket packet, int packetSize) {
 		CommandStat.getCount(packet.getCommand()).received.incrementAndGet();
 	}
 
@@ -111,8 +103,7 @@ public class ImServerAioListener implements ServerAioListener<ImSessionContext, 
 	 * 
 	 */
 	@Override
-	public void onAfterClose(ChannelContext<ImSessionContext, ImPacket, Object> channelContext, Throwable throwable, String remark, boolean isRemove)
-	{
+	public void onAfterClose(ChannelContext<ImSessionContext, ImPacket, Object> channelContext, Throwable throwable, String remark, boolean isRemove) {
 
 	}
 

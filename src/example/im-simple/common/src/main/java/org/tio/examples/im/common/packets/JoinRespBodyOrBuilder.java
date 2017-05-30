@@ -4,34 +4,35 @@
 package org.tio.examples.im.common.packets;
 
 public interface JoinRespBodyOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:org.tio.examples.im.common.packets.JoinRespBody)
-    com.google.protobuf.MessageOrBuilder {
+		// @@protoc_insertion_point(interface_extends:org.tio.examples.im.common.packets.JoinRespBody)
+		com.google.protobuf.MessageOrBuilder {
 
-  /**
-   * <pre>
-   *消息发送时间
-   * </pre>
-   *
-   * <code>int64 time = 1;</code>
-   */
-  long getTime();
+	/**
+	 * <pre>
+	 *消息发送时间
+	 * </pre>
+	 *
+	 * <code>int64 time = 1;</code>
+	 */
+	long getTime();
 
-  /**
-   * <code>.org.tio.examples.im.common.packets.JoinGroupResult result = 2;</code>
-   */
-  int getResultValue();
-  /**
-   * <code>.org.tio.examples.im.common.packets.JoinGroupResult result = 2;</code>
-   */
-  org.tio.examples.im.common.packets.JoinGroupResult getResult();
+	/**
+	 * <code>.org.tio.examples.im.common.packets.JoinGroupResult result = 2;</code>
+	 */
+	int getResultValue();
 
-  /**
-   * <code>string group = 3;</code>
-   */
-  java.lang.String getGroup();
-  /**
-   * <code>string group = 3;</code>
-   */
-  com.google.protobuf.ByteString
-      getGroupBytes();
+	/**
+	 * <code>.org.tio.examples.im.common.packets.JoinGroupResult result = 2;</code>
+	 */
+	org.tio.examples.im.common.packets.JoinGroupResult getResult();
+
+	/**
+	 * <code>string group = 3;</code>
+	 */
+	java.lang.String getGroup();
+
+	/**
+	 * <code>string group = 3;</code>
+	 */
+	com.google.protobuf.ByteString getGroupBytes();
 }

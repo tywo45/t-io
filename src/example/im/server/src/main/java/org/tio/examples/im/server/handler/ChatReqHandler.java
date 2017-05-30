@@ -20,16 +20,13 @@ import org.tio.examples.im.common.packets.Command;
  * @author tanyaowu 
  *
  */
-public class ChatReqHandler implements ImBsHandlerIntf
-{
+public class ChatReqHandler implements ImBsHandlerIntf {
 	private static Logger log = LoggerFactory.getLogger(ChatReqHandler.class);
 
 	@Override
-	public Object handler(ImPacket packet, ChannelContext<ImSessionContext, ImPacket, Object> channelContext) throws Exception
-	{
+	public Object handler(ImPacket packet, ChannelContext<ImSessionContext, ImPacket, Object> channelContext) throws Exception {
 
-		if (packet.getBody() == null)
-		{
+		if (packet.getBody() == null) {
 			throw new Exception("body is null");
 		}
 
@@ -42,8 +39,7 @@ public class ChatReqHandler implements ImBsHandlerIntf
 		String toNick = chatReqBody.getToNick();
 		String toGroup = chatReqBody.getGroup();
 
-		if (chatReqBody != null)
-		{
+		if (chatReqBody != null) {
 
 			ChatRespBody.Builder builder = ChatRespBody.newBuilder();
 			builder.setType(chatReqBody.getType());
@@ -62,13 +58,10 @@ public class ChatReqHandler implements ImBsHandlerIntf
 
 			respPacket.setBody(bodybyte);
 
-			if (Objects.equals(ChatType.CHAT_TYPE_PUBLIC, chatReqBody.getType()))
-			{
+			if (Objects.equals(ChatType.CHAT_TYPE_PUBLIC, chatReqBody.getType())) {
 				Aio.sendToGroup(channelContext.getGroupContext(), toGroup, respPacket);
-			} else if (Objects.equals(ChatType.CHAT_TYPE_PRIVATE, chatReqBody.getType()))
-			{
-				if (toId != null)
-				{
+			} else if (Objects.equals(ChatType.CHAT_TYPE_PRIVATE, chatReqBody.getType())) {
+				if (toId != null) {
 					Aio.sendToUser(channelContext.getGroupContext(), toId + "", respPacket);
 				}
 			}

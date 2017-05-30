@@ -11,17 +11,14 @@ import org.tio.server.intf.ServerAioHandler;
  * @author tanyaowu 
  *
  */
-public class HelloServerAioHandler extends HelloAbsAioHandler implements ServerAioHandler<Object, HelloPacket, Object>
-{
+public class HelloServerAioHandler extends HelloAbsAioHandler implements ServerAioHandler<Object, HelloPacket, Object> {
 	/** 
 	 * 处理消息
 	 */
 	@Override
-	public Object handler(HelloPacket packet, ChannelContext<Object, HelloPacket, Object> channelContext) throws Exception
-	{
+	public Object handler(HelloPacket packet, ChannelContext<Object, HelloPacket, Object> channelContext) throws Exception {
 		byte[] body = packet.getBody();
-		if (body != null)
-		{
+		if (body != null) {
 			String str = new String(body, HelloPacket.CHARSET);
 			System.out.println("收到消息：" + str);
 

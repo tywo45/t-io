@@ -9,57 +9,49 @@ import org.tio.examples.im.common.packets.AuthReqBody;
 import org.tio.examples.im.common.packets.Command;
 import org.tio.examples.im.common.packets.DeviceType;
 
-
-public class HandshakeRespHandler implements ImAioHandlerIntf
-{
+public class HandshakeRespHandler implements ImAioHandlerIntf {
 	private static Logger log = LoggerFactory.getLogger(HandshakeRespHandler.class);
 
 	/**
 	 * 
 	 */
-	public HandshakeRespHandler()
-	{
+	public HandshakeRespHandler() {
 
 	}
 
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 
 	}
 
 	@Override
-	public Object handler(ImPacket packet, org.tio.core.ChannelContext<ImSessionContext, ImPacket, Object> channelContext) throws Exception
-	{
+	public Object handler(ImPacket packet, org.tio.core.ChannelContext<ImSessionContext, ImPacket, Object> channelContext) throws Exception {
 		ImSessionContext imSessionContext = channelContext.getSessionContext();
 		imSessionContext.setHandshaked(true);
-		
+
 		String did = "did";
 		String token = "token";
 		String info = "info";
 		Long seq = 1L;
 		ImPacket respPacket;
-		try
-		{
+		try {
 			respPacket = createAuthPacket(did, token, info, seq);
 			Aio.send(channelContext, respPacket);
-		} catch (Exception e)
-		{
+		} catch (Exception e) {
 			log.error(e.toString(), e);
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * 构建鉴权包
 	 * @return
 	 * @throws Exception 
 	 */
-	public static ImPacket createAuthPacket(String did, String token, String info, Long seq) throws Exception
-	{
+	public static ImPacket createAuthPacket(String did, String token, String info, Long seq) throws Exception {
 		ImPacket imReqPacket = new ImPacket();
 		imReqPacket.setCommand(Command.COMMAND_AUTH_REQ);
 
@@ -74,19 +66,19 @@ public class HandshakeRespHandler implements ImAioHandlerIntf
 		token = token == null ? "" : token;
 		info = info == null ? "" : info;
 		seq = seq == null ? 0 : seq;
-		
+
 		@SuppressWarnings("unused")
 		String data = token + did + info + seq + "fdsfeofa";
-//		String sign = null;
-//		try
-//		{
-//			sign = Md5.getMD5(data);
-//		} catch (Exception e)
-//		{
-//			log.error(e.getLocalizedMessage(), e);
-//			throw new RuntimeException(e);
-//		}
-//		authReqBodyBuilder.setSign(sign);
+		//		String sign = null;
+		//		try
+		//		{
+		//			sign = Md5.getMD5(data);
+		//		} catch (Exception e)
+		//		{
+		//			log.error(e.getLocalizedMessage(), e);
+		//			throw new RuntimeException(e);
+		//		}
+		//		authReqBodyBuilder.setSign(sign);
 
 		AuthReqBody authReqBody = authReqBodyBuilder.build();
 		imReqPacket.setBody(authReqBody.toByteArray());

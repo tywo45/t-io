@@ -8,19 +8,17 @@ import org.slf4j.LoggerFactory;
  * @author tanyaowu 
  * 2017年3月25日 上午8:39:02
  */
-public class LoginRespBody extends BaseBody
-{
+public class LoginRespBody extends BaseBody {
 	@SuppressWarnings("unused")
 	private static Logger log = LoggerFactory.getLogger(LoginRespBody.class);
-	
-	public static interface Code
-	{
+
+	public static interface Code {
 		Integer SUCCESS = 1;
 		Integer FAIL = 2;
 	}
-	
+
 	private String token;
-	
+
 	private Integer code;
 	private String msg;
 
@@ -28,9 +26,8 @@ public class LoginRespBody extends BaseBody
 	 * 
 	 * @author: tanyaowu
 	 */
-	public LoginRespBody()
-	{
-		
+	public LoginRespBody() {
+
 	}
 
 	/**
@@ -38,56 +35,49 @@ public class LoginRespBody extends BaseBody
 	 *
 	 * @author: tanyaowu
 	 */
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 
 	}
 
 	/**
 	 * @return the code
 	 */
-	public Integer getCode()
-	{
+	public Integer getCode() {
 		return code;
 	}
 
 	/**
 	 * @param code the code to set
 	 */
-	public void setCode(Integer code)
-	{
+	public void setCode(Integer code) {
 		this.code = code;
 	}
 
 	/**
 	 * @return the msg
 	 */
-	public String getMsg()
-	{
+	public String getMsg() {
 		return msg;
 	}
 
 	/**
 	 * @param msg the msg to set
 	 */
-	public void setMsg(String msg)
-	{
+	public void setMsg(String msg) {
 		this.msg = msg;
 	}
 
 	/**
 	 * @return the token
 	 */
-	public String getToken()
-	{
+	public String getToken() {
 		return token;
 	}
 
 	/**
 	 * @param token the token to set
 	 */
-	public void setToken(String token)
-	{
+	public void setToken(String token) {
 		this.token = token;
 	}
 }

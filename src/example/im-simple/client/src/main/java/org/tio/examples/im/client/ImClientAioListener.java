@@ -28,8 +28,7 @@ import org.tio.examples.im.common.packets.Command;
  * @author tanyaowu 
  *
  */
-public class ImClientAioListener implements ClientAioListener<ImSessionContext, ImPacket, Object>
-{
+public class ImClientAioListener implements ClientAioListener<ImSessionContext, ImPacket, Object> {
 	private static Logger log = LoggerFactory.getLogger(ImClientAioListener.class);
 
 	private static ImPacket handshakeReqPacket = new ImPacket(Command.COMMAND_HANDSHAKE_REQ);
@@ -41,8 +40,7 @@ public class ImClientAioListener implements ClientAioListener<ImSessionContext, 
 	 * 2016年12月16日 下午5:52:06
 	 * 
 	 */
-	public ImClientAioListener()
-	{
+	public ImClientAioListener() {
 	}
 
 	/**
@@ -52,8 +50,7 @@ public class ImClientAioListener implements ClientAioListener<ImSessionContext, 
 	 * 2016年12月16日 下午5:52:06
 	 * 
 	 */
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 	}
 
 	//	@Override
@@ -67,39 +64,33 @@ public class ImClientAioListener implements ClientAioListener<ImSessionContext, 
 	//	}
 
 	@Override
-	public void onAfterConnected(ChannelContext<ImSessionContext, ImPacket, Object> channelContext, boolean isConnected, boolean isReconnect)
-	{
+	public void onAfterConnected(ChannelContext<ImSessionContext, ImPacket, Object> channelContext, boolean isConnected, boolean isReconnect) {
 		JFrameMain jFrameMain = JFrameMain.getInstance();
-		
+
 		ImSessionContext imSessionContext = new ImSessionContext();
 		channelContext.setSessionContext(imSessionContext);
 
 		ClientChannelContext<ImSessionContext, ImPacket, Object> clientChannelContext = (ClientChannelContext<ImSessionContext, ImPacket, Object>) channelContext;
-		
-		if (jFrameMain.getListModel().contains(clientChannelContext))
-		{
+
+		if (jFrameMain.getListModel().contains(clientChannelContext)) {
 			WriteLock writeLock = JFrameMain.updatingListLock.writeLock();
 			writeLock.lock();
-			
-			try
-			{
+
+			try {
 				jFrameMain.getClients().repaint();
-			} catch (Exception e)
-			{
+			} catch (Exception e) {
 				log.error(e.toString(), e);
-			}finally{
+			} finally {
 				writeLock.unlock();
 			}
 		}
 
 		JFrameMain.isNeedUpdateConnectionCount = true;
-		if (isReconnect && isConnected)
-		{
+		if (isReconnect && isConnected) {
 			JFrameMain.isNeedUpdateList = true;
 		}
 
-		if (!isConnected)
-		{
+		if (!isConnected) {
 			//没连上
 			return;
 		}
@@ -119,10 +110,8 @@ public class ImClientAioListener implements ClientAioListener<ImSessionContext, 
 	 * 
 	 */
 	@Override
-	public void onAfterSent(ChannelContext<ImSessionContext, ImPacket, Object> channelContext, ImPacket packet, boolean isSentSuccess)
-	{
-		if (isSentSuccess)
-		{
+	public void onAfterSent(ChannelContext<ImSessionContext, ImPacket, Object> channelContext, ImPacket packet, boolean isSentSuccess) {
+		if (isSentSuccess) {
 			CommandStat.getCount(packet.getCommand()).sent.incrementAndGet();
 			JFrameMain.sentPackets.incrementAndGet();
 
@@ -142,8 +131,7 @@ public class ImClientAioListener implements ClientAioListener<ImSessionContext, 
 	 * 
 	 */
 	@Override
-	public void onAfterReceived(ChannelContext<ImSessionContext, ImPacket, Object> channelContext, ImPacket packet, int packetSize)
-	{
+	public void onAfterReceived(ChannelContext<ImSessionContext, ImPacket, Object> channelContext, ImPacket packet, int packetSize) {
 		CommandStat.getCount(packet.getCommand()).received.incrementAndGet();
 		//		org.tio.examples.im.client.ui.JFrameMain.updateReceivedLabel();
 
@@ -151,20 +139,17 @@ public class ImClientAioListener implements ClientAioListener<ImSessionContext, 
 
 		long receivedPacket = JFrameMain.receivedPackets.incrementAndGet();
 		long sentPacket = JFrameMain.sentPackets.get();
-		if (receivedPacket <= 10 || sentPacket <= 10)
-		{
+		if (receivedPacket <= 10 || sentPacket <= 10) {
 			return;
 		}
 
 		long time = SystemTimer.currentTimeMillis();
 
 		JFrameMain frameMain = JFrameMain.getInstance();
-		if (receivedPacket % 100000 == 0)
-		{
+		if (receivedPacket % 100000 == 0) {
 			long sendStartTime = frameMain.getSendStartTime();
 			long in = time - sendStartTime;
-			if (in <= 0)
-			{
+			if (in <= 0) {
 				in = 1;
 			}
 
@@ -206,65 +191,51 @@ public class ImClientAioListener implements ClientAioListener<ImSessionContext, 
 	 * 
 	 */
 	@Override
-	public void onAfterClose(ChannelContext<ImSessionContext, ImPacket, Object> channelContext, Throwable throwable, String remark, boolean isRemove)
-	{
+	public void onAfterClose(ChannelContext<ImSessionContext, ImPacket, Object> channelContext, Throwable throwable, String remark, boolean isRemove) {
 		ImSessionContext imSessionContext = channelContext.getSessionContext();
 		imSessionContext.setHandshaked(false);
 
 		JFrameMain jFrameMain = JFrameMain.getInstance();
-		
+
 		WriteLock updatingListWriteLock = JFrameMain.updatingListLock.writeLock();
 		DefaultListModel<ClientChannelContext<ImSessionContext, ImPacket, Object>> listModel = jFrameMain.getListModel();
-		
-		
-		
-		if (listModel.contains(channelContext)){
+
+		if (listModel.contains(channelContext)) {
 			updatingListWriteLock.lock();
 			JList<ClientChannelContext<ImSessionContext, ImPacket, Object>> clients = jFrameMain.getClients();
-			
-			try
-			{
-				if (isRemove)
-				{
+
+			try {
+				if (isRemove) {
 					listModel.removeElement(channelContext);
 				}
-				
+
 				ClientGroupContext<ImSessionContext, ImPacket, Object> clientGroupContext = (ClientGroupContext<ImSessionContext, ImPacket, Object>) channelContext
 						.getGroupContext();
 				ObjWithLock<Set<ChannelContext<ImSessionContext, ImPacket, Object>>> setWithLock = clientGroupContext.connections.getSetWithLock();
 				Set<ChannelContext<ImSessionContext, ImPacket, Object>> set = setWithLock.getObj();
 				ReadLock readLock = setWithLock.getLock().readLock();
 
-				try
-				{
+				try {
 					readLock.lock();
-					for (ChannelContext<ImSessionContext, ImPacket, Object> channelContext1 : set)
-					{
-						if (!listModel.contains(channelContext1))
-						{
-							if (listModel.size() < JFrameMain.MAX_LIST_COUNT)
-							{
+					for (ChannelContext<ImSessionContext, ImPacket, Object> channelContext1 : set) {
+						if (!listModel.contains(channelContext1)) {
+							if (listModel.size() < JFrameMain.MAX_LIST_COUNT) {
 								listModel.addElement((ClientChannelContext<ImSessionContext, ImPacket, Object>) channelContext1);
-							} else
-							{
+							} else {
 								break;
 							}
 						}
 					}
-				} catch (Exception e)
-				{
+				} catch (Exception e) {
 					log.error(e.toString(), e);
-				} finally
-				{
+				} finally {
 					readLock.unlock();
 				}
 				jFrameMain.getClients().repaint();
 
-			} catch (Exception e)
-			{
+			} catch (Exception e) {
 				log.error(e.toString(), e);
-			} finally
-			{
+			} finally {
 				updatingListWriteLock.unlock();
 			}
 		} else {

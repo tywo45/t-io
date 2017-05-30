@@ -23,31 +23,26 @@ import org.tio.server.intf.ServerAioHandler;
  * @author tanyaowu 
  *
  */
-public class ShowcaseServerAioHandler extends ShowcaseAbsAioHandler implements ServerAioHandler<ShowcaseSessionContext, ShowcasePacket, Object>
-{
+public class ShowcaseServerAioHandler extends ShowcaseAbsAioHandler implements ServerAioHandler<ShowcaseSessionContext, ShowcasePacket, Object> {
 	private static Logger log = LoggerFactory.getLogger(ShowcaseServerAioHandler.class);
 
 	private static Map<Byte, AbsShowcaseBsHandler<?>> handlerMap = new HashMap<>();
-	static
-	{
+	static {
 		handlerMap.put(Type.GROUP_MSG_REQ, new GroupMsgReqHandler());
 		handlerMap.put(Type.HEART_BEAT_REQ, new HeartbeatReqHandler());
 		handlerMap.put(Type.JOIN_GROUP_REQ, new JoinGroupReqHandler());
 		handlerMap.put(Type.LOGIN_REQ, new LoginReqHandler());
 		handlerMap.put(Type.P2P_REQ, new P2PReqHandler());
 	}
-	
-	
+
 	/** 
 	 * 处理消息
 	 */
 	@Override
-	public Object handler(ShowcasePacket packet, ChannelContext<ShowcaseSessionContext, ShowcasePacket, Object> channelContext) throws Exception
-	{
+	public Object handler(ShowcasePacket packet, ChannelContext<ShowcaseSessionContext, ShowcasePacket, Object> channelContext) throws Exception {
 		Byte type = packet.getType();
 		AbsShowcaseBsHandler<?> showcaseBsHandler = handlerMap.get(type);
-		if (showcaseBsHandler == null)
-		{
+		if (showcaseBsHandler == null) {
 			log.error("{}, 找不到处理类，type:{}", channelContext, type);
 			return null;
 		}

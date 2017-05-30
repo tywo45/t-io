@@ -4,7 +4,7 @@
 	<groupId>org.t-io</groupId>
 	<artifactId>tio-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>1.7.0.v20170501-RELEASE</version>
+	<version>1.7.0.1.v20170601-RELEASE</version>
 	<name>tio-parent</name>
 	<url>http://maven.apache.org</url>
 
@@ -48,10 +48,10 @@
 		<commons-lang3.version>3.5</commons-lang3.version>
 		<commons-codec.version>1.10</commons-codec.version>
 		<commons-compress.version>1.13</commons-compress.version>
-		<fastjson.version>1.2.31</fastjson.version>
+		<fastjson.version>1.2.32</fastjson.version>
 		<testng.version>6.11</testng.version>
 		<hutool.version>3.0.5</hutool.version>
-		<protobuf-java.version>3.2.0</protobuf-java.version>
+		<protobuf-java.version>3.3.0</protobuf-java.version>
 		<commons-beanutils.version>1.9.3</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
 

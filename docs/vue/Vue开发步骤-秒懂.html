@@ -1,0 +1,103 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+<meta content="text/css" http-equiv="Content-Style-Type">
+<title>Vue开发步骤-秒懂</title>
+</head>
+<body>
+<h1 align="center" class="root">
+<a name="2vti66o0itjhrsvnsu4880mi73">Vue开发步骤-秒懂</a>
+</h1>
+<div align="center" class="globalOverview">
+<img src="Vue%E5%BC%80%E5%8F%91%E6%AD%A5%E9%AA%A4-%E7%A7%92%E6%87%82_files/images/Vue%E5%BC%80%E5%8F%91%E6%AD%A5%E9%AA%A4-%E7%A7%92%E6%87%82.jpg"></div>
+<h2 class="topic">1 <a name="1n0l2gs1rtbh7kkte4gt9i893v">安装</a>
+</h2>
+<h3 class="topic">1.1 <a name="5i62iajbso4d5oj1gmknq9k432">&nbsp; https://nodejs.org/en/download/</a>
+</h3>
+<h2 class="topic">2 <a name="3ipokf7o9grs2miso2vv2ob7ji">设置本地库位置</a>
+</h2>
+<h3 class="topic">2.1 <a name="3qq42enb504k5gebj5mo1meqdm">&nbsp;npm config set cache "D:\nodejs\node_cache"</a>
+</h3>
+<h3 class="topic">2.2 <a name="4aqqnjs7b74gla3asl74mftvoa">&nbsp;npm config set prefix "D:\nodejs\node_global"</a>
+</h3>
+<h2 class="topic">3 <a name="546p1h6hhhuhbkgjfjga35s714">设置path</a>
+</h2>
+<h3 class="topic">3.1 <a name="2v12b7q14aleb8iu4b89q6nf0d">&nbsp;d:\nodejs\node_global;d:\nodejs;</a>
+</h3>
+<h2 class="topic">4 <a name="60s4d8lifnj6armbin9i8sdvpa">用cnpm</a>
+</h2>
+<h3 class="topic">4.1 <a name="7iqqui8r48e7k44hvj5s74ap2l">&nbsp;npm install -g cnpm --registry=https://registry.npm.taobao.org</a>
+</h3>
+<h3 class="topic">4.2 <a name="4s5l9o6lnmguedea5je56s4b69">&nbsp;后面用cnpm代替npm命令就可以了</a>
+</h3>
+<h2 class="topic">5 <a name="2re3cnjkid7c5p0c96gngrh0m4">安装vue-cli</a>
+</h2>
+<h3 class="topic">5.1 <a name="0b9g6q21h468c9tpdnukkh9moe">&nbsp;cnpm install -g vue-cli</a>
+</h3>
+<h2 class="topic">6 <a name="5rtoefgmdelobk3q0rltrtdj19">创建项目</a>
+</h2>
+<h3 class="topic">6.1 <a name="3b9u8jup1j8j67jirc85u9h914">&nbsp;vue init webpack my-project</a>
+</h3>
+<h3 class="topic">6.2 <a name="728j3q1d20g70lm9r09jt2b842">&nbsp;cd my-project</a>
+</h3>
+<h3 class="topic">6.3 <a name="1hj824e9snc589drsmk08bi6m4">&nbsp;安装依赖</a>
+</h3>
+<h3 class="topic">6.3.1 <a name="214bkli895t7tfa90plj91qf37">&nbsp;&nbsp;cnpm install</a>
+</h3>
+<h3 class="topic">6.4 <a name="3p2p110lulu8ospldvla0pphj3">&nbsp;开始运行</a>
+</h3>
+<h3 class="topic">6.4.1 <a name="5unb668kf8j3j9mlv4h777itu1">&nbsp;&nbsp;cnpm run dev</a>
+</h3>
+<h3 class="topic">6.5 <a name="0vnp6fj40d4dteaai4fn9cl2p1">&nbsp;访问项目</a>
+</h3>
+<h3 class="topic">6.5.1 <a name="566bk36d1blj0vejmv0pmjbl2n">&nbsp;&nbsp;localhost:8080</a>
+</h3>
+<h3 class="topic">6.6 <a name="06j5dugnn24a5pej8207pk4bl2">&nbsp;项目打包</a>
+</h3>
+<h3 class="topic">6.6.1 <a name="1qjorigh6ekeacjs5t2rt79dug">&nbsp;&nbsp;npm run build</a>
+</h3>
+<h2 class="topic">7 <a name="3nqv1ghh4ajts5o1fmtqpi86un">开始干活</a>
+</h2>
+<h3 class="topic">7.1 <a name="6drttql34t44qub1pg5ok70h7h">&nbsp;开发工具</a>
+</h3>
+<h3 class="topic">7.1.1 <a name="4nipp9dkas1m14tha5jsp985ot">&nbsp;&nbsp;vscode</a>
+</h3>
+<h3 class="topic">7.1.1.1 <a name="6uvtgmuhrp9nmd87vu16kvc430">&nbsp;&nbsp;&nbsp;https://code.visualstudio.com/</a>
+</h3>
+<h3 class="topic">7.1.1.1.1 <a name="59ki3sp28uerl42kqrqfblba7c">&nbsp;&nbsp;&nbsp;&nbsp;安装插件</a>
+</h3>
+<h3 class="topic">7.1.1.1.1.1 <a name="0iptujjnnd48qdhlks25t2jgtl">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;打开vscode</a>
+</h3>
+<h3 class="topic">7.1.1.1.1.2 <a name="3s7aeuf5i3ib3tdpk8a3s1takh">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;查看--&gt;扩展</a>
+</h3>
+<h3 class="topic">7.1.1.1.1.3 <a name="43m00ff8thor6ohcb9dlhn42l2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;安装vetur</a>
+</h3>
+<h3 class="topic">7.1.1.1.1.4 <a name="2a70v5hfrqaeq81gllc2pm3ura">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;安装VueHelper</a>
+</h3>
+<h3 class="topic">7.1.1.1.1.5 <a name="63j65a43ukkuatplktjsqcdhu0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;eclipse keymap</a>
+</h3>
+<h3 class="topic">7.1.1.1.1.6 <a name="3a5u5kjttucs3qvjk5gao628vh">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vscode-icons</a>
+</h3>
+<h3 class="topic">7.1.1.1.1.7 <a name="6vj2tjp3qc0d0oafnkfmekmr90">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;js-css-html-formatter</a>
+</h3>
+<h3 class="topic">7.1.1.1.1.8 <a name="0sjh4lgv7hbvsi5j6nf6sdlaim">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;子主题 8</a>
+</h3>
+<p class="topicImage">
+<img height="638" src="Vue%E5%BC%80%E5%8F%91%E6%AD%A5%E9%AA%A4-%E7%A7%92%E6%87%82_files/24cuv8rvun94ppa9v30rer9ddq.png" width="732"></p>
+<h3 class="topic">7.1.2 <a name="1h9jvgencsve44c6q8pmn2goef">&nbsp;&nbsp;atom</a>
+</h3>
+<h3 class="topic">7.1.2.1 <a name="6ai5bgmvu1p6am1hucgf8bdmll">&nbsp;&nbsp;&nbsp;https://atom.io/</a>
+</h3>
+<h3 class="topic">7.1.3 <a name="3a07aubdv3h3l9gc7h2tlln5l5">&nbsp;&nbsp;sublime text</a>
+</h3>
+<h3 class="topic">7.1.3.1 <a name="450bbr980a792i5c6jl50ll9eh">&nbsp;&nbsp;&nbsp;http://www.sublimetext.com/</a>
+</h3>
+<h3 class="topic">7.2 <a name="0rprtum3nb918vfo5mv94sh3ao">&nbsp;参考项目</a>
+</h3>
+<h3 class="topic">7.2.1 <a name="7lv6j57sdfdn2oc300es4blc2s">&nbsp;&nbsp;https://github.com/lzxb/vue2-demo</a>
+</h3>
+<h3 class="topic">7.2.2 <a name="2ahpjka2jsculjbk60dbn7oumc">&nbsp;&nbsp;https://github.com/Coffcer/vue-chat</a>
+</h3>
+</body>
+</html>

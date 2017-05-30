@@ -16,8 +16,7 @@ import org.tio.server.intf.ServerAioListener;
  * @author tanyaowu 
  *
  */
-public class ImServerStarter
-{
+public class ImServerStarter {
 	@SuppressWarnings("unused")
 	private static Logger log = LoggerFactory.getLogger(ImServerStarter.class);
 
@@ -28,8 +27,7 @@ public class ImServerStarter
 	 * 2016年11月17日 下午5:59:24
 	 * 
 	 */
-	public ImServerStarter()
-	{
+	public ImServerStarter() {
 
 	}
 
@@ -53,13 +51,12 @@ public class ImServerStarter
 	 * 2016年11月17日 下午5:59:24
 	 * 
 	 */
-	public static void main(String[] args) throws IOException
-	{
+	public static void main(String[] args) throws IOException {
 		aioHandler = new ImServerAioHandler();
 		aioListener = new ImServerAioListener();
 		serverGroupContext = new ServerGroupContext<>(aioHandler, aioListener);
 		serverGroupContext.setEncodeCareWithChannelContext(true);
-//		serverGroupContext.setReadBufferSize(2048);
+		//		serverGroupContext.setReadBufferSize(2048);
 		aioServer = new AioServer<>(serverGroupContext);
 		aioServer.start(ip, port);
 	}

@@ -36,29 +36,26 @@ import com.typesafe.config.ConfigFactory;
  * </table>
  */
 
-public class AuthRespHandler implements ImAioHandlerIntf
-{
+public class AuthRespHandler implements ImAioHandlerIntf {
 	@SuppressWarnings("unused")
 	private static Logger log = LoggerFactory.getLogger(AuthRespHandler.class);
 
 	/**
 	 * 
 	 */
-	public AuthRespHandler()
-	{
+	public AuthRespHandler() {
 
 	}
 
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 		Config conf = ConfigFactory.load("app.conf");
 		int bar1 = conf.getInt("client.count");
-//		Config foo = conf.getConfig("foo");
-//		int bar2 = foo.getInt("bar");
-		
+		//		Config foo = conf.getConfig("foo");
+		//		int bar2 = foo.getInt("bar");
+
 		System.out.println(bar1);
 	}
 
@@ -74,8 +71,7 @@ public class AuthRespHandler implements ImAioHandlerIntf
 	 * 
 	 */
 	@Override
-	public Object handler(ImPacket packet, ChannelContext<ImSessionContext, ImPacket, Object> channelContext) throws Exception
-	{
+	public Object handler(ImPacket packet, ChannelContext<ImSessionContext, ImPacket, Object> channelContext) throws Exception {
 		String group = JFrameMain.getInstance().getGroupField().getText();
 		JoinReqBody reqBody = JoinReqBody.newBuilder().setGroup(group).setTime(SystemTimer.currentTimeMillis()).build();
 		byte[] body = reqBody.toByteArray();

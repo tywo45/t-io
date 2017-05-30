@@ -24,27 +24,23 @@ import javax.swing.JTextArea;
  * </tbody>
  * </table>
  */
-public class MyTextArea extends JTextArea
-{
+public class MyTextArea extends JTextArea {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 3378322477292463851L;
 	private JPopupMenu jPopupMenu = null;
 
-	public MyTextArea()
-	{
+	public MyTextArea() {
 		this.jPopupMenu = new MsgTextAreaJPopupMenu(this);
 	}
 
-	public MyTextArea(JPopupMenu jPopupMenu)
-	{
+	public MyTextArea(JPopupMenu jPopupMenu) {
 		this.jPopupMenu = jPopupMenu;
 	}
 
 	@Override
-	public void processMouseEvent(java.awt.event.MouseEvent e)
-	{
+	public void processMouseEvent(java.awt.event.MouseEvent e) {
 		if (e.isPopupTrigger())
 			jPopupMenu.show(this, e.getX(), e.getY());
 		else

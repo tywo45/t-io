@@ -11,7 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.tio.client.ReconnConf;
 import org.tio.core.intf.AioHandler;
 import org.tio.core.intf.AioListener;
-import org.tio.core.intf.ClientTraceHandler;
+import org.tio.core.intf.ChannelTraceHandler;
+import org.tio.core.intf.GroupListener;
 import org.tio.core.intf.Packet;
 import org.tio.core.maintain.ChannelContextMapWithLock;
 import org.tio.core.maintain.ChannelContextSetWithLock;
@@ -26,11 +27,11 @@ import org.tio.core.threadpool.SynThreadPoolExecutor;
 public abstract class GroupContext<SessionContext, P extends Packet, R> {
 	static Logger log = LoggerFactory.getLogger(GroupContext.class);
 
-	private static int CORE_POOL_SIZE = Runtime.getRuntime().availableProcessors() * 1;
+	private static int CORE_POOL_SIZE = Runtime.getRuntime().availableProcessors() * 2;
 
 	//	public static final int CORE_POOL_SIZE = _CORE_POOL_SIZE;// < 160 ? 160 : _CORE_POOL_SIZE;
 
-	private static final int MAX_POOL_SIZE = CORE_POOL_SIZE * 2 < 256 ? 256 : CORE_POOL_SIZE * 2;
+	private static final int MAX_POOL_SIZE = CORE_POOL_SIZE * 4 < 256 ? 256 : CORE_POOL_SIZE * 4;
 
 	//	public static final Semaphore SYN_SEND_SEMAPHORE = new Semaphore(CORE_POOL_SIZE);
 
@@ -62,7 +63,9 @@ public abstract class GroupContext<SessionContext, P extends Packet, R> {
 
 	protected ReconnConf<SessionContext, P, R> reconnConf;//重连配置
 
-	private ClientTraceHandler<SessionContext, P, R> clientTraceHandler = new DefaultClientTraceHandler<SessionContext, P, R>();
+	private ChannelTraceHandler<SessionContext, P, R> clientTraceHandler = new DefaultChannelTraceHandler<SessionContext, P, R>();
+
+	private GroupListener<SessionContext, P, R> groupListener = null;
 
 	/** The group executor. */
 	protected SynThreadPoolExecutor tioExecutor = null;
@@ -76,7 +79,7 @@ public abstract class GroupContext<SessionContext, P extends Packet, R> {
 
 	public final Groups<SessionContext, P, R> groups = new Groups<>();
 	public final Users<SessionContext, P, R> users = new Users<>();
-	public static final Ids<?, ?, ?> ids = new Ids<>();
+	public final Ids<SessionContext, P, R> ids = new Ids<>();
 
 	public final ChannelContextMapWithLock<SessionContext, P, R> waitingResps = new ChannelContextMapWithLock<>();
 
@@ -97,7 +100,7 @@ public abstract class GroupContext<SessionContext, P extends Packet, R> {
 
 		LinkedBlockingQueue<Runnable> tioQueue = new LinkedBlockingQueue<Runnable>();
 		String tioThreadName = "tio";
-		tioExecutor = new SynThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, KEEP_ALIVE_TIME, tioQueue, DefaultThreadFactory.getInstance(tioThreadName, Thread.NORM_PRIORITY),
+		tioExecutor = new SynThreadPoolExecutor(CORE_POOL_SIZE, CORE_POOL_SIZE, KEEP_ALIVE_TIME, tioQueue, DefaultThreadFactory.getInstance(tioThreadName, Thread.NORM_PRIORITY),
 				tioThreadName);
 		tioExecutor.prestartAllCoreThreads();
 
@@ -110,7 +113,7 @@ public abstract class GroupContext<SessionContext, P extends Packet, R> {
 
 		LinkedBlockingQueue<Runnable> groupQueue = new LinkedBlockingQueue<Runnable>();
 		String groupThreadName = "tio-group";
-		groupExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.SECONDS, groupQueue,
+		groupExecutor = new ThreadPoolExecutor(MAX_POOL_SIZE, MAX_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.SECONDS, groupQueue,
 				DefaultThreadFactory.getInstance(groupThreadName, Thread.NORM_PRIORITY));
 		groupExecutor.prestartAllCoreThreads();
 	}
@@ -270,14 +273,28 @@ public abstract class GroupContext<SessionContext, P extends Packet, R> {
 	/**
 	 * @return the clientTraceHandler
 	 */
-	public ClientTraceHandler<SessionContext, P, R> getClientTraceHandler() {
+	public ChannelTraceHandler<SessionContext, P, R> getClientTraceHandler() {
 		return clientTraceHandler;
 	}
 
 	/**
 	 * @param clientTraceHandler the clientTraceHandler to set
 	 */
-	public void setClientTraceHandler(ClientTraceHandler<SessionContext, P, R> clientTraceHandler) {
+	public void setClientTraceHandler(ChannelTraceHandler<SessionContext, P, R> clientTraceHandler) {
 		this.clientTraceHandler = clientTraceHandler;
+	}
+
+	/**
+	 * @return the groupListener
+	 */
+	public GroupListener<SessionContext, P, R> getGroupListener() {
+		return groupListener;
+	}
+
+	/**
+	 * @param groupListener the groupListener to set
+	 */
+	public void setGroupListener(GroupListener<SessionContext, P, R> groupListener) {
+		this.groupListener = groupListener;
 	}
 }

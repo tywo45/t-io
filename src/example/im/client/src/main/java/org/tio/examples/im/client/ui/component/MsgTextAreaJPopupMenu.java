@@ -30,37 +30,32 @@ import org.slf4j.LoggerFactory;
  * </tbody>
  * </table>
  */
-public class MsgTextAreaJPopupMenu extends JPopupMenu implements ActionListener
-{
+public class MsgTextAreaJPopupMenu extends JPopupMenu implements ActionListener {
 	private static Logger log = LoggerFactory.getLogger(MsgTextAreaJPopupMenu.class);
 
 	/**
 	 * 
 	 */
-	public MsgTextAreaJPopupMenu()
-	{
+	public MsgTextAreaJPopupMenu() {
 
 	}
 
 	/**
 	 * @param label
 	 */
-	public MsgTextAreaJPopupMenu(String label)
-	{
+	public MsgTextAreaJPopupMenu(String label) {
 		super(label);
 	}
 
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 	}
 
 	private JTextComponent jTextComponent = null;
 
-	public MsgTextAreaJPopupMenu(JTextComponent jTextComponent)
-	{
+	public MsgTextAreaJPopupMenu(JTextComponent jTextComponent) {
 		this.jTextComponent = jTextComponent;
 		add(getCleanMenuItem());
 		add(getSelectallMenuItem());
@@ -70,40 +65,35 @@ public class MsgTextAreaJPopupMenu extends JPopupMenu implements ActionListener
 
 	}
 
-	private JMenuItem getCopyMenuItem()
-	{
+	private JMenuItem getCopyMenuItem() {
 		JMenuItem copyMenuItem = new JMenuItem();
 		copyMenuItem.setText("copy");
 		copyMenuItem.addActionListener(this);
 		return copyMenuItem;
 	}
 
-	private JMenuItem getCutMenuItem()
-	{
+	private JMenuItem getCutMenuItem() {
 		JMenuItem cutMenuItem = new JMenuItem();
 		cutMenuItem.setText("cut");
 		cutMenuItem.addActionListener(this);
 		return cutMenuItem;
 	}
 
-	private JMenuItem getPasteMenuItem()
-	{
+	private JMenuItem getPasteMenuItem() {
 		JMenuItem pasteMenuItem = new JMenuItem();
 		pasteMenuItem.setText("paste");
 		pasteMenuItem.addActionListener(this);
 		return pasteMenuItem;
 	}
 
-	private JMenuItem getCleanMenuItem()
-	{
+	private JMenuItem getCleanMenuItem() {
 		JMenuItem pasteMenuItem = new JMenuItem();
 		pasteMenuItem.setText("clean");
 		pasteMenuItem.addActionListener(this);
 		return pasteMenuItem;
 	}
 
-	private JMenuItem getSelectallMenuItem()
-	{
+	private JMenuItem getSelectallMenuItem() {
 		JMenuItem pasteMenuItem = new JMenuItem();
 		pasteMenuItem.setText("select all");
 		pasteMenuItem.addActionListener(this);
@@ -111,24 +101,18 @@ public class MsgTextAreaJPopupMenu extends JPopupMenu implements ActionListener
 	}
 
 	@Override
-	public void actionPerformed(java.awt.event.ActionEvent e)
-	{
+	public void actionPerformed(java.awt.event.ActionEvent e) {
 		java.awt.datatransfer.Clipboard clipbd = new java.awt.datatransfer.Clipboard("");
 		String command = e.getActionCommand();
-		if (command.equalsIgnoreCase("select all"))
-		{
+		if (command.equalsIgnoreCase("select all")) {
 			jTextComponent.selectAll();
-		} else if (command.equalsIgnoreCase("clean"))
-		{
+		} else if (command.equalsIgnoreCase("clean")) {
 			jTextComponent.setText("");
-		} else if (command.equalsIgnoreCase("copy"))
-		{
+		} else if (command.equalsIgnoreCase("copy")) {
 			jTextComponent.copy();
-		} else if (command.equalsIgnoreCase("cut"))
-		{
+		} else if (command.equalsIgnoreCase("cut")) {
 			jTextComponent.cut();
-		} else if (command.equalsIgnoreCase("paste"))
-		{
+		} else if (command.equalsIgnoreCase("paste")) {
 			jTextComponent.paste();
 		}
 	}

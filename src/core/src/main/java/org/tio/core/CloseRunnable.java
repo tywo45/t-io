@@ -92,8 +92,6 @@ public class CloseRunnable<SessionContext, P extends Packet, R> implements Runna
 					}
 				}
 
-				channelContext.traceClient(ClientAction.UNCONNECT, null, null);
-
 				if (channelContext.isClosed() && !isRemove) {
 					log.info("{}已经关闭，备注:{}，异常:{}", channelContext, remark, throwable == null ? "无" : throwable.toString());
 					return;

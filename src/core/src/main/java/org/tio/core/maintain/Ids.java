@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
 import org.tio.core.ChannelContext;
-import org.tio.core.ObjWithLock;
+import org.tio.core.MapWithLock;
 import org.tio.core.intf.Packet;
 
 /**
@@ -19,12 +19,13 @@ public class Ids<SessionContext, P extends Packet, R> {
 	 * key: id
 	 * value: ChannelContext
 	 */
-	private ObjWithLock<Map<String, ChannelContext<?, ?, ?>>> map = new ObjWithLock<Map<String, ChannelContext<?, ?, ?>>>(new HashMap<String, ChannelContext<?, ?, ?>>());
+	private MapWithLock<String, ChannelContext<SessionContext, P, R>> map = new MapWithLock<String, ChannelContext<SessionContext, P, R>>(
+			new HashMap<String, ChannelContext<SessionContext, P, R>>());
 
 	/**
 	 * @return the map
 	 */
-	public ObjWithLock<Map<String, ChannelContext<?, ?, ?>>> getMap() {
+	public MapWithLock<String, ChannelContext<SessionContext, P, R>> getMap() {
 		return map;
 	}
 
@@ -33,9 +34,9 @@ public class Ids<SessionContext, P extends Packet, R> {
 	 * @param channelContext
 	 * @author: tanyaowu
 	 */
-	public void unbind(ChannelContext<?, ?, ?> channelContext) {
+	public void unbind(ChannelContext<SessionContext, P, R> channelContext) {
 		Lock lock = map.getLock().writeLock();
-		Map<String, ChannelContext<?, ?, ?>> m = map.getObj();
+		Map<String, ChannelContext<SessionContext, P, R>> m = map.getObj();
 		try {
 			lock.lock();
 			m.remove(channelContext.getId());
@@ -51,10 +52,10 @@ public class Ids<SessionContext, P extends Packet, R> {
 	 * @param channelContext
 	 * @author: tanyaowu
 	 */
-	public void bind(ChannelContext<?, ?, ?> channelContext) {
+	public void bind(ChannelContext<SessionContext, P, R> channelContext) {
 		String key = channelContext.getId();
 		Lock lock = map.getLock().writeLock();
-		Map<String, ChannelContext<?, ?, ?>> m = map.getObj();
+		Map<String, ChannelContext<SessionContext, P, R>> m = map.getObj();
 
 		try {
 			lock.lock();
@@ -73,10 +74,10 @@ public class Ids<SessionContext, P extends Packet, R> {
 	 * @param id the id
 	 * @return the channel context
 	 */
-	public ChannelContext<?, ?, ?> find(String id) {
+	public ChannelContext<SessionContext, P, R> find(String id) {
 		String key = id;
 		Lock lock = map.getLock().readLock();
-		Map<String, ChannelContext<?, ?, ?>> m = map.getObj();
+		Map<String, ChannelContext<SessionContext, P, R>> m = map.getObj();
 
 		try {
 			lock.lock();

@@ -91,7 +91,7 @@ public class AioServer<SessionContext, P extends Packet, R> {
 	}
 
 	/**
-	 * 
+	 * 此方法生产环境中用不到，暂未测试
 	 * @return
 	 *
 	 * @author: tanyaowu
