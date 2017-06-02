@@ -1,8 +1,9 @@
 
 ## **t-io: 百万级TCP长连接即时通讯框架，让天下没有难开发的即时通讯**
 
-- t-io是基于jdk aio实现的易学易用、稳定、性能强悍、**将多线程运用到极致**、内置功能丰富、核心代码只有3000多行(2017年05月13号统计)的即时通讯框架(广义上的即时通讯，并非指im)，字母 t 寓意talent。
+- t-io是基于jdk aio实现的易学易用、稳定、性能强悍、**将多线程运用到极致**、内置功能丰富的即时通讯框架(广义上的即时通讯，并非指im)，字母 t 寓意talent。
 - 同类型的框架还有[voovan](https://www.oschina.net/p/voovan)、[netty](https://www.oschina.net/p/netty)、[mina](https://www.oschina.net/p/mina)、[baseio](https://git.oschina.net/generallycloud/baseio)等，不喜欢t-io的可以去尝试了解这几个，t-io对所有人按LGPL协议开源，但只服务于品行良好的开发人员！
+- t-io在协议生态全面建立起来前，更多的是适合私有协议TCP连接项目，所以如果你想实现一个复杂的公有协议的产品，可以用协议生态更为完整的其它类似框架。
 
 ####  **常见应用场景**
     
@@ -14,9 +15,9 @@
 - 物联网（已有很多案例）
 - 其它实时通讯类型的场景，不一一列举
 
-####  **晒一下作者花两天时间用t-io和[layim](http://layim.layui.com/)做的[web im](http://www.t-io.org:9292/newim/)**（服务器由某公司免费提供，只有2M带宽，最近被Ddos攻击，所以随时都可能暂停而导致你访问失败）
+####  **小晒一下作者花两天时间用t-io和[layim](http://layim.layui.com/)做的[web im](http://www.t-io.org:9292/newim/)**
   
-- 先感谢一下贤心提供这么好的ui作品，也欢迎大家去捐赠获取[layim](http://layim.layui.com/)，本人捐赠了[layim](http://layim.layui.com/)，**只是贤心又零差价地回捐了t-io**。  
+- 先感谢一下贤心提供这么好的ui作品，也欢迎大家去捐赠获取[layim](http://layim.layui.com/)。  
 - 东西刚刚出来，还需要打磨，有问题在所难免，毕竟只花了两天时间。
 - [演示地址](http://www.t-io.org:9292/newim/)（2M带宽，请勿压测，谢谢！）
 - 截图
@@ -32,11 +33,6 @@
 ---
 
 
-## 重点强调
--  [**社区提问规范**](http://www.t-io.cn:9292/howtoqa.html)
--  [**入群提问规范**](https://my.oschina.net/talenttan/blog/888808)
--  **请陌生的朋友不要再私下提问**
-
 ## maven坐标
 ```
 <dependency>
@@ -51,8 +47,8 @@
 - 只需花上30分钟学习helloworld，就能较好地掌握并实现一个性能极好的即时通讯应用
 
 ###  极震撼的性能
-- 单机轻松支持**百万级tcp长连接**，彻底甩开业界C1000K烦恼（不过现在已经有不少公司已经搞定c1000K问题了）；
-- 最高时，每秒可以收发500万条业务消息，约165M（**1.6.9版本数据，想验证的，后面有验证步骤**）
+- 单机轻松支持**百万级tcp长连接**，彻底甩开业界C1000K烦恼；
+- 最高时，每秒可以收发500万条业务消息，约165M（**1.6.9版本数据，想验证的，后面有验证步骤，1.7.1版本的im由于加入了许多业务功能，所以不能用于测试框架性能**）
 
 ###  对开发人员极体贴的内置功能
 - **内置心跳检测**
@@ -62,7 +58,7 @@
 - **一行代码拥有自动重连功能**
 - **各项消息统计等功能，全部一键内置搞定，省却各种烦恼**
 
-###  一张思维导图胜过千言万语(部分方法在未发布的1.7.1版本中)
+###  鸟瞰t-io
 
 ---
 
@@ -96,12 +92,6 @@
  - [资料及问题汇总][5]
 
 
-## **性能数据**
-- 需要验证的，请按后面提供的验证步骤来，对于t-io的数据，要么相信作者所说，要么自己亲手去测，网上的抹黑造谣谩骂很多，但真理来自测试。**验证完毕后，自己偷着乐就好，注意规避网上那些喷子，不要回复他们（t-io被黑了几个月，这两天，作者本人抓住确凿证据后正面回应了两个人，结果引来了更多的喷子（简单点看了几个 人，基本是些活跃度和访问量极低的用户），前车之鉴）**。如果你对测试数据还有疑问，可以debug进去看看各个步骤，重点是多沟通，防止误判
-- IM实例收发速度500万条/秒----此数据系网友提供（i7 6700 + 固态硬盘 + win10），作者本地只跑到了333万/秒
-- IM实例17.82万TCP长连接且正常收发消息只消耗800M内存，CPU使用率极低，目测t-io可以支撑200万长连接
-- 17.82万长连接 + 各种破坏性测试，服务器内存保持稳定（600多M到900M间）
-
 ## **性能测试步骤**
 
 ### 测试单机吞吐量（实际上就是非网络环境啦）
@@ -111,8 +101,8 @@
     - 操作系统：windows7/windows10
     - 说明：**客户机和服务器位于同一台机器**
 2. 测试步骤
-    - **参数调优**：修改t-io\dist\examples\im\client\startup.bat，把-Dtio.default.read.buffer.size=512的值换成4096
-    - **参数调优**：修改t-io\dist\examples\im\server\startup.bat，把-Dtio.default.read.buffer.size=512的值换成4096
+    - **参数调优**：修改t-io\dist\examples\im\client\startup.bat，把-Dtio.default.read.buffer.size的值换成4096
+    - **参数调优**：修改t-io\dist\examples\im\server\startup.bat，把-Dtio.default.read.buffer.size的值换成4096
     - 双击 "bin/start-im-server.bat" 启动im server
     - 双击 "bin/start-im-client.bat" 启动im client
     - 保持下图参数进行测试（**强调：你需要多试几次，前面几次的性能数据是最差的，貌似跟线程池的预热有关系，有研究的朋友可以交流一下**）
@@ -171,10 +161,7 @@
 - 双击 "bin/start-im-server.bat" 启动im server
 - 双击 "bin/start-im-client.bat" 启动im client
 - 对着界面把玩几下，测试一把性能数据，对t-io形成感性认识（注意：好的性能数据需要预热几把，让线程池活起来）
-- 熟悉客户端界面（版本不一样，此界面会不一样，以实物为准）
-![image](http://git.oschina.net/tywo45/t-io/raw/master/docs/performance/500%E4%B8%87.png)
-- 服务器端界面（版本不一样，此界面会不一样，以实物为准）
-![image](http://git.oschina.net/tywo45/t-io/raw/master/docs/im/server.png)
+
 
 ### 了解代码目录结构
 所有工程都是maven工程，后续目录有可能稍有变动，不定期更新
@@ -197,10 +184,6 @@
 │      start-im-client.sh
 │      start-im-server.bat----------------启动im的服务端
 │      start-im-server.sh
-│      start-im-simple-client.bat----------------启动简化版协议的im的客户端
-│      start-im-simple-client.sh
-│      start-im-simple-server.bat----------------启动简化版协议的im的服务端
-│      start-im-simple-server.sh
 │      start-showcase-client.bat----------------启动showcase的客户端
 │      start-showcase-client.sh
 │      start-showcase-server.bat----------------启动showcase的服务端
@@ -221,9 +204,6 @@
 │      ├─im
 │      │  ├─client----------------im的客户端
 │      │  └─server----------------im的服务端
-│      │─im-simple
-│      │  ├─client----------------简化版协议的im的客户端
-│      │  └─server----------------简化版协议的im的服务端
 │      └─showcase
 │          ├─client----------------showcase的客户端
 │          └─server----------------showcase的服务端
@@ -236,10 +216,6 @@
     │  │  ├─common
     │  │  └─server
     │  ├─im----------------im的源代码
-    │  │  ├─client
-    │  │  ├─common
-    │  │  └─server
-    │  ├─im-simple----------------简化版协议的im的源代码
     │  │  ├─client
     │  │  ├─common
     │  │  └─server
@@ -264,17 +240,6 @@
 ### 学习用于进阶的showcase例子
 showcase一词是从springside借来的，放这很应景，[天蓬元帅](https://git.oschina.net/kobe577590/im)就是这样学习的，可以和他交流，他后面会出详细的教程。
 
-## 案 例
-案例太多，此处仅列举t-io开源第一个月内的案例，你也可以来[t-io开源中国收录地址](https://www.oschina.net/p/t-io)看看其它网友们反馈的案例
-- 某网管系统(管理数百台刀片服务器的系统)
-- 某直播平台(视频直播+聊天)
-- 某智能设备检测系统(数据采集)
-- 某物联网系统(服务端)
-- 深圳市某在线技术发展有限公司(中银联投资)：某网络安全运营支撑平台
-- [redisx](https://git.oschina.net/websterlu/redisx)
-- [talent_dubbo](https://git.oschina.net/kangjie1209/talent_dubbo)
-- 某移动省公司CRM业务受理消息采集平台(数据采集)
-
 ## 列一下作者本人用过的国产开源软件
 网上很多人对国产开源的印象还停留在n年前，此处列一下作者本人一直在用的部分国产开源软件，其中有的是有争议的，也有暴过漏洞的，但是我们想一下struts、netty、mongodb这些国外知名软件不也暴过严重漏洞吗？
 1. [https://www.oschina.net/p/weixin-java-tools-new](https://www.oschina.net/p/weixin-java-tools-new) （使用一年）
@@ -282,25 +247,12 @@ showcase一词是从springside借来的，放这很应景，[天蓬元帅](https
 2. [https://www.oschina.net/p/ztree](https://www.oschina.net/p/ztree) （使用五年以上吧）
 3. [https://www.oschina.net/p/echarts](https://www.oschina.net/p/echarts) （使用两年以上吧）
 4. [http://git.oschina.net/tywo45/talent-validate](http://git.oschina.net/tywo45/talent-validate) （使用十年了，开源出来有五年以上吧，原来是博客开源，现在移到开源中国了）
-5. [https://www.oschina.net/p/hutool](https://www.oschina.net/p/hutool)（使用两个月）
+5. [https://www.oschina.net/p/hutool](https://www.oschina.net/p/hutool)（懒 人必备，强烈推荐，使用两个月）
 6. [https://www.oschina.net/p/t-io](https://www.oschina.net/p/t-io)（使用五年了，开源出来半年）
 7. [https://www.oschina.net/p/druid](https://www.oschina.net/p/druid)（使用三年以上吧）
 8. [https://www.oschina.net/p/dubbo](https://www.oschina.net/p/dubbo)（使用两年）
 9. [https://git.oschina.net/jfinal/jfinal-weixin](https://git.oschina.net/jfinal/jfinal-weixin/)（使用一年左右）
 10. [https://www.oschina.net/p/fastjson](https://www.oschina.net/p/fastjson)（使用三年以上）
-
-## 参与t-io
-- t-io是将多线程技巧运用到极致的框架，所以一旦您参与到本项目，将会从本项目中学到很多关于多线程的技巧。
-- 提交Issue 给项目提出有意义的新需求，或是帮项目发现BUG，或是上传你本地测试的一些数据让作者参考以便进一步优化。
-- **点击右上方的watch可以时刻掌握t-io的动态，点击star以示精神支持，点击fork以备不时之需**
-
-
-## [助力t-io生态圈建设](http://www.t-io.org:9292/ecosphere.html?t_io_v=34344545676)
-t-io本身是类似netty这样的框架的，它可以完成很多功能，譬如rpc、im等，**把rpc、im比作鱼，t-io就是渔具**，指望作者一个去用这个渔捞很多鱼，然后分给大家，这个不太现实的。天朝的环境，做有口碑的开源极难，不光要免费提供很多服务，还要忍受喷子槽子黑子谣言谩骂，所以作者计划**建立一个t-io生态圈建设**，目的是让有志之士用t-io这个超级捕渔利器来捕获更多的鱼，然后把这些鱼卖了变现或免费分享给大家
-
-
-![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/pay/all.png)
-
 
 
 
