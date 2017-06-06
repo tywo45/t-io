@@ -8,6 +8,10 @@
 - 同类型的框架还有[voovan](https://www.oschina.net/p/voovan)、[netty](https://www.oschina.net/p/netty)、[mina](https://www.oschina.net/p/mina)、[baseio](https://git.oschina.net/generallycloud/baseio)等，不喜欢t-io的可以去尝试了解这几个，t-io对所有人按LGPL协议开源，但只服务于品行良好的开发人员！
 - t-io在协议生态全面建立起来前，更多的是适合私有协议TCP连接项目，所以如果你想实现一个复杂的公有协议的产品，可以用协议生态更为完整的其它类似框架。
 
+#### **最近压测数据**
+
+- [30万长连接测试报告](https://my.oschina.net/u/2369298/blog/915435)
+
 ####  **常见应用场景**
     
 - IM（官方提供了im例子，含web端）
@@ -229,13 +233,16 @@
     └─parent----------------maven工程的parent
 ```
 
+
 ### 导入t-io官方提供的例子
+
 去[t-io码云托管地址](https://git.oschina.net/tywo45/t-io)下载源代码及例子，里面的showcase例子是专门为学习t-io而写的，其设计也是准生产级别的，**可以直接拿来做您项目的手脚架**。下载完成后，请按下面步骤导入到eclipse中
 [![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-1.png)](https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-1.png)
----
+
 [![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-2.png)](https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-2.png)
----
+
 [![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-3.png)](https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-3.png)
+
 
 ### 学习万能的helloworld例子
 花30分钟看一下t-io官方提供的helloworld，了解一下TCP编程的大概流程，文档传送门: [t-io的hello world](https://my.oschina.net/talenttan/blog/884806)
