@@ -2,15 +2,15 @@
 
 # 最新代码在更好用的码云：https://git.oschina.net/tywo45/t-io
 
+## **置顶链接**
+- [业余时间----利用t-io做的Web IM](http://www.t-io.org:9292/newim/)
+- [来自用户----30万长连接测试报告](https://my.oschina.net/u/2369298/blog/915435)
+
 ## **t-io: 百万级TCP长连接即时通讯框架，让天下没有难开发的即时通讯**
 
 - t-io是基于jdk aio实现的易学易用、稳定、性能强悍、**将多线程运用到极致**、内置功能丰富的即时通讯框架(广义上的即时通讯，并非指im)，字母 t 寓意talent。
 - 同类型的框架还有[voovan](https://www.oschina.net/p/voovan)、[netty](https://www.oschina.net/p/netty)、[mina](https://www.oschina.net/p/mina)、[baseio](https://git.oschina.net/generallycloud/baseio)等，不喜欢t-io的可以去尝试了解这几个，t-io对所有人按LGPL协议开源，但只服务于品行良好的开发人员！
 - t-io在协议生态全面建立起来前，更多的是适合私有协议TCP连接项目，所以如果你想实现一个复杂的公有协议的产品，可以用协议生态更为完整的其它类似框架。
-
-#### **最近压测数据**
-
-- [30万长连接测试报告](https://my.oschina.net/u/2369298/blog/915435)
 
 ####  **常见应用场景**
     
@@ -22,7 +22,7 @@
 - 物联网（已有很多案例）
 - 其它实时通讯类型的场景，不一一列举
 
-####  **小晒一下作者花两天时间用t-io和[layim](http://layim.layui.com/)做的[web im](http://www.t-io.org:9292/newim/)**
+####  **用t-io和[layim](http://layim.layui.com/)做的[web im](http://www.t-io.org:9292/newim/)**
   
 - 先感谢一下贤心提供这么好的ui作品，也欢迎大家去捐赠获取[layim](http://layim.layui.com/)。  
 - 东西刚刚出来，还需要打磨，有问题在所难免，毕竟只花了两天时间。
