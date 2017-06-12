@@ -6,7 +6,7 @@
 - [业余时间----利用t-io做的Web IM](http://www.t-io.org:9292/newim/)
 - [来自用户----30万长连接测试报告](https://my.oschina.net/u/2369298/blog/915435)
 
-## **t-io: 百万级TCP长连接即时通讯框架，让天下没有难开发的即时通讯**
+## **t-io: 不仅仅是百万级TCP长连接框架**
 
 - t-io是基于jdk aio实现的易学易用、稳定、性能强悍、**将多线程运用到极致**、内置功能丰富的即时通讯框架(广义上的即时通讯，并非指im)，字母 t 寓意talent。
 - 同类型的框架还有[voovan](https://www.oschina.net/p/voovan)、[netty](https://www.oschina.net/p/netty)、[mina](https://www.oschina.net/p/mina)、[baseio](https://git.oschina.net/generallycloud/baseio)等，不喜欢t-io的可以去尝试了解这几个，t-io对所有人按LGPL协议开源，但只服务于品行良好的开发人员！
