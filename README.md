@@ -2,9 +2,15 @@
 
 # 最新代码在更好用的码云：https://git.oschina.net/tywo45/t-io
 
+
+
+## 公告
+### t-io master分支（默认分支）只支持jdk1.8了，想要兼容jdk1.7的，请前往：[t-io4jdk1.7](http://git.oschina.net/tywo45/t-io/tree/t-io4jdk1.7)
+
 ## **置顶链接**
-- [业余时间----利用t-io做的Web IM](http://www.t-io.org:9292/newim/)
+- [业余时间----利用t-io做的Web IM](http://www.t-io.org:9292/)
 - [来自用户----30万长连接测试报告](https://my.oschina.net/u/2369298/blog/915435)
+
 
 ## **t-io: 不仅仅是百万级TCP长连接框架**
 
@@ -22,20 +28,20 @@
 - 物联网（已有很多案例）
 - 其它实时通讯类型的场景，不一一列举
 
-####  **用t-io和[layim](http://layim.layui.com/)做的[web im](http://www.t-io.org:9292/newim/)**
+####  **用t-io和[layim](http://layim.layui.com/)做的[web im](http://www.t-io.org:9292/)**
   
 - 先感谢一下贤心提供这么好的ui作品，也欢迎大家去捐赠获取[layim](http://layim.layui.com/)。  
 - 东西刚刚出来，还需要打磨，有问题在所难免，毕竟只花了两天时间。
-- [演示地址](http://www.t-io.org:9292/newim/)（2M带宽，请勿压测，谢谢！）
+- [演示地址](http://www.t-io.org:9292/)（2M带宽，请勿压测，谢谢！）
 - 截图
 
 ---
 
-![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/tchat/1.png?v=89)
+[![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/tchat/1.png?v=89)](http://t-io.org:9292/)
 
 ---
 
-![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/tchat/2.png?v=89)
+[![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/tchat/2.png?v=89)](http://t-io.org:9292/)
 
 ---
 
@@ -77,7 +83,7 @@
 ## **各种传送门**
 
  - [t-io生态圈建设](http://www.t-io.org:9292/ecosphere.html?t_io_v=34344545676)
- - [t-io + layim + vue + ivivew + webpack + google-protobuf开发的web im](http://www.t-io.org:9292/newim?t_io_v=34344545676)（服务器由某公司免费提供，只有2M带宽，最近被Ddos攻击，所以随时都可能暂停而导致你访问失败）
+ - [t-io + layim + vue + ivivew + webpack + google-protobuf开发的web im](http://www.t-io.org:9292?t_io_v=34344545676)（服务器由某公司免费提供，只有2M带宽，最近被Ddos攻击，所以随时都可能暂停而导致你访问失败）
  - [官 网][1]
  - [代码托管平台码云](https://git.oschina.net/tywo45/t-io)
  - [开源中国收录地址](https://www.oschina.net/p/t-io)
