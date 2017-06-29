@@ -18,6 +18,9 @@
 - 同类型的框架还有[voovan](https://www.oschina.net/p/voovan)、[netty](https://www.oschina.net/p/netty)、[mina](https://www.oschina.net/p/mina)、[baseio](https://git.oschina.net/generallycloud/baseio)等，不喜欢t-io的可以去尝试了解这几个，t-io对所有人按LGPL协议开源，但只服务于品行良好的开发人员！
 - t-io在协议生态全面建立起来前，更多的是适合私有协议TCP连接项目，所以如果你想实现一个复杂的公有协议的产品，可以用协议生态更为完整的其它类似框架。
 
+## **t-io诞生的意义**
+- 旧时王谢堂前燕，飞入寻常百姓家----当年那些王谢贵族们才拥有的"百万级TCP长连接"应用，将因为t-io的诞生，纷纷飞入普通的个人屋檐下。
+
 ####  **常见应用场景**
     
 - IM（官方提供了im例子，含web端）
@@ -164,6 +167,17 @@
     - 这些数据是1.6.9版本测出来的，1.7.0加了链路行为跟踪功能、1.7.1会加上ip防黑功能，这些功能的增加对tcp长连接个数没什么影响，但是可能内存会增加一些，毕竟多了不少维护数据。
     - 不管怎么说，用在生产环境，不管用什么框架，都是要自己测一遍的，有问题可以随时找作者，不接受恶意找茬，同时作为开源免费软件，作者也有权拒绝一切服务，这点请知悉----开源，只是把代码本身按照某种协议贡献出来，并无义务给你服务，你用得不爽，请另请高明。
     - netty是一个知名度极高的一个框架，而且功能更多，t-io如果满足不了你或不是你的菜，可以尝试netty
+
+### ab test
+1. 机器准备
+    - 服务器一台：windows7 ssd i5
+2. 测试步骤
+    - 运行ab.TioAbTest.java(在core的test目录)
+    - 测试脚本：ab -c 100 -n 100000 -k http://127.0.0.1:28080/test/
+3. 测试结果
+    - 100个并发，请求10万次，耗时2.134秒----平均每秒处理46860.3个请求
+![image](http://git.oschina.net/tywo45/t-io/raw/master/docs/performance/ab-test-1.png)
+
 
 ## t-io学习步骤（供参考，具体步骤根据各人而异）
 学习t-io的最好方式，是从helloworld的例子入手，顺瓜摸藤阅读t-io的源代码，已经有很多人阅读过t-io的源代码，譬如j-net的作者、[hutool](https://git.oschina.net/loolly/hutool/)的作者、[天蓬小猪](https://my.oschina.net/u/257950/)、[守护天使](https://git.oschina.net/yyljlyy)，并且反馈良好，源代码毕竟只有3000多行，读读无妨！如果懒于阅读代码，就按照下面的步骤来学习吧！
