@@ -4,19 +4,10 @@
 
 
 
-## 公告
-### t-io master分支（默认分支）只支持jdk1.8了，想要兼容jdk1.7的，请前往：[t-io4jdk1.7](http://git.oschina.net/tywo45/t-io/tree/t-io4jdk1.7)
-
-## **置顶链接**
-- [业余时间----利用t-io做的Web IM](http://www.t-io.org:9292/)
-- [来自用户----30万长连接测试报告](https://my.oschina.net/u/2369298/blog/915435)
-
-
 ## **t-io: 不仅仅是百万级TCP长连接框架**
 
 - t-io是基于jdk aio实现的易学易用、稳定、性能强悍、**将多线程运用到极致**、内置功能丰富的即时通讯框架(广义上的即时通讯，并非指im)，字母 t 寓意talent。
-- 同类型的框架还有[voovan](https://www.oschina.net/p/voovan)、[netty](https://www.oschina.net/p/netty)、[mina](https://www.oschina.net/p/mina)、[baseio](https://git.oschina.net/generallycloud/baseio)等，不喜欢t-io的可以去尝试了解这几个，t-io对所有人按LGPL协议开源，但只服务于品行良好的开发人员！
-- t-io在协议生态全面建立起来前，更多的是适合私有协议TCP连接项目，所以如果你想实现一个复杂的公有协议的产品，可以用协议生态更为完整的其它类似框架。
+- 同类型的框架还有[voovan](https://www.oschina.net/p/voovan)、[netty](https://www.oschina.net/p/netty)、[mina](https://www.oschina.net/p/mina)、[baseio](https://git.oschina.net/generallycloud/baseio)等，不喜欢t-io的可以去尝试了解这几个
 
 ## **t-io诞生的意义**
 - 旧时王谢堂前燕，飞入寻常百姓家----当年那些王谢贵族们才拥有的"百万级TCP长连接"应用，将因为t-io的诞生，纷纷飞入普通的个人屋檐下。
@@ -31,12 +22,9 @@
 - 物联网（已有很多案例）
 - 其它实时通讯类型的场景，不一一列举
 
-####  **用t-io和[layim](http://layim.layui.com/)做的[web im](http://www.t-io.org:9292/)**
-  
-- 先感谢一下贤心提供这么好的ui作品，也欢迎大家去捐赠获取[layim](http://layim.layui.com/)。  
-- 东西刚刚出来，还需要打磨，有问题在所难免，毕竟只花了两天时间。
-- [演示地址](http://www.t-io.org:9292/)（2M带宽，请勿压测，谢谢！）
-- 截图
+####  **用t-io做的[web im](http://www.t-io.org:9292/)**
+
+- [演示地址](http://www.t-io.org:9292/)（某公司提供的免费2M带宽，请勿压测，谢谢！）
 
 ---
 
@@ -54,7 +42,7 @@
 <dependency>
     <groupId>org.t-io</groupId>
     <artifactId>tio-core</artifactId>
-    <version>1.7.0.v20170501-RELEASE</version>
+    <version>1.7.2.v20170705-RELEASE</version>
 </dependency>
 ```
 ## **t-io特点**
@@ -140,22 +128,22 @@
     - 在centos上运行 "bin/start-im-server.sh" 启动im server
     - 修改dist\examples\im\client\config\app.conf，参考下面的值，注意把server指向centos的ip
     ```
-        #服务器
+        #######服务器
         server=127.0.0.1
         
-        #服务器port
+        #######服务器port
         port=9321
         
-        #连接多少个连接到服务器
+        #######连接多少个连接到服务器
         client.count=16200
         
-        #进入到哪个组
+        #######进入到哪个组
         group=g
         
-        #聊天消息发的内容
+        #######聊天消息发的内容
         chat.content=he
         
-        #一次发多少条(这个数字不要太大)
+        #######一次发多少条(这个数字不要太大)
         send.count=1
     ```
     - 把dist\examples\im\client拷到各客户机并运行"bin/start-im-client.bat"
@@ -170,12 +158,10 @@
 
 ### ab test
 1. 机器准备
-    - 服务器一台：windows7 ssd i5
-2. 测试步骤
-    - 运行ab.TioAbTest.java(在core的test目录)
-    - 测试脚本：ab -c 100 -n 100000 -k http://127.0.0.1:28080/test/
-3. 测试结果
-    - 100个并发，请求10万次，耗时2.134秒----平均每秒处理46860.3个请求
+    - 服务器一台：windows7 ssd i7-4790
+2. 测试步骤及结果
+    - 运行org.tio.http.server.demo1.HttpServerDemo1Starter.java
+    - 测试脚本及测试结果见图，大家应该都看得懂，也欢迎大家下载更换参数进行测试
 ![image](http://git.oschina.net/tywo45/t-io/raw/master/docs/performance/ab-test-1.png)
 
 
@@ -203,6 +189,7 @@
 │      dist-examples.sh
 │      install.bat----------------安装工程到本地仓库
 │      install.sh
+|      start-http-server.bat----------------启动tio-httpserver
 │      start-helloworld-client.bat----------------启动helloworld的客户端
 │      start-helloworld-client.sh
 │      start-helloworld-server.bat----------------启动helloworld的服务端
@@ -236,6 +223,9 @@
 │          └─server----------------showcase的服务端
 └─src
     ├─core----------------t-io的核心代码
+    ├─zoo----------------t-io的生态圈
+    │  ├─http----------------用t-io实现的http服务器
+    │  ├─websocket----------------用t-io实现的websocket服务器
     ├─example----------------用t-io写的例子的源代码
     │  ├─parent----------------例子的maven parent
     │  ├─helloworld----------------helloworld的源代码
@@ -257,6 +247,7 @@
 ### 导入t-io官方提供的例子
 
 去[t-io码云托管地址](https://git.oschina.net/tywo45/t-io)下载源代码及例子，里面的showcase例子是专门为学习t-io而写的，其设计也是准生产级别的，**可以直接拿来做您项目的手脚架**。下载完成后，请按下面步骤导入到eclipse中
+
 [![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-1.png)](https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-1.png)
 
 [![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-2.png)](https://git.oschina.net/tywo45/t-io/raw/master/docs/blog/t-io%E7%B3%BB%E5%88%97%E6%96%87%E6%A1%A3%E4%B9%8Bhelloworld%EF%BC%881%EF%BC%89/import-2.png)
