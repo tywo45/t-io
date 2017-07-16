@@ -3,7 +3,6 @@
 # 最新代码在更好用的码云：https://git.oschina.net/tywo45/t-io
 
 
-
 ## **t-io: 不仅仅是百万级TCP长连接框架**
 
 - t-io是基于jdk aio实现的易学易用、稳定、性能强悍、**将多线程运用到极致**、内置功能丰富的即时通讯框架(广义上的即时通讯，并非指im)，字母 t 寓意talent。
@@ -22,17 +21,17 @@
 - 物联网（已有很多案例）
 - 其它实时通讯类型的场景，不一一列举
 
-####  **用t-io做的[web im](http://www.t-io.org:9292/)**
+####  **用t-io做的[web im](http://112.74.183.177/)**
 
-- [演示地址](http://www.t-io.org:9292/)（某公司提供的免费2M带宽，请勿压测，谢谢！）
-
----
-
-[![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/tchat/1.png?v=89)](http://t-io.org:9292/)
+- [演示地址](http://112.74.183.177/)（1M带宽，请勿压测，谢谢！）
 
 ---
 
-[![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/tchat/2.png?v=89)](http://t-io.org:9292/)
+[![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/tchat/1.png?v=89)](http://112.74.183.177/)
+
+---
+
+[![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/tchat/2.png?v=89)](http://112.74.183.177/)
 
 ---
 
@@ -73,8 +72,8 @@
 
 ## **各种传送门**
 
- - [t-io生态圈建设](http://www.t-io.org:9292/ecosphere.html?t_io_v=34344545676)
- - [t-io + layim + vue + ivivew + webpack + google-protobuf开发的web im](http://www.t-io.org:9292?t_io_v=34344545676)（服务器由某公司免费提供，只有2M带宽，最近被Ddos攻击，所以随时都可能暂停而导致你访问失败）
+
+ - [t-io + layim + vue + ivivew + webpack + google-protobuf开发的web im](http://112.74.183.177?t_io_v=34344545676)（服务器由某公司免费提供，只有1M带宽，最近被Ddos攻击，所以随时都可能暂停而导致你访问失败）
  - [官 网][1]
  - [代码托管平台码云](https://git.oschina.net/tywo45/t-io)
  - [开源中国收录地址](https://www.oschina.net/p/t-io)
@@ -275,16 +274,17 @@ showcase一词是从springside借来的，放这很应景，[天蓬元帅](https
 9. [https://git.oschina.net/jfinal/jfinal-weixin](https://git.oschina.net/jfinal/jfinal-weixin/)（使用一年左右）
 10. [https://www.oschina.net/p/fastjson](https://www.oschina.net/p/fastjson)（使用三年以上）
 
+## t-io公众号
+
+[![image](https://git.oschina.net/tywo45/t-io/raw/master/docs/wechat/1.jpg)](https://git.oschina.net/tywo45/t-io/raw/master/docs/wechat/1.jpg)
 
 
 
 
 
-
-
-  [1]: http://www.t-io.org:9292?t_io_v=34344545676
+  [1]: http://112.74.183.177?t_io_v=34344545676
   [2]: https://my.oschina.net/talenttan/blog/884806
-  [3]: http://www.t-io.org:9292/apidocs/org/tio/core/Aio.html?t_io_v=34344545676
-  [4]: http://www.t-io.org:9292/apidocs/org/tio/core/Aio.html?t_io_v=34344545676
+  [3]: http://112.74.183.177/apidocs/org/tio/core/Aio.html?t_io_v=34344545676
+  [4]: http://112.74.183.177/apidocs/org/tio/core/Aio.html?t_io_v=34344545676
   [5]: https://my.oschina.net/talenttan/blog/863545
   [6]: https://my.oschina.net/talenttan/blog
