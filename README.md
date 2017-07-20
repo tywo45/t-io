@@ -6,7 +6,7 @@
 ## **t-io: 不仅仅是百万级TCP长连接框架**
 
 - t-io是基于jdk aio实现的易学易用、稳定、性能强悍、**将多线程运用到极致**、内置功能丰富的即时通讯框架(广义上的即时通讯，并非指im)，字母 t 寓意talent。
-- 同类型的框架还有[voovan](https://www.oschina.net/p/voovan)、[netty](https://www.oschina.net/p/netty)、[mina](https://www.oschina.net/p/mina)、[baseio](https://git.oschina.net/generallycloud/baseio)等，不喜欢t-io的可以去尝试了解这几个
+- 同类型的框架还有[netty](https://www.oschina.net/p/netty)、[mina](https://www.oschina.net/p/mina)等，不喜欢t-io的可以去尝试了解这几个
 
 ## **t-io诞生的意义**
 - 旧时王谢堂前燕，飞入寻常百姓家----当年那些王谢贵族们才拥有的"百万级TCP长连接"应用，将因为t-io的诞生，纷纷飞入普通的个人屋檐下。
