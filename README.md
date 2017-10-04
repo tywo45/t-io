@@ -1,6 +1,6 @@
 
 
-# 最新代码在更好用的码云：https://git.oschina.net/tywo45/t-io
+# 最新代码在更好用的码云：https://gitee.com/tywo45/t-io
 ## **t-io: 不仅仅是百万级即时通讯框架**
 [![image](https://gitee.com/tywo45/t-io/raw/master/docs/logo/preview.png)](https://gitee.com/tywo45/t-io)
 
