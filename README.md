@@ -1,6 +1,6 @@
 
 
-# 最新代码在更好用的码云：https://gitee.com/tywo45/t-io
+## 这里没有及时维护，最新代码请点击：https://gitee.com/tywo45/t-io
 
 
 ## **t-io: 让天下没有难开发的网络编程**
