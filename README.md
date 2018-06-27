@@ -11,7 +11,7 @@
 	- **tio-websocket-server**：基于tio-core开发的websocket服务器。使用示例：[tio-websocket-showcase](https://gitee.com/tywo45/tio-websocket-showcase "tio-websocket-showcase")
 	- **tio-http-server**：基于tio-core开发的http服务器。使用示例：[tio-http-server-showcase](https://gitee.com/tywo45/tio-http-server-showcase "tio-http-server-showcase")
 	- **tio-webpack-core**：基于tio-core开发的js/css/html编译压缩工具，代码已经开源，但尚无使用文档和示例，暂时属于内用阶段，使用案例：http://www.nb350.com
-	- **tio-flash-policy-server**：基于tio-core开发的flash-policy-server，代码已经开源，但尚无使用文档和示例
+	- **tio-flash-policy-server**：基于tio-core开发的flash-policy-server，使用示例：https://my.oschina.net/talenttan/blog/1558916
 - 列一下tio-core应用场景的一些案例
 	- **IM**：[j-im](https://gitee.com/xchao/j-im "j-im")
 	- **游戏服务器端**：[贝密游戏](https://gitee.com/beimigame/beimi "贝密游戏")
