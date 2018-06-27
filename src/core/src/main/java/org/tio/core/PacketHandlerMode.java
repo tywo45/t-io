@@ -2,7 +2,7 @@ package org.tio.core;
 
 /**
  *  消息处理模式
- * @author tanyaowu 
+ * @author tanyaowu
  *
  */
 public enum PacketHandlerMode {
@@ -16,8 +16,6 @@ public enum PacketHandlerMode {
 	 */
 	QUEUE(2);
 
-	private final int value;
-
 	public static PacketHandlerMode forNumber(int value) {
 		switch (value) {
 		case 1:
@@ -28,6 +26,8 @@ public enum PacketHandlerMode {
 			return null;
 		}
 	}
+
+	private final int value;
 
 	private PacketHandlerMode(int value) {
 		this.value = value;

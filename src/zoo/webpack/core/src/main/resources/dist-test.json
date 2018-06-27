@@ -1,0 +1,15 @@
+{
+	"debug": false,
+	"console": {
+		"log": true,
+		"info": true,
+		"error": true
+	},
+	"dev": false,
+	"compress": {
+		"js": true,
+		"css": true,
+		"html": true
+	},
+	"res_server":"http://office-cs-upload.hs350.com"
+}

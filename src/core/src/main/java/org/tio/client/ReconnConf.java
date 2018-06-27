@@ -7,17 +7,39 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.intf.Packet;
-import org.tio.core.threadpool.DefaultThreadFactory;
-import org.tio.core.utils.SystemTimer;
+import org.tio.utils.SystemTimer;
+import org.tio.utils.thread.pool.DefaultThreadFactory;
 
 /**
- * 
- * @author tanyaowu 
+ *
+ * @author tanyaowu
  * 2017年4月1日 上午9:33:00
  */
-public class ReconnConf<SessionContext, P extends Packet, R> {
+public class ReconnConf {
 	private static Logger log = LoggerFactory.getLogger(ChannelContext.class);
+
+	public static boolean isNeedReconn(ClientChannelContext clientChannelContext, boolean putIfTrue) {
+		ClientGroupContext clientGroupContext = (ClientGroupContext) clientChannelContext.groupContext;
+		ReconnConf reconnConf = clientGroupContext.getReconnConf();
+		if (reconnConf != null && reconnConf.getInterval() > 0) {
+			if (reconnConf.getRetryCount() <= 0 || reconnConf.getRetryCount() >= clientChannelContext.getReconnCount()) {
+				if (putIfTrue) {
+					clientChannelContext.stat.timeInReconnQueue = SystemTimer.currentTimeMillis();
+					reconnConf.getQueue().add(clientChannelContext);
+				}
+				return true;
+			} else {
+				log.info("不需要重连{}", clientChannelContext);
+				return false;
+			}
+		}
+
+		return false;
+	}
+
+	public static void put(ClientChannelContext clientChannelContext) {
+		isNeedReconn(clientChannelContext, true);
+	}
 
 	/**
 	 * 重连的间隔时间，单位毫秒
@@ -29,16 +51,18 @@ public class ReconnConf<SessionContext, P extends Packet, R> {
 	 */
 	private int retryCount = 0;
 
-	LinkedBlockingQueue<ChannelContext<SessionContext, P, R>> queue = new LinkedBlockingQueue<ChannelContext<SessionContext, P, R>>();
+	LinkedBlockingQueue<ChannelContext> queue = new LinkedBlockingQueue<>();
 
-	//用来重连的线程池
+	/**
+	 * 用来重连的线程池
+	 */
 	private ThreadPoolExecutor threadPoolExecutor = null;
 
 	/**
-	 * 
 	 *
-	 * @author: tanyaowu
-	 * 
+	 *
+	 * @author tanyaowu
+	 *
 	 */
 	public ReconnConf() {
 		if (threadPoolExecutor == null) {
@@ -56,8 +80,8 @@ public class ReconnConf<SessionContext, P extends Packet, R> {
 	/**
 	 * @param interval
 	 *
-	 * @author: tanyaowu
-	 * 
+	 * @author tanyaowu
+	 *
 	 */
 	public ReconnConf(long interval) {
 		this();
@@ -68,36 +92,13 @@ public class ReconnConf<SessionContext, P extends Packet, R> {
 	 * @param interval
 	 * @param retryCount
 	 *
-	 * @author: tanyaowu
-	 * 
+	 * @author tanyaowu
+	 *
 	 */
 	public ReconnConf(long interval, int retryCount) {
 		this();
 		this.interval = interval;
 		this.retryCount = retryCount;
-	}
-
-	public static <SessionContext, P extends Packet, R> void put(ClientChannelContext<SessionContext, P, R> clientChannelContext) {
-		isNeedReconn(clientChannelContext, true);
-	}
-
-	public static <SessionContext, P extends Packet, R> boolean isNeedReconn(ClientChannelContext<SessionContext, P, R> clientChannelContext, boolean putIfTrue) {
-		ClientGroupContext<SessionContext, P, R> clientGroupContext = (ClientGroupContext<SessionContext, P, R>) clientChannelContext.getGroupContext();
-		ReconnConf<SessionContext, P, R> reconnConf = clientGroupContext.getReconnConf();
-		if (reconnConf != null && reconnConf.getInterval() > 0) {
-			if (reconnConf.getRetryCount() <= 0 || reconnConf.getRetryCount() >= clientChannelContext.getReconnCount()) {
-				if (putIfTrue) {
-					clientChannelContext.getStat().setTimeInReconnQueue(SystemTimer.currentTimeMillis());
-					reconnConf.getQueue().add(clientChannelContext);
-				}
-				return true;
-			} else {
-				log.info("不需要重连{}", clientChannelContext);
-				return false;
-			}
-		}
-
-		return false;
 	}
 
 	/**
@@ -108,16 +109,9 @@ public class ReconnConf<SessionContext, P extends Packet, R> {
 	}
 
 	/**
-	 * @param interval the interval to set
-	 */
-	public void setInterval(long interval) {
-		this.interval = interval;
-	}
-
-	/**
 	 * @return the queue
 	 */
-	public LinkedBlockingQueue<ChannelContext<SessionContext, P, R>> getQueue() {
+	public LinkedBlockingQueue<ChannelContext> getQueue() {
 		return queue;
 	}
 
@@ -129,17 +123,24 @@ public class ReconnConf<SessionContext, P extends Packet, R> {
 	}
 
 	/**
-	 * @param retryCount the retryCount to set
-	 */
-	public void setRetryCount(int retryCount) {
-		this.retryCount = retryCount;
-	}
-
-	/**
 	 * @return the threadPoolExecutor
 	 */
 	public ThreadPoolExecutor getThreadPoolExecutor() {
 		return threadPoolExecutor;
+	}
+
+	/**
+	 * @param interval the interval to set
+	 */
+	public void setInterval(long interval) {
+		this.interval = interval;
+	}
+
+	/**
+	 * @param retryCount the retryCount to set
+	 */
+	public void setRetryCount(int retryCount) {
+		this.retryCount = retryCount;
 	}
 
 	//	/**

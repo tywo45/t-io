@@ -1,107 +1,228 @@
 package org.tio.core.task;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
+
+import javax.net.ssl.SSLException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.ChannelAction;
 import org.tio.core.GroupContext;
+import org.tio.core.TcpConst;
+import org.tio.core.Tio;
 import org.tio.core.WriteCompletionHandler;
+import org.tio.core.WriteCompletionHandler.WriteCompletionVo;
 import org.tio.core.intf.AioHandler;
 import org.tio.core.intf.Packet;
-import org.tio.core.intf.PacketWithMeta;
-import org.tio.core.threadpool.AbstractQueueRunnable;
+import org.tio.core.ssl.SslFacadeContext;
+import org.tio.core.ssl.SslUtils;
+import org.tio.core.ssl.SslVo;
 import org.tio.core.utils.AioUtils;
-import org.tio.core.utils.SystemTimer;
+import org.tio.utils.thread.pool.AbstractQueueRunnable;
 
 /**
- * 
- * @author tanyaowu 
+ *
+ * @author tanyaowu
  * 2017年4月4日 上午9:19:18
  */
-public class SendRunnable<SessionContext, P extends Packet, R> extends AbstractQueueRunnable<Object> {
+public class SendRunnable extends AbstractQueueRunnable<Packet> {
 
 	private static final Logger log = LoggerFactory.getLogger(SendRunnable.class);
 
-	private ChannelContext<SessionContext, P, R> channelContext = null;
+	/** The msg queue. */
+	private ConcurrentLinkedQueue<Packet> forSendAfterSslHandshakeCompleted = null;//new ConcurrentLinkedQueue<>();
+
+	public ConcurrentLinkedQueue<Packet> getForSendAfterSslHandshakeCompleted(boolean forceCreate) {
+		if (forSendAfterSslHandshakeCompleted == null && forceCreate) {
+			synchronized (this) {
+				if (forSendAfterSslHandshakeCompleted == null) {
+					forSendAfterSslHandshakeCompleted = new ConcurrentLinkedQueue<>();
+				}
+			}
+		}
+
+		return forSendAfterSslHandshakeCompleted;
+	}
+
+	private ChannelContext channelContext = null;
+	
+	private GroupContext groupContext = null;
+
+
+	//SSL加密锁
+	//	private Object sslEncryptLock = new Object();
 
 	/**
-	 * 
+	 *
 	 * @param channelContext
 	 * @param executor
-	 * @author: tanyaowu
+	 * @author tanyaowu
 	 */
-	public SendRunnable(ChannelContext<SessionContext, P, R> channelContext, Executor executor) {
+	public SendRunnable(ChannelContext channelContext, Executor executor) {
 		super(executor);
 		this.channelContext = channelContext;
+		groupContext = channelContext.groupContext;
+	}
+
+	/**
+	 * obj is PacketWithMeta or Packet
+	 */
+	@Override
+	public boolean addMsg(Packet obj) {
+		if (this.isCanceled()) {
+			log.error("{}, 任务已经取消，{}添加到发送队列失败", channelContext, obj);
+			return false;
+		}
+		if (channelContext.sslFacadeContext != null && !channelContext.sslFacadeContext.isHandshakeCompleted() && SslUtils.needSslEncrypt(obj, channelContext)) {
+			return this.getForSendAfterSslHandshakeCompleted(true).add(obj);
+		} else {
+			return msgQueue.add(obj);
+		}
 	}
 
 	/**
 	 * 清空消息队列
 	 */
+	@Override
 	public void clearMsgQueue() {
-		Object p = null;
+		Packet p = null;
+		forSendAfterSslHandshakeCompleted = null;
 		while ((p = msgQueue.poll()) != null) {
 			try {
 				channelContext.processAfterSent(p, false);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				log.error(e.toString(), e);
 			}
 		}
 	}
 
-	/**
-	 * 
-	 * @param obj Packet or PacketWithMeta
-	 * @author: tanyaowu
-	 */
-	@SuppressWarnings("unchecked")
-	public void sendPacket(Object obj) {
-		P packet = null;
-		PacketWithMeta<P> packetWithMeta = null;
+	private ByteBuffer getByteBuffer(Packet packet, GroupContext groupContext, AioHandler aioHandler) {
+		try {
+			ByteBuffer byteBuffer = packet.getPreEncodedByteBuffer();
+			if (byteBuffer != null) {
+				//			byteBuffer = byteBuffer.duplicate();
+			} else {
+				byteBuffer = aioHandler.encode(packet, groupContext, channelContext);
+			}
 
-		boolean isPacket = obj instanceof Packet;
-		if (isPacket) {
-			packet = (P) obj;
-		} else {
-			packetWithMeta = (PacketWithMeta<P>) obj;
-			packet = packetWithMeta.getPacket();
-		}
-
-		GroupContext<SessionContext, P, R> groupContext = channelContext.getGroupContext();
-		ByteBuffer byteBuffer = getByteBuffer(packet, groupContext, groupContext.getAioHandler());
-		int packetCount = 1;
-
-		if (isPacket) {
-			sendByteBuffer(byteBuffer, packetCount, packet);
-		} else {
-			sendByteBuffer(byteBuffer, packetCount, packetWithMeta);
+			if (byteBuffer.position() != 0) {
+				byteBuffer.flip();
+			}
+			return byteBuffer;
+		} catch (Exception e) {
+			log.error(packet.logstr(), e);
+			throw new RuntimeException(e);
 		}
 	}
 
 	/**
-	 * 
+	 * 新旧值是否进行了切换
+	 * @param oldValue
+	 * @param newValue
+	 * @return
 	 */
-	public boolean addMsg(Object obj) {
-		if (this.isCanceled()) {
-			log.error("{}, 任务已经取消，{}添加到发送队列失败", channelContext, obj);
+	private static boolean swithed(Boolean oldValue, boolean newValue) {
+		if (oldValue == null) {
 			return false;
 		}
 
-		return msgQueue.add(obj);
+		if (Objects.equals(oldValue, newValue)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	
+	private static final int MAX_CAPACITY = TcpConst.MAX_DATA_LENGTH - 1024;       //减掉1024是尽量防止溢出的一小部分还分成一个tcp包发出 
+	
+	@Override
+	public void runTask() {
+		int queueSize = msgQueue.size();
+		if (queueSize == 0) {
+			return;
+		}
+		
+		int listInitialCapacity = Math.min(queueSize, 200);
+
+		AioHandler aioHandler = groupContext.getAioHandler();
+		boolean isSsl = SslUtils.isSsl(channelContext);
+		SslFacadeContext sslFacadeContext = channelContext.sslFacadeContext;
+
+		if (isSsl) {
+//			maxCapacity = 1024 * 8;
+		}
+
+		Packet packet = null;
+		List<Packet> packets = new ArrayList<>(listInitialCapacity);
+		List<ByteBuffer> byteBuffers = new ArrayList<>(listInitialCapacity);
+		int packetCount = 0;
+		int allBytebufferCapacity = 0;
+		Boolean needSslEncrypted = null;
+		boolean sslSwitched = false;
+		while ((packet = msgQueue.poll()) != null) {
+			ByteBuffer byteBuffer = getByteBuffer(packet, groupContext, aioHandler);
+
+			packets.add(packet);
+			byteBuffers.add(byteBuffer);
+			packetCount++;
+			allBytebufferCapacity += byteBuffer.limit();
+
+			if (isSsl) {
+				if (packet.isSslEncrypted()) {
+					boolean _needSslEncrypted = false;
+					sslSwitched = swithed(needSslEncrypted, _needSslEncrypted);
+					needSslEncrypted = _needSslEncrypted;
+				} else {
+					boolean _needSslEncrypted = true;
+					sslSwitched = swithed(needSslEncrypted, _needSslEncrypted);
+					needSslEncrypted = _needSslEncrypted;
+				}
+			} else { //非ssl，不涉及到加密和不加密的切换
+				needSslEncrypted = false;
+			}
+
+			if ((allBytebufferCapacity >= MAX_CAPACITY) || sslSwitched) {
+				break;
+			}
+		}
+
+		if (allBytebufferCapacity == 0) {
+			return;
+		}
+		ByteBuffer allByteBuffer = ByteBuffer.allocate(allBytebufferCapacity);
+		for (ByteBuffer byteBuffer : byteBuffers) {
+			allByteBuffer.put(byteBuffer);
+		}
+
+		allByteBuffer.flip();
+
+		if (needSslEncrypted) {
+			SslVo sslVo = new SslVo(allByteBuffer, packets);
+			try {
+				sslFacadeContext.getSslFacade().encrypt(sslVo);
+				allByteBuffer = sslVo.getByteBuffer();
+			} catch (SSLException e) {
+				log.error(channelContext.toString() + ", 进行SSL加密时发生了异常", e);
+				Tio.close(channelContext, "进行SSL加密时发生了异常");
+				return;
+			}
+		}
+
+		this.sendByteBuffer(allByteBuffer, packetCount, packets);
 	}
 
 	/**
-	 * 
+	 *
 	 * @param byteBuffer
 	 * @param packetCount
 	 * @param packets Packet or PacketWithMeta or List<PacketWithMeta> or List<Packet>
-	 * @author: tanyaowu
+	 * @author tanyaowu
 	 */
 	public void sendByteBuffer(ByteBuffer byteBuffer, Integer packetCount, Object packets) {
 		if (byteBuffer == null) {
@@ -113,9 +234,13 @@ public class SendRunnable<SessionContext, P extends Packet, R> extends AbstractQ
 			return;
 		}
 
-		byteBuffer.flip();
-		AsynchronousSocketChannel asynchronousSocketChannel = channelContext.getAsynchronousSocketChannel();
-		WriteCompletionHandler<SessionContext, P, R> writeCompletionHandler = channelContext.getWriteCompletionHandler();
+		if (byteBuffer.position() != 0) {
+			byteBuffer.flip();
+		}
+		
+//		System.out.println(channelContext.getId() + ", " + byteBuffer.capacity() + ", " + packetCount);
+
+		WriteCompletionHandler writeCompletionHandler = channelContext.getWriteCompletionHandler();
 		try {
 			//			long start = SystemTimer.currentTimeMillis();
 			writeCompletionHandler.getWriteSemaphore().acquire();
@@ -128,96 +253,14 @@ public class SendRunnable<SessionContext, P extends Packet, R> extends AbstractQ
 		} catch (InterruptedException e) {
 			log.error(e.toString(), e);
 		}
-		asynchronousSocketChannel.write(byteBuffer, packets, writeCompletionHandler);
 
-		channelContext.getStat().setLatestTimeOfSentPacket(SystemTimer.currentTimeMillis());
+		WriteCompletionVo writeCompletionVo = new WriteCompletionVo(byteBuffer, packets);
+		channelContext.asynchronousSocketChannel.write(byteBuffer, writeCompletionVo, writeCompletionHandler);
 	}
 
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName() + ":" + channelContext.toString();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void runTask() {
-		int queueSize = msgQueue.size();
-		if (queueSize == 0) {
-			return;
-		}
-		if (queueSize >= 2000) {
-			queueSize = 1000;
-		}
-
-		//Packet or PacketWithMeta
-		Object obj = null;
-		P p = null;
-		PacketWithMeta<P> packetWithMeta = null;
-		GroupContext<SessionContext, P, R> groupContext = this.channelContext.getGroupContext();
-		AioHandler<SessionContext, P, R> aioHandler = groupContext.getAioHandler();
-
-		if (queueSize > 1) {
-			ByteBuffer[] byteBuffers = new ByteBuffer[queueSize];
-			int allBytebufferCapacity = 0;
-
-			int packetCount = 0;
-			List<Object> packets = new ArrayList<>(queueSize);
-			for (int i = 0; i < queueSize; i++) {
-				if ((obj = msgQueue.poll()) != null) {
-					boolean isPacket = obj instanceof Packet;
-					if (isPacket) {
-						p = (P) obj;
-						packets.add(p);
-					} else {
-						packetWithMeta = (PacketWithMeta<P>) obj;
-						p = packetWithMeta.getPacket();
-						packets.add(packetWithMeta);
-					}
-
-					ByteBuffer byteBuffer = getByteBuffer(p, groupContext, aioHandler);
-
-					allBytebufferCapacity += byteBuffer.limit();
-					packetCount++;
-					byteBuffers[i] = byteBuffer;
-				} else {
-					break;
-				}
-			}
-
-			ByteBuffer allByteBuffer = ByteBuffer.allocate(allBytebufferCapacity);
-			byte[] dest = allByteBuffer.array();
-			for (ByteBuffer byteBuffer : byteBuffers) {
-				if (byteBuffer != null) {
-					int length = byteBuffer.limit();
-					int position = allByteBuffer.position();
-					System.arraycopy(byteBuffer.array(), 0, dest, position, length);
-					allByteBuffer.position(position + length);
-				}
-			}
-			sendByteBuffer(allByteBuffer, packetCount, packets);
-		} else {
-			if ((obj = msgQueue.poll()) != null) {
-				boolean isPacket = obj instanceof Packet;
-				if (isPacket) {
-					p = (P) obj;
-					sendPacket(p);
-				} else {
-					packetWithMeta = (PacketWithMeta<P>) obj;
-					p = packetWithMeta.getPacket();
-					sendPacket(packetWithMeta);
-				}
-			}
-		}
-	}
-
-	private ByteBuffer getByteBuffer(P packet, GroupContext<SessionContext, P, R> groupContext, AioHandler<SessionContext, P, R> aioHandler) {
-		ByteBuffer byteBuffer = packet.getPreEncodedByteBuffer();
-		if (byteBuffer != null) {
-			byteBuffer = byteBuffer.duplicate();
-		} else {
-			byteBuffer = aioHandler.encode(packet, groupContext, channelContext);
-		}
-		return byteBuffer;
 	}
 
 }

@@ -2,26 +2,24 @@ package org.tio.core;
 
 /**
  * 同步消息 action
- * @author tanyaowu 
+ * @author tanyaowu
  *
  */
 public enum SynPacketAction {
 	/**
-	 * 
+	 *
 	 */
 	BEFORE_WAIT(1),
 
 	/**
-	 * 
+	 *
 	 */
 	AFTER__WAIT(2),
 
 	/**
-	 * 
+	 *
 	 */
 	BEFORE_DOWN(3);
-
-	private final int value;
 
 	public static SynPacketAction forNumber(int value) {
 		switch (value) {
@@ -35,6 +33,8 @@ public enum SynPacketAction {
 			return null;
 		}
 	}
+
+	private final int value;
 
 	private SynPacketAction(int value) {
 		this.value = value;

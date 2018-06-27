@@ -7,14 +7,13 @@ import java.nio.channels.AsynchronousSocketChannel;
 import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
 import org.tio.core.Node;
-import org.tio.core.intf.Packet;
 
 /**
- * 
- * @author tanyaowu 
+ *
+ * @author tanyaowu
  * 2017年4月1日 上午9:31:16
  */
-public class ClientChannelContext<SessionContext, P extends Packet, R> extends ChannelContext<SessionContext, P, R> {
+public class ClientChannelContext extends ChannelContext {
 
 	private String bindIp;
 
@@ -24,22 +23,22 @@ public class ClientChannelContext<SessionContext, P extends Packet, R> extends C
 	 * @param groupContext
 	 * @param asynchronousSocketChannel
 	 *
-	 * @author: tanyaowu
-	 * 
+	 * @author tanyaowu
+	 *
 	 */
-	public ClientChannelContext(GroupContext<SessionContext, P, R> groupContext, AsynchronousSocketChannel asynchronousSocketChannel) {
+	public ClientChannelContext(GroupContext groupContext, AsynchronousSocketChannel asynchronousSocketChannel) {
 		super(groupContext, asynchronousSocketChannel);
 	}
 
-	/** 
+	/**
 	 * @see org.tio.core.ChannelContext#createClientNode(java.nio.channels.AsynchronousSocketChannel)
-	 * 
+	 *
 	 * @param asynchronousSocketChannel
 	 * @return
-	 * @throws IOException 
-	 * @author: tanyaowu
+	 * @throws IOException
+	 * @author tanyaowu
 	 * 2016年12月6日 下午12:18:08
-	 * 
+	 *
 	 */
 	@Override
 	public Node createClientNode(AsynchronousSocketChannel asynchronousSocketChannel) throws IOException {
@@ -56,13 +55,6 @@ public class ClientChannelContext<SessionContext, P extends Packet, R> extends C
 	}
 
 	/**
-	 * @param bindIp the bindIp to set
-	 */
-	public void setBindIp(String bindIp) {
-		this.bindIp = bindIp;
-	}
-
-	/**
 	 * @return the bindPort
 	 */
 	public Integer getBindPort() {
@@ -70,10 +62,26 @@ public class ClientChannelContext<SessionContext, P extends Packet, R> extends C
 	}
 
 	/**
+	 * @param bindIp the bindIp to set
+	 */
+	public void setBindIp(String bindIp) {
+		this.bindIp = bindIp;
+	}
+
+	/**
 	 * @param bindPort the bindPort to set
 	 */
 	public void setBindPort(Integer bindPort) {
 		this.bindPort = bindPort;
+	}
+
+	/** 
+	 * @return
+	 * @author tanyaowu
+	 */
+	@Override
+	public boolean isServer() {
+		return false;
 	}
 
 }

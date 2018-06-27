@@ -1,38 +1,45 @@
 package org.tio.client;
 
+import java.util.HashSet;
+import java.util.concurrent.ThreadPoolExecutor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.client.intf.ClientAioHandler;
 import org.tio.client.intf.ClientAioListener;
+import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
 import org.tio.core.intf.AioHandler;
 import org.tio.core.intf.AioListener;
-import org.tio.core.intf.Packet;
-import org.tio.core.stat.GroupStat;
+import org.tio.core.ssl.SslConfig;
+import org.tio.utils.lock.SetWithLock;
+import org.tio.utils.thread.pool.SynThreadPoolExecutor;
 
 /**
- * 
- * @author tanyaowu 
+ *
+ * @author tanyaowu
  * 2017年4月1日 上午9:31:31
  */
-public class ClientGroupContext<SessionContext, P extends Packet, R> extends GroupContext<SessionContext, P, R> {
+public class ClientGroupContext extends GroupContext {
 	static Logger log = LoggerFactory.getLogger(ClientGroupContext.class);
 
-	private ClientAioHandler<SessionContext, P, R> clientAioHandler = null;
+	private ClientAioHandler clientAioHandler = null;
 
-	private ClientAioListener<SessionContext, P, R> clientAioListener = null;
+	private ClientAioListener clientAioListener = null;
 
-	private ClientGroupStat clientGroupStat = new ClientGroupStat();
 
-	private ConnectionCompletionHandler<SessionContext, P, R> connectionCompletionHandler = new ConnectionCompletionHandler<>();
+	private ConnectionCompletionHandler connectionCompletionHandler = new ConnectionCompletionHandler();
+	
+	public final SetWithLock<ChannelContext> connecteds = new SetWithLock<ChannelContext>(new HashSet<ChannelContext>());
+	public final SetWithLock<ChannelContext> closeds = new SetWithLock<ChannelContext>(new HashSet<ChannelContext>());
 
 	/**
 	 * 不重连
 	 * @param aioHandler
 	 * @param aioListener
-	 * @author: tanyaowu
+	 * @author tanyaowu
 	 */
-	public ClientGroupContext(ClientAioHandler<SessionContext, P, R> aioHandler, ClientAioListener<SessionContext, P, R> aioListener) {
+	public ClientGroupContext(ClientAioHandler aioHandler, ClientAioListener aioListener) {
 		this(aioHandler, aioListener, null);
 	}
 
@@ -40,118 +47,124 @@ public class ClientGroupContext<SessionContext, P extends Packet, R> extends Gro
 	 * 
 	 * @param aioHandler
 	 * @param aioListener
-	 * @param reconnConf 不需要自动重连就传null
-	 * @author: tanyaowu
+	 * @param reconnConf 不用框架自动重连，就传null
 	 */
-	public ClientGroupContext(ClientAioHandler<SessionContext, P, R> aioHandler, ClientAioListener<SessionContext, P, R> aioListener, ReconnConf<SessionContext, P, R> reconnConf) {
-		super();
-
+	public ClientGroupContext(ClientAioHandler aioHandler, ClientAioListener aioListener, ReconnConf reconnConf) {
+		this(aioHandler, aioListener, reconnConf, null, null);
+	}
+	
+	/**
+	 * 
+	 * @param aioHandler
+	 * @param aioListener
+	 * @param reconnConf 不用框架自动重连，就传null
+	 * @param tioExecutor
+	 * @param groupExecutor
+	 */
+	public ClientGroupContext(ClientAioHandler aioHandler, ClientAioListener aioListener, ReconnConf reconnConf, SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
+		super(tioExecutor, groupExecutor);
+		this.groupStat = new ClientGroupStat();
 		this.setClientAioHandler(aioHandler);
 		this.setClientAioListener(aioListener);
 
 		this.reconnConf = reconnConf;
 	}
-
+	
 	/**
-	 * @param clientGroupStat the clientGroupStat to set
+	 * 使用ssl访问
+	 * @throws Exception
+	 * @author tanyaowu
 	 */
-	public void setClientGroupStat(ClientGroupStat clientGroupStat) {
-		this.clientGroupStat = clientGroupStat;
+	public void useSsl() throws Exception {
+		SslConfig sslConfig = SslConfig.forClient();
+		setSslConfig(sslConfig);
 	}
 
-	public ClientGroupStat getClientGroupStat() {
-		return clientGroupStat;
+	/**
+	 * @see org.tio.core.GroupContext#getAioHandler()
+	 *
+	 * @return
+	 * @author tanyaowu
+	 * 2016年12月20日 上午11:33:46
+	 *
+	 */
+	@Override
+	public AioHandler getAioHandler() {
+		return this.getClientAioHandler();
+	}
+
+	/**
+	 * @see org.tio.core.GroupContext#getAioListener()
+	 *
+	 * @return
+	 * @author tanyaowu
+	 * 2016年12月20日 上午11:33:46
+	 *
+	 */
+	@Override
+	public AioListener getAioListener() {
+		return this.getClientAioListener();
 	}
 
 	/**
 	 * @return the clientAioHandler
 	 */
-	public ClientAioHandler<SessionContext, P, R> getClientAioHandler() {
+	public ClientAioHandler getClientAioHandler() {
 		return clientAioHandler;
-	}
-
-	/**
-	 * @param clientAioHandler the clientAioHandler to set
-	 */
-	public void setClientAioHandler(ClientAioHandler<SessionContext, P, R> clientAioHandler) {
-		this.clientAioHandler = clientAioHandler;
 	}
 
 	/**
 	 * @return the clientAioListener
 	 */
-	public ClientAioListener<SessionContext, P, R> getClientAioListener() {
+	public ClientAioListener getClientAioListener() {
 		return clientAioListener;
-	}
-
-	/**
-	 * @param clientAioListener the clientAioListener to set
-	 */
-	public void setClientAioListener(ClientAioListener<SessionContext, P, R> clientAioListener) {
-		this.clientAioListener = clientAioListener;
-		if (this.clientAioListener == null) {
-			this.clientAioListener = new DefaultClientAioListener<SessionContext, P, R>();
-		}
-	}
-
-	/** 
-	 * @see org.tio.core.GroupContext#getAioHandler()
-	 * 
-	 * @return
-	 * @author: tanyaowu
-	 * 2016年12月20日 上午11:33:46
-	 * 
-	 */
-	@Override
-	public AioHandler<SessionContext, P, R> getAioHandler() {
-		return this.getClientAioHandler();
-	}
-
-	/** 
-	 * @see org.tio.core.GroupContext#getGroupStat()
-	 * 
-	 * @return
-	 * @author: tanyaowu
-	 * 2016年12月20日 上午11:33:46
-	 * 
-	 */
-	@Override
-	public GroupStat getGroupStat() {
-		return this.getClientGroupStat();
-	}
-
-	/** 
-	 * @see org.tio.core.GroupContext#getAioListener()
-	 * 
-	 * @return
-	 * @author: tanyaowu
-	 * 2016年12月20日 上午11:33:46
-	 * 
-	 */
-	@Override
-	public AioListener<SessionContext, P, R> getAioListener() {
-		return this.getClientAioListener();
-	}
-
-	/**
-	 * @param reconnConf the reconnConf to set
-	 */
-	public void setReconnConf(ReconnConf<SessionContext, P, R> reconnConf) {
-		this.reconnConf = reconnConf;
 	}
 
 	/**
 	 * @return the connectionCompletionHandler
 	 */
-	public ConnectionCompletionHandler<SessionContext, P, R> getConnectionCompletionHandler() {
+	public ConnectionCompletionHandler getConnectionCompletionHandler() {
 		return connectionCompletionHandler;
+	}
+
+	/**
+	 * @param clientAioHandler the clientAioHandler to set
+	 */
+	public void setClientAioHandler(ClientAioHandler clientAioHandler) {
+		this.clientAioHandler = clientAioHandler;
+	}
+
+	/**
+	 * @param clientAioListener the clientAioListener to set
+	 */
+	public void setClientAioListener(ClientAioListener clientAioListener) {
+		this.clientAioListener = clientAioListener;
+		if (this.clientAioListener == null) {
+			this.clientAioListener = new DefaultClientAioListener();
+		}
 	}
 
 	/**
 	 * @param connectionCompletionHandler the connectionCompletionHandler to set
 	 */
-	public void setConnectionCompletionHandler(ConnectionCompletionHandler<SessionContext, P, R> connectionCompletionHandler) {
+	public void setConnectionCompletionHandler(ConnectionCompletionHandler connectionCompletionHandler) {
 		this.connectionCompletionHandler = connectionCompletionHandler;
+	}
+
+	/**
+	 * @param reconnConf the reconnConf to set
+	 */
+	public void setReconnConf(ReconnConf reconnConf) {
+		this.reconnConf = reconnConf;
+	}
+
+	/** 
+	 * @return
+	 * @author tanyaowu
+	 */
+	@Override
+	public boolean isServer() {
+		return false;
 	}
 
 }

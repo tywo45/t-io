@@ -13,7 +13,7 @@ public class DebugUtils
 
 	/**
 	 * 
-	 * @author: tanyaowu
+	 * @author tanyaowu
 	 */
 	public DebugUtils()
 	{
@@ -30,7 +30,7 @@ public class DebugUtils
 
 	/**
 	 * @param args
-	 * @author: tanyaowu
+	 * @author tanyaowu
 	 */
 	public static void main(String[] args)
 	{

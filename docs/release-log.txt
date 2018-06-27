@@ -1,0 +1,17 @@
+本次修改点
+1、org.tio.server.ServerGroupContext增加
+	useSsl(String keyStoreFile, String trustStoreFile, String keyStorePwd)
+	useSsl(InputStream keyStoreInputStream, InputStream trustStoreInputStream, String passwd)
+	
+2、org.tio.client.ClientGroupContext增加
+	useSsl()
+	
+一条小新闻
+t-io正在入驻FrameworkBenchmarks，和全世界最顶尖的网络服务器进行直接PK，喜欢t-io或者讨厌t-io的都可以关注，万一被PK得很惨，也是可以博得大家一笑:https://github.com/TechEmpower/FrameworkBenchmarks/pull/3855
+
+最新pom
+<dependency>
+    <groupid>org.t-io</groupid>
+    <artifactid>tio-core</artifactid>
+    <version>3.0.2.v20180612-RELEASE</version>
+</dependency>

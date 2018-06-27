@@ -1,70 +1,47 @@
 package org.tio.core.maintain;
 
 import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.locks.Lock;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.MapWithLock;
-import org.tio.core.intf.Packet;
+import org.tio.core.GroupContext;
+import org.tio.utils.lock.MapWithLock;
 
 /**
- * 
- * @author tanyaowu 
+ *
+ * @author tanyaowu
  * 2017年4月15日 下午12:13:19
  */
-public class Ids<SessionContext, P extends Packet, R> {
+public class Ids {
+	private static Logger log = LoggerFactory.getLogger(Ids.class);
 
 	/**
-	 * key: id
+	 * key: ChannelContext对象的id字段
 	 * value: ChannelContext
 	 */
-	private MapWithLock<String, ChannelContext<SessionContext, P, R>> map = new MapWithLock<String, ChannelContext<SessionContext, P, R>>(
-			new HashMap<String, ChannelContext<SessionContext, P, R>>());
+	private MapWithLock<String, ChannelContext> map = new MapWithLock<>(new HashMap<String, ChannelContext>());
 
 	/**
-	 * @return the map
-	 */
-	public MapWithLock<String, ChannelContext<SessionContext, P, R>> getMap() {
-		return map;
-	}
-
-	/**
-	 * 
+	 *
 	 * @param channelContext
-	 * @author: tanyaowu
+	 * @author tanyaowu
 	 */
-	public void unbind(ChannelContext<SessionContext, P, R> channelContext) {
-		Lock lock = map.getLock().writeLock();
-		Map<String, ChannelContext<SessionContext, P, R>> m = map.getObj();
+	public void bind(ChannelContext channelContext) {
 		try {
-			lock.lock();
-			m.remove(channelContext.getId());
-		} catch (Exception e) {
-			throw e;
-		} finally {
-			lock.unlock();
-		}
-	}
+			GroupContext groupContext = channelContext.groupContext;
+			if (groupContext.isShortConnection) {
+				return;
+			}
 
-	/**
-	 * 
-	 * @param channelContext
-	 * @author: tanyaowu
-	 */
-	public void bind(ChannelContext<SessionContext, P, R> channelContext) {
-		String key = channelContext.getId();
-		Lock lock = map.getLock().writeLock();
-		Map<String, ChannelContext<SessionContext, P, R>> m = map.getObj();
-
-		try {
-			lock.lock();
-			m.put(key, channelContext);
-			//			channelContext.setId(id);
+			String key = channelContext.getId();
+			if (StringUtils.isBlank(key)) {
+				return;
+			}
+			map.put(key, channelContext);
 		} catch (Exception e) {
-			throw e;
-		} finally {
-			lock.unlock();
+			log.error(e.toString(), e);
 		}
 	}
 
@@ -74,18 +51,44 @@ public class Ids<SessionContext, P extends Packet, R> {
 	 * @param id the id
 	 * @return the channel context
 	 */
-	public ChannelContext<SessionContext, P, R> find(String id) {
-		String key = id;
-		Lock lock = map.getLock().readLock();
-		Map<String, ChannelContext<SessionContext, P, R>> m = map.getObj();
+	public ChannelContext find(GroupContext groupContext, String id) {
+		if (groupContext.isShortConnection) {
+			return null;
+		}
 
+		if (StringUtils.isBlank(id)) {
+			return null;
+		}
+
+		return map.get(id);
+	}
+
+	/**
+	 * @return the cacheMap
+	 */
+	public MapWithLock<String, ChannelContext> getMap() {
+		return map;
+	}
+
+	/**
+	 *
+	 * @param channelContext
+	 * @author tanyaowu
+	 */
+	public void unbind(ChannelContext channelContext) {
 		try {
-			lock.lock();
-			return m.get(key);
+			GroupContext groupContext = channelContext.groupContext;
+			if (groupContext.isShortConnection) {
+				return;
+			}
+
+			String key = channelContext.getId();
+			if (StringUtils.isBlank(key)) {
+				return;
+			}
+			map.remove(key);
 		} catch (Exception e) {
-			throw e;
-		} finally {
-			lock.unlock();
+			log.error(e.toString(), e);
 		}
 	}
 }

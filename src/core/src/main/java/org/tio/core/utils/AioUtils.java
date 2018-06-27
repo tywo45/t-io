@@ -1,30 +1,37 @@
 package org.tio.core.utils;
 
-import java.nio.channels.AsynchronousSocketChannel;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.core.Aio;
 import org.tio.core.ChannelContext;
-import org.tio.core.intf.Packet;
+import org.tio.core.Tio;
+import org.tio.utils.thread.ThreadUtils;
 
+/**
+ * 
+ * @author tanyaowu 
+ * 2017年10月19日 上午9:40:54
+ */
 public class AioUtils {
 	private static Logger log = LoggerFactory.getLogger(AioUtils.class);
 
-	public static <SessionContext, P extends Packet, R> boolean checkBeforeIO(ChannelContext<SessionContext, P, R> channelContext) {
+	public static boolean checkBeforeIO(ChannelContext channelContext) {
 		boolean isClosed = channelContext.isClosed();
 		boolean isRemoved = channelContext.isRemoved();
+		boolean isWaitingClose = channelContext.isWaitingClose();
 
-		AsynchronousSocketChannel asynchronousSocketChannel = channelContext.getAsynchronousSocketChannel();
+		if (isWaitingClose) {
+			return false;
+		}
+
 		Boolean isopen = null;
-		if (asynchronousSocketChannel != null) {
-			isopen = asynchronousSocketChannel.isOpen();
+		if (channelContext.asynchronousSocketChannel != null) {
+			isopen = channelContext.asynchronousSocketChannel.isOpen();
 
 			if (isClosed || isRemoved) {
 				if (isopen) {
 					try {
-						Aio.close(channelContext, "asynchronousSocketChannel is open, but channelContext isClosed: " + isClosed + ", isRemoved: " + isRemoved);
-					} catch (Exception e) {
+						Tio.close(channelContext, "asynchronousSocketChannel is open, but channelContext isClosed: " + isClosed + ", isRemoved: " + isRemoved);
+					} catch (Throwable e) {
 						log.error(e.toString(), e);
 					}
 				}
@@ -39,7 +46,7 @@ public class AioUtils {
 
 		if (!isopen) {
 			log.info("{}, 可能对方关闭了连接, isopen:{}, isClosed:{}, isRemoved:{}", channelContext, isopen, channelContext.isClosed(), channelContext.isRemoved());
-			Aio.close(channelContext, "asynchronousSocketChannel is not open, 可能对方关闭了连接");
+			Tio.close(channelContext, "asynchronousSocketChannel is not open, 可能对方关闭了连接");
 			return false;
 		}
 		return true;

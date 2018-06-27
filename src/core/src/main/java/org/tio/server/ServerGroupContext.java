@@ -1,38 +1,42 @@
 package org.tio.server;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Set;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.core.Aio;
 import org.tio.core.ChannelContext;
-import org.tio.core.ChannelStat;
 import org.tio.core.GroupContext;
-import org.tio.core.ObjWithLock;
+import org.tio.core.Tio;
+import org.tio.core.cluster.TioClusterConfig;
 import org.tio.core.intf.AioHandler;
 import org.tio.core.intf.AioListener;
-import org.tio.core.intf.Packet;
-import org.tio.core.stat.GroupStat;
-import org.tio.core.utils.SystemTimer;
+import org.tio.core.ssl.SslConfig;
+import org.tio.core.stat.ChannelStat;
 import org.tio.server.intf.ServerAioHandler;
 import org.tio.server.intf.ServerAioListener;
+import org.tio.utils.SystemTimer;
+import org.tio.utils.json.Json;
+import org.tio.utils.lock.SetWithLock;
+import org.tio.utils.thread.pool.SynThreadPoolExecutor;
 
 /**
- * The Class ServerGroupContext.
- *
- * @author tanyaowu
+ * 
+ * @author tanyaowu 
+ * 2016年10月10日 下午5:51:56
  */
-public class ServerGroupContext<SessionContext, P extends Packet, R> extends GroupContext<SessionContext, P, R> {
+public class ServerGroupContext extends GroupContext {
 	static Logger log = LoggerFactory.getLogger(ServerGroupContext.class);
 
-	private AcceptCompletionHandler<SessionContext, P, R> acceptCompletionHandler = null;
+	private AcceptCompletionHandler acceptCompletionHandler = null;
 
-	private ServerAioHandler<SessionContext, P, R> serverAioHandler = null;
+	private ServerAioHandler serverAioHandler = null;
 
-	private ServerAioListener<SessionContext, P, R> serverAioListener = null;
-
-	protected ServerGroupStat serverGroupStat = new ServerGroupStat();
+	private ServerAioListener serverAioListener = null;
 
 	/** The accept executor. */
 	//private ThreadPoolExecutor acceptExecutor = null;
@@ -43,52 +47,120 @@ public class ServerGroupContext<SessionContext, P extends Packet, R> extends Gro
 	 * 
 	 * @param serverAioHandler
 	 * @param serverAioListener
-	 * @param groupExecutor
-	 *
 	 * @author: tanyaowu
-	 * 2017年2月2日 下午1:40:11
-	 *
 	 */
-	public ServerGroupContext(ServerAioHandler<SessionContext, P, R> serverAioHandler, ServerAioListener<SessionContext, P, R> serverAioListener) {
-		super();
-		this.acceptCompletionHandler = new AcceptCompletionHandler<>();
-		this.serverAioHandler = serverAioHandler;
-		this.serverAioListener = serverAioListener == null ? new DefaultServerAioListener<SessionContext, P, R>() : serverAioListener;
+	public ServerGroupContext(ServerAioHandler serverAioHandler, ServerAioListener serverAioListener) {
+		this(null, serverAioHandler, serverAioListener);
+	}
 
+	/**
+	 * 
+	 * @param name
+	 * @param serverAioHandler
+	 * @param serverAioListener
+	 * @author: tanyaowu
+	 */
+	public ServerGroupContext(String name, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener) {
+		this(name, null, serverAioHandler, serverAioListener, null, null);
+	}
+
+	/**
+	 * 
+	 * @param name
+	 * @param serverAioHandler
+	 * @param serverAioListener
+	 * @author: tanyaowu
+	 */
+	public ServerGroupContext(String name, TioClusterConfig tioClusterConfig, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener) {
+		this(name, tioClusterConfig, serverAioHandler, serverAioListener, null, null);
+	}
+
+	/**
+	 * 
+	 * @param serverAioHandler
+	 * @param serverAioListener
+	 * @param tioExecutor
+	 * @param groupExecutor
+	 * @author: tanyaowu
+	 */
+	public ServerGroupContext(ServerAioHandler serverAioHandler, ServerAioListener serverAioListener, SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
+		this(null, null, serverAioHandler, serverAioListener, tioExecutor, groupExecutor);
+	}
+
+	/**
+	 * 
+	 * @param name
+	 * @param serverAioHandler
+	 * @param serverAioListener
+	 * @param tioExecutor
+	 * @param groupExecutor
+	 * @author: tanyaowu
+	 */
+	public ServerGroupContext(String name, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener, SynThreadPoolExecutor tioExecutor,
+			ThreadPoolExecutor groupExecutor) {
+		this(name, null, serverAioHandler, serverAioListener, tioExecutor, groupExecutor);
+	}
+
+	/**
+	 * 
+	 * @param name
+	 * @param tioClusterConfig
+	 * @param serverAioHandler
+	 * @param serverAioListener
+	 * @param tioExecutor
+	 * @param groupExecutor
+	 * @author: tanyaowu
+	 */
+	public ServerGroupContext(String name, TioClusterConfig tioClusterConfig, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener,
+			SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
+		super(tioClusterConfig, tioExecutor, groupExecutor);
+		this.name = name;
+		this.groupStat = new ServerGroupStat();
+		this.acceptCompletionHandler = new AcceptCompletionHandler();
+		this.serverAioHandler = serverAioHandler;
+		this.serverAioListener = serverAioListener == null ? new DefaultServerAioListener() : serverAioListener;
 		checkHeartbeatThread = new Thread(new Runnable() {
-			@SuppressWarnings("unused")
 			@Override
 			public void run() {
+				//第一次先休息一下
+				try {
+					Thread.sleep(1000 * 10);
+				} catch (InterruptedException e1) {
+					log.error(e1.toString(), e1);
+				}
 
 				while (!isStopped()) {
 					//					long sleeptime = heartbeatTimeout;
 					if (heartbeatTimeout <= 0) {
-						log.warn("用户取消了框架层面的心跳检测，请用户自己去完成心跳机制");
+						log.info("{}, 用户取消了框架层面的心跳检测，如果业务需要，请用户自己去完成心跳检测", ServerGroupContext.this.name);
 						break;
 					}
+					try {
+						Thread.sleep(heartbeatTimeout);
+					} catch (InterruptedException e1) {
+						log.error(e1.toString(), e1);
+					}
 					long start = SystemTimer.currentTimeMillis();
-					ObjWithLock<Set<ChannelContext<SessionContext, P, R>>> objWithLock = ServerGroupContext.this.connections.getSetWithLock();
-					Set<ChannelContext<SessionContext, P, R>> set = null;
-					ReadLock readLock = objWithLock.getLock().readLock();
+					SetWithLock<ChannelContext> setWithLock = ServerGroupContext.this.connections;
+					Set<ChannelContext> set = null;
 					long start1 = 0;
 					int count = 0;
+					ReadLock readLock = setWithLock.readLock();
+					readLock.lock();
 					try {
-						readLock.lock();
 						start1 = SystemTimer.currentTimeMillis();
-						set = objWithLock.getObj();
+						set = setWithLock.getObj();
 
-						for (ChannelContext<SessionContext, P, R> entry : set) {
+						for (ChannelContext entry : set) {
 							count++;
-							ChannelContext<SessionContext, P, R> channelContext = entry;
-							ChannelStat stat = channelContext.getStat();
-							long timeLatestReceivedMsg = stat.getLatestTimeOfReceivedPacket();
-							long timeLatestSentMsg = stat.getLatestTimeOfSentPacket();
-							long compareTime = Math.max(timeLatestReceivedMsg, timeLatestSentMsg);
+							ChannelContext channelContext = entry;
+							ChannelStat stat = channelContext.stat;
+							long compareTime = Math.max(stat.latestTimeOfReceivedByte, stat.latestTimeOfSentPacket);
 							long currtime = SystemTimer.currentTimeMillis();
-							long interval = (currtime - compareTime);
+							long interval = currtime - compareTime;
 							if (interval > heartbeatTimeout) {
-								log.warn("{}, {} ms没有收发消息", channelContext, interval);
-								Aio.remove(channelContext, interval + " ms没有收发消息");
+								log.info("{}, {} ms没有收发消息", channelContext, interval);
+								Tio.remove(channelContext, interval + " ms没有收发消息");
 							}
 						}
 					} catch (Throwable e) {
@@ -96,45 +168,52 @@ public class ServerGroupContext<SessionContext, P extends Packet, R> extends Gro
 					} finally {
 						try {
 							readLock.unlock();
+							if (debug) {
+								StringBuilder builder = new StringBuilder();
+								builder.append("\r\n").append(ServerGroupContext.this.getName());
+								builder.append("\r\n ├ 当前时间:").append(SystemTimer.currentTimeMillis());
+								builder.append("\r\n ├ 连接统计");
+								builder.append("\r\n │ \t ├ 共接受过连接数  :").append(((ServerGroupStat)groupStat).accepted.get());
+								builder.append("\r\n │ \t ├ 当前连接数            :").append(set.size());
+								//								builder.append("\r\n │ \t ├ 当前群组数            :").append(groups);
+								builder.append("\r\n │ \t ├ 异IP连接数           :").append(ServerGroupContext.this.ips.getIpmap().getObj().size());
+								builder.append("\r\n │ \t └ 关闭过的连接数  :").append(groupStat.closed.get());
 
-							//							if (log.isWarnEnabled())
-							//							{
-							//								int groups = 0;
-							//								ObjWithLock<Set<ChannelContext<SessionContext, P, R>>> objwithlock = ServerGroupContext.this.getGroups().clients("g");
-							//								if (objwithlock != null)
-							//								{
-							//									groups = objwithlock.getObj().size();
-							//								}
-							//								
-							//								log.warn("[{}]:[{}]: 当前连接个数:{}, 群组(g):{}, 共接受连接:{}, 一共关闭过的连接个数:{}, 已接收消息:({}p)({}b), 已处理消息:{}p, 已发送消息:({}p)({}b)", SystemTimer.currentTimeMillis(), id,
-							//										set.size(), groups, serverGroupStat.getAccepted().get(), serverGroupStat.getClosed().get(), serverGroupStat.getReceivedPacket().get(),
-							//										serverGroupStat.getReceivedBytes().get(), serverGroupStat.getHandledPacket().get(), serverGroupStat.getSentPacket().get(),
-							//										serverGroupStat.getSentBytes().get());
-							//							}
-							//							
-							//							//打印各集合信息
-							//							if (log.isWarnEnabled())
-							//							{							
-							//								log.warn("clientNodes:{},connections:{},connecteds:{},closeds:{},groups:[channelmap:{}, groupmap:{}],users:{},syns:{}", 
-							//										ServerGroupContext.this.clientNodes.getMap().getObj().size(),
-							//										ServerGroupContext.this.connections.getSetWithLock().getObj().size(),
-							//										ServerGroupContext.this.connecteds.getSetWithLock().getObj().size(),
-							//										ServerGroupContext.this.closeds.getSetWithLock().getObj().size(),
-							//										ServerGroupContext.this.groups.getChannelmap().getObj().size(), ServerGroupContext.this.groups.getGroupmap().getObj().size(),
-							//										ServerGroupContext.this.users.getMap().getObj().size(),
-							//										ServerGroupContext.this.waitingResps.getMap().getObj().size()
-							//										);
-							//							}
-							//							
-							//							if (log.isInfoEnabled())
-							//							{
-							//								long end = SystemTimer.currentTimeMillis();
-							//								long iv1 = start1 - start;
-							//								long iv = end - start1;
-							//								log.info("检查心跳, 共{}个连接, 取锁耗时{}ms, 循环耗时{}ms, 心跳超时时间:{}ms", count, iv1, iv, heartbeatTimeout);
-							//							}
-							Thread.sleep(heartbeatTimeout);
-						} catch (Exception e) {
+								builder.append("\r\n ├ 消息统计");
+								builder.append("\r\n │ \t ├ 已处理消息  :").append(groupStat.handledPackets.get());
+								builder.append("\r\n │ \t ├ 已接收消息(packet/byte):").append(groupStat.receivedPackets.get()).append("/")
+										.append(groupStat.receivedBytes.get());
+								builder.append("\r\n │ \t ├ 已发送消息(packet/byte):").append(groupStat.sentPackets.get()).append("/").append(groupStat.sentBytes.get())
+										.append("b");
+								builder.append("\r\n │ \t ├ 平均每次TCP包接收的字节数  :").append(groupStat.getBytesPerTcpReceive());
+								builder.append("\r\n │ \t └ 平均每次TCP包接收的业务包  :").append(groupStat.getPacketsPerTcpReceive());
+								builder.append("\r\n └ IP统计时段 ");
+								if (ServerGroupContext.this.ipStats.durationList != null && ServerGroupContext.this.ipStats.durationList.size() > 0) {
+									builder.append("\r\n   \t └ ").append(Json.toJson(ServerGroupContext.this.ipStats.durationList));
+								} else {
+									builder.append("\r\n   \t └ ").append("没有设置ip统计时间");
+								}
+
+								builder.append("\r\n ├ 节点统计");
+								builder.append("\r\n │ \t ├ clientNodes :").append(ServerGroupContext.this.clientNodeMap.getObjWithLock().getObj().size());
+								builder.append("\r\n │ \t ├ 所有连接               :").append(ServerGroupContext.this.connections.getObj().size());
+								builder.append("\r\n │ \t ├ 绑定user数         :").append(ServerGroupContext.this.users.getMap().getObj().size());
+								builder.append("\r\n │ \t ├ 绑定token数       :").append(ServerGroupContext.this.tokens.getMap().getObj().size());
+								builder.append("\r\n │ \t └ 等待同步消息响应 :").append(ServerGroupContext.this.waitingResps.getObj().size());
+
+								builder.append("\r\n ├ 群组");
+								builder.append("\r\n │ \t └ groupmap:").append(ServerGroupContext.this.groups.getGroupmap().getObj().size());
+								builder.append("\r\n └ 拉黑IP ");
+								builder.append("\r\n   \t └ ").append(Json.toJson(ServerGroupContext.this.ipBlacklist.getAll()));
+
+								log.info(builder.toString());
+
+								long end = SystemTimer.currentTimeMillis();
+								long iv1 = start1 - start;
+								long iv = end - start1;
+								log.info("{}, 检查心跳, 共{}个连接, 取锁耗时{}ms, 循环耗时{}ms, 心跳超时时间:{}ms", ServerGroupContext.this.name, count, iv1, iv, heartbeatTimeout);
+							}
+						} catch (Throwable e) {
 							log.error("", e);
 						}
 					}
@@ -146,67 +225,92 @@ public class ServerGroupContext<SessionContext, P extends Packet, R> extends Gro
 		checkHeartbeatThread.start();
 	}
 
-	public ServerGroupStat getServerGroupStat() {
-		return serverGroupStat;
+	/**
+	 * 
+	 * @param keyStoreFile 如果是以"classpath:"开头，则从classpath中查找，否则视为普通的文件路径
+	 * @param trustStoreFile 如果是以"classpath:"开头，则从classpath中查找，否则视为普通的文件路径
+	 * @param keyStorePwd 
+	 * @throws FileNotFoundException
+	 */
+	public void useSsl(String keyStoreFile, String trustStoreFile, String keyStorePwd) throws Exception {
+		if (StringUtils.isNotBlank(keyStoreFile) && StringUtils.isNotBlank(trustStoreFile)) {
+			SslConfig sslConfig = SslConfig.forServer(keyStoreFile, trustStoreFile, keyStorePwd);
+			this.setSslConfig(sslConfig);
+		}
+	}
+
+	/**
+	 * 
+	 * @param keyStoreInputStream
+	 * @param trustStoreInputStream
+	 * @param passwd
+	 * @throws Exception
+	 * @author tanyaowu
+	 */
+	public void useSsl(InputStream keyStoreInputStream, InputStream trustStoreInputStream, String passwd) throws Exception {
+		SslConfig sslConfig = SslConfig.forServer(keyStoreInputStream, trustStoreInputStream, passwd);
+		this.setSslConfig(sslConfig);
 	}
 
 	/**
 	 * @return the acceptCompletionHandler
 	 */
-	public AcceptCompletionHandler<SessionContext, P, R> getAcceptCompletionHandler() {
+	public AcceptCompletionHandler getAcceptCompletionHandler() {
 		return acceptCompletionHandler;
 	}
 
 	/**
+	 * @see org.tio.core.GroupContext#getAioHandler()
+	 *
+	 * @return
+	 * @author tanyaowu
+	 * 2016年12月20日 上午11:34:37
+	 *
+	 */
+	@Override
+	public AioHandler getAioHandler() {
+		return this.getServerAioHandler();
+	}
+
+	/**
+	 * @see org.tio.core.GroupContext#getAioListener()
+	 *
+	 * @return
+	 * @author tanyaowu
+	 * 2016年12月20日 上午11:34:37
+	 *
+	 */
+	@Override
+	public AioListener getAioListener() {
+		return getServerAioListener();
+	}
+
+
+	/**
 	 * @return the serverAioHandler
 	 */
-	public ServerAioHandler<SessionContext, P, R> getServerAioHandler() {
+	public ServerAioHandler getServerAioHandler() {
 		return serverAioHandler;
 	}
 
 	/**
 	 * @return the serverAioListener
 	 */
-	public ServerAioListener<SessionContext, P, R> getServerAioListener() {
+	public ServerAioListener getServerAioListener() {
 		return serverAioListener;
 	}
 
-	/** 
-	 * @see org.tio.core.GroupContext#getAioHandler()
-	 * 
-	 * @return
-	 * @author: tanyaowu
-	 * 2016年12月20日 上午11:34:37
-	 * 
-	 */
-	@Override
-	public AioHandler<SessionContext, P, R> getAioHandler() {
-		return this.getServerAioHandler();
+	public void setServerAioListener(ServerAioListener serverAioListener) {
+		this.serverAioListener = serverAioListener;
 	}
 
 	/** 
-	 * @see org.tio.core.GroupContext#getGroupStat()
-	 * 
 	 * @return
-	 * @author: tanyaowu
-	 * 2016年12月20日 上午11:34:37
-	 * 
+	 * @author tanyaowu
 	 */
 	@Override
-	public GroupStat getGroupStat() {
-		return this.getServerGroupStat();
+	public boolean isServer() {
+		return true;
 	}
 
-	/** 
-	 * @see org.tio.core.GroupContext#getAioListener()
-	 * 
-	 * @return
-	 * @author: tanyaowu
-	 * 2016年12月20日 上午11:34:37
-	 * 
-	 */
-	@Override
-	public AioListener<SessionContext, P, R> getAioListener() {
-		return getServerAioListener();
-	}
 }

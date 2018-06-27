@@ -1,18 +1,21 @@
 package org.tio.core;
 
-import org.tio.core.intf.Packet;
-
-public interface ChannelContextFilter<SessionContext, P extends Packet, R> {
+/**
+ * 
+ * @author tanyaowu 
+ * 2017年10月19日 上午9:39:36
+ */
+public interface ChannelContextFilter {
 
 	/**
-	 * 
+	 * 过滤ChannelContext
 	 * @param channelContext
 	 * @return false: 排除此channelContext, true: 不排除
 	 *
-	 * @author: tanyaowu
+	 * @author tanyaowu
 	 * 2017年1月13日 下午3:28:54
 	 *
 	 */
-	public boolean filter(ChannelContext<SessionContext, P, R> channelContext);
+	public boolean filter(ChannelContext channelContext);
 
 }

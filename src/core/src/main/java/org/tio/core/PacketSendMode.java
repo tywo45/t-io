@@ -2,7 +2,7 @@ package org.tio.core;
 
 /**
  *  消息发送模式
- * @author tanyaowu 
+ * @author tanyaowu
  *
  */
 public enum PacketSendMode {
@@ -20,8 +20,6 @@ public enum PacketSendMode {
 	 */
 	GROUP_BLOCK(3);
 
-	private final int value;
-
 	public static PacketSendMode forNumber(int value) {
 		switch (value) {
 		case 1:
@@ -34,6 +32,8 @@ public enum PacketSendMode {
 			return null;
 		}
 	}
+
+	private final int value;
 
 	private PacketSendMode(int value) {
 		this.value = value;

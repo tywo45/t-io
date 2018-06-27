@@ -4,26 +4,17 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.util.concurrent.CountDownLatch;
 
 import org.tio.core.Node;
-import org.tio.core.intf.Packet;
 
 /**
- * 
- * @author tanyaowu 
+ *
+ * @author tanyaowu
  * 2017年4月1日 上午9:32:17
  */
-public class ConnectionCompletionVo<SessionContext, P extends Packet, R> {
+public class ConnectionCompletionVo {
 
-	/**
-	 * @author: tanyaowu
-	 * 
-	 */
-	public ConnectionCompletionVo() {
+	private ClientChannelContext channelContext = null;
 
-	}
-
-	private ClientChannelContext<SessionContext, P, R> channelContext = null;
-
-	private AioClient<SessionContext, P, R> aioClient = null;
+	private TioClient tioClient = null;
 
 	private boolean isReconnect = false;
 
@@ -38,22 +29,30 @@ public class ConnectionCompletionVo<SessionContext, P extends Packet, R> {
 	private CountDownLatch countDownLatch = null;
 
 	/**
+	 * @author tanyaowu
+	 *
+	 */
+	public ConnectionCompletionVo() {
+
+	}
+
+	/**
 	 * @param channelContext
-	 * @param aioClient
+	 * @param tioClient
 	 * @param isReconnect
 	 * @param asynchronousSocketChannel
 	 * @param serverNode
 	 * @param bindIp
 	 * @param bindPort
 	 *
-	 * @author: tanyaowu
-	 * 
+	 * @author tanyaowu
+	 *
 	 */
-	public ConnectionCompletionVo(ClientChannelContext<SessionContext, P, R> channelContext, AioClient<SessionContext, P, R> aioClient, boolean isReconnect,
-			AsynchronousSocketChannel asynchronousSocketChannel, Node serverNode, String bindIp, Integer bindPort) {
+	public ConnectionCompletionVo(ClientChannelContext channelContext, TioClient tioClient, boolean isReconnect, AsynchronousSocketChannel asynchronousSocketChannel,
+			Node serverNode, String bindIp, Integer bindPort) {
 		super();
 		this.channelContext = channelContext;
-		this.aioClient = aioClient;
+		this.tioClient = tioClient;
 		this.isReconnect = isReconnect;
 		this.asynchronousSocketChannel = asynchronousSocketChannel;
 		this.serverNode = serverNode;
@@ -62,73 +61,10 @@ public class ConnectionCompletionVo<SessionContext, P extends Packet, R> {
 	}
 
 	/**
-	 * @return the serverNode
+	 * @return the tioClient
 	 */
-	public Node getServerNode() {
-		return serverNode;
-	}
-
-	/**
-	 * @param serverNode the serverNode to set
-	 */
-	public void setServerNode(Node serverNode) {
-		this.serverNode = serverNode;
-	}
-
-	/**
-	 * @return the bindIp
-	 */
-	public String getBindIp() {
-		return bindIp;
-	}
-
-	/**
-	 * @param bindIp the bindIp to set
-	 */
-	public void setBindIp(String bindIp) {
-		this.bindIp = bindIp;
-	}
-
-	/**
-	 * @return the bindPort
-	 */
-	public Integer getBindPort() {
-		return bindPort;
-	}
-
-	/**
-	 * @param bindPort the bindPort to set
-	 */
-	public void setBindPort(Integer bindPort) {
-		this.bindPort = bindPort;
-	}
-
-	/**
-	 * @return the channelContext
-	 */
-	public ClientChannelContext<SessionContext, P, R> getChannelContext() {
-		return channelContext;
-	}
-
-	/**
-	 * @param channelContext the channelContext to set
-	 */
-	public void setChannelContext(ClientChannelContext<SessionContext, P, R> channelContext) {
-		this.channelContext = channelContext;
-	}
-
-	/**
-	 * @return the isReconnect
-	 */
-	public boolean isReconnect() {
-		return isReconnect;
-	}
-
-	/**
-	 * @param isReconnect the isReconnect to set
-	 */
-	public void setReconnect(boolean isReconnect) {
-		this.isReconnect = isReconnect;
+	public TioClient getTioClient() {
+		return tioClient;
 	}
 
 	/**
@@ -139,24 +75,24 @@ public class ConnectionCompletionVo<SessionContext, P extends Packet, R> {
 	}
 
 	/**
-	 * @param asynchronousSocketChannel the asynchronousSocketChannel to set
+	 * @return the bindIp
 	 */
-	public void setAsynchronousSocketChannel(AsynchronousSocketChannel asynchronousSocketChannel) {
-		this.asynchronousSocketChannel = asynchronousSocketChannel;
+	public String getBindIp() {
+		return bindIp;
 	}
 
 	/**
-	 * @return the aioClient
+	 * @return the bindPort
 	 */
-	public AioClient<SessionContext, P, R> getAioClient() {
-		return aioClient;
+	public Integer getBindPort() {
+		return bindPort;
 	}
 
 	/**
-	 * @param aioClient the aioClient to set
+	 * @return the channelContext
 	 */
-	public void setAioClient(AioClient<SessionContext, P, R> aioClient) {
-		this.aioClient = aioClient;
+	public ClientChannelContext getChannelContext() {
+		return channelContext;
 	}
 
 	/**
@@ -167,10 +103,73 @@ public class ConnectionCompletionVo<SessionContext, P extends Packet, R> {
 	}
 
 	/**
+	 * @return the serverNode
+	 */
+	public Node getServerNode() {
+		return serverNode;
+	}
+
+	/**
+	 * @return the isReconnect
+	 */
+	public boolean isReconnect() {
+		return isReconnect;
+	}
+
+	/**
+	 * @param tioClient the tioClient to set
+	 */
+	public void setTioClient(TioClient tioClient) {
+		this.tioClient = tioClient;
+	}
+
+	/**
+	 * @param asynchronousSocketChannel the asynchronousSocketChannel to set
+	 */
+	public void setAsynchronousSocketChannel(AsynchronousSocketChannel asynchronousSocketChannel) {
+		this.asynchronousSocketChannel = asynchronousSocketChannel;
+	}
+
+	/**
+	 * @param bindIp the bindIp to set
+	 */
+	public void setBindIp(String bindIp) {
+		this.bindIp = bindIp;
+	}
+
+	/**
+	 * @param bindPort the bindPort to set
+	 */
+	public void setBindPort(Integer bindPort) {
+		this.bindPort = bindPort;
+	}
+
+	/**
+	 * @param channelContext the channelContext to set
+	 */
+	public void setChannelContext(ClientChannelContext channelContext) {
+		this.channelContext = channelContext;
+	}
+
+	/**
 	 * @param countDownLatch the countDownLatch to set
 	 */
 	public void setCountDownLatch(java.util.concurrent.CountDownLatch countDownLatch) {
 		this.countDownLatch = countDownLatch;
+	}
+
+	/**
+	 * @param isReconnect the isReconnect to set
+	 */
+	public void setReconnect(boolean isReconnect) {
+		this.isReconnect = isReconnect;
+	}
+
+	/**
+	 * @param serverNode the serverNode to set
+	 */
+	public void setServerNode(Node serverNode) {
+		this.serverNode = serverNode;
 	}
 
 }

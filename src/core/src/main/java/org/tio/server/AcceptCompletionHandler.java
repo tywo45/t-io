@@ -9,87 +9,138 @@ import java.nio.channels.CompletionHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tio.core.ChannelAction;
 import org.tio.core.ReadCompletionHandler;
-import org.tio.core.intf.Packet;
-import org.tio.core.utils.SystemTimer;
+import org.tio.core.ssl.SslUtils;
+import org.tio.core.stat.IpStat;
 import org.tio.server.intf.ServerAioListener;
+import org.tio.utils.SystemTimer;
 
 /**
- * 
- * @author tanyaowu 
+ *
+ * @author tanyaowu
  * 2017年4月4日 上午9:27:45
  */
-public class AcceptCompletionHandler<SessionContext, P extends Packet, R> implements CompletionHandler<AsynchronousSocketChannel, AioServer<SessionContext, P, R>> {
+public class AcceptCompletionHandler implements CompletionHandler<AsynchronousSocketChannel, TioServer> {
 
-	private static Logger log = LoggerFactory.getLogger(AioServer.class);
+	private static Logger log = LoggerFactory.getLogger(AcceptCompletionHandler.class);
 
 	public AcceptCompletionHandler() {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param asynchronousSocketChannel
-	 * @param aioServer
-	 * @author: tanyaowu
+	 * @param tioServer
+	 * @author tanyaowu
 	 */
 	@Override
-	public void completed(AsynchronousSocketChannel asynchronousSocketChannel, AioServer<SessionContext, P, R> aioServer) {
+	public void completed(AsynchronousSocketChannel asynchronousSocketChannel, TioServer tioServer) {
 		try {
-
-			ServerGroupContext<SessionContext, P, R> serverGroupContext = aioServer.getServerGroupContext();
+			ServerGroupContext serverGroupContext = tioServer.getServerGroupContext();
 			InetSocketAddress inetSocketAddress = (InetSocketAddress) asynchronousSocketChannel.getRemoteAddress();
 			String clientIp = inetSocketAddress.getHostString();
+//			serverGroupContext.ips.get(clientIp).getRequestCount().incrementAndGet();
+			
+//			CaffeineCache[] caches = serverGroupContext.ips.getCaches();
+//			for (CaffeineCache guavaCache : caches) {
+//				IpStat ipStat = (IpStat) guavaCache.get(clientIp);
+//				ipStat.getRequestCount().incrementAndGet();
+//			}
+			
+			
+			
+			if (org.tio.core.Tio.IpBlacklist.isInBlacklist(serverGroupContext, clientIp)) {
+				log.warn("[{}]在黑名单中", clientIp);
+				asynchronousSocketChannel.close();
+				return;
+			}
 
-			ServerGroupStat serverGroupStat = serverGroupContext.getServerGroupStat();
-			serverGroupStat.getAccepted().incrementAndGet();
+			((ServerGroupStat)serverGroupContext.groupStat).accepted.incrementAndGet();
+			
+			
+//			channelContext.getIpStat().getActivatedCount().incrementAndGet();
+//			for (CaffeineCache guavaCache : caches) {
+//				IpStat ipStat = (IpStat) guavaCache.get(clientIp);
+//				ipStat.getActivatedCount().incrementAndGet();
+//			}
+//			for (Long v : durationList) {
+//				IpStat ipStat = (IpStat) serverGroupContext.ips.get(v, clientIp);
+//				IpStat.getActivatedCount().incrementAndGet();
+//			}
+//			IpStat.getActivatedCount(clientIp, true).incrementAndGet();
 
 			asynchronousSocketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
 			asynchronousSocketChannel.setOption(StandardSocketOptions.SO_RCVBUF, 32 * 1024);
 			asynchronousSocketChannel.setOption(StandardSocketOptions.SO_SNDBUF, 32 * 1024);
 			asynchronousSocketChannel.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 
-			ServerChannelContext<SessionContext, P, R> channelContext = new ServerChannelContext<>(serverGroupContext, asynchronousSocketChannel);
+			ServerChannelContext channelContext = new ServerChannelContext(serverGroupContext, asynchronousSocketChannel);
 			channelContext.setClosed(false);
-			channelContext.setServerNode(aioServer.getServerNode());
-			ServerAioListener<SessionContext, P, R> serverAioListener = serverGroupContext.getServerAioListener();
-			channelContext.getStat().setTimeFirstConnected(SystemTimer.currentTimeMillis());
-			try {
-				serverAioListener.onAfterConnected(channelContext, true, false);
-			} catch (Exception e) {
-				log.error(e.toString(), e);
+			channelContext.stat.setTimeFirstConnected(SystemTimer.currentTimeMillis());
+			channelContext.setServerNode(tioServer.getServerNode());
+			
+			channelContext.traceClient(ChannelAction.CONNECT, null, null);
+			
+//			serverGroupContext.connecteds.add(channelContext);
+			serverGroupContext.ips.bind(channelContext);
+			
+			boolean isConnected = true;
+			boolean isReconnect = false;
+			ServerAioListener serverAioListener = serverGroupContext.getServerAioListener();
+			if (!SslUtils.isSsl(channelContext)) {
+				try {
+					serverAioListener.onAfterConnected(channelContext, isConnected, isReconnect);
+				} catch (Throwable e) {
+					log.error(e.toString(), e);
+				}
 			}
+			
+			if (serverGroupContext.ipStats.durationList != null && serverGroupContext.ipStats.durationList.size() > 0) {
+				try {				
+					for (Long v : serverGroupContext.ipStats.durationList) {
+						IpStat ipStat = (IpStat) serverGroupContext.ipStats.get(v, clientIp);
+						ipStat.getRequestCount().incrementAndGet();
+						serverGroupContext.getIpStatListener().onAfterConnected(channelContext, isConnected, isReconnect, ipStat);
+					}
+				} catch (Exception e) {
+					log.error(e.toString(), e);
+				}
+			}
+			
+			
 
-			if (!aioServer.isWaitingStop()) {
-				ReadCompletionHandler<SessionContext, P, R> readCompletionHandler = channelContext.getReadCompletionHandler();
-				ByteBuffer readByteBuffer = readCompletionHandler.getReadByteBuffer();//ByteBuffer.allocateDirect(channelContext.getGroupContext().getReadBufferSize());
+			if (!tioServer.isWaitingStop()) {
+				ReadCompletionHandler readCompletionHandler = channelContext.getReadCompletionHandler();
+				ByteBuffer readByteBuffer = readCompletionHandler.getReadByteBuffer();//ByteBuffer.allocateDirect(channelContext.groupContext.getReadBufferSize());
 				readByteBuffer.position(0);
 				readByteBuffer.limit(readByteBuffer.capacity());
 				asynchronousSocketChannel.read(readByteBuffer, readByteBuffer, readCompletionHandler);
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			log.error("", e);
 		} finally {
-			if (aioServer.isWaitingStop()) {
-				log.info("{}即将关闭服务器，不再接受新请求", aioServer.getServerNode());
+			if (tioServer.isWaitingStop()) {
+				log.info("{}即将关闭服务器，不再接受新请求", tioServer.getServerNode());
 			} else {
-				AsynchronousServerSocketChannel serverSocketChannel = aioServer.getServerSocketChannel();
-				serverSocketChannel.accept(aioServer, this);
+				AsynchronousServerSocketChannel serverSocketChannel = tioServer.getServerSocketChannel();
+				serverSocketChannel.accept(tioServer, this);
 			}
 		}
 	}
 
 	/**
-	 * 
+	 *
 	 * @param exc
-	 * @param aioServer
-	 * @author: tanyaowu
+	 * @param tioServer
+	 * @author tanyaowu
 	 */
 	@Override
-	public void failed(Throwable exc, AioServer<SessionContext, P, R> aioServer) {
-		AsynchronousServerSocketChannel serverSocketChannel = aioServer.getServerSocketChannel();
-		serverSocketChannel.accept(aioServer, this);
+	public void failed(Throwable exc, TioServer tioServer) {
+		AsynchronousServerSocketChannel serverSocketChannel = tioServer.getServerSocketChannel();
+		serverSocketChannel.accept(tioServer, this);
 
-		log.error("[" + aioServer.getServerNode() + "]监听出现异常", exc);
+		log.error("[" + tioServer.getServerNode() + "]监听出现异常", exc);
 
 	}
 
