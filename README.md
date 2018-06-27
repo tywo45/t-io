@@ -4,7 +4,7 @@
 
 ## **t-io是啥**
 - 大家口中的t-io一般是指tio-core，它是基于java aio的网络编程框架，和netty属于同类
-- 基于tio-core来开发**IM**、**TCP私有协议**、**RPC**、**游戏服务器端**、**推送服务**、**实时监控**、**物联网**将会变得**空前的简单**。
+- 基于tio-core来开发**IM**、**TCP私有协议**、**RPC**、**游戏服务器端**、**推送服务**、**实时监控**、**物联网**、**UDP**、**Socket**将会变得**空前的简单**。
 - t-io家族除了tio-core外，还有tio-websocket-server、tio-http-server、tio-webpack-core、tio-flash-policy-server等，后面所列都是基于tio-core开发的应用层组件
 - 列一下t-io家族成员：
 	- **tio-core**：基于java aio的网络编程框架。使用示例：[tio-showcase](https://gitee.com/tywo45/tio-showcase "tio-showcase")
