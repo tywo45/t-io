@@ -5,9 +5,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.tio.utils.SystemTimer;
-
-import cn.hutool.core.date.BetweenFormater;
-import cn.hutool.core.date.BetweenFormater.Level;
+import org.tio.utils.hutool.BetweenFormater;
+import org.tio.utils.hutool.BetweenFormater.Level;
 
 /**
  * ip访问路径统计
@@ -43,12 +42,12 @@ public class IpPathAccessStat implements Serializable {
 	/**
 	 * 第一次访问时间， 单位：毫秒
 	 */
-	private long firstAccessTime = SystemTimer.currentTimeMillis();
+	private long firstAccessTime = SystemTimer.currTime;
 
 	/**
 	 * 最近一次访问时间， 单位：毫秒
 	 */
-	private long lastAccessTime = SystemTimer.currentTimeMillis();
+	private long lastAccessTime = SystemTimer.currTime;
 
 	/**
 	 * 这个ip访问这个路径的次数
@@ -78,7 +77,7 @@ public class IpPathAccessStat implements Serializable {
 	 * @return the duration
 	 */
 	public String getFormatedDuration() {
-		duration = SystemTimer.currentTimeMillis() - this.firstAccessTime;
+		duration = SystemTimer.currTime - this.firstAccessTime;
 		BetweenFormater betweenFormater = new BetweenFormater(duration, Level.MILLSECOND);
 		return betweenFormater.format();
 	}
@@ -131,7 +130,7 @@ public class IpPathAccessStat implements Serializable {
 	}
 
 	public long getDuration() {
-		duration = SystemTimer.currentTimeMillis() - this.firstAccessTime;
+		duration = SystemTimer.currTime - this.firstAccessTime;
 		return duration;
 	}
 

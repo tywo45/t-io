@@ -6,21 +6,18 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
+import org.tio.core.Tio;
 import org.tio.core.exception.AioDecodeException;
-import org.tio.core.exception.LengthOverflowException;
-import org.tio.core.utils.ByteBufferUtils;
 import org.tio.http.common.HttpConst.RequestBodyFormat;
 import org.tio.http.common.utils.HttpParseUtils;
-
-import cn.hutool.core.util.StrUtil;
-import jodd.util.StringUtil;
+import org.tio.utils.SysConst;
+import org.tio.utils.hutool.StrUtil;
 
 /**
- *
+ * http server中使用
  * @author tanyaowu
  *
  */
@@ -32,14 +29,19 @@ public class HttpRequestDecoder {
 	private static Logger log = LoggerFactory.getLogger(HttpRequestDecoder.class);
 
 	/**
-	 * 头部，最多有多少字节
+	 *   头部，最多有多少字节
 	 */
 	public static final int MAX_LENGTH_OF_HEADER = 20480;
 
 	/**
-	 * 头部，每行最大的字节数
+	 *      头部，每行最大的字节数
 	 */
 	public static final int MAX_LENGTH_OF_HEADERLINE = 2048;
+
+	/**
+	 *   请求行的最大长度
+	 */
+	public static final int MAX_LENGTH_OF_REQUESTLINE = 2048;
 
 	/**
 	 * 
@@ -57,7 +59,7 @@ public class HttpRequestDecoder {
 			throws AioDecodeException {
 		//		int initPosition = position;
 		//		int count = 0;
-		Step step = Step.firstline;
+		//		Step step = Step.firstline;
 		//		StringBuilder currLine = new StringBuilder();
 		Map<String, String> headers = new HashMap<>();
 		int contentLength = 0;
@@ -72,67 +74,65 @@ public class HttpRequestDecoder {
 			headerSb = new StringBuilder(512);
 		}
 
-		while (buffer.hasRemaining()) {
-			String line;
-			try {
-				line = ByteBufferUtils.readLine(buffer, null, MAX_LENGTH_OF_HEADERLINE);
-			} catch (LengthOverflowException e) {
-				throw new AioDecodeException(e);
-			}
-
-			int newPosition = buffer.position();
-			if (newPosition - position > MAX_LENGTH_OF_HEADER) {
-				throw new AioDecodeException("max http header length " + MAX_LENGTH_OF_HEADER);
-			}
-
-			if (line == null) {
-				return null;
-			}
-
-			if (appendRequestHeaderString) {
-				headerSb.append(line).append("\n");
-			}
-
-			if ("".equals(line)) {//头部解析完成了
-				String contentLengthStr = headers.get(HttpConst.RequestHeaderKey.Content_Length);
-				if (StringUtils.isBlank(contentLengthStr)) {
-					contentLength = 0;
-				} else {
-					contentLength = Integer.parseInt(contentLengthStr);
-				}
-
-				//				int readableLength = buffer.limit() - buffer.position();
-				int headerLength = (buffer.position() - position);
-				int allNeedLength = headerLength + contentLength; //这个packet所需要的字节长度(含头部和体部)
-				if (readableLength >= allNeedLength) {
-					step = Step.body;
-					break;
-				} else {
-					channelContext.setPacketNeededLength(allNeedLength);
-					return null;
-				}
-			} else {
-				if (step == Step.firstline) {
-					firstLine = parseRequestLine(line, channelContext);
-					step = Step.header;
-				} else if (step == Step.header) {
-					parseHeaderLine(line, headers);
-				}
-				continue;
-			}
-		}
-
-		if (step != Step.body) {
+		// request line start
+		firstLine = parseRequestLine(buffer, channelContext);
+		if (firstLine == null) {
 			return null;
 		}
+		// request line end
+		
+		HttpRequest httpRequest = new HttpRequest(channelContext.getClientNode());
+		httpRequest.setRequestLine(firstLine);
+		httpRequest.setChannelContext(channelContext);
+		httpRequest.setHttpConfig(httpConfig);
+		
+//		HttpRequestHandler httpRequestHandler = (HttpRequestHandler)channelContext.groupContext.getAttribute(GroupContextKey.HTTP_REQ_HANDLER);
+//		if (httpRequestHandler != null) {
+//			httpRequest.setHttpConfig(httpRequestHandler.getHttpConfig(httpRequest));
+//		}
+		
 
-		if (!headers.containsKey(HttpConst.RequestHeaderKey.Host)) {
-			throw new AioDecodeException("there is no host header");
+		// request header start
+		boolean headerCompleted = parseHeaderLine(buffer, headers, 0, httpConfig);
+		if (!headerCompleted) {
+			return null;
+		}
+		String contentLengthStr = headers.get(HttpConst.RequestHeaderKey.Content_Length);
+
+		if (StrUtil.isBlank(contentLengthStr)) {
+			contentLength = 0;
+		} else {
+			contentLength = Integer.parseInt(contentLengthStr);
+			if (contentLength > httpConfig.getMaxLengthOfPostBody()) {
+				throw new AioDecodeException("post body length is too big[" + contentLength + "], max length is " + httpConfig.getMaxLengthOfPostBody() + " byte");
+			}
 		}
 
-		HttpRequest httpRequest = new HttpRequest(channelContext.getClientNode());
-		httpRequest.setChannelContext(channelContext);
-		httpRequest.setHttpConfig((HttpConfig) channelContext.groupContext.getAttribute(GroupContextKey.HTTP_SERVER_CONFIG));
+		int headerLength = (buffer.position() - position);
+		int allNeedLength = headerLength + contentLength; //这个packet所需要的字节长度(含头部和体部)
+
+		if (readableLength < allNeedLength) {
+			channelContext.setPacketNeededLength(allNeedLength);
+			return null;
+		}
+		// request header end
+		
+		
+		
+
+		// ----------------------------------------------- request body start
+		if (httpConfig != null && httpConfig.checkHost) {
+			if (!headers.containsKey(HttpConst.RequestHeaderKey.Host)) {
+				throw new AioDecodeException("there is no host header");
+			}
+		}
+
+		
+		
+//		httpRequest.setHttpConfig((HttpConfig) channelContext.groupContext.getAttribute(GroupContextKey.HTTP_SERVER_CONFIG));
+		
+		
+
 
 		if (appendRequestHeaderString) {
 			httpRequest.setHeaderString(headerSb.toString());
@@ -140,18 +140,24 @@ public class HttpRequestDecoder {
 			httpRequest.setHeaderString("");
 		}
 
-		httpRequest.setRequestLine(firstLine);
 		httpRequest.setHeaders(headers);
+		if (Tio.IpBlacklist.isInBlacklist(channelContext.groupContext, httpRequest.getClientIp())) {
+			throw new AioDecodeException("[" + httpRequest.getClientIp() + "] in black list");
+		}
+		
 		httpRequest.setContentLength(contentLength);
+
 		String connection = headers.get(HttpConst.RequestHeaderKey.Connection);
 		if (connection != null) {
 			httpRequest.setConnection(connection.toLowerCase());
 		}
 
-		parseQueryString(httpRequest, firstLine, channelContext);
+		if (StrUtil.isNotBlank(firstLine.queryString)) {
+			decodeParams(httpRequest.getParams(), firstLine.queryString, httpRequest.getCharset(), channelContext);
+		}
 
 		if (contentLength == 0) {
-			//			if (StringUtils.isNotBlank(firstLine.getQuery())) {
+			//			if (StrUtil.isNotBlank(firstLine.getQuery())) {
 			//				decodeParams(httpRequest.getParams(), firstLine.getQuery(), httpRequest.getCharset(), channelContext);
 			//			}
 		} else {
@@ -161,10 +167,11 @@ public class HttpRequestDecoder {
 			//解析消息体
 			parseBody(httpRequest, firstLine, bodyBytes, channelContext, httpConfig);
 		}
+		// ----------------------------------------------- request body end
 
 		//解析User_Agent(浏览器操作系统等信息)
 		//		String User_Agent = headers.get(HttpConst.RequestHeaderKey.User_Agent);
-		//		if (StringUtils.isNotBlank(User_Agent)) {
+		//		if (StrUtil.isNotBlank(User_Agent)) {
 		//			//			long start = System.currentTimeMillis();
 		//			UserAgentAnalyzer userAgentAnalyzer = UserAgentAnalyzerFactory.getUserAgentAnalyzer();
 		//			UserAgent userAgent = userAgentAnalyzer.parse(User_Agent);
@@ -176,29 +183,32 @@ public class HttpRequestDecoder {
 		//		logstr.append(firstLine.getInitStr()).append("\r\n");
 		//		Set<Entry<String, String>> entrySet = headers.entrySet();
 		//		for (Entry<String, String> entry : entrySet) {
-		//			logstr.append(StringUtils.leftPad(entry.getKey(), 30)).append(" : ").append(entry.getValue()).append("\r\n");
+		//			logstr.append(StrUtil.leftPad(entry.getKey(), 30)).append(" : ").append(entry.getValue()).append("\r\n");
 		//		}
 		//		logstr.append("------------------ websocket header start ------------------------\r\n");
 		//		log.error(logstr.toString());
 
+		
 		return httpRequest;
 
 	}
 
+	/**
+	 * 
+	 * @param params
+	 * @param queryString
+	 * @param charset
+	 * @param channelContext
+	 * @author tanyaowu
+	 */
 	public static void decodeParams(Map<String, Object[]> params, String queryString, String charset, ChannelContext channelContext) {
 		if (StrUtil.isBlank(queryString)) {
 			return;
 		}
 
-		//		// 去掉Path部分
-		//		int pathEndPos = paramsStr.indexOf('?');
-		//		if (pathEndPos > 0) {
-		//			paramsStr = StrUtil.subSuf(paramsStr, pathEndPos + 1);
-		//		}
-		//		Map<String, Object[]> ret = new HashMap<>();
-		String[] keyvalues = StringUtils.split(queryString, "&");
+		String[] keyvalues = queryString.split("&");
 		for (String keyvalue : keyvalues) {
-			String[] keyvalueArr = StringUtils.split(keyvalue, "=");
+			String[] keyvalueArr = keyvalue.split("=");
 			if (keyvalueArr.length != 2) {
 				continue;
 			}
@@ -226,26 +236,6 @@ public class HttpRequestDecoder {
 	}
 
 	/**
-	 * @param args
-	 *
-	 * @author tanyaowu
-	 * 2017年2月22日 下午4:06:42
-	 * @throws AioDecodeException 
-	 *
-	 */
-	public static void main(String[] args) throws AioDecodeException {
-		String line = "GET /tio?name=tanyaowu HTTP/1.1";
-		parseRequestLine(line, null);
-
-		Map<String, String> headers = new HashMap<>();
-		line = "host:127.0.0.1  ";
-		parseHeaderLine(line, headers);
-
-		line = "host:  127.0.0.1  ";
-		parseHeaderLine(line, headers);
-	}
-
-	/**
 	 * 解析消息体
 	 * @param httpRequest
 	 * @param firstLine
@@ -269,7 +259,7 @@ public class HttpRequestDecoder {
 		//					if (log.isDebugEnabled()) {
 		//						try {
 		//							bodyString = new String(bodyBytes, httpRequest.getCharset());
-		//							log.debug("{} multipart body string\r\n{}", channelContext, bodyString);
+		//							log.debug("{} multipart body value\r\n{}", channelContext, bodyString);
 		//						} catch (UnsupportedEncodingException e) {
 		//							log.error(channelContext.toString(), e);
 		//						}
@@ -288,7 +278,7 @@ public class HttpRequestDecoder {
 		//					bodyString = new String(bodyBytes, httpRequest.getCharset());
 		//					httpRequest.setBodyString(bodyString);
 		//					if (log.isInfoEnabled()) {
-		//						log.info("{} body string\r\n{}", channelContext, bodyString);
+		//						log.info("{} body value\r\n{}", channelContext, bodyString);
 		//					}
 		//				} catch (UnsupportedEncodingException e) {
 		//					log.error(channelContext.toString(), e);
@@ -308,7 +298,7 @@ public class HttpRequestDecoder {
 					if (log.isDebugEnabled()) {
 						try {
 							bodyString = new String(bodyBytes, httpRequest.getCharset());
-							log.debug("{} multipart body string\r\n{}", channelContext, bodyString);
+							log.debug("{} multipart body value\r\n{}", channelContext, bodyString);
 						} catch (UnsupportedEncodingException e) {
 							log.error(channelContext.toString(), e);
 						}
@@ -330,7 +320,7 @@ public class HttpRequestDecoder {
 					bodyString = new String(bodyBytes, httpRequest.getCharset());
 					httpRequest.setBodyString(bodyString);
 					if (log.isInfoEnabled()) {
-						log.info("{} body string\r\n{}", channelContext, bodyString);
+						log.info("{} body value\r\n{}", channelContext, bodyString);
 					}
 				} catch (UnsupportedEncodingException e) {
 					log.error(channelContext.toString(), e);
@@ -352,109 +342,250 @@ public class HttpRequestDecoder {
 	 * @author tanyaowu
 	 */
 	public static void parseBodyFormat(HttpRequest httpRequest, Map<String, String> headers) {
-		String Content_Type = StringUtils.lowerCase(headers.get(HttpConst.RequestHeaderKey.Content_Type));
+		String contentType = headers.get(HttpConst.RequestHeaderKey.Content_Type);
+		String Content_Type = null;
+		if (contentType != null) {
+			Content_Type = contentType.toLowerCase();
+		}
 
-		if (StringUtils.startsWith(Content_Type, HttpConst.RequestHeaderValue.Content_Type.text_plain)) {
+		if (Content_Type.startsWith(HttpConst.RequestHeaderValue.Content_Type.text_plain)) {
 			httpRequest.setBodyFormat(RequestBodyFormat.TEXT);
-		} else if (StringUtils.startsWith(Content_Type, HttpConst.RequestHeaderValue.Content_Type.multipart_form_data)) {
+		} else if (Content_Type.startsWith(HttpConst.RequestHeaderValue.Content_Type.multipart_form_data)) {
 			httpRequest.setBodyFormat(RequestBodyFormat.MULTIPART);
 		} else {
 			httpRequest.setBodyFormat(RequestBodyFormat.URLENCODED);
 		}
 
-		if (StringUtils.isNotBlank(Content_Type)) {
+		if (StrUtil.isNotBlank(Content_Type)) {
 			String charset = HttpParseUtils.getSubAttribute(Content_Type, "charset");//.getPerprotyEqualValue(headers, HttpConst.RequestHeaderKey.Content_Type, "charset");
-			if (StringUtils.isNotBlank(charset)) {
+			if (StrUtil.isNotBlank(charset)) {
 				httpRequest.setCharset(charset);
 			} else {
-				httpRequest.setCharset(httpRequest.getHttpConfig().getCharset());
+				httpRequest.setCharset(SysConst.DEFAULT_ENCODING);
 			}
 		}
 	}
 
 	/**
 	 * 解析请求头的每一行
-	 * @param line
+	 * @param buffer
 	 * @param headers
-	 * @return
+	 * @param hasReceivedHeaderLength
+	 * @param httpConfig
+	 * @return 头部是否解析完成，true: 解析完成, false: 没有解析完成
+	 * @throws AioDecodeException
 	 * @author tanyaowu
 	 */
-	public static void parseHeaderLine(String line, Map<String, String> headers) {
-		int len = line.length();
-//		char[] cs = new char[len];
-		int i = 0;
-//		boolean forname = true;
-		int indexOfColon = -1;
-//		int valueLen = 0;
-//		boolean lastIsColon = false;
-		int skip = 0;
-		for (; i < len; i++) {
-//			char c = line.charAt(i);
-			if (indexOfColon == -1) {
-				if (line.charAt(i) == ':') {
-//					forname = false;
-					indexOfColon = i;
-//					lastIsColon = true;
-				}
-			} else {
-//				if (lastIsColon) {
-					if (line.charAt(i) == ' ') {
-						skip++;
-					} else {
-//						lastIsColon = false;
-						break;
-					}
-//				}
-				
-//				if (forname) {
-////					cs[i] = Character.toLowerCase(c);
-//				} else {
-//					if (lastIsColon) {
-//						if (c == ' ') {
-//							skip++;
-//						} else {
-//							lastIsColon = false;
-//							break;
-//						}
-//					}
-//
-////					if (!lastIsColon) {
-////						cs[i] = c;
-////						valueLen++;
-////					}
-//				}
+	public static boolean parseHeaderLine(ByteBuffer buffer, Map<String, String> headers, int hasReceivedHeaderLength, HttpConfig httpConfig) throws AioDecodeException {
+		if (!buffer.hasArray()) {
+			return parseHeaderLine2(buffer, headers, hasReceivedHeaderLength, httpConfig);
+		}
+
+		byte[] allbs = buffer.array();
+		int initPosition = buffer.position();
+		int lastPosition = initPosition;
+		int remaining = buffer.remaining();
+		if (remaining == 0) {
+			return false;
+		} else if (remaining > 1) {
+			byte b1 = buffer.get();
+			byte b2 = buffer.get();
+			if (SysConst.CR == b1 && SysConst.LF == b2) {
+				return true;
+			} else if (SysConst.LF == b1) {
+				return true;
+			}
+		} else {
+			if (SysConst.LF == buffer.get()) {
+				return true;
 			}
 		}
 
-		if (indexOfColon == -1) {//没有value
-			headers.put(line.trim().toLowerCase(), "");
-			return;
+		String name = null;
+		String value = null;
+		boolean hasValue = false;
+
+		boolean needIteration = false;
+		while (buffer.hasRemaining()) {
+			byte b = buffer.get();
+			if (name == null) {
+				if (b == SysConst.COL) {
+					int len = buffer.position() - lastPosition - 1;
+					name = new String(allbs, lastPosition, len);
+					lastPosition = buffer.position();
+				} else if (b == SysConst.LF) {
+					byte lastByte = buffer.get(buffer.position() - 2);
+					int len = buffer.position() - lastPosition - 1;
+					if (lastByte == SysConst.CR) {
+						len = buffer.position() - lastPosition - 2;
+					}
+					name = new String(allbs, lastPosition, len);
+					lastPosition = buffer.position();
+					headers.put(name.toLowerCase(), "");
+
+					needIteration = true;
+					break;
+				}
+				continue;
+			} else if (value == null) {
+				if (b == SysConst.LF) {
+					byte lastByte = buffer.get(buffer.position() - 2);
+					int len = buffer.position() - lastPosition - 1;
+					if (lastByte == SysConst.CR) {
+						len = buffer.position() - lastPosition - 2;
+					}
+					value = new String(allbs, lastPosition, len);
+					lastPosition = buffer.position();
+
+					headers.put(name.toLowerCase(), StrUtil.trimEnd(value));
+					needIteration = true;
+					break;
+				} else {
+					if (!hasValue && b == SysConst.SPACE) {
+						lastPosition = buffer.position();
+					} else {
+						hasValue = true;
+					}
+				}
+			}
 		}
-		String name = line.substring(0, indexOfColon).toLowerCase();//String.copyValueOf(cs, 0, indexOfColon);
-		String value = StringUtil.trimRight(line.substring(indexOfColon + 1 + skip, len));//String.copyValueOf(cs, indexOfColon + 1 + skip, valueLen);
-		headers.put(name.trim(), value);
-//		if (valueLen > 0) {
-//			String value = line.substring(indexOfColon + 1 + skip, len);//String.copyValueOf(cs, indexOfColon + 1 + skip, valueLen);
-//			headers.put(name.trim(), StringUtil.trimRight(value));
-//		} else {
-//			headers.put(name.trim(), "");
-//		}
 
-		//		int p = line.indexOf(":");
-		//		if (p == -1) {
-		//			headers.put(line, "");
-		//		}
-		//
-		//		String name = line.substring(0, p).trim().toLowerCase();//StringUtils.lowerCase(line.substring(0, p).trim());
-		//		String value = line.substring(p + 1).trim();
-		//
-		//		headers.put(name, value);
+		int lineLength = buffer.position() - initPosition;  //这一行(header line)的字节数
+//		log.error("lineLength:{}, headerLength:{}, headers:\r\n{}", lineLength, hasReceivedHeaderLength, Json.toFormatedJson(headers));
+		if (lineLength > MAX_LENGTH_OF_HEADERLINE) {
+//			log.error("header line is too long, max length of header line is " + MAX_LENGTH_OF_HEADERLINE);
+			throw new AioDecodeException("header line is too long, max length of header line is " + MAX_LENGTH_OF_HEADERLINE);
+		}
+		
+		if (needIteration) {
+			int headerLength = lineLength + hasReceivedHeaderLength;  //header占用的字节数
+//			log.error("allHeaderLength:{}", allHeaderLength);
+			if (headerLength > MAX_LENGTH_OF_HEADER) {
+//				log.error("header is too long, max length of header is " + MAX_LENGTH_OF_HEADER);
+				throw new AioDecodeException("header is too long, max length of header is " + MAX_LENGTH_OF_HEADER);
+			}
+			return parseHeaderLine(buffer, headers, headerLength, httpConfig);
+		}
 
+		
+		return false;
+	}
+
+	/**
+	 * 解析请求头的每一行
+	 * @param line
+	 * @param headers
+	 * @return 头部是否解析完成，true: 解析完成, false: 没有解析完成
+	 * @author tanyaowu
+	 */
+	private static boolean parseHeaderLine2(ByteBuffer buffer, Map<String, String> headers, int headerLength, HttpConfig httpConfig) throws AioDecodeException {
+		int initPosition = buffer.position();
+		int lastPosition = initPosition;
+		int remaining = buffer.remaining();
+		if (remaining == 0) {
+			return false;
+		} else if (remaining > 1) {
+			byte b1 = buffer.get();
+			byte b2 = buffer.get();
+			if (SysConst.CR == b1 && SysConst.LF == b2) {
+				return true;
+			} else if (SysConst.LF == b1) {
+				return true;
+			}
+		} else {
+			if (SysConst.LF == buffer.get()) {
+				return true;
+			}
+		}
+
+		String name = null;
+		String value = null;
+		boolean hasValue = false;
+
+		boolean needIteration = false;
+		while (buffer.hasRemaining()) {
+			byte b = buffer.get();
+			if (name == null) {
+				if (b == SysConst.COL) {
+					int nowPosition = buffer.position();
+					byte[] bs = new byte[nowPosition - lastPosition - 1];
+					buffer.position(lastPosition);
+					buffer.get(bs);
+					name = new String(bs);
+					lastPosition = nowPosition;
+					buffer.position(nowPosition);
+				} else if (b == SysConst.LF) {
+					int nowPosition = buffer.position();
+					byte[] bs = null;
+					byte lastByte = buffer.get(nowPosition - 2);
+
+					if (lastByte == SysConst.CR) {
+						bs = new byte[nowPosition - lastPosition - 2];
+					} else {
+						bs = new byte[nowPosition - lastPosition - 1];
+					}
+
+					buffer.position(lastPosition);
+					buffer.get(bs);
+					name = new String(bs);
+					lastPosition = nowPosition;
+					buffer.position(nowPosition);
+
+					headers.put(name.toLowerCase(), null);
+					needIteration = true;
+					break;
+					//					return true;
+				}
+				continue;
+			} else if (value == null) {
+				if (b == SysConst.LF) {
+					int nowPosition = buffer.position();
+					byte[] bs = null;
+					byte lastByte = buffer.get(nowPosition - 2);
+
+					if (lastByte == SysConst.CR) {
+						bs = new byte[nowPosition - lastPosition - 2];
+					} else {
+						bs = new byte[nowPosition - lastPosition - 1];
+					}
+
+					buffer.position(lastPosition);
+					buffer.get(bs);
+					value = new String(bs);
+					lastPosition = nowPosition;
+					buffer.position(nowPosition);
+
+					headers.put(name.toLowerCase(), StrUtil.trimEnd(value));
+					needIteration = true;
+					break;
+					//					return true;
+				} else {
+					if (!hasValue && b == SysConst.SPACE) {
+						lastPosition = buffer.position();
+					} else {
+						hasValue = true;
+					}
+				}
+			}
+		}
+
+		if (needIteration) {
+			int myHeaderLength = buffer.position() - initPosition;
+			if (myHeaderLength > MAX_LENGTH_OF_HEADER) {
+				throw new AioDecodeException("header is too long");
+			}
+			return parseHeaderLine(buffer, headers, myHeaderLength + headerLength, httpConfig);
+		}
+
+		if (remaining > MAX_LENGTH_OF_HEADERLINE) {
+			throw new AioDecodeException("header line is too long");
+		}
+		return false;
 	}
 
 	/**
 	 * parse request line(the first line)
-	 * @param line GET /tio?name=tanyaowu HTTP/1.1
+	 * @param line GET /tio?value=tanyaowu HTTP/1.1
 	 * @param channelContext
 	 * @return
 	 *
@@ -462,135 +593,187 @@ public class HttpRequestDecoder {
 	 * 2017年2月23日 下午1:37:51
 	 *
 	 */
-	public static RequestLine parseRequestLine(String line, ChannelContext channelContext) throws AioDecodeException {
-		try {
-			int len = line.length();
-			if (len < 10) {
-				throw new AioDecodeException("request line is invalid [" + line + "]");
-			}
-
-			// parse method start
-//			char[] cs = new char[len];
-			int i = 0;
-			for (; i < 8; i++) {
-				if (line.charAt(i) == ' ') {
-					break;
-				}
-//				cs[i] = c;
-			}
-			String methodStr = line.substring(0, 0 + i);//String.copyValueOf(cs, 0, i);
-			Method method = Method.from(methodStr);
-			if (method == null) {
-				throw new AioDecodeException("http request method [" + methodStr + "] is invalid");
-			}
-			// parse method end
-
-			// parse path start
-			i++; //
-			int offset = i;
-			boolean hasQuery = false;
-			for (; i < len; i++) {
-				char c = line.charAt(i);
-				if (c == '?') {
-					hasQuery = true;
-					break;
-				} else if (c == ' ') {
-					break;
-				}
-//				cs[i] = c;
-			}
-			String path = line.substring(offset, i);//String.copyValueOf(cs, offset, i - offset);
-			String queryString = null;
-			if (hasQuery) {
-				i++; //
-				offset = i;
-				for (; i < len; i++) {
-					if (line.charAt(i) == ' ') {
-						break;
-					}
-//					cs[i] = c;
-				}
-				queryString = line.substring(offset, i);//String.copyValueOf(cs, offset, i - offset);
-			}
-			// parse path end
-
-			// parse protocol start
-			i++; //
-			offset = i;
-			for (; i < len; i++) {
-				if (line.charAt(i) == '/') {
-					break;
-				}
-//				cs[i] = c;
-			}
-			String protocol = line.substring(offset, i);//String.copyValueOf(cs, offset, i - offset);
-			// parse protocol end
-
-			// parse protocol start
-			i++; //
-			offset = i;
-//			for (; i < len; i++) {
-//				char c = line.charAt(i);
-//				cs[i] = c;
-//			}
-			String version = line.substring(offset, len);//String.copyValueOf(cs, offset, i - offset);
-			// parse protocol end
-
-			RequestLine requestLine = new RequestLine();
-			requestLine.setMethod(method);
-			requestLine.setPath(path);
-			requestLine.setInitPath(path);
-			requestLine.setQueryString(queryString);
-			requestLine.setVersion(version);
-			requestLine.setProtocol(protocol);
-			requestLine.setLine(line);
-
-			return requestLine;
-
-			//			int index1 = line.indexOf(' ');
-			//			String _method = StringUtils.upperCase(line.substring(0, index1));
-			//			Method method = Method.from(_method);
-			//			if (method == null) {
-			//				throw new AioDecodeException("http request method [" + _method + "] is invalid");
-			//			}
-			//			int index2 = line.indexOf(' ', index1 + 1);
-			//			String pathAndQuerystr = line.substring(index1 + 1, index2); // "/tio?name=tanyaowu"
-			//			String path = null; //"/user/get"
-			//			String queryStr = null;
-			//			int indexOfQuestionmark = pathAndQuerystr.indexOf("?");
-			//			if (indexOfQuestionmark != -1) {
-			//				queryStr = StringUtils.substring(pathAndQuerystr, indexOfQuestionmark + 1);
-			//				path = StringUtils.substring(pathAndQuerystr, 0, indexOfQuestionmark);
-			//			} else {
-			//				path = pathAndQuerystr;
-			//				queryStr = "";
-			//			}
-			//
-			//			String protocolVersion = line.substring(index2 + 1);
-			//			String[] pv = StringUtils.split(protocolVersion, "/");
-			//			String protocol = pv[0];
-			//			String version = pv[1];
-			//
-			//			RequestLine requestLine = new RequestLine();
-			//			requestLine.setMethod(method);
-			//			requestLine.setPath(path);
-			//			requestLine.setInitPath(path);
-			//			requestLine.setPathAndQuery(pathAndQuerystr);
-			//			requestLine.setQuery(queryStr);
-			//			requestLine.setVersion(version);
-			//			requestLine.setProtocol(protocol);
-			//			requestLine.setLine(line);
-			//
-			//			return requestLine;
-		} catch (Throwable e) {
-			if (channelContext != null) {
-				log.error(channelContext.toString() + " parse http request line error", e);
-			} else {
-				log.error("parse http request line error", e);
-			}
-
-			throw new AioDecodeException(e);
+	public static RequestLine parseRequestLine(ByteBuffer buffer, ChannelContext channelContext) throws AioDecodeException {
+		if (!buffer.hasArray()) {
+			return parseRequestLine2(buffer, channelContext);
 		}
+
+		byte[] allbs = buffer.array();
+
+		int initPosition = buffer.position();
+
+		//		int remaining = buffer.remaining();
+		String methodStr = null;
+		String pathStr = null;
+		String queryStr = null;
+		String protocol = null;
+		String version = null;
+		int lastPosition = initPosition;//buffer.position();
+		while (buffer.hasRemaining()) {
+			byte b = buffer.get();
+			if (methodStr == null) {
+				if (b == SysConst.SPACE) {
+					int len = buffer.position() - lastPosition - 1;
+					methodStr = new String(allbs, lastPosition, len);
+					lastPosition = buffer.position();
+				}
+				continue;
+			} else if (pathStr == null) {
+				if (b == SysConst.SPACE || b == SysConst.ASTERISK) {
+					int len = buffer.position() - lastPosition - 1;
+					pathStr = new String(allbs, lastPosition, len);
+					lastPosition = buffer.position();
+
+					if (b == SysConst.SPACE) {
+						queryStr = "";
+					}
+				}
+				continue;
+			} else if (queryStr == null) {
+				if (b == SysConst.SPACE) {
+					int len = buffer.position() - lastPosition - 1;
+					queryStr = new String(allbs, lastPosition, len);
+					lastPosition = buffer.position();
+				}
+				continue;
+			} else if (protocol == null) {
+				if (b == '/') {
+					int len = buffer.position() - lastPosition - 1;
+					protocol = new String(allbs, lastPosition, len);
+					lastPosition = buffer.position();
+				}
+				continue;
+			} else if (version == null) {
+				if (b == SysConst.LF) {
+					byte lastByte = buffer.get(buffer.position() - 2);
+					int len = buffer.position() - lastPosition - 1;
+					if (lastByte == SysConst.CR) {
+						len = buffer.position() - lastPosition - 2;
+					}
+					version = new String(allbs, lastPosition, len);
+					lastPosition = buffer.position();
+
+					RequestLine requestLine = new RequestLine();
+					Method method = Method.from(methodStr);
+					requestLine.setMethod(method);
+					requestLine.setPath(pathStr);
+					requestLine.setInitPath(pathStr);
+					requestLine.setQueryString(queryStr);
+					requestLine.setProtocol(protocol);
+					requestLine.setVersion(version);
+
+					//					requestLine.setLine(line);
+
+					return requestLine;
+				}
+				continue;
+			}
+		}
+
+		if ((buffer.position() - initPosition) > MAX_LENGTH_OF_REQUESTLINE) {
+			throw new AioDecodeException("request line is too long");
+		}
+		return null;
+	}
+
+	private static RequestLine parseRequestLine2(ByteBuffer buffer, ChannelContext channelContext) throws AioDecodeException {
+		int initPosition = buffer.position();
+		//		int remaining = buffer.remaining();
+		String methodStr = null;
+		String pathStr = null;
+		String queryStr = null;
+		String protocol = null;
+		String version = null;
+		int lastPosition = initPosition;//buffer.position();
+		while (buffer.hasRemaining()) {
+			byte b = buffer.get();
+			if (methodStr == null) {
+				if (b == SysConst.SPACE) {
+					int nowPosition = buffer.position();
+					byte[] bs = new byte[nowPosition - lastPosition - 1];
+					buffer.position(lastPosition);
+					buffer.get(bs);
+					methodStr = new String(bs);
+					lastPosition = nowPosition;
+					buffer.position(nowPosition);
+				}
+				continue;
+			} else if (pathStr == null) {
+				if (b == SysConst.SPACE || b == SysConst.ASTERISK) {
+					int nowPosition = buffer.position();
+					byte[] bs = new byte[nowPosition - lastPosition - 1];
+					buffer.position(lastPosition);
+					buffer.get(bs);
+					pathStr = new String(bs);
+					lastPosition = nowPosition;
+					buffer.position(nowPosition);
+
+					if (b == SysConst.SPACE) {
+						queryStr = "";
+					}
+				}
+				continue;
+			} else if (queryStr == null) {
+				if (b == SysConst.SPACE) {
+					int nowPosition = buffer.position();
+					byte[] bs = new byte[nowPosition - lastPosition - 1];
+					buffer.position(lastPosition);
+					buffer.get(bs);
+					queryStr = new String(bs);
+					lastPosition = nowPosition;
+					buffer.position(nowPosition);
+				}
+				continue;
+			} else if (protocol == null) {
+				if (b == '/') {
+					int nowPosition = buffer.position();
+					byte[] bs = new byte[nowPosition - lastPosition - 1];
+					buffer.position(lastPosition);
+					buffer.get(bs);
+					protocol = new String(bs);
+					lastPosition = nowPosition;
+					buffer.position(nowPosition);
+				}
+				continue;
+			} else if (version == null) {
+				if (b == SysConst.LF) {
+					int nowPosition = buffer.position();
+					byte[] bs = null;
+					byte lastByte = buffer.get(nowPosition - 2);
+
+					if (lastByte == SysConst.CR) {
+						bs = new byte[nowPosition - lastPosition - 2];
+					} else {
+						bs = new byte[nowPosition - lastPosition - 1];
+					}
+
+					buffer.position(lastPosition);
+					buffer.get(bs);
+					version = new String(bs);
+					lastPosition = nowPosition;
+					buffer.position(nowPosition);
+
+					RequestLine requestLine = new RequestLine();
+					Method method = Method.from(methodStr);
+					requestLine.setMethod(method);
+					requestLine.setPath(pathStr);
+					requestLine.setInitPath(pathStr);
+					requestLine.setQueryString(queryStr);
+					requestLine.setProtocol(protocol);
+					requestLine.setVersion(version);
+
+					//					requestLine.setLine(line);
+
+					return requestLine;
+				}
+				continue;
+			}
+		}
+
+		if ((buffer.position() - initPosition) > MAX_LENGTH_OF_REQUESTLINE) {
+			throw new AioDecodeException("request line is too long");
+		}
+		return null;
 	}
 
 	/**
@@ -602,16 +785,16 @@ public class HttpRequestDecoder {
 		decodeParams(httpRequest.getParams(), bodyString, httpRequest.getCharset(), channelContext);
 	}
 
-	/**
-	 * 解析查询
-	 * @param httpRequest
-	 * @param requestLine
-	 * @param channelContext
-	 */
-	private static void parseQueryString(HttpRequest httpRequest, RequestLine requestLine, ChannelContext channelContext) {
-		String queryString = requestLine.getQueryString();
-		decodeParams(httpRequest.getParams(), queryString, httpRequest.getCharset(), channelContext);
-	}
+	//	/**
+	//	 * 解析查询
+	//	 * @param httpRequest
+	//	 * @param requestLine
+	//	 * @param channelContext
+	//	 */
+	//	private static void parseQueryString(HttpRequest httpRequest, RequestLine requestLine, ChannelContext channelContext) {
+	//		String queryString = requestLine.getQueryString();
+	//		decodeParams(httpRequest.getParams(), queryString, httpRequest.getCharset(), channelContext);
+	//	}
 
 	/**
 	 * @author tanyaowu

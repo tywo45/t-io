@@ -2,33 +2,24 @@ package org.tio.core;
 
 import java.io.IOException;
 import java.nio.channels.AsynchronousSocketChannel;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import org.tio.core.intf.Packet;
 import org.tio.core.intf.Packet.Meta;
 import org.tio.core.ssl.SslFacadeContext;
-import org.tio.core.ssl.SslUtils;
 import org.tio.core.stat.ChannelStat;
 import org.tio.core.stat.IpStat;
-import org.tio.core.task.CloseRunnable;
 import org.tio.core.task.DecodeRunnable;
 import org.tio.core.task.HandlerRunnable;
 import org.tio.core.task.SendRunnable;
-import org.tio.utils.json.Json;
+import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.lock.SetWithLock;
 import org.tio.utils.prop.MapWithLockPropSupport;
-
-import cn.hutool.core.date.DatePattern;
-import cn.hutool.core.date.DateTime;
 
 /**
  *
@@ -44,9 +35,9 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 
 	public static final AtomicInteger UNKNOWN_ADDRESS_PORT_SEQ = new AtomicInteger();
 
-	public boolean isTraceClient = false;
+	//	public boolean isTraceClient = false;
 
-	public boolean isTraceSynPacket = false;
+	//	public boolean isTraceSynPacket = false;
 
 	public boolean isReconnect = false;
 
@@ -63,7 +54,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	public SendRunnable sendRunnable = null;
 	public final ReentrantReadWriteLock closeLock = new ReentrantReadWriteLock();
 	private ReadCompletionHandler readCompletionHandler = null;//new ReadCompletionHandler(this);
-	private WriteCompletionHandler writeCompletionHandler = null;//new WriteCompletionHandler(this);
+	public WriteCompletionHandler writeCompletionHandler = null;//new WriteCompletionHandler(this);
 
 	public SslFacadeContext sslFacadeContext;
 
@@ -75,11 +66,13 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 
 	private String bsId;
 
-	private boolean isWaitingClose = false;
+	public boolean isWaitingClose = false;
 
-	private boolean isClosed = true;
+	public boolean isClosed = true;
 
-	private boolean isRemoved = false;
+	public boolean isRemoved = false;
+
+	public boolean isVirtual = false;
 
 	public final ChannelStat stat = new ChannelStat();
 
@@ -90,18 +83,18 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 
 	private Node clientNode;
 
-	private String clientNodeTraceFilename;
+	//	private String clientNodeTraceFilename;
 
 	private Node serverNode;
 
-	private Logger traceSynPacketLog = LoggerFactory.getLogger("tio-client-trace-syn-log");
+	//	private Logger traceSynPacketLog = LoggerFactory.getLogger("tio-client-trace-syn-log");
 
 	/**
 	 * 该连接在哪些组中
 	 */
 	private SetWithLock<String> groups = null;
 
-	public CloseRunnable closeRunnable;
+	public CloseMeta closeMeta = new CloseMeta();
 
 	/**
 	 *
@@ -125,6 +118,18 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 				return;
 			}
 		}
+	}
+
+	/**
+	 * 创建一个虚拟ChannelContext，主要用来模拟一些操作，真实场景中用得少
+	 * @param groupContext
+	 */
+	public ChannelContext(GroupContext groupContext) {
+		isVirtual = true;
+		this.groupContext = groupContext;
+		Node clientNode = new Node("127.0.0.1", 26254);
+		this.clientNode = clientNode;
+		this.id = groupContext.getTioUuid().uuid();
 	}
 
 	private void assignAnUnknownClientNode() {
@@ -170,12 +175,12 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 		return clientNode;
 	}
 
-	/**
-	 * @return the clientNodeTraceFilename
-	 */
-	public String getClientNodeTraceFilename() {
-		return clientNodeTraceFilename;
-	}
+	//	/**
+	//	 * @return the clientNodeTraceFilename
+	//	 */
+	//	public String getClientNodeTraceFilename() {
+	//		return clientNodeTraceFilename;
+	//	}
 
 	public SetWithLock<String> getGroups() {
 		return groups;
@@ -227,7 +232,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	 */
 	@Override
 	public int hashCode() {
-		if (StringUtils.isNotBlank(id)) {
+		if (StrUtil.isNotBlank(id)) {
 			return this.id.hashCode();
 		} else {
 			return super.hashCode();
@@ -244,48 +249,17 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	}
 
 	/**
-	 * @return the isClosed
-	 */
-	public boolean isClosed() {
-		return isClosed;
-	}
-
-	/**
-	 * @return the isRemoved
-	 */
-	public boolean isRemoved() {
-		return isRemoved;
-	}
-
-	/**
-	 * @return the isWaitingClose
-	 */
-	public boolean isWaitingClose() {
-		return isWaitingClose;
-	}
-
-	/**
-	 *
-	 * @param obj PacketWithMeta or Packet
+	 * 
+	 * @param packet
 	 * @param isSentSuccess
 	 * @author tanyaowu
 	 */
 	public void processAfterSent(Packet packet, Boolean isSentSuccess) {
-
 		isSentSuccess = isSentSuccess == null ? false : isSentSuccess;
-		//		if (isPacket) {
-		//			packet = (Packet) obj;
-		//		} else {
-		//			packetWithMeta = (PacketWithMeta) obj;
-		//			packet = packetWithMeta.getPacket();
-		//			CountDownLatch countDownLatch = packetWithMeta.getCountDownLatch();
-		//			traceBlockPacket(SynPacketAction.BEFORE_DOWN, packet, countDownLatch, null);
-		//			countDownLatch.countDown();
-		//		}
 		Meta meta = packet.getMeta();
 		if (meta != null) {
 			CountDownLatch countDownLatch = meta.getCountDownLatch();
-			traceBlockPacket(SynPacketAction.BEFORE_DOWN, packet, countDownLatch, null);
+			//			traceBlockPacket(SynPacketAction.BEFORE_DOWN, packet, countDownLatch, null);
 			countDownLatch.countDown();
 		}
 
@@ -296,14 +270,18 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 
 			//非SSL or SSL已经握手
 			if (this.sslFacadeContext == null || this.sslFacadeContext.isHandshakeCompleted()) {
-				try {
-					groupContext.getAioListener().onAfterSent(this, packet, isSentSuccess);
-				} catch (Exception e) {
-					log.error(e.toString(), e);
+				if (groupContext.getAioListener() != null) {
+					try {
+						groupContext.getAioListener().onAfterSent(this, packet, isSentSuccess);
+					} catch (Exception e) {
+						log.error(e.toString(), e);
+					}
 				}
 
-				groupContext.groupStat.sentPackets.incrementAndGet();
-				stat.sentPackets.incrementAndGet();
+				if (groupContext.statOn) {
+					groupContext.groupStat.sentPackets.incrementAndGet();
+					stat.sentPackets.incrementAndGet();
+				}
 
 				if (groupContext.ipStats.durationList != null && groupContext.ipStats.durationList.size() > 0) {
 					try {
@@ -363,28 +341,29 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	 * @param remoteNode the remoteNode to set
 	 */
 	private void setClientNode(Node clientNode) {
-		this.clientNode = clientNode;
+		if (!this.groupContext.isShortConnection) {
+			if (this.clientNode != null) {
+				groupContext.clientNodes.remove(this);
+			}
+		}
 
+		this.clientNode = clientNode;
 		if (this.groupContext.isShortConnection) {
 			return;
 		}
 
-		if (this.clientNode != null) {
-			groupContext.clientNodeMap.remove(this);
-		}
-
 		if (this.clientNode != null && !Objects.equals(UNKNOWN_ADDRESS_IP, this.clientNode.getIp())) {
-			groupContext.clientNodeMap.put(this);
-			clientNodeTraceFilename = StringUtils.replaceAll(clientNode.toString(), ":", "_");
+			groupContext.clientNodes.put(this);
+			//			clientNodeTraceFilename = StrUtil.replaceAll(clientNode.toString(), ":", "_");
 		}
 	}
 
-	/**
-	 * @param clientNodeTraceFilename the clientNodeTraceFilename to set
-	 */
-	public void setClientNodeTraceFilename(String clientNodeTraceFilename) {
-		this.clientNodeTraceFilename = clientNodeTraceFilename;
-	}
+	//	/**
+	//	 * @param clientNodeTraceFilename the clientNodeTraceFilename to set
+	//	 */
+	//	public void setClientNodeTraceFilename(String clientNodeTraceFilename) {
+	//		this.clientNodeTraceFilename = clientNodeTraceFilename;
+	//	}
 
 	/**
 	 * @param isClosed the isClosed to set
@@ -407,10 +386,9 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 		this.groupContext = groupContext;
 
 		if (groupContext != null) {
-			decodeRunnable = new DecodeRunnable(this);
+			decodeRunnable = new DecodeRunnable(this, groupContext.tioExecutor);
 			handlerRunnable = new HandlerRunnable(this, groupContext.tioExecutor);
 			sendRunnable = new SendRunnable(this, groupContext.tioExecutor);
-			closeRunnable = new CloseRunnable(this, groupContext.tioCloseExecutor);
 			groupContext.connections.add(this);
 		}
 	}
@@ -456,19 +434,19 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 		this.token = token;
 	}
 
-	/**
-	 * @param isTraceClient the isTraceClient to set
-	 */
-	public void setTraceClient(boolean isTraceClient) {
-		this.isTraceClient = isTraceClient;
-	}
+	//	/**
+	//	 * @param isTraceClient the isTraceClient to set
+	//	 */
+	//	public void setTraceClient(boolean isTraceClient) {
+	//		this.isTraceClient = isTraceClient;
+	//	}
 
-	/**
-	 * @param isTraceSynPacket the isTraceSynPacket to set
-	 */
-	public void setTraceSynPacket(boolean isTraceSynPacket) {
-		this.isTraceSynPacket = isTraceSynPacket;
-	}
+	//	/**
+	//	 * @param isTraceSynPacket the isTraceSynPacket to set
+	//	 */
+	//	public void setTraceSynPacket(boolean isTraceSynPacket) {
+	//		this.isTraceSynPacket = isTraceSynPacket;
+	//	}
 
 	/**
 	 * @param userid the userid to set
@@ -478,73 +456,77 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 		this.userid = userid;
 	}
 
-	/**
-	 * @param isWaitingClose the isWaitingClose to set
-	 */
-	public void setWaitingClose(boolean isWaitingClose) {
-		this.isWaitingClose = isWaitingClose;
-	}
-
 	@Override
 	public String toString() {
-		if (SslUtils.isSsl(this)) {
-			return this.getClientNode().toString() + ", SslShakehanded:" + this.sslFacadeContext.isHandshakeCompleted();
+		StringBuilder sb = new StringBuilder(64);
+		if (serverNode != null) {
+			sb.append("server:").append(serverNode.toString());
 		} else {
-			return this.getClientNode().toString();
+			sb.append("server:").append("NULL");
+		}
+		if (clientNode != null) {
+			sb.append(", client:").append(clientNode.toString());
+		} else {
+			sb.append(", client:").append("NULL");
+		}
+		
+		if (isVirtual) {
+			sb.append(", virtual");
 		}
 
+		return sb.toString();
 	}
 
-	/**
-	 * 跟踪同步消息，主要是跟踪锁的情况，用于问题排查。
-	 * @param synPacketAction
-	 * @param packet
-	 * @param extmsg
-	 * @author tanyaowu
-	 */
-	public void traceBlockPacket(SynPacketAction synPacketAction, Packet packet, CountDownLatch countDownLatch, Map<String, Object> extmsg) {
-		if (isTraceSynPacket) {
-			ChannelContext channelContext = this;
-			Map<String, Object> map = new HashMap<>(10);
-			map.put("time", DateTime.now().toString(DatePattern.NORM_DATETIME_MS_FORMAT));
-			map.put("c_id", channelContext.getId());
-			map.put("c", channelContext.toString());
-			map.put("action", synPacketAction);
+	//	/**
+	//	 * 跟踪同步消息，主要是跟踪锁的情况，用于问题排查。
+	//	 * @param synPacketAction
+	//	 * @param packet
+	//	 * @param extmsg
+	//	 * @author tanyaowu
+	//	 */
+	//	public void traceBlockPacket(SynPacketAction synPacketAction, Packet packet, CountDownLatch countDownLatch, Map<String, Object> extmsg) {
+	//		if (isTraceSynPacket) {
+	//			ChannelContext channelContext = this;
+	//			Map<String, Object> map = new HashMap<>(10);
+	//			map.put("currTime", DateTime.now().toString(DatePattern.NORM_DATETIME_MS_FORMAT));
+	//			map.put("c_id", channelContext.getId());
+	//			map.put("c", channelContext.toString());
+	//			map.put("action", synPacketAction);
+	//
+	//			MDC.put("tio_client_syn", channelContext.getClientNodeTraceFilename());
+	//
+	//			if (packet != null) {
+	//				map.put("p_id", channelContext.getClientNode().getPort() + "_" + packet.getId()); //packet id
+	//				map.put("p_respId", packet.getRespId());
+	//				map.put("packet", packet.logstr());
+	//			}
+	//
+	//			if (countDownLatch != null) {
+	//				map.put("countDownLatch", countDownLatch.hashCode() + " " + countDownLatch.getCount());
+	//			}
+	//
+	//			if (extmsg != null) {
+	//				map.putAll(extmsg);
+	//			}
+	//			String logstr = Json.toJson(map);
+	//			traceSynPacketLog.info(logstr);
+	//			log.error(logstr);
+	//
+	//		}
+	//	}
 
-			MDC.put("tio_client_syn", channelContext.getClientNodeTraceFilename());
-
-			if (packet != null) {
-				map.put("p_id", channelContext.getClientNode().getPort() + "_" + packet.getId()); //packet id
-				map.put("p_respId", packet.getRespId());
-				map.put("packet", packet.logstr());
-			}
-
-			if (countDownLatch != null) {
-				map.put("countDownLatch", countDownLatch.hashCode() + " " + countDownLatch.getCount());
-			}
-
-			if (extmsg != null) {
-				map.putAll(extmsg);
-			}
-			String logstr = Json.toJson(map);
-			traceSynPacketLog.info(logstr);
-			log.error(logstr);
-
-		}
-	}
-
-	/**
-	 * 跟踪消息
-	 * @param channelAction
-	 * @param packet
-	 * @param extmsg
-	 * @author tanyaowu
-	 */
-	public void traceClient(ChannelAction channelAction, Packet packet, Map<String, Object> extmsg) {
-		if (isTraceClient) {
-			this.groupContext.clientTraceHandler.traceChannel(this, channelAction, packet, extmsg);
-		}
-	}
+	//	/**
+	//	 * 跟踪消息
+	//	 * @param channelAction
+	//	 * @param packet
+	//	 * @param extmsg
+	//	 * @author tanyaowu
+	//	 */
+	//	public void traceClient(ChannelAction channelAction, Packet packet, Map<String, Object> extmsg) {
+	//		if (isTraceClient) {
+	//			this.groupContext.clientTraceHandler.traceChannel(this, channelAction, packet, extmsg);
+	//		}
+	//	}
 
 	/**
 	 * @return the bsId
@@ -559,7 +541,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	public void setBsId(String bsId) {
 		this.bsId = bsId;
 	}
-	
+
 	public GroupContext getGroupContext() {
 		return groupContext;
 	}
@@ -570,4 +552,38 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	 * @author tanyaowu
 	 */
 	public abstract boolean isServer();
+
+	/**
+	 * @author tanyaowu
+	 */
+	public static class CloseMeta {
+		public Throwable throwable;
+		public String remark;
+		public boolean isNeedRemove;
+
+		public Throwable getThrowable() {
+			return throwable;
+		}
+
+		public void setThrowable(Throwable throwable) {
+			this.throwable = throwable;
+		}
+
+		public String getRemark() {
+			return remark;
+		}
+
+		public void setRemark(String remark) {
+			this.remark = remark;
+		}
+
+		public boolean isNeedRemove() {
+			return isNeedRemove;
+		}
+
+		public void setNeedRemove(boolean isNeedRemove) {
+			this.isNeedRemove = isNeedRemove;
+		}
+
+	}
 }

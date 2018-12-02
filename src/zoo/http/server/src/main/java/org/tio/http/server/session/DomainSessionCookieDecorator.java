@@ -32,7 +32,7 @@ public class DomainSessionCookieDecorator implements SessionCookieDecorator {
 		this.domain = domain;
 		
 		Map<String, String> domainMap = new HashMap<>();
-		domainMap.put("(\\w)*(" + domain + "){1}", domain);
+		domainMap.put("(.)*(" + domain + "){1}", domain);
 
 		domainMappingSessionCookieDecorator = new DomainMappingSessionCookieDecorator(domainMap);
 	}

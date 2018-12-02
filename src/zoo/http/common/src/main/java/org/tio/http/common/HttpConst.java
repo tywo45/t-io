@@ -6,6 +6,11 @@ package org.tio.http.common;
  *
  */
 public interface HttpConst {
+	
+	public interface HttpVersion{
+		String V1_1 = "1.1";
+		String V1_0 = "1.0";
+	}
 
 	/**
 	 * 请求体的格式
@@ -104,7 +109,7 @@ public interface HttpConst {
 		 * Content-Disposition: attachment;filename=FileName.txt
 		 * 文件下载
 		 */
-		String Content_disposition = "Content-disposition".toLowerCase();
+		String Content_Disposition = "Content-Disposition".toLowerCase();
 		/**
 		 * 文档的编码（Encode）方法。只有在解码之后才可以得到Content-Type头指定的内容类型。
 		 * 利用gzip压缩文档能够显著地减少HTML文档的下载时间。
@@ -153,16 +158,25 @@ public interface HttpConst {
 		 *
 		 */
 		String Access_Control_Allow_Origin = "Access-Control-Allow-Origin".toLowerCase(); //value: *
+		
+		String Access_Control_Allow_Methods = "Access-Control-Allow-Methods".toLowerCase();
 
+		String Access_Control_Max_Age = "Access-Control-Max-Age".toLowerCase();
 		/**
 		 *
 		 */
-		String Access_Control_Allow_Headers = "Access-Control-Allow-Headers".toLowerCase(); //value: x-requested-with,content-type
+		String Access_Control_Allow_Headers = "Access-Control-Allow-Headers".toLowerCase();//.toLowerCase(); //value: x-requested-with,content-type
 
 		/**
 		 * 是否是从缓存中获取的数据，tio-httpserver特有的头部信息
 		 */
 		String tio_from_cache = "tio-from-cache";
+		
+		/**
+		 * 
+		 */
+		String tio_webpack_used_cache = "tio-webpack-used-cache";
+		
 	}
 
 	/**
@@ -173,8 +187,12 @@ public interface HttpConst {
 	public interface ResponseHeaderValue {
 		public interface Connection {
 			String keep_alive = "keep-alive";//.toLowerCase();
-			String Upgrade = "upgrade";//.toLowerCase();
+			String Upgrade = "Upgrade";//.toLowerCase();
 			String close = "close";//.toLowerCase();
+		}
+
+		public interface Upgrade {
+			String WebSocket = "WebSocket";
 		}
 	}
 

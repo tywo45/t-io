@@ -11,8 +11,15 @@ public interface ICache {
 	/**
 	 * 在本地最大的过期时间，这样可以防止内存爆掉，单位：秒
 	 */
-	public static int MAX_EXPIRE_IN_LOCAL = 900;
-	
+	public static int MAX_EXPIRE_IN_LOCAL = 10 * 60;
+
+	/**
+	 * 
+	 * @return
+	 * @author tanyaowu
+	 */
+	public String getCacheName();
+
 	/**
 	 *
 	 * 清空所有缓存
@@ -27,7 +34,7 @@ public interface ICache {
 	 * @author tanyaowu
 	 */
 	public Serializable get(String key);
-	
+
 	/**
 	 * 根据key获取value
 	 * @param key
@@ -51,14 +58,14 @@ public interface ICache {
 	 * @author tanyaowu
 	 */
 	public void put(String key, Serializable value);
-	
-//	/**
-//	 * 将key value更新到缓存中
-//	 * @param key
-//	 * @param value
-//	 * @author tanyaowu
-//	 */
-//	public void update(String key, Serializable value);
+
+	//	/**
+	//	 * 将key value更新到缓存中
+	//	 * @param key
+	//	 * @param value
+	//	 * @author tanyaowu
+	//	 */
+	//	public void update(String key, Serializable value);
 
 	/**
 	 * 删除一个key
@@ -74,12 +81,24 @@ public interface ICache {
 	 * @param value
 	 */
 	public void putTemporary(String key, Serializable value);
+
+	/**
+	 * 对象还会存活多久。
+	 * @return currTime in milliseconds
+	 *          -2 if the key does not exist.
+	 *          -1 if the key exists but has no associated expire.
+	 */
+	public long ttl(String key);
 	
 	/**
-     * 对象还会存活多久。
-     * @return time in milliseconds
-     *          -2 if the key does not exist.
-     *          -1 if the key exists but has no associated expire.
-     */
-	public long ttl(String key);
+	 * 
+	 * @return
+	 */
+	public Long getTimeToLiveSeconds();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public Long getTimeToIdleSeconds();
 }

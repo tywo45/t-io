@@ -39,7 +39,7 @@ public class VariablePathVo {
 	 * 原path，形如/user/{userid}
 	 */
 	private String path = null;
-	
+
 	private Method method = null;
 
 	/**
@@ -68,13 +68,6 @@ public class VariablePathVo {
 	 */
 	public void setPath(String path) {
 		this.path = path;
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-
 	}
 
 	public Method getMethod() {

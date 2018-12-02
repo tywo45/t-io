@@ -11,19 +11,13 @@ import org.tio.http.common.HttpResponse;
  *
  */
 public class DefaultStatPathFilter implements StatPathFilter {
-	
+
 	public static final DefaultStatPathFilter me = new DefaultStatPathFilter();
 
 	/**
 	 * 
 	 */
 	public DefaultStatPathFilter() {
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
 	}
 
 	@Override

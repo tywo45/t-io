@@ -9,11 +9,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.utils.cache.ICache;
+import org.tio.utils.cache.AbsCache;
 import org.tio.utils.caffeine.CaffeineUtils;
+import org.tio.utils.hutool.StrUtil;
 
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.github.benmanes.caffeine.cache.RemovalListener;
@@ -22,17 +22,17 @@ import com.github.benmanes.caffeine.cache.RemovalListener;
  * @author tanyaowu
  *
  */
-public class CaffeineCache  implements ICache {
+public class CaffeineCache  extends AbsCache {
 	private static Logger log = LoggerFactory.getLogger(CaffeineCache.class);
 
 	public static Map<String, CaffeineCache> map = new HashMap<>();
 	
 	public static CaffeineCache getCache(String cacheName, boolean skipNull) {
-		CaffeineCache CaffeineCache = map.get(cacheName);
-		if (CaffeineCache == null && !skipNull) {
+		CaffeineCache caffeineCache = map.get(cacheName);
+		if (caffeineCache == null && !skipNull) {
 			log.error("cacheName[{}]还没注册，请初始化时调用：{}.register(cacheName, timeToLiveSeconds, timeToIdleSeconds)", cacheName, CaffeineCache.class.getSimpleName());
 		}
-		return CaffeineCache;
+		return caffeineCache;
 	}
 	
 	public static CaffeineCache getCache(String cacheName) {
@@ -67,7 +67,10 @@ public class CaffeineCache  implements ICache {
 					Integer temporaryMaximumSize = 500000;
 					LoadingCache<String, Serializable> temporaryLoadingCache = CaffeineUtils.createLoadingCache(cacheName, 10L, (Long)null, initialCapacity,
 							temporaryMaximumSize, recordStats, removalListener);
-					caffeineCache = new CaffeineCache(loadingCache, temporaryLoadingCache);
+					caffeineCache = new CaffeineCache(cacheName, loadingCache, temporaryLoadingCache);
+					
+					caffeineCache.setTimeToIdleSeconds(timeToIdleSeconds);
+					caffeineCache.setTimeToLiveSeconds(timeToLiveSeconds);
 					
 					map.put(cacheName, caffeineCache);
 				}
@@ -82,7 +85,8 @@ public class CaffeineCache  implements ICache {
 	
 	private LoadingCache<String, Serializable> temporaryLoadingCache = null;
 
-	private CaffeineCache(LoadingCache<String, Serializable> loadingCache, LoadingCache<String, Serializable> temporaryLoadingCache) {
+	private CaffeineCache(String cacheName, LoadingCache<String, Serializable> loadingCache, LoadingCache<String, Serializable> temporaryLoadingCache) {
+		super(cacheName);
 		this.loadingCache = loadingCache;
 		this.temporaryLoadingCache = temporaryLoadingCache;
 	}
@@ -95,7 +99,7 @@ public class CaffeineCache  implements ICache {
 
 	@Override
 	public Serializable get(String key) {
-		if (StringUtils.isBlank(key)) {
+		if (StrUtil.isBlank(key)) {
 			return null;
 		}
 		Serializable ret = loadingCache.getIfPresent(key);
@@ -114,7 +118,7 @@ public class CaffeineCache  implements ICache {
 
 	@Override
 	public void put(String key, Serializable value) {
-		if (StringUtils.isBlank(key)) {
+		if (StrUtil.isBlank(key)) {
 			return;
 		}
 		loadingCache.put(key, value);
@@ -122,7 +126,7 @@ public class CaffeineCache  implements ICache {
 	
 	@Override
 	public void putTemporary(String key, Serializable value) {
-		if (StringUtils.isBlank(key)) {
+		if (StrUtil.isBlank(key)) {
 			return;
 		}
 		temporaryLoadingCache.put(key, value);
@@ -130,7 +134,7 @@ public class CaffeineCache  implements ICache {
 
 	@Override
 	public void remove(String key) {
-		if (StringUtils.isBlank(key)) {
+		if (StrUtil.isBlank(key)) {
 			return;
 		}
 		loadingCache.invalidate(key);

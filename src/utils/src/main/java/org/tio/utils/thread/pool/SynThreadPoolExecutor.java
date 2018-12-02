@@ -41,13 +41,31 @@ public class SynThreadPoolExecutor extends ThreadPoolExecutor {
 	 * @author tanyaowu
 	 */
 	private boolean checkBeforeExecute(Runnable runnable) {
-		if (runnable instanceof ISynRunnable) {
-			ISynRunnable synRunnable = (ISynRunnable) runnable;
+		if (runnable instanceof AbstractSynRunnable) {
+			AbstractSynRunnable synRunnable = (AbstractSynRunnable) runnable;
+			
+			if (synRunnable.isExecuted()) {
+//				synRunnable.avoidRepeatExecuteCount.incrementAndGet();
+				return false;
+			}
+			
 			ReadWriteLock runningLock = synRunnable.runningLock();
 			Lock writeLock = runningLock.writeLock();
-			boolean tryLock = false;
+			boolean tryLock = writeLock.tryLock();
 			try {
-				tryLock = writeLock.tryLock();
+//				tryLock = writeLock.tryLock();
+				if (tryLock) {
+					if (synRunnable.isExecuted()) {
+//						synRunnable.avoidRepeatExecuteCount.incrementAndGet();
+						return false;
+					}
+					synRunnable.executeCount.incrementAndGet();
+//					System.out.println(synRunnable.logstr() + ", 提交成功次数" + synRunnable.executeCount);
+					synRunnable.setExecuted(true);
+					
+				} else {
+//					synRunnable.avoidRepeatExecuteCount.incrementAndGet();
+				}
 				return tryLock;
 			} finally {
 				if (tryLock) {
@@ -63,8 +81,12 @@ public class SynThreadPoolExecutor extends ThreadPoolExecutor {
 	@Override
 	public void execute(Runnable runnable) {
 		if (checkBeforeExecute(runnable)) {
-			super.execute(runnable);
-		}
+			execute1(runnable);
+		}  
+	}
+	
+	private void execute1(Runnable runnable) {
+		super.execute(runnable);
 	}
 
 	/**

@@ -2,6 +2,8 @@ package org.tio.http.server.handler;
 
 import java.beans.PropertyDescriptor;
 import java.io.File;
+import java.io.InputStream;
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -10,15 +12,15 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.core.ChannelContext;
 import org.tio.core.Tio;
 import org.tio.http.common.Cookie;
+import org.tio.http.common.HeaderName;
+import org.tio.http.common.HeaderValue;
 import org.tio.http.common.HttpConfig;
-import org.tio.http.common.HttpConst;
 import org.tio.http.common.HttpRequest;
+import org.tio.http.common.HttpResource;
 import org.tio.http.common.HttpResponse;
 import org.tio.http.common.HttpResponseStatus;
 import org.tio.http.common.RequestLine;
@@ -30,6 +32,7 @@ import org.tio.http.server.intf.CurrUseridGetter;
 import org.tio.http.server.intf.HttpServerInterceptor;
 import org.tio.http.server.intf.ThrowableHandler;
 import org.tio.http.server.mvc.Routes;
+import org.tio.http.server.mvc.intf.ControllerFactory;
 import org.tio.http.server.session.HttpSessionListener;
 import org.tio.http.server.session.SessionCookieDecorator;
 import org.tio.http.server.stat.StatPathFilter;
@@ -44,19 +47,20 @@ import org.tio.http.server.stat.token.TokenPathAccessStats;
 import org.tio.http.server.util.ClassUtils;
 import org.tio.http.server.util.Resps;
 import org.tio.server.ServerChannelContext;
+import org.tio.utils.IoUtils;
 import org.tio.utils.SystemTimer;
 import org.tio.utils.cache.caffeine.CaffeineCache;
 import org.tio.utils.freemarker.FreemarkerUtils;
+import org.tio.utils.hutool.ArrayUtil;
+import org.tio.utils.hutool.BeanUtil;
+import org.tio.utils.hutool.ClassUtil;
+import org.tio.utils.hutool.FileUtil;
+import org.tio.utils.hutool.StrUtil;
+import org.tio.utils.hutool.Validator;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.convert.Convert;
-import cn.hutool.core.lang.Validator;
-import cn.hutool.core.util.ArrayUtil;
-import cn.hutool.core.util.ClassUtil;
-import freemarker.cache.FileTemplateLoader;
-import freemarker.cache.TemplateLoader;
+import com.esotericsoftware.reflectasm.MethodAccess;
+
 import freemarker.template.Configuration;
-import jodd.io.FileNameUtil;
 
 /**
  *
@@ -79,15 +83,30 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	 * value: FileCache
 	 */
 	private static final String STATIC_RES_CONTENT_CACHENAME = "TIO_HTTP_STATIC_RES_CONTENT";
+	
+	private static final String SESSIONRATELIMITER_CACHENAME = "TIO_HTTP_SESSIONRATELIMITER_CACHENAME";
 
 	/**
-	 * @param args
-	 *
-	 * @author tanyaowu
-	 * 2016年11月18日 上午9:13:15
-	 *
+	 * 把cookie对象存到ChannelContext对象中
+	 * request.channelContext.setAttribute(SESSION_COOKIE_KEY, sessionCookie);
 	 */
-	public static void main(String[] args) {
+	private static final String SESSION_COOKIE_KEY = "TIO_HTTP_SESSION_COOKIE";
+	
+
+	private static final Map<Class<?>, MethodAccess> CLASS_METHODACCESS_MAP = new HashMap<>();
+
+	private static MethodAccess getMethodAccess(Class<?> clazz) {
+		MethodAccess ret = CLASS_METHODACCESS_MAP.get(clazz);
+		if (ret == null) {
+			synchronized (CLASS_METHODACCESS_MAP) {
+				ret = CLASS_METHODACCESS_MAP.get(clazz);
+				if (ret == null) {
+					ret = MethodAccess.get(clazz);
+					CLASS_METHODACCESS_MAP.put(clazz, ret);
+				}
+			}
+		}
+		return ret;
 	}
 
 	protected HttpConfig httpConfig;
@@ -109,35 +128,114 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	private TokenPathAccessStats tokenPathAccessStats;
 
 	private CaffeineCache staticResCache;
+	
+	private CaffeineCache sessionRateLimiterCache;
+	
+	private static final String SESSIONRATELIMITER_KEY_SPLIT = "?";
 
 	private String contextPath;
 	private int contextPathLength = 0;
 	private String suffix;
 	private int suffixLength = 0;
-
 	
-
-	//	private static String randomCookieValue() {
-	//		return RandomUtil.randomUUID();
-	//	}
+	/**
+	 * 
+	 * @param httpConfig
+	 * @param scanRootClasse
+	 */
+	public DefaultHttpRequestHandler(HttpConfig httpConfig, Class<?> scanRootClasse) {
+		this(httpConfig, new Class<?>[] { scanRootClasse });
+	}
+	
+	/**
+	 * 
+	 * @param httpConfig
+	 * @param scanRootClasse
+	 * @param controllerFactory
+	 */
+	public DefaultHttpRequestHandler(HttpConfig httpConfig, Class<?> scanRootClasse, ControllerFactory controllerFactory) {
+		this(httpConfig, new Class<?>[] { scanRootClasse }, controllerFactory);
+	}
 
 	/**
-	 *
+	 * 
+	 * @param httpConfig
+	 * @param scanRootClasses
+	 */
+	public DefaultHttpRequestHandler(HttpConfig httpConfig, Class<?>[] scanRootClasses) {
+		this(httpConfig, scanRootClasses, null);
+	}
+	
+	/**
+	 * 
+	 * @param httpConfig
+	 * @param scanRootClasses
+	 * @param controllerFactory
+	 */
+	public DefaultHttpRequestHandler(HttpConfig httpConfig, Class<?>[] scanRootClasses, ControllerFactory controllerFactory) {
+		Routes routes = new Routes(scanRootClasses, controllerFactory);
+		init(httpConfig, routes);
+	}
+
+	/**
+	 * 
+	 * @param httpConfig
+	 * @param scanPackage
+	 */
+	public DefaultHttpRequestHandler(HttpConfig httpConfig, String scanPackage) {
+		this(httpConfig, scanPackage, null);
+	}
+	
+	/**
+	 * 
+	 * @param httpConfig
+	 * @param scanPackage
+	 * @param controllerFactory
+	 */
+	public DefaultHttpRequestHandler(HttpConfig httpConfig, String scanPackage, ControllerFactory controllerFactory) {
+		this(httpConfig, new String[] { scanPackage }, controllerFactory);
+	}
+
+	/**
+	 * 
+	 * @param httpConfig
+	 * @param scanPackages
+	 */
+	public DefaultHttpRequestHandler(HttpConfig httpConfig, String[] scanPackages) {
+		this(httpConfig, scanPackages, null);
+	}
+	
+	/**
+	 * 
+	 * @param httpConfig
+	 * @param scanPackages
+	 * @param controllerFactory
+	 */
+	public DefaultHttpRequestHandler(HttpConfig httpConfig, String[] scanPackages, ControllerFactory controllerFactory) {
+		Routes routes = new Routes(scanPackages, controllerFactory);
+		init(httpConfig, routes);
+	}
+
+	/**
+	 * 
 	 * @param httpConfig
 	 * @param routes
-	 * @author tanyaowu
 	 */
 	public DefaultHttpRequestHandler(HttpConfig httpConfig, Routes routes) {
+		init(httpConfig, routes);
+	}
+
+	private void init(HttpConfig httpConfig, Routes routes) {
 		if (httpConfig == null) {
 			throw new RuntimeException("httpConfig can not be null");
 		}
 		this.contextPath = httpConfig.getContextPath();
 		this.suffix = httpConfig.getSuffix();
 
-		if (StringUtils.isNotBlank(contextPath)) {
+		if (StrUtil.isNotBlank(contextPath)) {
 			contextPathLength = contextPath.length();
 		}
-		if (StringUtils.isNotBlank(suffix)) {
+		if (StrUtil.isNotBlank(suffix)) {
 			suffixLength = suffix.length();
 		}
 
@@ -146,6 +244,8 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 		if (httpConfig.getMaxLiveTimeOfStaticRes() > 0) {
 			staticResCache = CaffeineCache.register(STATIC_RES_CONTENT_CACHENAME, (long) httpConfig.getMaxLiveTimeOfStaticRes(), null);
 		}
+		
+		sessionRateLimiterCache  = CaffeineCache.register(SESSIONRATELIMITER_CACHENAME, 60 * 1L, null);
 
 		this.routes = routes;
 	}
@@ -167,7 +267,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	/**
 	 * @return the httpConfig
 	 */
-	public HttpConfig getHttpConfig() {
+	public HttpConfig getHttpConfig(HttpRequest request) {
 		return httpConfig;
 	}
 
@@ -205,69 +305,158 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 		return false;
 	}
 
-	@Override
-	public HttpResponse handler(HttpRequest request) throws Exception {
-		if (!checkDomain(request)) {
-			Tio.remove(request.getChannelContext(), "过来的域名[" + request.getDomain() + "]不对");
-			return null;
+	private Method getMethod(HttpRequest request, RequestLine requestLine) {
+		Method method = null;
+		String path = requestLine.path;
+		if (routes != null) {
+			method = routes.getMethodByPath(path, request);
+			path = requestLine.path;
+		}
+		if (method == null) {
+			if (StrUtil.isNotBlank(httpConfig.getWelcomeFile())) {
+				if (StrUtil.endWith(path, "/")) {
+					path = path + httpConfig.getWelcomeFile();
+					requestLine.setPath(path);
+
+					if (routes != null) {
+						method = routes.getMethodByPath(path, request);
+						path = requestLine.path;
+					}
+				}
+			}
 		}
 		
-		long start = SystemTimer.currentTimeMillis();
+		return method;
+	}
+	
+	@Override
+	public HttpResponse handler(HttpRequest request) throws Exception {
+		request.setNeedForward(false);
 		
+		if (!checkDomain(request)) {
+			Tio.remove(request.channelContext, "过来的域名[" + request.getDomain() + "]不对");
+			return null;
+		}
+
+		long start = SystemTimer.currTime;
+
 		HttpResponse response = null;
 		RequestLine requestLine = request.getRequestLine();
-		String path = requestLine.getPath();
+		String path = requestLine.path;
 
-		if (StringUtils.isNotBlank(contextPath)) {
-			if (StringUtils.startsWith(path, contextPath)) {
-				path = StringUtils.substring(path, contextPathLength);
+		if (StrUtil.isNotBlank(contextPath)) {
+			if (StrUtil.startWith(path, contextPath)) {
+				path = StrUtil.subSuf(path, contextPathLength);
 			} else {
 				//				Tio.remove(request.getChannelContext(), "请求路径不合法，必须以" + contextPath + "开头：" + requestLine.getLine());
 				//				return null;
 			}
 		}
 
-		if (StringUtils.isNotBlank(suffix)) {
-			if (StringUtils.endsWith(path, suffix)) {
-				path = StringUtils.substring(path, 0, path.length() - suffixLength);
+		if (StrUtil.isNotBlank(suffix)) {
+			if (StrUtil.endWith(path, suffix)) {
+				path = StrUtil.sub(path, 0, path.length() - suffixLength);
 			} else {
 				//				Tio.remove(request.getChannelContext(), "请求路径不合法，必须以" + suffix + "结尾：" + requestLine.getLine());
 				//				return null;
-			}
-		}
-		
-		if (StringUtils.isNotBlank(httpConfig.getWelcomeFile())) {
-			if (StringUtils.endsWith(path, "/")) {
-				path = path + httpConfig.getWelcomeFile();
 			}
 		}
 		requestLine.setPath(path);
 
 		try {
 			processCookieBeforeHandler(request, requestLine);
+			
+			requestLine = request.getRequestLine();
+
+//			Method method = null;
+//			if (routes != null) {
+//				method = routes.getMethodByPath(path, request);
+//				path = requestLine.path;
+//			}
+//			if (method == null) {
+//				if (StrUtil.isNotBlank(httpConfig.getWelcomeFile())) {
+//					if (StrUtil.endWith(path, "/")) {
+//						path = path + httpConfig.getWelcomeFile();
+//						requestLine.setPath(path);
+//
+//						if (routes != null) {
+//							method = routes.getMethodByPath(path, request);
+//							path = requestLine.path;
+//						}
+//					}
+//				}
+//			}
+			
+			Method method = getMethod(request, requestLine);
+			path = requestLine.path;
+			
 			if (httpServerInterceptor != null) {
 				response = httpServerInterceptor.doBeforeHandler(request, requestLine, response);
 				if (response != null) {
 					return response;
 				}
 			}
-			requestLine = request.getRequestLine();
-			path = requestLine.getPath();
-
-			Method method = null;
-			if (routes != null) {
-				method = routes.getMethodByPath(path, request);
+			path = requestLine.path;
+			if (method == null) {
+				method = getMethod(request, requestLine);
+				path = requestLine.path;
 			}
+			
+			
+			//流控
+			if (httpConfig.isUseSession()) {
+				if (httpConfig.sessionRateLimiter != null) {
+					Integer interval = httpConfig.sessionRateLimiter.interval(request);
+					boolean pass = false;
+					if (interval != null && interval > 0) {
+						String key = path + SESSIONRATELIMITER_KEY_SPLIT + request.getHttpSession().getId();
+						Long lastAccessTime = sessionRateLimiterCache.get(key, Long.class);
+						if (lastAccessTime == null) {
+							synchronized (httpConfig.sessionRateLimiter) {
+								lastAccessTime = sessionRateLimiterCache.get(key, Long.class);
+								if (lastAccessTime == null) {
+									lastAccessTime = System.currentTimeMillis();
+									sessionRateLimiterCache.put(key, lastAccessTime);
+									pass = true;
+								}
+							}
+						}
+						
+						if (!pass) {
+							if (System.currentTimeMillis() - lastAccessTime > interval) {
+								pass = true;
+							}
+						}
+						
+//						//更新上次访问时间
+//						sessionRateLimiterCache.put(key, System.currentTimeMillis());
+						
+						if (!pass) {
+							response = httpConfig.sessionRateLimiter.response(request, lastAccessTime);
+							return response;
+						}
+						
+						//更新上次访问时间（放在这个位置：被拒绝访问的就不更新lastAccessTime）
+						sessionRateLimiterCache.put(key, System.currentTimeMillis());
+					}
+				}
+			}
+			
+			
 
 			if (method != null) {
-				String[] paramnames = routes.methodParamnameMap.get(method);
-				Class<?>[] parameterTypes = routes.methodParamtypeMap.get(method);//method.getParameterTypes();
-				Object bean = routes.methodBeanMap.get(method);
+				String[] paramnames = routes.METHOD_PARAMNAME_MAP.get(method);
+				Class<?>[] parameterTypes = routes.METHOD_PARAMTYPE_MAP.get(method);//method.getParameterTypes();
+				Object bean = routes.METHOD_BEAN_MAP.get(method);
 				Object obj = null;
 				if (parameterTypes == null || parameterTypes.length == 0) {
-					//obj = method.invoke(bean);
-					
-					obj = Routes.beanMethodaccessMap.get(bean).invoke(bean, method.getName(), parameterTypes, (Object)null);
+//					String forward = routes.PATH_FORWARD_MAP.get(path);
+//					if (forward != null) {
+//						return request.forward(forward);
+//					} else {
+//						obj = Routes.BEAN_METHODACCESS_MAP.get(bean).invoke(bean, method.getName(), parameterTypes, (Object) null);
+//					}
+					obj = Routes.BEAN_METHODACCESS_MAP.get(bean).invoke(bean, method.getName(), parameterTypes, (Object) null);
 				} else {
 					//赋值这段代码待重构，先用上
 					Object[] paramValues = new Object[parameterTypes.length];
@@ -280,8 +469,8 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 								paramValues[i] = request.getHttpSession();
 							} else if (paramType == HttpConfig.class) {
 								paramValues[i] = httpConfig;
-							} else if (paramType == ServerChannelContext.class) {  //paramType.isAssignableFrom(ServerChannelContext.class)
-								paramValues[i] = request.getChannelContext();
+							} else if (paramType == ServerChannelContext.class) { //paramType.isAssignableFrom(ServerChannelContext.class)
+								paramValues[i] = request.channelContext;
 							} else {
 								Map<String, Object[]> params = request.getParams();
 								if (params != null) {
@@ -290,9 +479,19 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 										Object[] value = params.get(paramnames[i]);
 										if (value != null && value.length > 0) {
 											if (paramType.isArray()) {
-												paramValues[i] = Convert.convert(paramType, value);
+												//												paramValues[i] = Convert.convert(paramType, value);
+												if (value.getClass() == String[].class) {
+													paramValues[i] = StrUtil.convert(paramType, (String[]) value);
+												} else {
+													paramValues[i] = value;
+												}
 											} else {
-												paramValues[i] = Convert.convert(paramType, value[0]);
+												//												paramValues[i] = Convert.convert(paramType, value[0]);
+												if (value[0].getClass() == String.class) {
+													paramValues[i] = StrUtil.convert(paramType, (String) value[0]);
+												} else {
+													paramValues[i] = value[0];
+												}
 											}
 										}
 									} else {
@@ -302,7 +501,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 											String fieldName = entry.getKey();
 											Object[] fieldValue = entry.getValue();
 
-											PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(paramType, fieldName, true);
+											PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(paramType, fieldName, false);
 											if (propertyDescriptor == null) {
 												continue label2;
 											} else {
@@ -321,11 +520,23 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 												if (ClassUtils.isSimpleTypeOrArray(clazz)) {
 													if (fieldValue != null && fieldValue.length > 0) {
 														if (clazz.isArray()) {
-															Object theValue = Convert.convert(clazz, fieldValue);
-															writeMethod.invoke(paramValues[i], theValue);
+															Object theValue = null;//Convert.convert(clazz, fieldValue);
+															if (fieldValue.getClass() == String[].class) {
+																theValue = StrUtil.convert(clazz, (String[]) fieldValue);
+															} else {
+																theValue = fieldValue;
+															}
+
+															getMethodAccess(paramType).invoke(paramValues[i], writeMethod.getName(), theValue);
 														} else {
-															Object theValue = Convert.convert(clazz, fieldValue[0]);
-															writeMethod.invoke(paramValues[i], theValue);
+															Object theValue = null;//Convert.convert(clazz, fieldValue[0]);
+															if (fieldValue[0].getClass() == String.class) {
+																theValue = StrUtil.convert(clazz, (String) fieldValue[0]);
+															} else {
+																theValue = fieldValue[0];
+															}
+
+															getMethodAccess(paramType).invoke(paramValues[i], writeMethod.getName(), theValue);
 														}
 													}
 												}
@@ -340,8 +551,15 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 							i++;
 						}
 					}
-//					obj = method.invoke(bean, paramValues);
-					obj = Routes.beanMethodaccessMap.get(bean).invoke(bean, method.getName(), parameterTypes, paramValues);
+					//					obj = method.invoke(bean, paramValues);
+					
+//					String forward = routes.PATH_FORWARD_MAP.get(path);
+//					if (forward != null) {
+//						return request.forward(forward);
+//					} else {
+//						obj = Routes.BEAN_METHODACCESS_MAP.get(bean).invoke(bean, method.getName(), parameterTypes, paramValues);
+//					}
+					obj = Routes.BEAN_METHODACCESS_MAP.get(bean).invoke(bean, method.getName(), parameterTypes, paramValues);
 				}
 
 				if (obj instanceof HttpResponse) {
@@ -376,14 +594,14 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 
 					response = Resps.try304(request, lastModified);
 					if (response != null) {
-						response.addHeader(HttpConst.ResponseHeaderKey.tio_from_cache, "true");
+						response.addHeader(HeaderName.tio_from_cache, HeaderValue.Tio_From_Cache.TRUE);
 						return response;
 					}
 
-//					response = fileCache.cloneResponse(request);
+					//					response = fileCache.cloneResponse(request);
 					response = fileCache.getResponse();
 					response = HttpResponse.cloneResponse(request, response);
-					
+
 					//					log.info("{}, 从缓存获取, 大小: {}", path, response.getBody().length);
 
 					//					response = new HttpResponse(request, httpConfig);
@@ -391,24 +609,43 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 					//					response.addHeaders(headers);
 					return response;
 				} else {
-					File pageRoot = httpConfig.getPageRoot(request);
+					String pageRoot = httpConfig.getPageRoot(request);
 					if (pageRoot != null) {
-						//						String root = FileUtil.getAbsolutePath(pageRoot);
-						file = new File(pageRoot + path);
-						if (!file.exists() || file.isDirectory()) {
-							if (StringUtils.endsWith(path, "/")) {
-								path = path + "index.html";
-							} else {
-								path = path + "/index.html";
-							}
-							file = new File(pageRoot, path);
-						}
-
-						if (file.exists()) {
+//						if (StrUtil.endWith(path, "/")) {
+//							path = path + "index.html";
+//						}
+////						else {
+////							path = path + "/index.html";
+////						}
+//						
+//						String complatePath = pageRoot + path;
+//						if (httpConfig.isPageInClasspath()) {
+//							URL url = this.getClass().getClassLoader().getResource(complatePath);
+//							if (url != null) {
+//								file = new File(url.toURI());
+//							}
+//						} else {
+////							String root = FileUtil.getAbsolutePath(pageRoot);
+//							file = new File(complatePath);
+////							if (!file.exists() || file.isDirectory()) {
+////								
+////								file = new File(pageRoot, path);
+////							}
+//						}
+						
+						HttpResource httpResource = httpConfig.getResource(request, path);//.getFile(request, path);
+						
+						if (httpResource != null) {
+							file = httpResource.getFile();
+							String template = httpResource.getPath();  // "/res/css/header-all.css"
+							InputStream inputStream = httpResource.getInputStream();
+							
+							String extension = FileUtil.extName(template);
+							
 							//项目中需要，时间支持一下freemarker模板，后面要做模板支持抽象设计
 							FreemarkerConfig freemarkerConfig = httpConfig.getFreemarkerConfig();
 							if (freemarkerConfig != null) {
-								String extension = FileNameUtil.getExtension(file.getName());
+								
 								if (ArrayUtil.contains(freemarkerConfig.getSuffixes(), extension)) {
 									Configuration configuration = freemarkerConfig.getConfiguration(request);
 									if (configuration != null) {
@@ -416,18 +653,16 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 										if (request.isClosed()) {
 											return null;
 										} else {
-											TemplateLoader templateLoader = configuration.getTemplateLoader();//FileTemplateLoader
-											if (templateLoader instanceof FileTemplateLoader) {
+											if (model instanceof HttpResponse) {
+												response = (HttpResponse)model;
+												return response;
+											} else {
 												try {
-													String filePath = file.getCanonicalPath();
-													String pageRootPath = httpConfig.getPageRoot(request).getCanonicalPath();
-													String template = StringUtils.substring(filePath, pageRootPath.length());
-													String retStr = FreemarkerUtils.generateStringByFile(template, configuration, model);
+													String retStr = FreemarkerUtils.generateStringByPath(template, configuration, model);
 													response = Resps.bytes(request, retStr.getBytes(configuration.getDefaultEncoding()), extension);
 													return response;
-												} catch (java.lang.Throwable e) {
-													//freemarker编译异常的全部走普通view
-													log.error(file.getCanonicalPath() + ", " + e.toString(), e);
+												} catch (Exception e) {
+													log.error("freemarker错误，当成普通文本处理：" + file.getCanonicalPath() + ", " + e.toString());
 												}
 											}
 										}
@@ -435,38 +670,48 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 								}
 							}
 
-							response = Resps.file(request, file);
+							if (file != null) {
+								response = Resps.file(request, file);
+							} else {
+								response = Resps.bytes(request, IoUtils.toByteArray(inputStream), extension);//.file(request, file);
+							}
+							
 							response.setStaticRes(true);
 
 							//把静态资源放入缓存
 							if (response.isStaticRes() && staticResCache != null/** && request.getIsSupportGzip()*/
 							) {
 								if (response.getBody() != null && response.getStatus() == HttpResponseStatus.C200) {
-									String contentType = response.getHeader(HttpConst.ResponseHeaderKey.Content_Type);
-									String contentEncoding = response.getHeader(HttpConst.ResponseHeaderKey.Content_Encoding);
-									String lastModified = response.getLastModified();//.getHeader(HttpConst.ResponseHeaderKey.Last_Modified);
+									HeaderValue contentType = response.getHeader(HeaderName.Content_Type);
+									HeaderValue contentEncoding = response.getHeader(HeaderName.Content_Encoding);
+									HeaderValue lastModified = response.getLastModified();//.getHeader(HttpConst.ResponseHeaderKey.Last_Modified);
 
-									Map<String, String> headers = new HashMap<>();
-									if (StringUtils.isNotBlank(contentType)) {
-										headers.put(HttpConst.ResponseHeaderKey.Content_Type, contentType);
+									Map<HeaderName, HeaderValue> headers = new HashMap<>();
+									if (contentType != null) {
+										headers.put(HeaderName.Content_Type, contentType);
 									}
-									if (StringUtils.isNotBlank(contentEncoding)) {
-										headers.put(HttpConst.ResponseHeaderKey.Content_Encoding, contentEncoding);
+									if (contentEncoding != null) {
+										headers.put(HeaderName.Content_Encoding, contentEncoding);
 									}
-//									if (StringUtils.isNotBlank(lastModified)) {
-//										headers.put(HttpConst.ResponseHeaderKey.Last_Modified, lastModified);
-//									}
+									//									if (StrUtil.isNotBlank(lastModified)) {
+									//										headers.put(HttpConst.ResponseHeaderKey.Last_Modified, lastModified);
+									//									}
 									//									headers.put(HttpConst.ResponseHeaderKey.tio_from_cache, "true");
 
 									HttpResponse responseInCache = new HttpResponse(request);
 									responseInCache.addHeaders(headers);
-									if (StringUtils.isNotBlank(lastModified)) {
+									if (lastModified != null) {
 										responseInCache.setLastModified(lastModified);
 									}
 									responseInCache.setBody(response.getBody());
 									responseInCache.setHasGzipped(response.isHasGzipped());
 
-									fileCache = new FileCache(responseInCache, file.lastModified());
+									if (file != null) {
+										fileCache = new FileCache(responseInCache, file.lastModified());
+									} else {
+										fileCache = new FileCache(responseInCache, ManagementFactory.getRuntimeMXBean().getStartTime());
+									}
+									
 									staticResCache.put(path, fileCache);
 									log.info("放入缓存:[{}], {}", path, response.getBody().length);
 								}
@@ -485,33 +730,41 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 			response = resp500(request, requestLine, e);//Resps.html(request, "500--服务器出了点故障", httpConfig.getCharset());
 			return response;
 		} finally {
-			long time = SystemTimer.currentTimeMillis();
-			long iv = time - start; //本次请求消耗的时间，单位：毫秒
 			try {
-				processCookieAfterHandler(request, requestLine, response);
-			} catch (Throwable e) {
-				logError(request, requestLine, e);
-			} finally {
-				if (httpServerInterceptor != null) {
+				long time = SystemTimer.currTime;
+				long iv = time - start; //本次请求消耗的时间，单位：毫秒
+				try {
+					processCookieAfterHandler(request, requestLine, response);
+				} catch (Throwable e) {
+					logError(request, requestLine, e);
+				} finally {
+					if (httpServerInterceptor != null) {
+						try {
+							httpServerInterceptor.doAfterHandler(request, requestLine, response, iv);
+						} catch (Exception e) {
+							log.error(requestLine.toString(), e);
+						}
+					}
 					try {
-						httpServerInterceptor.doAfterHandler(request, requestLine, response, iv);
+						HttpGzipUtils.gzip(request, response);
 					} catch (Exception e) {
 						log.error(e.toString(), e);
 					}
-				}
-				try {
-					HttpGzipUtils.gzip(request, response);
-				} catch (Exception e) {
-					log.error(e.toString(), e);
-				}
-				boolean f = statIpPath(request, response, path, iv);
-				if (!f) {
-					return null;
-				}
+					boolean f = statIpPath(request, response, path, iv);
+					if (!f) {
+						return null;
+					}
 
-				f = statTokenPath(request, response, path, iv);
-				if (!f) {
-					return null;
+					f = statTokenPath(request, response, path, iv);
+					if (!f) {
+						return null;
+					}
+				}
+			} catch (Exception e) {
+				log.error(request.requestLine.toString(), e);
+			} finally {
+				if (request.isNeedForward()) {
+					return handler(request);
 				}
 			}
 		}
@@ -529,15 +782,15 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 		if (ipPathAccessStats == null) {
 			return true;
 		}
-		
+
 		if (response == null) {
 			return false;
 		}
-		
+
 		if (response.isSkipIpStat() || request.isClosed()) {
 			return true;
 		}
-		
+
 		//统计一下IP访问数据
 		String ip = request.getClientIp();//IpUtils.getRealIp(request);
 
@@ -551,7 +804,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 
 			ipAccessStat.count.incrementAndGet();
 			ipAccessStat.timeCost.addAndGet(iv);
-			ipAccessStat.setLastAccessTime(SystemTimer.currentTimeMillis());
+			ipAccessStat.setLastAccessTime(SystemTimer.currTime);
 			if (cookie == null) {
 				ipAccessStat.noSessionCount.incrementAndGet();
 			} else {
@@ -562,14 +815,14 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 				IpPathAccessStat ipPathAccessStat = ipAccessStat.get(path);
 				ipPathAccessStat.count.incrementAndGet();
 				ipPathAccessStat.timeCost.addAndGet(iv);
-				ipPathAccessStat.setLastAccessTime(SystemTimer.currentTimeMillis());
+				ipPathAccessStat.setLastAccessTime(SystemTimer.currTime);
 
 				if (cookie == null) {
 					ipPathAccessStat.noSessionCount.incrementAndGet();
 				}
-//				else {
-//					ipAccessStat.sessionIds.add(cookie.getValue());
-//				}
+				//				else {
+				//					ipAccessStat.sessionIds.add(cookie.getValue());
+				//				}
 
 				IpPathAccessStatListener ipPathAccessStatListener = ipPathAccessStats.getListener(duration);
 				if (ipPathAccessStatListener != null) {
@@ -580,8 +833,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 				}
 			}
 		}
-	
-		
+
 		return true;
 	}
 
@@ -597,18 +849,18 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 		if (tokenPathAccessStats == null) {
 			return true;
 		}
-		
+
 		if (response == null) {
 			return false;
 		}
-		
+
 		if (response.isSkipTokenStat() || request.isClosed()) {
 			return true;
 		}
-		
+
 		//统计一下Token访问数据
 		String token = tokenPathAccessStats.getTokenGetter().getToken(request);
-		if (StringUtils.isNotBlank(token)) {
+		if (StrUtil.isNotBlank(token)) {
 			List<Long> list = tokenPathAccessStats.durationList;
 
 			CurrUseridGetter currUseridGetter = tokenPathAccessStats.getCurrUseridGetter();
@@ -625,13 +877,13 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 
 				tokenAccessStat.count.incrementAndGet();
 				tokenAccessStat.timeCost.addAndGet(iv);
-				tokenAccessStat.setLastAccessTime(SystemTimer.currentTimeMillis());
+				tokenAccessStat.setLastAccessTime(SystemTimer.currTime);
 
 				if (statPathFilter.filter(path, request, response)) {
 					TokenPathAccessStat tokenPathAccessStat = tokenAccessStat.get(path);
 					tokenPathAccessStat.count.incrementAndGet();
 					tokenPathAccessStat.timeCost.addAndGet(iv);
-					tokenPathAccessStat.setLastAccessTime(SystemTimer.currentTimeMillis());
+					tokenPathAccessStat.setLastAccessTime(SystemTimer.currTime);
 
 					TokenPathAccessStatListener tokenPathAccessStatListener = tokenPathAccessStats.getListener(duration);
 					if (tokenPathAccessStatListener != null) {
@@ -643,7 +895,6 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 				}
 			}
 		}
-	
 
 		return true;
 	}
@@ -651,12 +902,16 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	private void logError(HttpRequest request, RequestLine requestLine, Throwable e) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("\r\n").append("remote  :").append(request.getClientIp());
-		sb.append("\r\n").append("request :").append(requestLine.getLine());
+		sb.append("\r\n").append("request :").append(requestLine.toString());
 		log.error(sb.toString(), e);
 
 	}
 
 	private void processCookieAfterHandler(HttpRequest request, RequestLine requestLine, HttpResponse httpResponse) throws ExecutionException {
+		if (httpResponse == null) {
+			return;
+		}
+		
 		if (!httpConfig.isUseSession()) {
 			return;
 		}
@@ -667,7 +922,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 
 		if (cookie == null) {
 			createSessionCookie(request, httpSession, httpResponse);
-//			log.info("{} 创建会话Cookie, {}", request.getChannelContext(), cookie);
+			//			log.info("{} 创建会话Cookie, {}", request.getChannelContext(), cookie);
 		} else {
 			sessionId = cookie.getValue();
 			HttpSession httpSession1 = (HttpSession) httpConfig.getSessionStore().get(sessionId);
@@ -687,25 +942,26 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	 * @author tanyaowu
 	 */
 	private void createSessionCookie(HttpRequest request, HttpSession httpSession, HttpResponse httpResponse) {
-		String session_cookie_key = "tio_http_session_cookie";
-		ChannelContext channelContext = request.getChannelContext();
-		Object test = channelContext.getAttribute(session_cookie_key);
-		if (test != null) {
+		if (httpResponse == null) {
 			return;
 		}
 		
+		Object test = request.channelContext.getAttribute(SESSION_COOKIE_KEY);
+		if (test != null) {
+			return;
+		}
+
 		String sessionId = httpSession.getId();
 		//		String host = request.getHost();
 		String domain = request.getDomain();
-		
+
 		boolean isip = Validator.isIpv4(domain);
 		if (!isip) {
-			String[] dms = StringUtils.split(domain, ".");
+			String[] dms = StrUtil.split(domain, ".");
 			if (dms.length > 2) {
 				domain = "." + dms[dms.length - 2] + "." + dms[dms.length - 1];
 			}
 		}
-		
 
 		String name = httpConfig.getSessionCookieName();
 		long maxAge = 3600 * 24 * 365 * 10;//Math.max(httpConfig.getSessionTimeout() * 30, 3600 * 24 * 365 * 10);
@@ -720,7 +976,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 
 		httpConfig.getSessionStore().put(sessionId, httpSession);
 
-		channelContext.setAttribute(session_cookie_key, sessionCookie);
+		request.channelContext.setAttribute(SESSION_COOKIE_KEY, sessionCookie);
 		return;
 	}
 
@@ -738,7 +994,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 			String sessionId = cookie.getValue();
 			httpSession = (HttpSession) httpConfig.getSessionStore().get(sessionId);
 			if (httpSession == null) {
-				log.info("{} session【{}】超时", request.getChannelContext(), sessionId);
+				log.info("{} session【{}】超时", request.channelContext, sessionId);
 				httpSession = createSession(request);
 			}
 		}
@@ -746,15 +1002,32 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	}
 
 	@Override
-	public HttpResponse resp404(HttpRequest request, RequestLine requestLine) {
+	public HttpResponse resp404(HttpRequest request, RequestLine requestLine) throws Exception {
+		if (routes != null) {
+			String page404 = httpConfig.getPage404();
+			Method method = routes.PATH_METHOD_MAP.get(page404);
+			if (method != null) {
+				return Resps.forward(request, page404);
+			}
+		}
+
 		return Resps.resp404(request, requestLine, httpConfig);
 	}
 
 	@Override
-	public HttpResponse resp500(HttpRequest request, RequestLine requestLine, Throwable throwable) {
+	public HttpResponse resp500(HttpRequest request, RequestLine requestLine, Throwable throwable) throws Exception {
 		if (throwableHandler != null) {
 			return throwableHandler.handler(request, requestLine, throwable);
 		}
+
+		if (routes != null) {
+			String page500 = httpConfig.getPage500();
+			Method method = routes.PATH_METHOD_MAP.get(page500);
+			if (method != null) {
+				return Resps.forward(request, page500);
+			}
+		}
+
 		return Resps.resp500(request, requestLine, httpConfig, throwable);
 	}
 
@@ -777,7 +1050,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	}
 
 	@Override
-	public void clearStaticResCache(HttpRequest request) {
+	public void clearStaticResCache() {
 		if (staticResCache != null) {
 			staticResCache.clear();
 		}
@@ -806,8 +1079,6 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	public void setIpPathAccessStats(IpPathAccessStats ipPathAccessStats) {
 		this.ipPathAccessStats = ipPathAccessStats;
 	}
-
-
 
 	public ThrowableHandler getThrowableHandler() {
 		return throwableHandler;

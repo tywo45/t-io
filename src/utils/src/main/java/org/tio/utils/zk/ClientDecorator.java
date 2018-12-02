@@ -12,7 +12,8 @@ public interface ClientDecorator {
 	 * 
 	 * @param zclient
 	 * @author tanyaowu
+	 * @throws Exception 
 	 */
-	public void decorate(CuratorFramework zclient);
+	public void decorate(CuratorFramework zclient) throws Exception;
 
 }

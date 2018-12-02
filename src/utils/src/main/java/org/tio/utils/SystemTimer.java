@@ -1,5 +1,7 @@
 package org.tio.utils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
@@ -14,8 +16,30 @@ public class SystemTimer {
 	private static class TimerTask implements Runnable {
 		@Override
 		public void run() {
-			time = System.currentTimeMillis();
+			currTime = System.currentTimeMillis();
+			if (list != null) {
+				for (TimerListener timerListener : list) {
+					timerListener.onChange(currTime);
+				}
+			}
 		}
+	}
+
+	private static volatile List<TimerListener> list = null;//new ArrayList<>();
+
+	public static void addTimerListener(TimerListener timerListener) {
+		if (list == null) {
+			synchronized (TimerTask.class) {
+				if (list == null) {
+					list = new ArrayList<>();
+				}
+			}
+		}
+		list.add(timerListener);
+	}
+
+	public static interface TimerListener {
+		void onChange(long currTime);
 	}
 
 	private final static ScheduledExecutorService EXECUTOR = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
@@ -27,9 +51,9 @@ public class SystemTimer {
 		}
 	});
 
-	private static final long PERIOD = Long.parseLong(System.getProperty("system.timer.period", "10"));
+	private static final long PERIOD = Long.parseLong(System.getProperty("tio.system.timer.period", "10"));
 
-	private static volatile long time = System.currentTimeMillis();
+	public static volatile long currTime = System.currentTimeMillis();
 
 	static {
 		EXECUTOR.scheduleAtFixedRate(new TimerTask(), PERIOD, PERIOD, TimeUnit.MILLISECONDS);
@@ -42,11 +66,11 @@ public class SystemTimer {
 	}
 
 	/**
-	 * Current time millis.
+	 * Current currTime millis.
 	 *
 	 * @return the long
 	 */
 	public static long currentTimeMillis() {
-		return time;
+		return currTime;
 	}
 }

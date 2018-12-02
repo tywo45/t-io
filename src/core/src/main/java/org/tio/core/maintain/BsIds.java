@@ -2,18 +2,18 @@ package org.tio.core.maintain;
 
 import java.util.HashMap;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
+import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.lock.MapWithLock;
 
 /**
+ * 一对一  (bsid <--> ChannelContext)<br>
  * Bs: business，业务id和ChannelContext绑定<br>
  * 需求见：https://gitee.com/tywo45/t-io/issues/IK30Q
  * @author tanyaowu 
- * 2018年6月16日 上午9:38:08
  */
 public class BsIds {
 	private static Logger log = LoggerFactory.getLogger(BsIds.class);
@@ -40,7 +40,7 @@ public class BsIds {
 			//先解绑，否则如果业务层绑定两个不同的bsid，就会导致资源释放不掉
 			unbind(channelContext);
 
-			if (StringUtils.isBlank(bsId)) {
+			if (StrUtil.isBlank(bsId)) {
 				return;
 			}
 			channelContext.setBsId(bsId);
@@ -62,7 +62,7 @@ public class BsIds {
 			return null;
 		}
 
-		if (StringUtils.isBlank(bsId)) {
+		if (StrUtil.isBlank(bsId)) {
 			return null;
 		}
 
@@ -90,10 +90,11 @@ public class BsIds {
 				return;
 			}
 			String bsId = channelContext.getBsId();
-			if (StringUtils.isBlank(bsId)) {
+			if (StrUtil.isBlank(bsId)) {
 				return;
 			}
 			map.remove(bsId);
+			channelContext.setBsId(null);
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		}

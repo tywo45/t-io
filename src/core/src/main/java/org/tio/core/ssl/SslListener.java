@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.intf.Packet;
 import org.tio.core.ssl.facade.ISSLListener;
+import org.tio.core.utils.ByteBufferUtils;
 
 /**
  * @author tanyaowu
@@ -46,24 +47,15 @@ public class SslListener implements ISSLListener {
 
 			//			log.info("clone packet:{}", Json.toJson(obj));
 
-			boolean isAdded = channelContext.sendRunnable.addMsg(p);
-			if (isAdded) {
-				channelContext.groupContext.tioExecutor.execute(channelContext.sendRunnable);
+			if (channelContext.groupContext.useQueueSend) {
+				boolean isAdded = channelContext.sendRunnable.addMsg(p);
+				if (isAdded) {
+					channelContext.sendRunnable.execute();
+				}
+			} else {
+				channelContext.sendRunnable.sendPacket(p);
 			}
-		} else {
-			//应用数据的发送
 
-			//			if (obj instanceof PacketWithMeta) {
-			//				PacketWithMeta initPacketWithMeta = (PacketWithMeta)obj;
-			//				PacketWithMeta clonePacketWithMeta = initPacketWithMeta.clone();
-			//
-			//				p = clonePacketWithMeta.getPacket();
-			//				newObj = clonePacketWithMeta;
-			//			} else {
-			//				Packet initPacket = (Packet)obj;
-			//				p = initPacket.clone();
-			//				newObj = p;
-			//			}
 		}
 
 	}
@@ -78,18 +70,20 @@ public class SslListener implements ISSLListener {
 		if (sslFacadeContext.isHandshakeCompleted()) {
 			log.info("{}, 收到SSL解密后的数据，SSL握手已经完成，准备解码，{}, isSSLHandshakeCompleted {}", channelContext, plainBuffer, sslFacadeContext.isHandshakeCompleted());
 			//			plainBytes.flip();
-			channelContext.decodeRunnable.setNewByteBuffer(plainBuffer);
-			channelContext.decodeRunnable.run();
+			//			channelContext.decodeRunnable.setNewByteBuffer(plainBuffer);
+			//			channelContext.decodeRunnable.run();
+
+			if (channelContext.groupContext.useQueueDecode) {
+				ByteBuffer copiedByteBuffer = ByteBufferUtils.copy(plainBuffer);
+				channelContext.decodeRunnable.addMsg(copiedByteBuffer);
+				channelContext.decodeRunnable.execute();
+			} else {
+				channelContext.decodeRunnable.setNewByteBuffer(plainBuffer);
+				channelContext.decodeRunnable.decode();
+			}
 		} else {
 			log.info("{}, 收到SSL解密后的数据，但SSL握手还没完成，{}, isSSLHandshakeCompleted {}", channelContext, plainBuffer, sslFacadeContext.isHandshakeCompleted());
 		}
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-
 	}
 
 }

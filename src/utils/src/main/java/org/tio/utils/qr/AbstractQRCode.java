@@ -1,17 +1,18 @@
 package org.tio.utils.qr;
 
-import com.google.zxing.EncodeHintType;
-import com.google.zxing.Writer;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitMatrix;
-import org.tio.utils.qr.exception.QRGenerationException;
-import org.tio.utils.qr.image.ImageType;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
+
+import org.tio.utils.qr.exception.QRGenerationException;
+import org.tio.utils.qr.image.ImageType;
+
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.Writer;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
 
 /**
  * <p>QRCode generator. This is a simple class that is built on top of <a href="http://code.google.com/p/zxing/">ZXING</a></p>

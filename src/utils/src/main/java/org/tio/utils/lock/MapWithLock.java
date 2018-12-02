@@ -1,5 +1,6 @@
 package org.tio.utils.lock;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
@@ -15,6 +16,10 @@ import org.slf4j.LoggerFactory;
 public class MapWithLock<K, V> extends ObjWithLock<Map<K, V>> {
 	private static final long serialVersionUID = -652862323697152866L;
 	private static final Logger log = LoggerFactory.getLogger(MapWithLock.class);
+
+	public MapWithLock() {
+		this(new HashMap<>());
+	}
 
 	/**
 	 * @param cacheMap
@@ -171,6 +176,24 @@ public class MapWithLock<K, V> extends ObjWithLock<Map<K, V>> {
 		try {
 			Map<K, V> map = this.getObj();
 			return map.size();
+		} finally {
+			readLock.unlock();
+		}
+	}
+
+	/**
+	 * 
+	 * @return 如果没值，则返回null，否则返回一个新map
+	 * @author tanyaowu
+	 */
+	public Map<K, V> copy() {
+		ReadLock readLock = readLock();
+		readLock.lock();
+		try {
+			if (this.getObj().size() > 0) {
+				return new HashMap<>(getObj());
+			}
+			return null;
 		} finally {
 			readLock.unlock();
 		}

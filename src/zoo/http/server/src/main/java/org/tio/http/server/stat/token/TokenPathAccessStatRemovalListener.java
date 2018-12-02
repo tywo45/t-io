@@ -7,7 +7,6 @@ import org.tio.core.GroupContext;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.RemovalListener;
 
-
 /**
  * @author tanyaowu 
  * 2017年8月21日 下午1:32:32
@@ -30,25 +29,17 @@ public class TokenPathAccessStatRemovalListener implements RemovalListener {
 		this.tokenPathAccessStatListener = tokenPathAccessStatListener;
 	}
 
-	/**
-	 * @param args
-	 * @author: tanyaowu
-	 */
-	public static void main(String[] args) {
-
-	}
-
-//	@Override
-//	public void onRemoval(RemovalNotification notification) {
-//		String token = (String) notification.getKey();
-//		TokenAccessStat tokenAccessStat = (TokenAccessStat) notification.getValue();
-//
-//		if (tokenPathAccessStatListener != null) {
-//			tokenPathAccessStatListener.onExpired(groupContext, token, tokenAccessStat);
-//		}
-//
-//		//		log.info("token数据统计[{}]\r\n{}", token, Json.toFormatedJson(tokenAccesspathStat));
-//	}
+	//	@Override
+	//	public void onRemoval(RemovalNotification notification) {
+	//		String token = (String) notification.getKey();
+	//		TokenAccessStat tokenAccessStat = (TokenAccessStat) notification.getValue();
+	//
+	//		if (tokenPathAccessStatListener != null) {
+	//			tokenPathAccessStatListener.onExpired(groupContext, token, tokenAccessStat);
+	//		}
+	//
+	//		//		log.info("token数据统计[{}]\r\n{}", token, Json.toFormatedJson(tokenAccesspathStat));
+	//	}
 
 	@Override
 	public void onRemoval(Object key, Object value, RemovalCause cause) {
@@ -59,6 +50,5 @@ public class TokenPathAccessStatRemovalListener implements RemovalListener {
 			tokenPathAccessStatListener.onExpired(groupContext, token, tokenAccessStat);
 		}
 
-		
 	}
 }

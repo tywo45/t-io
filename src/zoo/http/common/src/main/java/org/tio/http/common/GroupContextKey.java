@@ -8,5 +8,8 @@ public interface GroupContextKey {
 	/**
 	 * 存放HttpConfig
 	 */
-	String HTTP_SERVER_CONFIG = "TIO_HTTP_SERVER_CONFIG";
+//	String HTTP_SERVER_CONFIG = "TIO_HTTP_SERVER_CONFIG";
+	
+	
+	String HTTP_REQ_HANDLER = "TIO_HTTP_REQ_HANDLER";
 }

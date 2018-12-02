@@ -168,19 +168,27 @@ public enum HttpResponseStatus {
 		return C505;
 	}
 
-	private int status;
+	public int status;
 
-	private String description;
+	public String description;
 
-	private String headerText;
+	public String headerText;
 
-	private byte[] headerBinary;
+	public byte[] headerBinary;
+	
+	public String responseLine;
+	
+	public byte[] responseLineBinary;
+	
+
 
 	private HttpResponseStatus(int status, String description, String headerText) {
 		this.status = status;
 		this.description = description;
 		this.headerText = headerText;
 		this.headerBinary = headerText.getBytes();
+		this.responseLine = "HTTP/1.1 " + headerText + "\r\n";
+		this.responseLineBinary = responseLine.getBytes();
 	}
 
 	public String getDescription() {
@@ -197,6 +205,20 @@ public enum HttpResponseStatus {
 
 	public int getStatus() {
 		return status;
+	}
+
+	/**
+	 * @return the responseLineBinary
+	 */
+	public byte[] getResponseLineBinary() {
+		return responseLineBinary;
+	}
+
+	/**
+	 * @param responseLineBinary the responseLineBinary to set
+	 */
+	public void setResponseLineBinary(byte[] responseLineBinary) {
+		this.responseLineBinary = responseLineBinary;
 	}
 
 }

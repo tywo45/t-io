@@ -1,24 +1,21 @@
 package org.tio.utils.zk;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.CuratorFrameworkFactory.Builder;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
-import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.apache.curator.retry.RetryForever;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.utils.json.Json;
-
-import cn.hutool.core.io.FileUtil;
+import org.tio.utils.hutool.StrUtil;
 
 /**
  * @author tanyaowu 
@@ -42,7 +39,7 @@ public class Zk {
 	//		String zkhost = "192.168.1.41:2181";//AppConfig.getInstance().getString("zk.address", null);//"192.168.1.41:2181";//ZK host
 	//		zkhost = AppConfig.getInstance().getString("zk.address", null);
 	//
-	//		if (StringUtils.isBlank(zkhost)) {
+	//		if (StrUtil.isBlank(zkhost)) {
 	//			log.error("请配置好zookeeper地址:{}", "zk.address");
 	//
 	//		}
@@ -62,81 +59,36 @@ public class Zk {
 	 * @param address
 	 * @param clientDecorator
 	 * @author tanyaowu
+	 * @throws Exception
 	 */
-	public static void init(String address, ClientDecorator clientDecorator) {
+	public static void init(String address, ClientDecorator clientDecorator) throws Exception {
 		//		String zkhost = "192.168.1.41:2181";//AppConfig.getInstance().getString("zk.address", null);//"192.168.1.41:2181";//ZK host
 		//		zkhost = AppConfig.getInstance().getString("zk.address", null);
 
-		if (StringUtils.isBlank(address)) {
+		if (StrUtil.isBlank(address)) {
 			log.error("zk address is null");
 			throw new RuntimeException("zk address is null");
 		}
 
-		RetryPolicy rp = new ExponentialBackoffRetry(500, Integer.MAX_VALUE);//Retry mechanism
-		Builder builder = CuratorFrameworkFactory.builder().connectString(address).connectionTimeoutMs(5000).sessionTimeoutMs(5000).retryPolicy(rp);
+//		RetryPolicy rp = new ExponentialBackoffRetry(500, Integer.MAX_VALUE);//Retry mechanism
+		RetryPolicy rp = new RetryForever(500);
+		Builder builder = CuratorFrameworkFactory.builder().connectString(address).connectionTimeoutMs(15 * 1000).sessionTimeoutMs(60 * 1000).retryPolicy(rp);
 		//				builder.namespace(nameSpace);
 		zkclient = builder.build();
-		
+
 		if (clientDecorator != null) {
 			clientDecorator.decorate(zkclient);
 		}
 
-//		zkclient.start();
+		//		zkclient.start();
 	}
-	
+
 	/**
 	 * Start the client. Most mutator methods will not work until the client is started
 	 * @author tanyaowu
 	 */
 	public static void start() {
 		Zk.zkclient.start();
-	}
-
-	public static void main(String[] args) throws Exception {
-		String path = "/192.168.0.0";
-		String s = Zk.createOrUpdate(path, (byte[]) null, CreateMode.PERSISTENT);
-		System.out.println(s);
-		s = Zk.createOrUpdate(path, "hello1", CreateMode.EPHEMERAL);
-		System.out.println(s);
-
-		addPathChildrenCacheListener(path, new PathChildrenCacheListener() {
-
-			@Override
-			public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
-				switch (event.getType()) {
-				case CHILD_ADDED: {
-					log.error("Node added: path:" + event.getData().getPath() + ", data:" + new String(event.getData().getData()));
-					break;
-				}
-
-				case CHILD_UPDATED: {
-					log.error("Node changed: path:" + event.getData().getPath() + ", data:" + new String(event.getData().getData()));
-					break;
-				}
-
-				case CHILD_REMOVED: {
-					log.error("Node removed: path:" + event.getData().getPath() + ", data:" + new String(event.getData().getData()));
-					break;
-				}
-				
-				default:{
-					log.error("not found correct event type");
-					break;
-				}
-				}
-			}
-		});
-
-		byte[] b = Zk.getBytes(path);
-		if (b != null) {
-			System.out.println(new String(b, CHARSET));
-		}
-
-		Zk.createOrUpdate(path + "/children", "children-data", CreateMode.EPHEMERAL);
-		List<String> children = Zk.getChildren(path);
-		System.out.println("children:" + Json.toJson(children));
-
-		Zk.delete(path);
 	}
 
 	/**
@@ -271,7 +223,7 @@ public class Zk {
 	 * @创建时间:　2013年8月3日 上午11:05:06
 	 */
 	public static void upload(String path, String localpath, CreateMode createMode) throws Exception {
-		byte[] bs = FileUtil.readBytes(new File(localpath));
+		byte[] bs = Files.readAllBytes(new File(localpath).toPath());
 		setData(path, bs);
 	}
 
@@ -302,28 +254,28 @@ public class Zk {
 	 * @创建时间:　2013年8月3日 上午11:10:38
 	 */
 	public static void setData(String path, String content) throws Exception {
-		if (!StringUtils.isBlank(content)) {
+		if (false == StrUtil.isBlank(content)) {
 			setData(path, content.getBytes(CHARSET));
 		}
 	}
 
-//	/**
-//	 * 暂未实现
-//	 * @param path
-//	 * @param content
-//	 * @throws Exception
-//	 *
-//	 * @author: tanyaowu
-//	 * @创建时间:　2016年12月13日 下午4:00:26
-//	 *
-//	 */
-//	@Deprecated
-//	public static void addListener(String path, String content) throws Exception {
-//
-//		zkclient.get.getCuratorListenable().addListener(listener);
-//		//		zkclient.getCuratorListenable().addListener(listener);;
-//
-//	}
+	//	/**
+	//	 * 暂未实现
+	//	 * @param path
+	//	 * @param content
+	//	 * @throws Exception
+	//	 *
+	//	 * @author: tanyaowu
+	//	 * @创建时间:　2016年12月13日 下午4:00:26
+	//	 *
+	//	 */
+	//	@Deprecated
+	//	public static void addListener(String path, String content) throws Exception {
+	//
+	//		zkclient.get.getCuratorListenable().addListener(listener);
+	//		//		zkclient.getCuratorListenable().addListener(listener);;
+	//
+	//	}
 
 	/**
 	 * 

@@ -14,7 +14,8 @@ public interface ModelGenerator {
 	 * @param request
 	 * @return
 	 * @author tanyaowu
+	 * @throws Exception 
 	 */
-	Object generate(HttpRequest request);
+	Object generate(HttpRequest request) throws Exception;
 
 }

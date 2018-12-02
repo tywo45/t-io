@@ -6,12 +6,6 @@ package org.tio.http.common;
  * 2017年7月26日 下午3:12:56
  */
 public class UploadFile {
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-
-	}
 
 	private String name = null;
 	private int size = -1;

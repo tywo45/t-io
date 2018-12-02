@@ -29,6 +29,14 @@ public class ClientChannelContext extends ChannelContext {
 	public ClientChannelContext(GroupContext groupContext, AsynchronousSocketChannel asynchronousSocketChannel) {
 		super(groupContext, asynchronousSocketChannel);
 	}
+	
+	/**
+	 * 创建一个虚拟ChannelContext，主要用来模拟一些操作，真实场景中用得少
+	 * @param groupContext
+	 */
+	public ClientChannelContext(GroupContext groupContext) {
+		super(groupContext);
+	}
 
 	/**
 	 * @see org.tio.core.ChannelContext#createClientNode(java.nio.channels.AsynchronousSocketChannel)

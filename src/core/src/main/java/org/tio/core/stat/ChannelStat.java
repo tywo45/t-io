@@ -19,27 +19,27 @@ public class ChannelStat implements java.io.Serializable {
 	/**
 	 * 最近一次收到业务消息包的时间(一个完整的业务消息包，一部分消息不算)
 	 */
-	public long latestTimeOfReceivedPacket = SystemTimer.currentTimeMillis();
+	public long latestTimeOfReceivedPacket = SystemTimer.currTime;
 
 	/**
 	 * 最近一次发送业务消息包的时间(一个完整的业务消息包，一部分消息不算)
 	 */
-	public long latestTimeOfSentPacket = SystemTimer.currentTimeMillis();
+	public long latestTimeOfSentPacket = SystemTimer.currTime;
 	
 	/**
 	 * 最近一次收到业务消息包的时间:收到字节就算
 	 */
-	public long latestTimeOfReceivedByte = SystemTimer.currentTimeMillis();
+	public long latestTimeOfReceivedByte = SystemTimer.currTime;
 
 	/**
 	 * 最近一次发送业务消息包的时间：发送字节就算
 	 */
-	public long latestTimeOfSentByte = SystemTimer.currentTimeMillis();
+	public long latestTimeOfSentByte = SystemTimer.currTime;
 
 	/**
 	 * ChannelContext对象创建的时间
 	 */
-	public long timeCreated = SystemTimer.currentTimeMillis();
+	public long timeCreated = System.currentTimeMillis();
 
 	/**
 	 * 第一次连接成功的时间
@@ -49,12 +49,12 @@ public class ChannelStat implements java.io.Serializable {
 	/**
 	 * 连接关闭的时间
 	 */
-	public long timeClosed = SystemTimer.currentTimeMillis();
+	public long timeClosed = SystemTimer.currTime;
 
 	/**
 	 * 进入重连队列时间
 	 */
-	public long timeInReconnQueue = SystemTimer.currentTimeMillis();
+	public long timeInReconnQueue = SystemTimer.currTime;
 
 	/**
 	 * 本连接已发送的字节数

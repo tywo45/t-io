@@ -6,11 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.utils.cache.ICache;
+import org.tio.utils.cache.AbsCache;
 import org.tio.utils.guava.GuavaUtils;
+import org.tio.utils.hutool.StrUtil;
 
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
@@ -20,7 +20,7 @@ import com.google.common.cache.RemovalListener;
  * @author tanyaowu
  * 2017年8月5日 上午10:16:26
  */
-public class GuavaCache implements ICache {
+public class GuavaCache extends AbsCache {
 	private static Logger log = LoggerFactory.getLogger(GuavaCache.class);
 
 	public static Map<String, GuavaCache> map = new HashMap<>();
@@ -62,7 +62,11 @@ public class GuavaCache implements ICache {
 					Integer temporaryMaximumSize = 500000;
 					LoadingCache<String, Serializable> temporaryLoadingCache = GuavaUtils.createLoadingCache(concurrencyLevel, 10L, (Long)null, initialCapacity,
 							temporaryMaximumSize, recordStats, removalListener);
-					guavaCache = new GuavaCache(loadingCache, temporaryLoadingCache);
+					guavaCache = new GuavaCache(cacheName, loadingCache, temporaryLoadingCache);
+					
+					guavaCache.setTimeToIdleSeconds(timeToIdleSeconds);
+					guavaCache.setTimeToLiveSeconds(timeToLiveSeconds);
+					
 					map.put(cacheName, guavaCache);
 				}
 			}
@@ -76,7 +80,8 @@ public class GuavaCache implements ICache {
 	
 	private LoadingCache<String, Serializable> temporaryLoadingCache = null;
 
-	private GuavaCache(LoadingCache<String, Serializable> loadingCache, LoadingCache<String, Serializable> temporaryLoadingCache) {
+	private GuavaCache(String cacheName, LoadingCache<String, Serializable> loadingCache, LoadingCache<String, Serializable> temporaryLoadingCache) {
+		super(cacheName);
 		this.loadingCache = loadingCache;
 		this.temporaryLoadingCache = temporaryLoadingCache;
 	}
@@ -89,7 +94,7 @@ public class GuavaCache implements ICache {
 
 	@Override
 	public Serializable get(String key) {
-		if (StringUtils.isBlank(key)) {
+		if (StrUtil.isBlank(key)) {
 			return null;
 		}
 		Serializable ret = loadingCache.getIfPresent(key);
@@ -108,7 +113,7 @@ public class GuavaCache implements ICache {
 
 	@Override
 	public void put(String key, Serializable value) {
-		if (StringUtils.isBlank(key)) {
+		if (StrUtil.isBlank(key)) {
 			return;
 		}
 		loadingCache.put(key, value);
@@ -116,7 +121,7 @@ public class GuavaCache implements ICache {
 	
 	@Override
 	public void putTemporary(String key, Serializable value) {
-		if (StringUtils.isBlank(key)) {
+		if (StrUtil.isBlank(key)) {
 			return;
 		}
 		temporaryLoadingCache.put(key, value);
@@ -124,7 +129,7 @@ public class GuavaCache implements ICache {
 
 	@Override
 	public void remove(String key) {
-		if (StringUtils.isBlank(key)) {
+		if (StrUtil.isBlank(key)) {
 			return;
 		}
 		loadingCache.invalidate(key);

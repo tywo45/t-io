@@ -19,17 +19,13 @@ public class DefaultRemovalListener<K, V> implements RemovalListener<K, V> {
 	private static Logger log = LoggerFactory.getLogger(DefaultRemovalListener.class);
 
 	private String cacheName = null;
+
 	/**
 	 * 
 	 */
 	public DefaultRemovalListener(String cacheName) {
 		this.cacheName = cacheName;
 	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {}
 
 	@Override
 	public void onRemoval(K key, V value, RemovalCause cause) {

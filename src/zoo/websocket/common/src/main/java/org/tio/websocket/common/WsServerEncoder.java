@@ -35,11 +35,16 @@ public class WsServerEncoder {
 	}
 
 	public static ByteBuffer encode(WsResponse wsResponse, GroupContext groupContext, ChannelContext channelContext) {
-		byte[] imBody = wsResponse.getBody();//就是ws的body，不包括ws的头
+		byte[] wsBody = wsResponse.getBody();//就是ws的body，不包括ws的头
+		byte[][] wsBodies = wsResponse.getBodys();
 		int wsBodyLength = 0;
-
-		if (imBody != null) {
-			wsBodyLength += imBody.length;
+		if (wsBody != null) {
+			wsBodyLength += wsBody.length;
+		} else if (wsBodies != null){
+			for (int i = 0; i < wsBodies.length; i++) {
+				byte[] bs = wsBodies[i];
+				wsBodyLength += bs.length;
+			}
 		}
 
 		byte header0 = (byte) (0x8f & (wsResponse.getWsOpcode().getCode() | 0xf0));
@@ -57,12 +62,20 @@ public class WsServerEncoder {
 			buf = ByteBuffer.allocate(10 + wsBodyLength);
 			buf.put(header0);
 			buf.put((byte) 127);
-			buf.put(new byte[] { 0, 0, 0, 0 });
+			
+//			buf.put(new byte[] { 0, 0, 0, 0 });
+			buf.position(buf.position() + 4);
+			
 			ByteBufferUtils.writeUB4WithBigEdian(buf, wsBodyLength);
 		}
 
-		if (imBody != null && imBody.length > 0) {
-			buf.put(imBody);
+		if (wsBody != null && wsBody.length > 0) {
+			buf.put(wsBody);
+		} else if (wsBodies != null) {
+			for (int i = 0; i < wsBodies.length; i++) {
+				byte[] bs = wsBodies[i];
+				buf.put(bs);
+			}
 		}
 
 		return buf;

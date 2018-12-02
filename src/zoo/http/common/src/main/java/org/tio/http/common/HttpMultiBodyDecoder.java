@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
@@ -16,6 +15,7 @@ import org.tio.core.exception.LengthOverflowException;
 import org.tio.core.utils.ByteBufferUtils;
 import org.tio.http.common.utils.HttpParseUtils;
 import org.tio.utils.SystemTimer;
+import org.tio.utils.hutool.StrUtil;
 
 /**
  * @author tanyaowu
@@ -116,12 +116,13 @@ public class HttpMultiBodyDecoder {
 	 * @throws AioDecodeException
 	 * @author tanyaowu
 	 */
-	public static void decode(HttpRequest request, RequestLine firstLine, byte[] bodyBytes, String initboundary, ChannelContext channelContext, HttpConfig httpConfig) throws AioDecodeException {
-		if (StringUtils.isBlank(initboundary)) {
+	public static void decode(HttpRequest request, RequestLine firstLine, byte[] bodyBytes, String initboundary, ChannelContext channelContext, HttpConfig httpConfig)
+			throws AioDecodeException {
+		if (StrUtil.isBlank(initboundary)) {
 			throw new AioDecodeException("boundary is null");
 		}
 
-		long start = SystemTimer.currentTimeMillis();
+		long start = SystemTimer.currTime;
 
 		ByteBuffer buffer = ByteBuffer.wrap(bodyBytes);
 		buffer.position(0);
@@ -179,7 +180,7 @@ public class HttpMultiBodyDecoder {
 		} catch (UnsupportedEncodingException e) {
 			log.error(channelContext.toString(), e);
 		} finally {
-			long end = SystemTimer.currentTimeMillis();
+			long end = SystemTimer.currTime;
 			long iv = end - start;
 			log.info("解析耗时:{}ms", iv);
 		}
@@ -216,21 +217,6 @@ public class HttpMultiBodyDecoder {
 	//		}
 	//		return null;
 	//	}
-
-	/**
-	 * @param args
-	 * @throws UnsupportedEncodingException
-	 * @throws LengthOverflowException 
-	 */
-	public static void main(String[] args) throws UnsupportedEncodingException, LengthOverflowException {
-		String testString = "hello\r\nddd\r\n";
-		ByteBuffer buffer = ByteBuffer.wrap(testString.getBytes());
-
-		String xString = ByteBufferUtils.readLine(buffer, "utf-8");
-		System.out.println(xString);
-		xString = ByteBufferUtils.readLine(buffer, "utf-8");
-		System.out.println(xString);
-	}
 
 	/**
 	 * 
@@ -304,14 +290,14 @@ public class HttpMultiBodyDecoder {
 
 		try {
 			for (String line : lines) {
-				String[] keyvalue = StringUtils.split(line, ":");
-				String key = StringUtils.lowerCase(StringUtils.trim(keyvalue[0]));//
-				String value = StringUtils.trim(keyvalue[1]);
+				String[] keyvalue = line.split(":");
+				String key = StrUtil.trim(keyvalue[0]).toLowerCase();//
+				String value = StrUtil.trim(keyvalue[1]);
 				header.map.put(key, value);
 			}
 
 			String contentDisposition = header.map.get(MultiBodyHeaderKey.Content_Disposition);
-			String name = HttpParseUtils.getSubAttribute(contentDisposition, "name");//.getPerprotyEqualValue(header.map, MultiBodyHeaderKey.Content_Disposition, "name");
+			String name = HttpParseUtils.getSubAttribute(contentDisposition, "name");//.getPerprotyEqualValue(header.map, MultiBodyHeaderKey.Content_Disposition, "value");
 			String filename = HttpParseUtils.getSubAttribute(contentDisposition, "filename");//HttpParseUtils.getPerprotyEqualValue(header.map, MultiBodyHeaderKey.Content_Disposition, "filename");
 			String contentType = header.map.get(MultiBodyHeaderKey.Content_Type);//.HttpParseUtils.getPerprotyEqualValue(header.map, MultiBodyHeaderKey.Content_Type, "filename");
 
@@ -328,19 +314,19 @@ public class HttpMultiBodyDecoder {
 		//		for (int i = 0; i < lines.size(); i++) {
 		//			String line = lines.get(i);
 		//			if (i == 0) {
-		//				String[] mapStrings = StringUtils.split(line, ";");
+		//				String[] mapStrings = StrUtil.split(line, ";");
 		//				String s = mapStrings[0];//
 		//
-		//				String[] namekeyvalue = StringUtils.split(mapStrings[1], "=");
+		//				String[] namekeyvalue = StrUtil.split(mapStrings[1], "=");
 		//				header.setName(namekeyvalue[1].substring(1, namekeyvalue[1].length() - 1));
 		//
 		//				if (mapStrings.length == 3) {
-		//					String[] finenamekeyvalue = StringUtils.split(mapStrings[2], "=");
+		//					String[] finenamekeyvalue = StrUtil.split(mapStrings[2], "=");
 		//					String filename = finenamekeyvalue[1].substring(1, finenamekeyvalue[1].length() - 1);
 		//					header.setFilename(FilenameUtils.getName(filename));
 		//				}
 		//			} else if (i == 1) {
-		//				String[] map = StringUtils.split(line, ":");
+		//				String[] map = StrUtil.split(line, ":");
 		//				String contentType = map[1].trim();//
 		//				header.setContentType(contentType);
 		//			}

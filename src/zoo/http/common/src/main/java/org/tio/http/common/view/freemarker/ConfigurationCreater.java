@@ -3,7 +3,6 @@
  */
 package org.tio.http.common.view.freemarker;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.tio.http.common.HttpConfig;
@@ -22,6 +21,6 @@ public interface ConfigurationCreater {
 	 * @return
 	 * @throws IOException
 	 */
-	public Configuration createConfiguration(HttpConfig httpConfig, File root) throws IOException;
+	public Configuration createConfiguration(HttpConfig httpConfig, String root) throws IOException;
 
 }

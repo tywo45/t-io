@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
 
 import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.EvaluatorException;
@@ -21,8 +22,6 @@ import org.slf4j.LoggerFactory;
 import org.tio.webpack.compress.ResCompressor;
 
 import com.yahoo.platform.yui.compressor.JavaScriptCompressor;
-
-import jodd.io.FileUtil;
 
 /**
  * @author tanyaowu
@@ -39,7 +38,10 @@ public class YuiJsCompressor implements ResCompressor {
 	 */
 	public static void main(String[] args) throws IOException {
 		File initFile = new File("D:\\svn_nb\\nbyb\\html\\nbyb\\web_server\\src\\res\\js\\live\\live-all.txt");
-		String content = FileUtil.readString(initFile, "utf-8");
+		byte[] bytes = Files.readAllBytes(initFile.toPath());
+		String content = new String(bytes, "utf-8");
+//		String content = cn.hutool.core.io.FileUtil.readString(initFile, "utf-8");
+		
 		String xx = YuiJsCompressor.ME.compress(initFile.getAbsolutePath(), content);
 		System.out.println(xx);
 	}

@@ -1,17 +1,19 @@
 package org.tio.websocket.server;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.core.Tio;
 import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
+import org.tio.core.Tio;
 import org.tio.core.exception.AioDecodeException;
 import org.tio.core.intf.Packet;
+import org.tio.http.common.HeaderName;
+import org.tio.http.common.HeaderValue;
 import org.tio.http.common.HttpConst;
 import org.tio.http.common.HttpRequest;
 import org.tio.http.common.HttpRequestDecoder;
@@ -19,6 +21,7 @@ import org.tio.http.common.HttpResponse;
 import org.tio.http.common.HttpResponseEncoder;
 import org.tio.http.common.HttpResponseStatus;
 import org.tio.server.intf.ServerAioHandler;
+import org.tio.utils.hutool.StrUtil;
 import org.tio.websocket.common.Opcode;
 import org.tio.websocket.common.WsRequest;
 import org.tio.websocket.common.WsResponse;
@@ -36,13 +39,6 @@ import org.tio.websocket.server.handler.IWsMsgHandler;
  */
 public class WsServerAioHandler implements ServerAioHandler {
 	private static Logger log = LoggerFactory.getLogger(WsServerAioHandler.class);
-
-	/**
-	 * 
-	 * @param args
-	 */
-	public static void main(String[] args) {
-	}
 
 	private WsServerConfig wsServerConfig;
 
@@ -97,7 +93,12 @@ public class WsServerAioHandler implements ServerAioHandler {
 		if (wsResponse.isHandShake()) {
 			WsSessionContext imSessionContext = (WsSessionContext) channelContext.getAttribute();
 			HttpResponse handshakeResponsePacket = imSessionContext.getHandshakeResponsePacket();
-			return HttpResponseEncoder.encode(handshakeResponsePacket, groupContext, channelContext);
+			try {
+				return HttpResponseEncoder.encode(handshakeResponsePacket, groupContext, channelContext);
+			} catch (UnsupportedEncodingException e) {
+				log.error(e.toString(), e);
+				return null;
+			}
 		}
 
 		ByteBuffer byteBuffer = WsServerEncoder.encode(wsResponse, groupContext, channelContext);
@@ -166,7 +167,7 @@ public class WsServerAioHandler implements ServerAioHandler {
 			wsResponse.setHandShake(true);
 			Tio.send(channelContext, wsResponse);
 			wsSessionContext.setHandshaked(true);
-			
+
 			wsMsgHandler.onAfterHandshaked(request, httpResponse, channelContext);
 			return;
 		}
@@ -225,7 +226,7 @@ public class WsServerAioHandler implements ServerAioHandler {
 
 		String Sec_WebSocket_Key = headers.get(HttpConst.RequestHeaderKey.Sec_WebSocket_Key);
 
-		if (StringUtils.isNotBlank(Sec_WebSocket_Key)) {
+		if (StrUtil.isNotBlank(Sec_WebSocket_Key)) {
 			String Sec_WebSocket_Key_Magic = Sec_WebSocket_Key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 			byte[] key_array = SHA1Util.SHA1(Sec_WebSocket_Key_Magic);
 			String acceptKey = BASE64Util.byteArrayToBase64(key_array);
@@ -233,11 +234,11 @@ public class WsServerAioHandler implements ServerAioHandler {
 
 			httpResponse.setStatus(HttpResponseStatus.C101);
 
-			Map<String, String> respHeaders = new HashMap<>();
-			respHeaders.put(HttpConst.ResponseHeaderKey.Connection, HttpConst.ResponseHeaderValue.Connection.Upgrade);
-			respHeaders.put(HttpConst.ResponseHeaderKey.Upgrade, "WebSocket");
-			respHeaders.put(HttpConst.ResponseHeaderKey.Sec_WebSocket_Accept, acceptKey);
-			httpResponse.setHeaders(respHeaders);
+			Map<HeaderName, HeaderValue> respHeaders = new HashMap<>();
+			respHeaders.put(HeaderName.Connection, HeaderValue.Connection.Upgrade);
+			respHeaders.put(HeaderName.Upgrade, HeaderValue.Upgrade.WebSocket);
+			respHeaders.put(HeaderName.Sec_WebSocket_Accept, HeaderValue.from(acceptKey));
+			httpResponse.addHeaders(respHeaders);
 			return httpResponse;
 		}
 		return null;

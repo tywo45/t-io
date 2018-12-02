@@ -1,12 +1,12 @@
 package org.tio.http.common.session.id.impl;
 
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.http.common.HttpConfig;
 import org.tio.http.common.HttpRequest;
 import org.tio.http.common.session.id.ISessionIdGenerator;
-
-import cn.hutool.core.util.RandomUtil;
 
 /**
  * @author tanyaowu
@@ -17,17 +17,6 @@ public class UUIDSessionIdGenerator implements ISessionIdGenerator {
 	private static Logger log = LoggerFactory.getLogger(UUIDSessionIdGenerator.class);
 
 	public final static UUIDSessionIdGenerator instance = new UUIDSessionIdGenerator();
-
-	/**
-	 * @param args
-	 * @author tanyaowu
-	 */
-	public static void main(String[] args) {
-		UUIDSessionIdGenerator uuidSessionIdGenerator = new UUIDSessionIdGenerator();
-		String xx = uuidSessionIdGenerator.sessionId(null, null);
-		System.out.println(xx);
-
-	}
 
 	/**
 	 *
@@ -42,6 +31,6 @@ public class UUIDSessionIdGenerator implements ISessionIdGenerator {
 	 */
 	@Override
 	public String sessionId(HttpConfig httpConfig, HttpRequest request) {
-		return RandomUtil.randomUUID().replace("-", "");
+		return UUID.randomUUID().toString().replace("-", "");
 	}
 }

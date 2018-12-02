@@ -5,14 +5,13 @@
 	<packaging>pom</packaging>
 	<name>${project.artifactId}</name>
 	<url>http://maven.apache.org</url>
-	<version>3.0.6.v20180626-RELEASE</version>
 
 	<description>tio-http's parent</description>
 	
 	<parent>
 		<groupId>org.t-io</groupId>
 		<artifactId>tio-zoo-parent</artifactId>
-		<version>3.0.6.v20180626-RELEASE</version>
+		<version>3.2.2.v20181122-RELEASE</version>
 		<relativePath>../../parent/pom.xml</relativePath>
 	</parent>
 

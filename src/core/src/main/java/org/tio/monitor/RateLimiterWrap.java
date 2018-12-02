@@ -7,19 +7,15 @@ import org.tio.utils.SystemTimer;
 import com.google.common.util.concurrent.RateLimiter;
 
 /**
+ * 需要用本类的，需要自己引入
+ * <dependency>
+	<groupId>com.google.guava</groupId>
+	<artifactId>guava</artifactId>
+	</dependency>
  * @author tanyaowu
  * 2017年5月23日 下午1:09:55
  */
 public class RateLimiterWrap {
-	//	private static Logger log = LoggerFactory.getLogger(RateLimiterWrap.class);
-
-	/**
-	 * @param args
-	 * @author tanyaowu
-	 */
-	public static void main(String[] args) {
-
-	}
 
 	/**
 	 * 频率控制
@@ -49,7 +45,7 @@ public class RateLimiterWrap {
 	/**
 	 * 上一次警告时间
 	 */
-	private long lastWarnTime = SystemTimer.currentTimeMillis();
+	private long lastWarnTime = SystemTimer.currTime;
 
 	/**
 	 * 警告清零时间间隔，即如果有这么长时间没有收到警告，则把前面的警告次数清零
@@ -180,11 +176,11 @@ public class RateLimiterWrap {
 		boolean ret = rateLimiter.tryAcquire();
 		if (!ret) {
 			synchronized (this) {
-				long nowTime = SystemTimer.currentTimeMillis();
+				long nowTime = SystemTimer.currTime;
 				if (nowTime - lastWarnTime > warnClearInterval) {
 					warnCount.set(0);
 				}
-				lastWarnTime = SystemTimer.currentTimeMillis();
+				lastWarnTime = SystemTimer.currTime;
 				int wc = warnCount.incrementAndGet();
 				int awc = allWarnCount.incrementAndGet();
 

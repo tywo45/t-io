@@ -9,11 +9,9 @@ import java.nio.channels.CompletionHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.core.ChannelAction;
 import org.tio.core.ReadCompletionHandler;
 import org.tio.core.ssl.SslUtils;
 import org.tio.core.stat.IpStat;
-import org.tio.server.intf.ServerAioListener;
 import org.tio.utils.SystemTimer;
 
 /**
@@ -56,7 +54,10 @@ public class AcceptCompletionHandler implements CompletionHandler<AsynchronousSo
 				return;
 			}
 
-			((ServerGroupStat)serverGroupContext.groupStat).accepted.incrementAndGet();
+			if (serverGroupContext.statOn) {
+				((ServerGroupStat)serverGroupContext.groupStat).accepted.incrementAndGet();
+			}
+			
 			
 			
 //			channelContext.getIpStat().getActivatedCount().incrementAndGet();
@@ -71,30 +72,32 @@ public class AcceptCompletionHandler implements CompletionHandler<AsynchronousSo
 //			IpStat.getActivatedCount(clientIp, true).incrementAndGet();
 
 			asynchronousSocketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-			asynchronousSocketChannel.setOption(StandardSocketOptions.SO_RCVBUF, 32 * 1024);
-			asynchronousSocketChannel.setOption(StandardSocketOptions.SO_SNDBUF, 32 * 1024);
+			asynchronousSocketChannel.setOption(StandardSocketOptions.SO_RCVBUF, 64 * 1024);
+			asynchronousSocketChannel.setOption(StandardSocketOptions.SO_SNDBUF, 64 * 1024);
 			asynchronousSocketChannel.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 
 			ServerChannelContext channelContext = new ServerChannelContext(serverGroupContext, asynchronousSocketChannel);
 			channelContext.setClosed(false);
-			channelContext.stat.setTimeFirstConnected(SystemTimer.currentTimeMillis());
+			channelContext.stat.setTimeFirstConnected(SystemTimer.currTime);
 			channelContext.setServerNode(tioServer.getServerNode());
 			
-			channelContext.traceClient(ChannelAction.CONNECT, null, null);
+//			channelContext.traceClient(ChannelAction.CONNECT, null, null);
 			
 //			serverGroupContext.connecteds.add(channelContext);
 			serverGroupContext.ips.bind(channelContext);
 			
 			boolean isConnected = true;
 			boolean isReconnect = false;
-			ServerAioListener serverAioListener = serverGroupContext.getServerAioListener();
-			if (!SslUtils.isSsl(channelContext)) {
-				try {
-					serverAioListener.onAfterConnected(channelContext, isConnected, isReconnect);
-				} catch (Throwable e) {
-					log.error(e.toString(), e);
+			if (serverGroupContext.getServerAioListener() != null) {
+				if (!SslUtils.isSsl(channelContext.groupContext)) {
+					try {
+						serverGroupContext.getServerAioListener().onAfterConnected(channelContext, isConnected, isReconnect);
+					} catch (Throwable e) {
+						log.error(e.toString(), e);
+					}
 				}
 			}
+			
 			
 			if (serverGroupContext.ipStats.durationList != null && serverGroupContext.ipStats.durationList.size() > 0) {
 				try {				

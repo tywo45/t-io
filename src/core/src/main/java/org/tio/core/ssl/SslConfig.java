@@ -11,9 +11,8 @@ import java.security.KeyStore;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
 
-import org.apache.commons.lang3.StringUtils;
-
-import cn.hutool.core.io.FileUtil;
+import org.tio.utils.hutool.ResourceUtil;
+import org.tio.utils.hutool.StrUtil;
 
 /**
  * @author tanyaowu
@@ -21,8 +20,8 @@ import cn.hutool.core.io.FileUtil;
  */
 public class SslConfig {
 
-	private InputStream keyStoreInputStream = null;//"D:/tool/tio-ca/214323428310224.jks";
-	private InputStream trustStoreInputStream = null;//"D:/tool/tio-ca/214323428310224.jks";
+	private InputStream keyStoreInputStream = null;
+	private InputStream trustStoreInputStream = null;
 	private String passwd = null;
 
 	private KeyManagerFactory keyManagerFactory;
@@ -53,16 +52,14 @@ public class SslConfig {
 	public static SslConfig forServer(String keyStoreFile, String trustStoreFile, String passwd) throws Exception {
 		InputStream keyStoreInputStream = null;
 		InputStream trustStoreInputStream = null;
-		if (StringUtils.startsWithIgnoreCase(keyStoreFile, "classpath:")) {
-			String keyStoreFilePath = FileUtil.getAbsolutePath(keyStoreFile);
-			keyStoreInputStream = new FileInputStream(keyStoreFilePath);
+		if (StrUtil.startWithIgnoreCase(keyStoreFile, "classpath:")) {
+			keyStoreInputStream = ResourceUtil.getResourceAsStream(keyStoreFile);
 		} else {
 			keyStoreInputStream = new FileInputStream(keyStoreFile);
 		}
 
-		if (StringUtils.startsWithIgnoreCase(trustStoreFile, "classpath:")) {
-			String trustStoreFilePath = FileUtil.getAbsolutePath(trustStoreFile);
-			trustStoreInputStream = new FileInputStream(trustStoreFilePath);
+		if (StrUtil.startWithIgnoreCase(trustStoreFile, "classpath:")) {
+			trustStoreInputStream = ResourceUtil.getResourceAsStream(trustStoreFile);
 		} else {
 			trustStoreInputStream = new FileInputStream(trustStoreFile);
 		}
@@ -110,7 +107,7 @@ public class SslConfig {
 			keyStore = KeyStore.getInstance("JKS");
 			keyStore.load(keyStoreInputStream, passChars);
 		}
-		
+
 		if (trustStoreInputStream != null) {
 			trustStore = KeyStore.getInstance("JKS");
 			trustStore.load(trustStoreInputStream, passChars);
@@ -121,8 +118,8 @@ public class SslConfig {
 
 		trustManagerFactory = TrustManagerFactory.getInstance("SunX509");
 		trustManagerFactory.init(trustStore);
-		
-//		System.setProperty("javax.net.debug", "all");
+
+		//		System.setProperty("javax.net.debug", "all");
 	}
 
 	public KeyManagerFactory getKeyManagerFactory() {
@@ -139,13 +136,6 @@ public class SslConfig {
 
 	public void setTrustManagerFactory(TrustManagerFactory trustManagerFactory) {
 		this.trustManagerFactory = trustManagerFactory;
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-
 	}
 
 }

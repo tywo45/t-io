@@ -13,7 +13,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.client.intf.ClientAioHandler;
@@ -24,6 +23,7 @@ import org.tio.core.intf.Packet;
 import org.tio.core.ssl.SslFacadeContext;
 import org.tio.core.stat.ChannelStat;
 import org.tio.utils.SystemTimer;
+import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.lock.SetWithLock;
 
 /**
@@ -61,13 +61,13 @@ public class TioClient {
 			WriteLock writeLock = closeLock.writeLock();
 			writeLock.lock();
 			try {
-				if (!channelContext.isClosed()) //已经连上了，不需要再重连了
+				if (!channelContext.isClosed) //已经连上了，不需要再重连了
 				{
 					return;
 				}
-				long start = SystemTimer.currentTimeMillis();
+				long start = SystemTimer.currTime;
 				tioClient.reconnect(channelContext, 2);
-				long end = SystemTimer.currentTimeMillis();
+				long end = SystemTimer.currTime;
 				long iv = end - start;
 				if (iv >= 100) {
 					log.error("{},重连耗时:{} ms", channelContext, iv);
@@ -75,9 +75,9 @@ public class TioClient {
 					log.info("{},重连耗时:{} ms", channelContext, iv);
 				}
 
-				if (channelContext.isClosed()) {
+				if (channelContext.isClosed) {
 					channelContext.setReconnCount(channelContext.getReconnCount() + 1);
-					//					cacheMap.put(channelContext.getServerNode(), SystemTimer.currentTimeMillis());
+					//					cacheMap.put(channelContext.getServerNode(), SystemTimer.currTime);
 					return;
 				}
 			} catch (java.lang.Throwable e) {
@@ -215,9 +215,9 @@ public class TioClient {
 		boolean isReconnect = initClientChannelContext != null;
 		//		ClientAioListener clientAioListener = clientGroupContext.getClientAioListener();
 
-		long start = SystemTimer.currentTimeMillis();
+		long start = SystemTimer.currTime;
 		asynchronousSocketChannel = AsynchronousSocketChannel.open(channelGroup);
-		long end = SystemTimer.currentTimeMillis();
+		long end = SystemTimer.currTime;
 		long iv = end - start;
 		if (iv >= 100) {
 			log.error("{}, open 耗时:{} ms", channelContext, iv);
@@ -229,7 +229,7 @@ public class TioClient {
 
 		InetSocketAddress bind = null;
 		if (bindPort != null && bindPort > 0) {
-			if (StringUtils.isNotBlank(bindIp)) {
+			if (false == StrUtil.isBlank(bindIp)) {
 				bind = new InetSocketAddress(bindIp, bindPort);
 			} else {
 				bind = new InetSocketAddress(bindPort);
@@ -242,7 +242,7 @@ public class TioClient {
 
 		channelContext = initClientChannelContext;
 
-		start = SystemTimer.currentTimeMillis();
+		start = SystemTimer.currTime;
 
 		InetSocketAddress inetSocketAddress = new InetSocketAddress(serverNode.getIp(), serverNode.getPort());
 
@@ -345,10 +345,10 @@ public class TioClient {
 					readLock.lock();
 					try {
 						Set<ChannelContext> set = setWithLock.getObj();
-						long currtime = SystemTimer.currentTimeMillis();
+						long currtime = SystemTimer.currTime;
 						for (ChannelContext entry : set) {
 							ClientChannelContext channelContext = (ClientChannelContext) entry;
-							if (channelContext.isClosed() || channelContext.isRemoved()) {
+							if (channelContext.isClosed || channelContext.isRemoved) {
 								continue;
 							}
 
@@ -358,7 +358,9 @@ public class TioClient {
 							if (interval >= clientGroupContext.heartbeatTimeout / 2) {
 								Packet packet = aioHandler.heartbeatPacket();
 								if (packet != null) {
-									log.info("{}发送心跳包", channelContext.toString());
+									if (log.isInfoEnabled()) {
+										log.info("{}发送心跳包", channelContext.toString());
+									}
 									Tio.send(channelContext, packet);
 								}
 							}
@@ -417,7 +419,7 @@ public class TioClient {
 						//						return;
 					}
 
-					if (channelContext.isRemoved()) //已经删除的，不需要重新再连
+					if (channelContext.isRemoved) //已经删除的，不需要重新再连
 					{
 						continue;
 					}
@@ -427,7 +429,7 @@ public class TioClient {
 						sslFacadeContext.setHandshakeCompleted(false);
 					}
 
-					long sleeptime = reconnConf.getInterval() - (SystemTimer.currentTimeMillis() - channelContext.stat.timeInReconnQueue);
+					long sleeptime = reconnConf.getInterval() - (SystemTimer.currTime - channelContext.stat.timeInReconnQueue);
 					//log.info("sleeptime:{}, closetime:{}", sleeptime, timeInReconnQueue);
 					if (sleeptime > 0) {
 						try {
@@ -437,7 +439,7 @@ public class TioClient {
 						}
 					}
 
-					if (channelContext.isRemoved() || !channelContext.isClosed()) //已经删除的和已经连上的，不需要重新再连
+					if (channelContext.isRemoved || !channelContext.isClosed) //已经删除的和已经连上的，不需要重新再连
 					{
 						continue;
 					}
@@ -469,18 +471,12 @@ public class TioClient {
 		} catch (Exception e1) {
 			log.error(e1.toString(), e1);
 		}
-		try {
-			clientGroupContext.tioCloseExecutor.shutdown();
-		} catch (Exception e1) {
-			log.error(e1.toString(), e1);
-		}
 		
 		
 		clientGroupContext.setStopped(true);
 		try {
 			ret = ret && clientGroupContext.groupExecutor.awaitTermination(6000, TimeUnit.SECONDS);
 			ret = ret && clientGroupContext.tioExecutor.awaitTermination(6000, TimeUnit.SECONDS);
-			ret = ret && clientGroupContext.tioCloseExecutor.awaitTermination(6000, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			log.error(e.getLocalizedMessage(), e);
 		}

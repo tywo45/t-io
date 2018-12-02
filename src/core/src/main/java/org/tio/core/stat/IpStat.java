@@ -5,9 +5,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.tio.utils.SystemTimer;
-
-import cn.hutool.core.date.BetweenFormater;
-import cn.hutool.core.date.BetweenFormater.Level;
+import org.tio.utils.hutool.BetweenFormater;
+import org.tio.utils.hutool.BetweenFormater.Level;
 
 /**
  * 这个是给服务器用的，主要用于监控IP情况，随时拉黑恶意攻击IP
@@ -44,11 +43,6 @@ public class IpStat implements java.io.Serializable {
 	 * 收到该IP连接请求的次数
 	 */
 	private AtomicInteger requestCount = new AtomicInteger();
-
-	/**
-	 * 当前处于连接状态的个数
-	 */
-//	private static MapWithLock<String, AtomicInteger> activatedCount = new MapWithLock<>(new HashMap<String, AtomicInteger>());
 
 	/**
 	 * 本IP已发送的字节数
@@ -95,41 +89,6 @@ public class IpStat implements java.io.Serializable {
 		this.durationType = durationType;
 	}
 
-//	/**
-//	 * @return the activatedCount
-//	 */
-//	public static AtomicInteger getActivatedCount(String ip, boolean forceCreate) {
-//		AtomicInteger atomicInteger = activatedCount.getObj().get(ip);
-//		if (atomicInteger == null && forceCreate) {
-//			Lock lock = activatedCount.writeLock();
-//			try {
-//				lock.lock();
-//				atomicInteger = activatedCount.getObj().get(ip);
-//				if (atomicInteger == null) {
-//					atomicInteger = new AtomicInteger();
-//					activatedCount.getObj().put(ip, atomicInteger);
-//				}
-//			} catch (Throwable e) {
-//				throw e;
-//			} finally {
-//				lock.unlock();
-//			}
-//		}
-//		return atomicInteger;
-//	}
-//	
-//	public static void removeActivatedCount(String ip) {
-//		Lock lock = activatedCount.writeLock();
-//		try {
-//			lock.lock();
-//			activatedCount.getObj().remove(ip);
-//		} catch (Throwable e) {
-//			throw e;
-//		} finally {
-//			lock.unlock();
-//		}
-//	}
-
 	/**
 	 * 平均每次TCP接收到的字节数，这个可以用来监控慢攻击，配置PacketsPerTcpReceive定位慢攻击
 	 */
@@ -149,7 +108,7 @@ public class IpStat implements java.io.Serializable {
 	}
 
 	public long getDuration() {
-		duration = SystemTimer.currentTimeMillis() - this.start.getTime();
+		duration = SystemTimer.currTime - this.start.getTime();
 		return duration;
 	}
 
@@ -164,7 +123,7 @@ public class IpStat implements java.io.Serializable {
 	 * @return the duration
 	 */
 	public String getFormatedDuration() {
-		duration = SystemTimer.currentTimeMillis() - this.start.getTime();
+		duration = SystemTimer.currTime - this.start.getTime();
 		BetweenFormater betweenFormater = new BetweenFormater(duration, Level.MILLSECOND);
 		return betweenFormater.format();
 	}

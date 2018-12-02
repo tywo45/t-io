@@ -8,17 +8,17 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
 import org.tio.core.intf.GroupListener;
+import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.lock.MapWithLock;
 import org.tio.utils.lock.SetWithLock;
 
 /**
- * 
+ * 多对多  (group <--> ChannelContext)<br>
  * @author tanyaowu 
  * 2017年10月19日 上午9:40:21
  */
@@ -61,11 +61,11 @@ public class Groups {
 				return;
 			}
 			
-			if (StringUtils.isBlank(groupid)) {
+			if (StrUtil.isBlank(groupid)) {
 				return;
 			}
 
-			if (StringUtils.isBlank(groupid)) {
+			if (StrUtil.isBlank(groupid)) {
 				return;
 			}
 
@@ -119,7 +119,7 @@ public class Groups {
 			return null;
 		}
 
-		if (StringUtils.isBlank(groupid)) {
+		if (StrUtil.isBlank(groupid)) {
 			return null;
 		}
 		return groupmap.get(groupid);
@@ -233,7 +233,7 @@ public class Groups {
 				return;
 			}
 
-			if (StringUtils.isBlank(groupid)) {
+			if (StrUtil.isBlank(groupid)) {
 				return;
 			}
 

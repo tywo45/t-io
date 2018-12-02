@@ -6,9 +6,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.intf.TioUuid;
-import org.tio.http.server.util.Threads;
-import org.tio.server.TioServer;
 import org.tio.server.ServerGroupContext;
+import org.tio.server.TioServer;
+import org.tio.utils.Threads;
 import org.tio.utils.thread.pool.SynThreadPoolExecutor;
 import org.tio.websocket.common.WsTioUuid;
 import org.tio.websocket.server.handler.IWsMsgHandler;
@@ -87,11 +87,11 @@ public class WsServerStarter {
 	
 	public WsServerStarter(WsServerConfig wsServerConfig, IWsMsgHandler wsMsgHandler, TioUuid tioUuid, SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) throws IOException {
 		if (tioExecutor == null) {
-			tioExecutor = Threads.tioExecutor;
+			tioExecutor = Threads.getTioExecutor();
 		}
 		
 		if (groupExecutor == null) {
-			groupExecutor = Threads.groupExecutor;
+			groupExecutor = Threads.getGroupExecutor();
 		}
 		
 		this.wsServerConfig = wsServerConfig;

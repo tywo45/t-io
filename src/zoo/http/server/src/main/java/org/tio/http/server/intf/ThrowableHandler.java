@@ -18,6 +18,7 @@ public interface ThrowableHandler {
 	 * @param requestLine
 	 * @param throwable
 	 * @return
+	 * @throws Exception 
 	 */
-	public HttpResponse handler(HttpRequest request, RequestLine requestLine, Throwable throwable);
+	public HttpResponse handler(HttpRequest request, RequestLine requestLine, Throwable throwable) throws Exception;
 }

@@ -9,8 +9,6 @@ import org.tio.core.stat.IpStatListener;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.RemovalListener;
 
-
-
 /**
  * @author tanyaowu 
  * 2017年8月21日 下午1:32:32
@@ -33,34 +31,26 @@ public class IpStatRemovalListener implements RemovalListener {
 		this.ipStatListener = ipStatListener;
 	}
 
-	/**
-	 * @param args
-	 * @author: tanyaowu
-	 */
-	public static void main(String[] args) {
-
-	}
-
-//	@Override
-//	public void onRemoval(RemovalNotification notification) {
-//		String ip = (String) notification.getKey();
-//		IpStat ipStat = (IpStat) notification.getValue();
-//
-//		if (ipStatListener != null) {
-//			ipStatListener.onExpired(groupContext, ipStat);
-//		}
-//
-//		//		log.info("ip数据统计[{}]\r\n{}", ip, Json.toFormatedJson(ipStat));
-//	}
+	//	@Override
+	//	public void onRemoval(RemovalNotification notification) {
+	//		String ip = (String) notification.getKey();
+	//		IpStat ipStat = (IpStat) notification.getValue();
+	//
+	//		if (ipStatListener != null) {
+	//			ipStatListener.onExpired(groupContext, ipStat);
+	//		}
+	//
+	//		//		log.info("ip数据统计[{}]\r\n{}", ip, Json.toFormatedJson(ipStat));
+	//	}
 
 	@Override
 	public void onRemoval(Object key, Object value, RemovalCause cause) {
-//		String ip = (String) key;
+		//		String ip = (String) key;
 		IpStat ipStat = (IpStat) value;
 
 		if (ipStatListener != null) {
 			ipStatListener.onExpired(groupContext, ipStat);
 		}
-		
+
 	}
 }

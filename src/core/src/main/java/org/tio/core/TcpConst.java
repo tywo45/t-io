@@ -8,5 +8,5 @@ public interface TcpConst {
 	/**
 	 * 
 	 */
-	int MAX_DATA_LENGTH = 65535 - 40;
+	int MAX_DATA_LENGTH = 65535 - 40;//51200  //179743  //197301  //197301
 }

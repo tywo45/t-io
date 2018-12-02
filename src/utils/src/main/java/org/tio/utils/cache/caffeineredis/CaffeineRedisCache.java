@@ -5,42 +5,44 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
 import org.redisson.api.listener.MessageListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tio.utils.cache.AbsCache;
 import org.tio.utils.cache.CacheChangeType;
 import org.tio.utils.cache.CacheChangedVo;
-import org.tio.utils.cache.ICache;
 import org.tio.utils.cache.caffeine.CaffeineCache;
 import org.tio.utils.cache.redis.RedisCache;
 import org.tio.utils.cache.redis.RedisExpireUpdateTask;
+import org.tio.utils.hutool.StrUtil;
 
 /**
  * @author tanyaowu
  * 2017年8月12日 下午9:13:54
  */
-public class CaffeineRedisCache implements ICache {
+public class CaffeineRedisCache extends AbsCache {
 
 	public static final String CACHE_CHANGE_TOPIC = "TIO_CACHE_CHANGE_TOPIC_CAFFEINE";
 
 	private static Logger log = LoggerFactory.getLogger(CaffeineRedisCache.class);
 	public static Map<String, CaffeineRedisCache> map = new HashMap<>();
-	
-	
 
-	static RTopic<CacheChangedVo> topic;
+	static RTopic topic;
 
 	private static boolean inited = false;
 
-	public static CaffeineRedisCache getCache(String cacheName) {
+	public static CaffeineRedisCache getCache(String cacheName, boolean skipNull) {
 		CaffeineRedisCache caffeineRedisCache = map.get(cacheName);
-		if (caffeineRedisCache == null) {
+		if (caffeineRedisCache == null && !skipNull) {
 			log.warn("cacheName[{}]还没注册，请初始化时调用：{}.register(cacheName, timeToLiveSeconds, timeToIdleSeconds)", cacheName, CaffeineRedisCache.class.getSimpleName());
 		}
 		return caffeineRedisCache;
+	}
+
+	public static CaffeineRedisCache getCache(String cacheName) {
+		return getCache(cacheName, false);
 	}
 
 	private static void init(RedissonClient redisson) {
@@ -48,11 +50,11 @@ public class CaffeineRedisCache implements ICache {
 			synchronized (CaffeineRedisCache.class) {
 				if (!inited) {
 					topic = redisson.getTopic(CACHE_CHANGE_TOPIC);
-					topic.addListener(new MessageListener<CacheChangedVo>() {
+					topic.addListener(CacheChangedVo.class, new MessageListener<CacheChangedVo>() {
 						@Override
-						public void onMessage(String channel, CacheChangedVo cacheChangedVo) {
+						public void onMessage(CharSequence channel, CacheChangedVo cacheChangedVo) {
 							String clientid = cacheChangedVo.getClientId();
-							if (StringUtils.isBlank(clientid)) {
+							if (StrUtil.isBlank(clientid)) {
 								log.error("clientid is null");
 								return;
 							}
@@ -83,14 +85,6 @@ public class CaffeineRedisCache implements ICache {
 		}
 	}
 
-	/**
-	 * @param args
-	 * @author tanyaowu
-	 */
-	public static void main(String[] args) {
-
-	}
-
 	public static CaffeineRedisCache register(RedissonClient redisson, String cacheName, Long timeToLiveSeconds, Long timeToIdleSeconds) {
 		init(redisson);
 
@@ -100,10 +94,10 @@ public class CaffeineRedisCache implements ICache {
 				caffeineRedisCache = map.get(cacheName);
 				if (caffeineRedisCache == null) {
 					RedisCache redisCache = RedisCache.register(redisson, cacheName, timeToLiveSeconds, timeToIdleSeconds);
-					
+
 					Long timeToLiveSecondsForCaffeine = timeToLiveSeconds;
 					Long timeToIdleSecondsForCaffeine = timeToIdleSeconds;
-					
+
 					if (timeToLiveSecondsForCaffeine != null) {
 						timeToLiveSecondsForCaffeine = Math.min(timeToLiveSecondsForCaffeine, MAX_EXPIRE_IN_LOCAL);
 					}
@@ -113,6 +107,10 @@ public class CaffeineRedisCache implements ICache {
 					CaffeineCache caffeineCache = CaffeineCache.register(cacheName, timeToLiveSecondsForCaffeine, timeToIdleSecondsForCaffeine);
 
 					caffeineRedisCache = new CaffeineRedisCache(cacheName, caffeineCache, redisCache);
+					
+					caffeineRedisCache.setTimeToIdleSeconds(timeToIdleSeconds);
+					caffeineRedisCache.setTimeToLiveSeconds(timeToLiveSeconds);
+					
 					map.put(cacheName, caffeineRedisCache);
 				}
 			}
@@ -124,23 +122,13 @@ public class CaffeineRedisCache implements ICache {
 
 	RedisCache redisCache;
 
-	String cacheName;
-
-	/**
-	 *
-	 * @author tanyaowu
-	 */
-	public CaffeineRedisCache() {
-	}
-
 	/**
 	 * @param caffeineCache
 	 * @param redisCache
 	 * @author tanyaowu
 	 */
 	public CaffeineRedisCache(String cacheName, CaffeineCache caffeineCache, RedisCache redisCache) {
-		super();
-		this.cacheName = cacheName;
+		super(cacheName);
 		this.caffeineCache = caffeineCache;
 		this.redisCache = redisCache;
 	}
@@ -165,10 +153,10 @@ public class CaffeineRedisCache implements ICache {
 	 */
 	@Override
 	public Serializable get(String key) {
-		if (StringUtils.isBlank(key)) {
+		if (StrUtil.isBlank(key)) {
 			return null;
 		}
-		
+
 		Serializable ret = caffeineCache.get(key);
 		if (ret == null) {
 			ret = redisCache.get(key);
@@ -206,15 +194,15 @@ public class CaffeineRedisCache implements ICache {
 		CacheChangedVo cacheChangedVo = new CacheChangedVo(cacheName, key, CacheChangeType.PUT);
 		topic.publish(cacheChangedVo);
 	}
-	
+
 	@Override
 	public void putTemporary(String key, Serializable value) {
 		caffeineCache.putTemporary(key, value);
 		redisCache.putTemporary(key, value);
-		
+
 		//
-//		CacheChangedVo cacheChangedVo = new CacheChangedVo(cacheName, key, CacheChangeType.PUT);
-//		topic.publish(cacheChangedVo);
+		//		CacheChangedVo cacheChangedVo = new CacheChangedVo(cacheName, key, CacheChangeType.PUT);
+		//		topic.publish(cacheChangedVo);
 	}
 
 	/**
@@ -223,21 +211,21 @@ public class CaffeineRedisCache implements ICache {
 	 */
 	@Override
 	public void remove(String key) {
-		if (StringUtils.isBlank(key)) {
+		if (StrUtil.isBlank(key)) {
 			return;
 		}
-		
+
 		caffeineCache.remove(key);
 		redisCache.remove(key);
 
 		CacheChangedVo cacheChangedVo = new CacheChangedVo(cacheName, key, CacheChangeType.REMOVE);
 		topic.publish(cacheChangedVo);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T get(String key, Class<T> clazz) {
-		return (T)get(key);
+		return (T) get(key);
 	}
 
 	@Override
@@ -245,5 +233,4 @@ public class CaffeineRedisCache implements ICache {
 		return redisCache.ttl(key);
 	}
 
-	
 }

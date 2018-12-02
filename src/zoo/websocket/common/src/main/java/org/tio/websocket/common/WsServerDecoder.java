@@ -162,17 +162,6 @@ public class WsServerDecoder {
 	}
 
 	/**
-	 * @param args
-	 *
-	 * @author tanyaowu
-	 * 2017年2月22日 下午4:06:42
-	 *
-	 */
-	public static void main(String[] args) {
-
-	}
-
-	/**
 	 *
 	 *
 	 * @author tanyaowu

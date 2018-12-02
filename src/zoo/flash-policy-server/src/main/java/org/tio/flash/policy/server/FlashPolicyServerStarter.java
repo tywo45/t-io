@@ -14,6 +14,7 @@ import org.tio.server.TioServer;
 import org.tio.server.intf.ServerAioHandler;
 import org.tio.server.intf.ServerAioListener;
 import org.tio.utils.SystemTimer;
+import org.tio.utils.Threads;
 import org.tio.utils.lock.SetWithLock;
 import org.tio.utils.thread.pool.SynThreadPoolExecutor;
 
@@ -73,7 +74,7 @@ public class FlashPolicyServerStarter {
 	 * @author tanyaowu
 	 */
 	public static void start(String ip, Integer port) {
-		start(ip, port, Threads.tioExecutor, Threads.groupExecutor);
+		start(ip, port, Threads.getTioExecutor(), Threads.getGroupExecutor());
 	}
 
 	/**
@@ -83,9 +84,6 @@ public class FlashPolicyServerStarter {
 		Thread thread = new Thread(new CheckRunnable(), "Flash-Policy-Server-" + count++);
 		thread.start();
 
-	}
-
-	public static void main(String[] args) throws IOException {
 	}
 
 	public static class CheckRunnable implements Runnable {
@@ -104,7 +102,7 @@ public class FlashPolicyServerStarter {
 				ReadLock readLock = setWithLock.readLock();
 				readLock.lock();
 				try {
-					long now = SystemTimer.currentTimeMillis();
+					long now = SystemTimer.currTime;
 					set = setWithLock.getObj();
 					for (ChannelContext channelContext : set) {
 						long interval = (now - channelContext.stat.timeFirstConnected);

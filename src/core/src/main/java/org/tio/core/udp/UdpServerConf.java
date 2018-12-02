@@ -8,15 +8,6 @@ import org.tio.core.udp.intf.UdpHandler;
  * 2017年7月5日 下午3:53:04
  */
 public class UdpServerConf extends UdpConf {
-	//	private static Logger log = LoggerFactory.getLogger(UdpServerConf.class);
-
-	/**
-	 * @param args
-	 * @author tanyaowu
-	 */
-	public static void main(String[] args) {
-
-	}
 
 	private UdpHandler udpHandler;
 

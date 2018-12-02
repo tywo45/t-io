@@ -26,17 +26,17 @@ public class WsPacket extends Packet {
 	public static final String CHARSET_NAME = "utf-8";
 
 	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-	}
-
-	/**
 	 * 是否是握手包
 	 */
 	private boolean isHandShake = false;
 
 	private byte[] body;
+	
+	/**
+	 *  byte[][] bodys和body的作用一样，当业务数据用多个byte[]比较方便时，就可以用 byte[][] bodys
+	 *  服务器发往客户端时，此字段才可能会有值(业务层进行性能优化时才用得着这个字段)
+	 */
+	private byte[][] bodys;
 
 	private boolean wsEof;
 
@@ -184,6 +184,14 @@ public class WsPacket extends Packet {
 	 */
 	public void setWsOpcode(Opcode wsOpcode) {
 		this.wsOpcode = wsOpcode;
+	}
+
+	public byte[][] getBodys() {
+		return bodys;
+	}
+
+	public void setBodys(byte[][] bodys) {
+		this.bodys = bodys;
 	}
 
 	//	/**

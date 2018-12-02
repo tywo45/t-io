@@ -4,13 +4,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.http.common.Cookie;
 import org.tio.http.common.HttpRequest;
-
-import cn.hutool.core.util.ReUtil;
+import org.tio.utils.hutool.ReUtil;
+import org.tio.utils.hutool.StrUtil;
 
 /**
  * @author tanyaowu 
@@ -21,8 +20,10 @@ public class DomainMappingSessionCookieDecorator implements SessionCookieDecorat
 	private static Logger log = LoggerFactory.getLogger(DomainMappingSessionCookieDecorator.class);
 
 	/**
-	 * key:    原始domain，譬如:www.baidu.com，也可以是正则表达式，譬如*.baidu.com
-	 * value : 替换原始domain的domain，譬如.baidu.com
+	 * key:    (.)*(.t-io.org){1}
+	 * value : 替换原始domain的domain，譬如.t-io.org
+	 * 
+	 * 结果会把域名为www.t-io.org的cookie的域名替换成.t-io.org
 	 */
 	private Map<String, String> domainMap = null;
 
@@ -33,9 +34,9 @@ public class DomainMappingSessionCookieDecorator implements SessionCookieDecorat
 	public DomainMappingSessionCookieDecorator(Map<String, String> domainMap) {
 		this.domainMap = domainMap;
 	}
-	
+
 	protected DomainMappingSessionCookieDecorator() {
-		
+
 	}
 
 	public void addMapping(String key, String value) {
@@ -57,18 +58,21 @@ public class DomainMappingSessionCookieDecorator implements SessionCookieDecorat
 		for (Entry<String, String> entry : set) {
 			String key = entry.getKey();
 			String value = entry.getValue();
-			if (StringUtils.equalsIgnoreCase(key, initDomain) || ReUtil.isMatch(key, initDomain)) {
+			if (StrUtil.equalsIgnoreCase(key, initDomain) || ReUtil.isMatch(key, initDomain)) {
 				sessionCookie.setDomain(value);
 			}
 		}
 	}
-
-	/**
-	 * @param args
-	 * @author: tanyaowu
-	 */
+	
 	public static void main(String[] args) {
+		boolean ss = ReUtil.isMatch("(.)*(.t-io.org){1}", ".t-io.org");
+		System.out.println(ss);
 		
+		ss = ReUtil.isMatch("(.)*(.t-io.org){1}", "www.t-io.org");
+		System.out.println(ss);
+		
+		ss = ReUtil.isMatch("(.)*(.t-io.org){1}", "www.xx.t-io.org");
+		System.out.println(ss);
 	}
 
 }

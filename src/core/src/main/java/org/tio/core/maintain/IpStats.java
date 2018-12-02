@@ -8,16 +8,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.GroupContext;
 import org.tio.core.cache.IpStatRemovalListener;
 import org.tio.core.stat.IpStat;
 import org.tio.utils.cache.caffeine.CaffeineCache;
+import org.tio.utils.hutool.StrUtil;
 
 /**
- *
+ * 使用方法（注意顺序）：<br>
+ *	1、serverGroupContext.setIpStatListener(ShowcaseIpStatListener.me);
+	2、serverGroupContext.ipStats.addDuration(Time.MINUTE_1 * 5);
  * @author tanyaowu
  * 2017年4月15日 下午12:13:19
  */
@@ -132,7 +134,7 @@ public class IpStats {
 	 * @author: tanyaowu
 	 */
 	public IpStat get(Long duration, String ip, boolean forceCreate) {
-		if (StringUtils.isBlank(ip)) {
+		if (StrUtil.isBlank(ip)) {
 			return null;
 		}
 		CaffeineCache caffeineCache = cacheMap.get(duration);

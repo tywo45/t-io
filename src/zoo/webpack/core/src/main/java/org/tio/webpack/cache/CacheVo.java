@@ -47,12 +47,4 @@ public class CacheVo implements Serializable {
 		this.compressedData = compressedData;
 	}
 
-
-	/**
-	 * @param args
-	 * @author tanyaowu
-	 */
-	public static void main(String[] args) {
-
-	}
 }

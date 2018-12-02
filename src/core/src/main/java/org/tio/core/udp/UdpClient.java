@@ -5,12 +5,12 @@ import java.net.DatagramPacket;
 import java.net.InetSocketAddress;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.Node;
 import org.tio.core.udp.task.UdpSendRunnable;
 import org.tio.utils.SystemTimer;
+import org.tio.utils.hutool.StrUtil;
 
 /**
  * @author tanyaowu
@@ -26,12 +26,12 @@ public class UdpClient {
 		UdpClient udpClient = new UdpClient(udpClientConf);
 		udpClient.start();
 
-		long start = SystemTimer.currentTimeMillis();
+		long start = SystemTimer.currTime;
 		for (int i = 0; i < 1000000; i++) {
 			String str = i + "、" + "用tio开发udp，有点意思";
 			udpClient.send(str.getBytes());
 		}
-		long end = SystemTimer.currentTimeMillis();
+		long end = SystemTimer.currTime;
 		long iv = end - start;
 		System.out.println("耗时:" + iv + "ms");
 	}
@@ -65,11 +65,11 @@ public class UdpClient {
 	}
 
 	public void send(String data, String charset) {
-		if (StringUtils.isBlank(data)) {
+		if (StrUtil.isBlank(data)) {
 			return;
 		}
 		try {
-			if (StringUtils.isBlank(charset)) {
+			if (StrUtil.isBlank(charset)) {
 				charset = udpClientConf.getCharset();
 			}
 			byte[] bs = data.getBytes(charset);

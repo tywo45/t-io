@@ -24,18 +24,4 @@ public class Time {
 	 */
 	public static final Long DAY_1 = HOUR_1 * 24;
 
-	/**
-	 * @param args
-	 * @author tanyaowu
-	 */
-	public static void main(String[] args) {
-
-	}
-
-	/**
-	 *
-	 * @author tanyaowu
-	 */
-	public Time() {
-	}
 }

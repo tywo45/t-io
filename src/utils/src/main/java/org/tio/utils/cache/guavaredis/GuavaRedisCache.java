@@ -5,31 +5,31 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
 import org.redisson.api.listener.MessageListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tio.utils.cache.AbsCache;
 import org.tio.utils.cache.CacheChangeType;
 import org.tio.utils.cache.CacheChangedVo;
-import org.tio.utils.cache.ICache;
 import org.tio.utils.cache.guava.GuavaCache;
 import org.tio.utils.cache.redis.RedisCache;
 import org.tio.utils.cache.redis.RedisExpireUpdateTask;
+import org.tio.utils.hutool.StrUtil;
 
 /**
  * @author tanyaowu
  * 2017年8月12日 下午9:13:54
  */
-public class GuavaRedisCache implements ICache {
+public class GuavaRedisCache extends AbsCache {
 
 	public static final String CACHE_CHANGE_TOPIC = "TIO_CACHE_CHANGE_TOPIC_GUAVA";
 
 	private static Logger log = LoggerFactory.getLogger(GuavaRedisCache.class);
 	public static Map<String, GuavaRedisCache> map = new HashMap<>();
 
-	static RTopic<CacheChangedVo> topic;
+	static RTopic topic;
 
 	private static boolean inited = false;
 
@@ -46,11 +46,11 @@ public class GuavaRedisCache implements ICache {
 			synchronized (GuavaRedisCache.class) {
 				if (!inited) {
 					topic = redisson.getTopic(CACHE_CHANGE_TOPIC);
-					topic.addListener(new MessageListener<CacheChangedVo>() {
+					topic.addListener(CacheChangedVo.class, new MessageListener<CacheChangedVo>() {
 						@Override
-						public void onMessage(String channel, CacheChangedVo cacheChangedVo) {
+						public void onMessage(CharSequence channel, CacheChangedVo cacheChangedVo) {
 							String clientid = cacheChangedVo.getClientId();
-							if (StringUtils.isBlank(clientid)) {
+							if (StrUtil.isBlank(clientid)) {
 								log.error("clientid is null");
 								return;
 							}
@@ -81,14 +81,6 @@ public class GuavaRedisCache implements ICache {
 		}
 	}
 
-	/**
-	 * @param args
-	 * @author tanyaowu
-	 */
-	public static void main(String[] args) {
-
-	}
-
 	public static GuavaRedisCache register(RedissonClient redisson, String cacheName, Long timeToLiveSeconds, Long timeToIdleSeconds) {
 		init(redisson);
 
@@ -98,10 +90,10 @@ public class GuavaRedisCache implements ICache {
 				guavaRedisCache = map.get(cacheName);
 				if (guavaRedisCache == null) {
 					RedisCache redisCache = RedisCache.register(redisson, cacheName, timeToLiveSeconds, timeToIdleSeconds);
-					
+
 					Long timeToLiveSecondsForGuava = timeToLiveSeconds;
 					Long timeToIdleSecondsForGuava = timeToIdleSeconds;
-					
+
 					if (timeToLiveSecondsForGuava != null) {
 						timeToLiveSecondsForGuava = Math.min(timeToLiveSecondsForGuava, MAX_EXPIRE_IN_LOCAL);
 					}
@@ -111,6 +103,10 @@ public class GuavaRedisCache implements ICache {
 					GuavaCache guavaCache = GuavaCache.register(cacheName, timeToLiveSecondsForGuava, timeToIdleSecondsForGuava);
 
 					guavaRedisCache = new GuavaRedisCache(cacheName, guavaCache, redisCache);
+					
+					guavaRedisCache.setTimeToIdleSeconds(timeToIdleSeconds);
+					guavaRedisCache.setTimeToLiveSeconds(timeToLiveSeconds);
+					
 					map.put(cacheName, guavaRedisCache);
 				}
 			}
@@ -122,14 +118,6 @@ public class GuavaRedisCache implements ICache {
 
 	RedisCache redisCache;
 
-	String cacheName;
-
-	/**
-	 *
-	 * @author tanyaowu
-	 */
-	public GuavaRedisCache() {
-	}
 
 	/**
 	 * @param guavaCache
@@ -137,8 +125,7 @@ public class GuavaRedisCache implements ICache {
 	 * @author tanyaowu
 	 */
 	public GuavaRedisCache(String cacheName, GuavaCache guavaCache, RedisCache redisCache) {
-		super();
-		this.cacheName = cacheName;
+		super(cacheName);
 		this.guavaCache = guavaCache;
 		this.redisCache = redisCache;
 	}
@@ -163,10 +150,10 @@ public class GuavaRedisCache implements ICache {
 	 */
 	@Override
 	public Serializable get(String key) {
-		if (StringUtils.isBlank(key)) {
+		if (StrUtil.isBlank(key)) {
 			return null;
 		}
-		
+
 		Serializable ret = guavaCache.get(key);
 		if (ret == null) {
 			ret = redisCache.get(key);
@@ -204,15 +191,15 @@ public class GuavaRedisCache implements ICache {
 		CacheChangedVo cacheChangedVo = new CacheChangedVo(cacheName, key, CacheChangeType.PUT);
 		topic.publish(cacheChangedVo);
 	}
-	
+
 	@Override
 	public void putTemporary(String key, Serializable value) {
 		guavaCache.putTemporary(key, value);
 		redisCache.putTemporary(key, value);
-		
+
 		//
-//		CacheChangedVo cacheChangedVo = new CacheChangedVo(cacheName, key, CacheChangeType.PUT);
-//		topic.publish(cacheChangedVo);
+		//		CacheChangedVo cacheChangedVo = new CacheChangedVo(cacheName, key, CacheChangeType.PUT);
+		//		topic.publish(cacheChangedVo);
 	}
 
 	/**
@@ -221,25 +208,26 @@ public class GuavaRedisCache implements ICache {
 	 */
 	@Override
 	public void remove(String key) {
-		if (StringUtils.isBlank(key)) {
+		if (StrUtil.isBlank(key)) {
 			return;
 		}
-		
+
 		guavaCache.remove(key);
 		redisCache.remove(key);
 
 		CacheChangedVo cacheChangedVo = new CacheChangedVo(cacheName, key, CacheChangeType.REMOVE);
 		topic.publish(cacheChangedVo);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T get(String key, Class<T> clazz) {
-		return (T)get(key);
+		return (T) get(key);
 	}
+
 	@Override
 	public long ttl(String key) {
 		return redisCache.ttl(key);
 	}
-	
+
 }

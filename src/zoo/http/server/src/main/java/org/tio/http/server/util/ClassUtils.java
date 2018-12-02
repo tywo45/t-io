@@ -3,8 +3,7 @@ package org.tio.http.server.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.http.common.UploadFile;
-
-import cn.hutool.core.util.ClassUtil;
+import org.tio.utils.hutool.ClassUtil;
 
 /**
  * @author tanyaowu
@@ -15,15 +14,7 @@ public class ClassUtils {
 	private static Logger log = LoggerFactory.getLogger(ClassUtils.class);
 
 	public static boolean isSimpleTypeOrArray(Class<?> clazz) {
-		return ClassUtil.isSimpleTypeOrArray(clazz) || clazz.isAssignableFrom(UploadFile.class);
-	}
-
-	/**
-	 * @param args
-	 * @author tanyaowu
-	 */
-	public static void main(String[] args) {
-
+		return ClassUtil.isSimpleTypeOrArray(clazz) || clazz.isAssignableFrom(UploadFile.class) || clazz.isAssignableFrom(UploadFile[].class);
 	}
 
 	/**

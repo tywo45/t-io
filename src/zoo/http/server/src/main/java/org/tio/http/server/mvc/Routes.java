@@ -1,31 +1,28 @@
 package org.tio.http.server.mvc;
 
-import java.io.IOException;
-import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.http.common.HttpRequest;
 import org.tio.http.server.annotation.RequestPath;
 import org.tio.http.server.mvc.intf.ControllerFactory;
+import org.tio.utils.hutool.ArrayUtil;
+import org.tio.utils.hutool.ClassScanAnnotationHandler;
+import org.tio.utils.hutool.ClassUtil;
+import org.tio.utils.hutool.FileUtil;
+import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.json.Json;
+import org.tio.utils.thoughtworksparanamer.BytecodeReadingParanamer;
+import org.tio.utils.thoughtworksparanamer.Paranamer;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
-import com.thoughtworks.paranamer.BytecodeReadingParanamer;
-import com.thoughtworks.paranamer.Paranamer;
-
-import cn.hutool.core.util.ArrayUtil;
-import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
-import io.github.lukehutch.fastclasspathscanner.matchprocessor.ClassAnnotationMatchProcessor;
-import io.github.lukehutch.fastclasspathscanner.matchprocessor.MethodAnnotationMatchProcessor;
-import jodd.io.FileUtil;
 
 /**
  * @author tanyaowu
@@ -33,29 +30,34 @@ import jodd.io.FileUtil;
  */
 public class Routes {
 	private static Logger log = LoggerFactory.getLogger(Routes.class);
+	
+	/**
+	 * 
+	 */
+	public static final String META_PATH_KEY = "TIO_HTTP_META_PATH";
 
-	private boolean writeMappingToFile = false;
+	private boolean writeMappingToFile = true;
 
 	/**
 	 * 路径和对象映射<br>
 	 * key: /user<br>
 	 * value: object<br>
 	 */
-	public final Map<String, Object> pathBeanMap = new TreeMap<>();
+	public final Map<String, Object> PATH_BEAN_MAP = new TreeMap<>();
 
 	/**
 	 * class和对象映射<br>
 	 * key: XxxController.class<br>
 	 * value: XxxController.class对应的实例对象<br>
 	 */
-	public static final Map<Class<?>, Object> classBeanMap = new HashMap<>();
+	public static final Map<Class<?>, Object> CLASS_BEAN_MAP = new HashMap<>();
 
 	/**
 	 * bean和MethodAccess映射<br>
 	 * key: XxxController.class对应的实例对象<br>
 	 * value: MethodAccess<br>
 	 */
-	public static final Map<Object, MethodAccess> beanMethodaccessMap = new HashMap<>();
+	public static final Map<Object, MethodAccess> BEAN_METHODACCESS_MAP = new HashMap<>();
 
 	/**
 	 * 路径和class映射<br>
@@ -63,42 +65,50 @@ public class Routes {
 	 * key: /user<br>
 	 * value: Class<br>
 	 */
-	public final Map<String, Class<?>> pathClassMap = new TreeMap<>();
+	public final Map<String, Class<?>> PATH_CLASS_MAP = new TreeMap<>();
 
 	/**
 	 * 路径和class映射<br>
 	 * key: class<br>
 	 * value: /user<br>
 	 */
-	public static final Map<Class<?>, String> classPathMap = new HashMap<>();
+	public static final Map<Class<?>, String> CLASS_PATH_MAP = new HashMap<>();
 
 	/**
 	 * Method路径映射<br>
 	 * key: /user/update<br>
 	 * value: method<br>
 	 */
-	public final Map<String, Method> pathMethodMap = new TreeMap<>();
+	public final Map<String, Method> PATH_METHOD_MAP = new TreeMap<>();
 
 	/**
 	 * 方法参数名映射<br>
 	 * key: method<br>
 	 * value: ["id", "name", "scanPackages"]<br>
 	 */
-	public final Map<Method, String[]> methodParamnameMap = new HashMap<>();
+	public final Map<Method, String[]> METHOD_PARAMNAME_MAP = new HashMap<>();
+	
+	/**
+	 * path跟forward映射<br>
+	 * key: 原访问路径<br>
+	 * value: forward后的路径<br>
+	 * 譬如：原来的访问路径是/user/123，forward是/user/getById，这个相当于是一个rewrite的功能，对外路径要相对友好，对内路径一般用于业务更便捷地处理
+	 */
+	public final Map<String, String> PATH_FORWARD_MAP = new HashMap<>();
 
 	/**
 	 * 方法和参数类型映射<br>
 	 * key: method<br>
 	 * value: [String.class, int.class]<br>
 	 */
-	public final Map<Method, Class<?>[]> methodParamtypeMap = new HashMap<>();
+	public final Map<Method, Class<?>[]> METHOD_PARAMTYPE_MAP = new HashMap<>();
 
 	/**
 	 * 方法和对象映射<br>
 	 * key: method<br>
 	 * value: bean<br>
 	 */
-	public final Map<Method, Object> methodBeanMap = new HashMap<>();
+	public final Map<Method, Object> METHOD_BEAN_MAP = new HashMap<>();
 
 	/**
 	 * Method路径映射<br>
@@ -106,14 +116,14 @@ public class Routes {
 	 * key: /user/update<br>
 	 * value: method string<br>
 	 */
-	public final Map<String, String> pathMethodstrMap = new TreeMap<>();
+	public final Map<String, String> PATH_METHODSTR_MAP = new TreeMap<>();
 
 	/**
 	 * 含有路径变量的请求<br>
 	 * key: 子路径的个数（pathUnitCount），譬如/user/{userid}就是2<br>
 	 * value: VariablePathVo<br>
 	 */
-	public final Map<Integer, VariablePathVo[]> variablePathMap = new TreeMap<>();
+	public final Map<Integer, VariablePathVo[]> VARIABLE_PATH_MAP = new TreeMap<>();
 
 	/**
 	 * 含有路径变量的请求<br>
@@ -121,7 +131,7 @@ public class Routes {
 	 * key: 配置的路径/user/{userid}<br>
 	 * value: method string<br>
 	 */
-	public Map<String, String> variablePathMethodstrMap = new TreeMap<>();
+	public final Map<String, String> VARIABLEPATH_METHODSTR_MAP = new TreeMap<>();
 
 	private final StringBuilder errorStr = new StringBuilder();
 
@@ -133,13 +143,42 @@ public class Routes {
 		this(scanPackages, null);
 	}
 
-	/**
-	 * 
-	 * @param scanPackages
-	 * @param controllerFactory
-	 */
+	public Routes(String scanPackage) {
+		this(scanPackage, null);
+	}
+
 	public Routes(String[] scanPackages, ControllerFactory controllerFactory) {
 		addRoutes(scanPackages, controllerFactory);
+	}
+
+	public Routes(String scanPackage, ControllerFactory controllerFactory) {
+		this(new String[] { scanPackage }, controllerFactory);
+	}
+
+	//
+	public Routes(Class<?>[] scanRootClasses) {
+		this(toPackages(scanRootClasses), null);
+	}
+
+	public Routes(Class<?> scanRootClasse) {
+		this(scanRootClasse.getPackage().getName(), null);
+	}
+
+	public Routes(Class<?>[] scanRootClasses, ControllerFactory controllerFactory) {
+		addRoutes(toPackages(scanRootClasses), controllerFactory);
+	}
+
+	public Routes(Class<?> scanRootClasse, ControllerFactory controllerFactory) {
+		this(new String[] { scanRootClasse.getPackage().getName() }, controllerFactory);
+	}
+
+	public static String[] toPackages(Class<?>[] scanRootClasses) {
+		String[] scanPackages = new String[scanRootClasses.length];
+		int i = 0;
+		for (Class<?> clazz : scanRootClasses) {
+			scanPackages[i++] = clazz.getPackage().getName();
+		}
+		return scanPackages;
 	}
 
 	/**
@@ -163,124 +202,114 @@ public class Routes {
 		}
 		ControllerFactory controllerFactory1 = controllerFactory;
 		if (scanPackages != null) {
-			final FastClasspathScanner fastClasspathScanner = new FastClasspathScanner(scanPackages);
-			//			fastClasspathScanner.verbose();
-			fastClasspathScanner.matchClassesWithAnnotation(RequestPath.class, new ClassAnnotationMatchProcessor() {
-				@Override
-				public void processMatch(Class<?> classWithAnnotation) {
-					try {
-						Object bean = controllerFactory1.getInstance(classWithAnnotation);//classWithAnnotation.newInstance();
-						RequestPath mapping = classWithAnnotation.getAnnotation(RequestPath.class);
-						//						String beanPath = Routes.this.contextPath + mapping.value();
-						String beanPath = mapping.value();
-						//						if (!StringUtils.endsWith(beanUrl, "/")) {
-						//							beanUrl = beanUrl + "/";
-						//						}
+			for (String pkg : scanPackages) {
+				try {
+					ClassUtil.scanPackage(pkg, new ClassScanAnnotationHandler(RequestPath.class) {
+						@Override
+						public void handlerAnnotation(Class<?> clazz) {
+							try {
+								Object bean = controllerFactory1.getInstance(clazz);//classWithAnnotation.newInstance();
+								RequestPath classMapping = clazz.getAnnotation(RequestPath.class);
+								String beanPath = classMapping.value();
+								Object obj = PATH_BEAN_MAP.get(beanPath);
+								if (obj != null) {
+									log.error("mapping[{}] already exists in class [{}]", beanPath, obj.getClass().getName());
+									errorStr.append("mapping[" + beanPath + "] already exists in class [" + obj.getClass().getName() + "]\r\n\r\n");
+								} else {
+									PATH_BEAN_MAP.put(beanPath, bean);
+									CLASS_BEAN_MAP.put(clazz, bean);
+									PATH_CLASS_MAP.put(beanPath, clazz);
+									CLASS_PATH_MAP.put(clazz, beanPath);
 
-						beanPath = formatBeanPath(beanPath);
+									MethodAccess access = MethodAccess.get(clazz);
+									BEAN_METHODACCESS_MAP.put(bean, access);
+								}
 
-						Object obj = pathBeanMap.get(beanPath);
-						if (obj != null) {
-							log.error("mapping[{}] already exists in class [{}]", beanPath, obj.getClass().getName());
-							errorStr.append("mapping[" + beanPath + "] already exists in class [" + obj.getClass().getName() + "]\r\n\r\n");
-						} else {
-							pathBeanMap.put(beanPath, bean);
-							classBeanMap.put(classWithAnnotation, bean);
-							pathClassMap.put(beanPath, classWithAnnotation);
-							classPathMap.put(classWithAnnotation, beanPath);
+								Method[] methods = clazz.getDeclaredMethods();//ClassUtil.getPublicMethods(clazz);
+								c: for (Method method : methods) {
+									int modifiers = method.getModifiers();
+									if (!Modifier.isPublic(modifiers)) {
+										continue c;
+									}
 
-							MethodAccess access = MethodAccess.get(classWithAnnotation);
-							beanMethodaccessMap.put(bean, access);
+									RequestPath mapping = method.getAnnotation(RequestPath.class);
+									if (mapping == null) {
+										//										log.error(method.getName());
+										continue c;
+									}
+
+//									String methodName = method.getName();
+									String methodPath = mapping.value();
+//									if (StrUtil.isBlank(beanPath)) {
+//										log.error("方法有注解，但类没注解, method:{}, class:{}", methodName, clazz);
+//										errorStr.append("方法有注解，但类没注解, method:" + methodName + ", class:" + clazz + "\r\n\r\n");
+//										continue c;
+//									}
+
+									String completePath = beanPath + methodPath;
+									Class<?>[] parameterTypes = method.getParameterTypes();
+									try {
+										Paranamer paranamer = new BytecodeReadingParanamer();
+										String[] parameterNames = paranamer.lookupParameterNames(method, false); // will return null if not found
+
+										Method checkMethod = PATH_METHOD_MAP.get(completePath);
+										if (checkMethod != null) {
+											log.error("mapping[{}] already exists in method [{}]", completePath, checkMethod.getDeclaringClass() + "#" + checkMethod.getName());
+											errorStr.append("mapping[" + completePath + "] already exists in method [" + checkMethod.getDeclaringClass() + "#"
+													+ checkMethod.getName() + "]\r\n\r\n");
+											continue c;
+										}
+
+										PATH_METHOD_MAP.put(completePath, method);
+
+										String methodStr = methodToStr(method, parameterNames);
+										PATH_METHODSTR_MAP.put(completePath, methodStr);
+
+										METHOD_PARAMNAME_MAP.put(method, parameterNames);
+										METHOD_PARAMTYPE_MAP.put(method, parameterTypes);
+										if (StrUtil.isNotBlank(mapping.forward())) {
+											PATH_FORWARD_MAP.put(completePath, mapping.forward());
+											PATH_METHODSTR_MAP.put(mapping.forward(), methodStr);
+											PATH_METHOD_MAP.put(mapping.forward(), method);
+										}
+										
+										METHOD_BEAN_MAP.put(method, bean);
+									} catch (Throwable e) {
+										log.error(e.toString(), e);
+									}
+								}
+							} catch (Throwable e) {
+								log.error(e.toString(), e);
+							}
+
 						}
-					} catch (Throwable e) {
-
-						log.error(e.toString(), e);
-					}
+					});
+				} catch (Exception e) {
+					log.error(e.toString(), e);
 				}
-			});
 
-			fastClasspathScanner.matchClassesWithMethodAnnotation(RequestPath.class, new MethodAnnotationMatchProcessor() {
-				@Override
-				public void processMatch(Class<?> matchingClass, Executable matchingMethodOrConstructor) {
-					//					log.error(matchingMethodOrConstructor + "");
-					RequestPath mapping = matchingMethodOrConstructor.getAnnotation(RequestPath.class);
+			}
 
-					String methodName = matchingMethodOrConstructor.getName();
-
-					//					String methodPath = mapping.value() + Routes.this.suffix;
-					String methodPath = mapping.value();
-
-					methodPath = formatMethodPath(methodPath);
-					String beanPath = classPathMap.get(matchingClass);
-
-					if (StringUtils.isBlank(beanPath)) {
-						log.error("方法有注解，但类没注解, method:{}, class:{}", methodName, matchingClass);
-						errorStr.append("方法有注解，但类没注解, method:" + methodName + ", class:" + matchingClass + "\r\n\r\n");
-						return;
-					}
-
-					Object bean = pathBeanMap.get(beanPath);
-					String completeMethodPath = methodPath;
-					if (beanPath != null) {
-						completeMethodPath = beanPath + methodPath;
-					}
-
-					Class<?>[] parameterTypes = matchingMethodOrConstructor.getParameterTypes();
-					Method method;
-					try {
-						method = matchingClass.getMethod(methodName, parameterTypes);
-
-						Paranamer paranamer = new BytecodeReadingParanamer();
-						String[] parameterNames = paranamer.lookupParameterNames(method, false); // will return null if not found
-
-						Method checkMethod = pathMethodMap.get(completeMethodPath);
-						if (checkMethod != null) {
-							log.error("mapping[{}] already exists in method [{}]", completeMethodPath, checkMethod.getDeclaringClass() + "#" + checkMethod.getName());
-							errorStr.append(
-									"mapping[" + completeMethodPath + "] already exists in method [" + checkMethod.getDeclaringClass() + "#" + checkMethod.getName() + "]\r\n\r\n");
-
-							return;
-						}
-
-						pathMethodMap.put(completeMethodPath, method);
-
-						pathMethodstrMap.put(completeMethodPath, methodToStr(method, parameterNames));
-
-						methodParamnameMap.put(method, parameterNames);
-						methodParamtypeMap.put(method, parameterTypes);
-						methodBeanMap.put(method, bean);
-					} catch (Throwable e) {
-						log.error(e.toString(), e);
-					}
-				}
-			});
-
-			fastClasspathScanner.scan();
-
-			String pathClassMapStr = Json.toFormatedJson(pathClassMap);
+			String pathClassMapStr = Json.toFormatedJson(PATH_CLASS_MAP);
 			log.info("class  mapping\r\n{}", pathClassMapStr);
-			//			log.info("classPathMap scan result :\r\n {}\r\n", Json.toFormatedJson(classPathMap));
-			String pathMethodstrMapStr = Json.toFormatedJson(pathMethodstrMap);
+			String pathMethodstrMapStr = Json.toFormatedJson(PATH_METHODSTR_MAP);
 			log.info("method mapping\r\n{}", pathMethodstrMapStr);
-			//			log.info("methodParamnameMap scan result :\r\n {}\r\n", Json.toFormatedJson(methodParamnameMap));
 
-			//
 			processVariablePath();
 
-			String variablePathMethodstrMapStr = Json.toFormatedJson(variablePathMethodstrMap);
+			String variablePathMethodstrMapStr = Json.toFormatedJson(VARIABLEPATH_METHODSTR_MAP);
 			log.info("variable path mapping\r\n{}", variablePathMethodstrMapStr);
 
 			if (writeMappingToFile) {
 				try {
-					FileUtil.writeString("/tio_mvc_path_class.json", pathClassMapStr, "utf-8");
-					FileUtil.writeString("/tio_mvc_path_method.json", pathMethodstrMapStr, "utf-8");
-					FileUtil.writeString("/tio_mvc_variablepath_method.json", variablePathMethodstrMapStr, "utf-8");
-
+					FileUtil.writeString(pathClassMapStr, "/tio_mvc_path_class.json", "utf-8");
+					FileUtil.writeString(pathMethodstrMapStr, "/tio_mvc_path_method.json", "utf-8");
+					FileUtil.writeString(variablePathMethodstrMapStr, "/tio_mvc_variablepath_method.json", "utf-8");
 					if (errorStr.length() > 0) {
-						FileUtil.writeString("/tio_error_mvc.txt", errorStr.toString(), "utf-8");
+						FileUtil.writeString(errorStr.toString(), "/tio_error_mvc.txt", "utf-8");
 					}
-				} catch (IOException e) {
-					log.error(e.toString(), e);
+				} catch (Exception e) {
+					//										log.error(e.toString(), e);
 				}
 			}
 		}
@@ -288,26 +317,26 @@ public class Routes {
 
 	/**
 	 * 处理有变量的路径
-	 * @param pathMethodMap
+	 * @param PATH_METHOD_MAP
 	 */
 	private void processVariablePath() {
-		Set<Entry<String, Method>> set = pathMethodMap.entrySet();
+		Set<Entry<String, Method>> set = PATH_METHOD_MAP.entrySet();
 		//		Set<String> forRemoved = new HashSet<>();
 		for (Entry<String, Method> entry : set) {
 			String path = entry.getKey();
 			Method method = entry.getValue();
-			if (StringUtils.contains(path, "{") && StringUtils.contains(path, "}")) {
-				String[] pathUnits = StringUtils.split(path, "/");
+			if (StrUtil.contains(path, '{') && StrUtil.contains(path, '}')) {
+				String[] pathUnits = StrUtil.split(path, "/");
 				PathUnitVo[] pathUnitVos = new PathUnitVo[pathUnits.length];
 
 				boolean isVarPath = false; //是否是带变量的路径
 				for (int i = 0; i < pathUnits.length; i++) {
 					PathUnitVo pathUnitVo = new PathUnitVo();
 					String pathUnit = pathUnits[i];
-					if (StringUtils.contains(pathUnit, "{") || StringUtils.contains(pathUnit, "}")) {
-						if (StringUtils.startsWith(pathUnit, "{") && StringUtils.endsWith(pathUnit, "}")) {
-							String[] xx = methodParamnameMap.get(method);
-							String varName = StringUtils.substringBetween(pathUnit, "{", "}");
+					if (StrUtil.contains(pathUnit, '{') || StrUtil.contains(pathUnit, '}')) {
+						if (StrUtil.startWith(pathUnit, "{") && StrUtil.endWith(pathUnit, "}")) {
+							String[] xx = METHOD_PARAMNAME_MAP.get(method);
+							String varName = StrUtil.subBetween(pathUnit, "{", "}");
 							if (ArrayUtil.contains(xx, varName)) {
 								isVarPath = true;
 								pathUnitVo.setVar(true);
@@ -345,10 +374,10 @@ public class Routes {
 	 */
 	@SuppressWarnings("unused")
 	private VariablePathVo[] getVariablePathVos(Integer pathUnitCount, boolean forceCreate) {
-		VariablePathVo[] ret = variablePathMap.get(pathUnitCount);
+		VariablePathVo[] ret = VARIABLE_PATH_MAP.get(pathUnitCount);
 		if (forceCreate && ret == null) {
 			ret = new VariablePathVo[0];
-			variablePathMap.put(pathUnitCount, ret);
+			VARIABLE_PATH_MAP.put(pathUnitCount, ret);
 		}
 		return ret;
 	}
@@ -361,11 +390,11 @@ public class Routes {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T getController(Class<T> clazz) {
-		return (T) classBeanMap.get(clazz);
+		return (T) CLASS_BEAN_MAP.get(clazz);
 	}
 
 	public static String getRequestPath(Class<?> clazz) {
-		return classPathMap.get(clazz);
+		return CLASS_PATH_MAP.get(clazz);
 	}
 
 	/**
@@ -374,18 +403,18 @@ public class Routes {
 	 * @param variablePathVo
 	 */
 	private void addVariablePathVo(Integer pathUnitCount, VariablePathVo variablePathVo) {
-		VariablePathVo[] existValue = variablePathMap.get(pathUnitCount);
+		VariablePathVo[] existValue = VARIABLE_PATH_MAP.get(pathUnitCount);
 		if (existValue == null) {
 			existValue = new VariablePathVo[] { variablePathVo };
-			variablePathMap.put(pathUnitCount, existValue);
+			VARIABLE_PATH_MAP.put(pathUnitCount, existValue);
 		} else {
 			VariablePathVo[] newExistValue = new VariablePathVo[existValue.length + 1];
 			System.arraycopy(existValue, 0, newExistValue, 0, existValue.length);
 			newExistValue[newExistValue.length - 1] = variablePathVo;
-			variablePathMap.put(pathUnitCount, newExistValue);
+			VARIABLE_PATH_MAP.put(pathUnitCount, newExistValue);
 		}
-		variablePathMethodstrMap.put(variablePathVo.getPath(), methodToStr(variablePathVo.getMethod(), methodParamnameMap.get(variablePathVo.getMethod())));
-		//org.tio.http.server.mvc.Routes.methodParamnameMap
+		VARIABLEPATH_METHODSTR_MAP.put(variablePathVo.getPath(), methodToStr(variablePathVo.getMethod(), METHOD_PARAMNAME_MAP.get(variablePathVo.getMethod())));
+		//org.tio.http.server.mvc.Routes.METHOD_PARAMNAME_MAP
 	}
 
 	private String methodToStr(Method method, String[] parameterNames) {
@@ -395,10 +424,10 @@ public class Routes {
 
 	@SuppressWarnings("unused")
 	public Method getMethodByPath(String path, HttpRequest request) {
-		Method method = pathMethodMap.get(path);
+		Method method = PATH_METHOD_MAP.get(path);
 		if (method == null) {
-			String[] pathUnitsOfRequest = StringUtils.split(path, "/"); // "/user/214" -- > ["user", "214"]
-			VariablePathVo[] variablePathVos = variablePathMap.get(pathUnitsOfRequest.length);
+			String[] pathUnitsOfRequest = StrUtil.split(path, "/"); // "/user/214" -- > ["user", "214"]
+			VariablePathVo[] variablePathVos = VARIABLE_PATH_MAP.get(pathUnitsOfRequest.length);
 			if (variablePathVos != null) {
 				tag1: for (VariablePathVo variablePathVo : variablePathVos) {
 					PathUnitVo[] pathUnitVos = variablePathVo.getPathUnits();
@@ -409,12 +438,17 @@ public class Routes {
 						if (pathUnitVo.isVar()) {
 							request.addParam(pathUnitVo.getPath(), pathUnitOfRequest);
 						} else {
-							if (!StringUtils.equals(pathUnitVo.getPath(), pathUnitOfRequest)) {
+							if (!StrUtil.equals(pathUnitVo.getPath(), pathUnitOfRequest)) {
 								continue tag1;
 							}
 						}
 					}
 
+					String metapath = variablePathVo.getPath();
+					String forward = PATH_FORWARD_MAP.get(metapath);
+					if (StrUtil.isNotBlank(forward)) {
+						request.requestLine.path = forward;
+					}
 					method = variablePathVo.getMethod();
 					return method;
 				}
@@ -423,32 +457,6 @@ public class Routes {
 		} else {
 			return method;
 		}
-	}
-
-	/**
-	 * 
-	 * @param initPath
-	 * @return
-	 */
-	private static String formatBeanPath(String initPath) {
-		return initPath;
-	}
-
-	/**
-	 * 
-	 * @param initPath
-	 * @return
-	 */
-	private static String formatMethodPath(String initPath) {
-		return initPath;
-	}
-
-	/**
-	 * @param args
-	 * @author tanyaowu
-	 */
-	public static void main(String[] args) {
-
 	}
 
 	/**

@@ -32,35 +32,7 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 		 */
 		public WriteCompletionVo(ByteBuffer byteBuffer, Object obj) {
 			super();
-			this.byteBuffer = byteBuffer;
-			this.obj = obj;
-		}
-
-		/**
-		 * @return the byteBuffer
-		 */
-		public ByteBuffer getByteBuffer() {
-			return byteBuffer;
-		}
-
-		/**
-		 * @return the obj
-		 */
-		public Object getObj() {
-			return obj;
-		}
-
-		/**
-		 * @param byteBuffer the byteBuffer to set
-		 */
-		public void setByteBuffer(ByteBuffer byteBuffer) {
-			this.byteBuffer = byteBuffer;
-		}
-
-		/**
-		 * @param obj the obj to set
-		 */
-		public void setObj(Object obj) {
+			this.byteBuffer = byteBuffer;  //[pos=0 lim=212 cap=212]
 			this.obj = obj;
 		}
 	}
@@ -78,14 +50,14 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 	@Override
 	public void completed(Integer result, WriteCompletionVo writeCompletionVo) {
 		//		Object attachment = writeCompletionVo.getObj();
-		ByteBuffer byteBuffer = writeCompletionVo.getByteBuffer();
+		ByteBuffer byteBuffer = writeCompletionVo.byteBuffer;  //[pos=212 lim=212 cap=212]
 		if (byteBuffer.hasRemaining()) {
 			//			int iv = byteBuffer.capacity() - byteBuffer.position();
-			log.info("{} {}/{} has sent", channelContext, byteBuffer.position(), byteBuffer.capacity());
+			log.info("{} {}/{} has sent", channelContext, byteBuffer.position(), byteBuffer.limit());
 			channelContext.asynchronousSocketChannel.write(byteBuffer, writeCompletionVo, this);
-			channelContext.stat.latestTimeOfSentByte = SystemTimer.currentTimeMillis();
+			channelContext.stat.latestTimeOfSentByte = SystemTimer.currTime;
 		} else {
-			channelContext.stat.latestTimeOfSentPacket = SystemTimer.currentTimeMillis();
+			channelContext.stat.latestTimeOfSentPacket = SystemTimer.currTime;
 			handle(result, null, writeCompletionVo);
 		}
 
@@ -105,21 +77,23 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 	}
 
 	/**
-	 *
+	 * 
 	 * @param result
 	 * @param throwable
-	 * @param attachment Packet or PacketWithMeta or List<PacketWithMeta> or List<Packet>
+	 * @param writeCompletionVo
 	 * @author tanyaowu
 	 */
 	public void handle(Integer result, Throwable throwable, WriteCompletionVo writeCompletionVo) {
 		this.writeSemaphore.release();
-		Object attachment = writeCompletionVo.getObj();
+		Object attachment = writeCompletionVo.obj;//();
 		GroupContext groupContext = channelContext.groupContext;
 		boolean isSentSuccess = result > 0;
 
 		if (isSentSuccess) {
-			groupContext.groupStat.sentBytes.addAndGet(result);
-			channelContext.stat.sentBytes.addAndGet(result);
+			if (groupContext.statOn) {
+				groupContext.groupStat.sentBytes.addAndGet(result);
+				channelContext.stat.sentBytes.addAndGet(result);
+			}
 
 			if (groupContext.ipStats.durationList != null && groupContext.ipStats.durationList.size() > 0) {
 				for (Long v : groupContext.ipStats.durationList) {
@@ -159,10 +133,10 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 	}
 
 	/**
-	 *
+	 * 
 	 * @param result
 	 * @param throwable
-	 * @param obj PacketWithMeta or Packet
+	 * @param packet
 	 * @param isSentSuccess
 	 * @author tanyaowu
 	 */
@@ -174,9 +148,7 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 		}
 
 		try {
-			channelContext.traceClient(ChannelAction.AFTER_SEND, packet, null);
 			channelContext.processAfterSent(packet, isSentSuccess);
-
 		} catch (Throwable e) {
 			log.error(e.toString(), e);
 		}

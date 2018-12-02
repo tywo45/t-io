@@ -15,14 +15,12 @@ import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
 import org.tio.core.TcpConst;
 import org.tio.core.Tio;
-import org.tio.core.WriteCompletionHandler;
 import org.tio.core.WriteCompletionHandler.WriteCompletionVo;
 import org.tio.core.intf.AioHandler;
 import org.tio.core.intf.Packet;
-import org.tio.core.ssl.SslFacadeContext;
 import org.tio.core.ssl.SslUtils;
 import org.tio.core.ssl.SslVo;
-import org.tio.core.utils.AioUtils;
+import org.tio.core.utils.TioUtils;
 import org.tio.utils.thread.pool.AbstractQueueRunnable;
 
 /**
@@ -50,9 +48,12 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 	}
 
 	private ChannelContext channelContext = null;
-	
+
 	private GroupContext groupContext = null;
 
+	private AioHandler aioHandler = null;
+
+	private boolean isSsl = false;
 
 	//SSL加密锁
 	//	private Object sslEncryptLock = new Object();
@@ -66,22 +67,31 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 	public SendRunnable(ChannelContext channelContext, Executor executor) {
 		super(executor);
 		this.channelContext = channelContext;
-		groupContext = channelContext.groupContext;
+		this.groupContext = channelContext.groupContext;
+		this.aioHandler = groupContext.getAioHandler();
+		this.isSsl = SslUtils.isSsl(groupContext);
 	}
 
-	/**
-	 * obj is PacketWithMeta or Packet
-	 */
 	@Override
-	public boolean addMsg(Packet obj) {
+	public boolean addMsg(Packet packet) {
 		if (this.isCanceled()) {
-			log.error("{}, 任务已经取消，{}添加到发送队列失败", channelContext, obj);
+			log.info("{}, 任务已经取消，{}添加到发送队列失败", channelContext, packet.logstr());
 			return false;
 		}
-		if (channelContext.sslFacadeContext != null && !channelContext.sslFacadeContext.isHandshakeCompleted() && SslUtils.needSslEncrypt(obj, channelContext)) {
-			return this.getForSendAfterSslHandshakeCompleted(true).add(obj);
+		
+		if (groupContext.packetConverter != null) {
+			Packet packet1 = groupContext.packetConverter.convert(packet, channelContext);
+			if (packet1 == null) {
+				log.info("convert后为null，表示不需要发送", channelContext, packet.logstr());
+				return true;
+			}
+			packet = packet1;
+		}
+		
+		if (channelContext.sslFacadeContext != null && !channelContext.sslFacadeContext.isHandshakeCompleted() && SslUtils.needSslEncrypt(packet, groupContext)) {
+			return this.getForSendAfterSslHandshakeCompleted(true).add(packet);
 		} else {
-			return msgQueue.add(obj);
+			return msgQueue.add(packet);
 		}
 	}
 
@@ -101,7 +111,7 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 		}
 	}
 
-	private ByteBuffer getByteBuffer(Packet packet, GroupContext groupContext, AioHandler aioHandler) {
+	private ByteBuffer getByteBuffer(Packet packet) {
 		try {
 			ByteBuffer byteBuffer = packet.getPreEncodedByteBuffer();
 			if (byteBuffer != null) {
@@ -110,7 +120,7 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 				byteBuffer = aioHandler.encode(packet, groupContext, channelContext);
 			}
 
-			if (byteBuffer.position() != 0) {
+			if (!byteBuffer.hasRemaining()) {
 				byteBuffer.flip();
 			}
 			return byteBuffer;
@@ -138,39 +148,41 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 		return true;
 	}
 
-	
-	private static final int MAX_CAPACITY = TcpConst.MAX_DATA_LENGTH - 1024;       //减掉1024是尽量防止溢出的一小部分还分成一个tcp包发出 
-	
+	private static final int MAX_CAPACITY = TcpConst.MAX_DATA_LENGTH - 1024; //减掉1024是尽量防止溢出的一小部分还分成一个tcp包发出 
+
+	//	private int repeatCount = 0;
+
 	@Override
 	public void runTask() {
 		int queueSize = msgQueue.size();
 		if (queueSize == 0) {
 			return;
 		}
-		
-		int listInitialCapacity = Math.min(queueSize, 200);
 
-		AioHandler aioHandler = groupContext.getAioHandler();
-		boolean isSsl = SslUtils.isSsl(channelContext);
-		SslFacadeContext sslFacadeContext = channelContext.sslFacadeContext;
-
-		if (isSsl) {
-//			maxCapacity = 1024 * 8;
+		if (queueSize == 1) {
+			//			System.out.println(1);
+			Packet packet = msgQueue.poll();
+			if (packet != null) {
+				sendPacket(packet);
+			}
+			return;
 		}
+
+		int listInitialCapacity = Math.min(queueSize, 200);
 
 		Packet packet = null;
 		List<Packet> packets = new ArrayList<>(listInitialCapacity);
 		List<ByteBuffer> byteBuffers = new ArrayList<>(listInitialCapacity);
-		int packetCount = 0;
+		//		int packetCount = 0;
 		int allBytebufferCapacity = 0;
 		Boolean needSslEncrypted = null;
 		boolean sslSwitched = false;
 		while ((packet = msgQueue.poll()) != null) {
-			ByteBuffer byteBuffer = getByteBuffer(packet, groupContext, aioHandler);
+			ByteBuffer byteBuffer = getByteBuffer(packet);
 
 			packets.add(packet);
 			byteBuffers.add(byteBuffer);
-			packetCount++;
+			//			packetCount++;
 			allBytebufferCapacity += byteBuffer.limit();
 
 			if (isSsl) {
@@ -205,7 +217,7 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 		if (needSslEncrypted) {
 			SslVo sslVo = new SslVo(allByteBuffer, packets);
 			try {
-				sslFacadeContext.getSslFacade().encrypt(sslVo);
+				channelContext.sslFacadeContext.getSslFacade().encrypt(sslVo);
 				allByteBuffer = sslVo.getByteBuffer();
 			} catch (SSLException e) {
 				log.error(channelContext.toString() + ", 进行SSL加密时发生了异常", e);
@@ -214,53 +226,85 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 			}
 		}
 
-		this.sendByteBuffer(allByteBuffer, packetCount, packets);
+		this.sendByteBuffer(allByteBuffer, packets);
+		//		queueSize = msgQueue.size();
+		//		if (queueSize > 0) {
+		//			repeatCount++;
+		//			if (repeatCount < 3) {
+		//				runTask();
+		//				return;
+		//			}
+		//		}
+		//		repeatCount = 0;
+	}
+
+	public boolean sendPacket(Packet packet) {
+		ByteBuffer byteBuffer = getByteBuffer(packet);
+
+		if (isSsl) {
+			if (!packet.isSslEncrypted()) {
+				SslVo sslVo = new SslVo(byteBuffer, packet);
+				try {
+					channelContext.sslFacadeContext.getSslFacade().encrypt(sslVo);
+					byteBuffer = sslVo.getByteBuffer();
+				} catch (SSLException e) {
+					log.error(channelContext.toString() + ", 进行SSL加密时发生了异常", e);
+					Tio.close(channelContext, "进行SSL加密时发生了异常");
+					return false;
+				}
+			}
+		}
+
+		sendByteBuffer(byteBuffer, packet);
+		return true;
 	}
 
 	/**
 	 *
 	 * @param byteBuffer
-	 * @param packetCount
-	 * @param packets Packet or PacketWithMeta or List<PacketWithMeta> or List<Packet>
+	 * @param packets Packet or List<Packet>
 	 * @author tanyaowu
 	 */
-	public void sendByteBuffer(ByteBuffer byteBuffer, Integer packetCount, Object packets) {
+	public void sendByteBuffer(ByteBuffer byteBuffer, Object packets) {
 		if (byteBuffer == null) {
 			log.error("{},byteBuffer is null", channelContext);
 			return;
 		}
 
-		if (!AioUtils.checkBeforeIO(channelContext)) {
+		if (!TioUtils.checkBeforeIO(channelContext)) {
 			return;
 		}
 
-		if (byteBuffer.position() != 0) {
+		if (!byteBuffer.hasRemaining()) {
 			byteBuffer.flip();
 		}
-		
-//		System.out.println(channelContext.getId() + ", " + byteBuffer.capacity() + ", " + packetCount);
 
-		WriteCompletionHandler writeCompletionHandler = channelContext.getWriteCompletionHandler();
 		try {
-			//			long start = SystemTimer.currentTimeMillis();
-			writeCompletionHandler.getWriteSemaphore().acquire();
-			//			long end = SystemTimer.currentTimeMillis();
-			//			long iv = end - start;
-			//			if (iv > 100) {
-			//				//log.error("{} 等发送锁耗时:{} ms", channelContext, iv);
-			//			}
-
+			channelContext.writeCompletionHandler.getWriteSemaphore().acquire();
 		} catch (InterruptedException e) {
 			log.error(e.toString(), e);
 		}
 
+		write(byteBuffer, packets);
+	}
+
+	private void write(ByteBuffer byteBuffer, Object packets) {
 		WriteCompletionVo writeCompletionVo = new WriteCompletionVo(byteBuffer, packets);
-		channelContext.asynchronousSocketChannel.write(byteBuffer, writeCompletionVo, writeCompletionHandler);
+		channelContext.asynchronousSocketChannel.write(byteBuffer, writeCompletionVo, channelContext.writeCompletionHandler);
 	}
 
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName() + ":" + channelContext.toString();
+	}
+
+	/** 
+	 * @return
+	 * @author tanyaowu
+	 */
+	@Override
+	public String logstr() {
+		return toString();
 	}
 
 }

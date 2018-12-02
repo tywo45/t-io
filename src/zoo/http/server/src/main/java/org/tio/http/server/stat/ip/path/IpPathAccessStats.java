@@ -8,13 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.GroupContext;
 import org.tio.http.server.stat.DefaultStatPathFilter;
 import org.tio.http.server.stat.StatPathFilter;
 import org.tio.utils.cache.caffeine.CaffeineCache;
+import org.tio.utils.hutool.StrUtil;
 
 /**
  * 
@@ -154,7 +154,7 @@ public class IpPathAccessStats {
 	 * @author tanyaowu
 	 */
 	public IpAccessStat get(Long duration, String ip, boolean forceCreate) {
-		if (StringUtils.isBlank(ip)) {
+		if (StrUtil.isBlank(ip)) {
 			return null;
 		}
 

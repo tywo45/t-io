@@ -17,14 +17,6 @@ public class RespVo implements java.io.Serializable {
 		return fail().msg(msg);
 	}
 
-	/**
-	 * @param args
-	 * @author tanyaowu
-	 */
-	public static void main(String[] args) {
-		RespVo.fail().code(null).data(null).msg(null);
-	}
-
 	public static RespVo ok() {
 		RespVo resp = new RespVo(RespResult.OK);
 		return resp;
@@ -84,9 +76,9 @@ public class RespVo implements java.io.Serializable {
 		return msg;
 	}
 
-//	public RespResult getResult() {
-//		return result;
-//	}
+	//	public RespResult getResult() {
+	//		return result;
+	//	}
 
 	public boolean isOk() {
 		return this.result == RespResult.OK;
@@ -109,7 +101,7 @@ public class RespVo implements java.io.Serializable {
 		this.msg = msg;
 	}
 
-//	public void setResult(RespResult result) {
-//		this.result = result;
-//	}
+	//	public void setResult(RespResult result) {
+	//		this.result = result;
+	//	}
 }

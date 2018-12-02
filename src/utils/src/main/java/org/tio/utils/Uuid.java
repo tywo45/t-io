@@ -1,11 +1,10 @@
 package org.tio.utils;
 
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import cn.hutool.core.util.RandomUtil;
 
 /**
  * @author tanyaowu 
@@ -25,13 +24,13 @@ public class Uuid {
 	/**
 	 * 系统启动时，重设此两值，只
 	 */
-	private static Integer workid = RandomUtil.randomInt(0, 31);
+	private static Integer workid = ThreadLocalRandom.current().nextInt(0, 31);
 	private static boolean workidSetted = false;
 
 	/**
 	 * 
 	 */
-	private static Integer datacenterid = RandomUtil.randomInt(0, 31);
+	private static Integer datacenterid = ThreadLocalRandom.current().nextInt(0, 31);
 	private static boolean datacenteridSetted = false;
 
 	public static int getWorkid() {

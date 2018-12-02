@@ -6,20 +6,18 @@ import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
 import org.tio.core.Tio;
-import org.tio.core.cluster.TioClusterConfig;
 import org.tio.core.intf.AioHandler;
 import org.tio.core.intf.AioListener;
 import org.tio.core.ssl.SslConfig;
-import org.tio.core.stat.ChannelStat;
 import org.tio.server.intf.ServerAioHandler;
 import org.tio.server.intf.ServerAioListener;
 import org.tio.utils.SystemTimer;
+import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.json.Json;
 import org.tio.utils.lock.SetWithLock;
 import org.tio.utils.thread.pool.SynThreadPoolExecutor;
@@ -61,19 +59,19 @@ public class ServerGroupContext extends GroupContext {
 	 * @author: tanyaowu
 	 */
 	public ServerGroupContext(String name, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener) {
-		this(name, null, serverAioHandler, serverAioListener, null, null);
+		this(name, serverAioHandler, serverAioListener, null, null);
 	}
 
-	/**
-	 * 
-	 * @param name
-	 * @param serverAioHandler
-	 * @param serverAioListener
-	 * @author: tanyaowu
-	 */
-	public ServerGroupContext(String name, TioClusterConfig tioClusterConfig, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener) {
-		this(name, tioClusterConfig, serverAioHandler, serverAioListener, null, null);
-	}
+//	/**
+//	 * 
+//	 * @param name
+//	 * @param serverAioHandler
+//	 * @param serverAioListener
+//	 * @author: tanyaowu
+//	 */
+//	public ServerGroupContext(String name, TioClusterConfig tioClusterConfig, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener) {
+//		this(name, tioClusterConfig, serverAioHandler, serverAioListener, null, null);
+//	}
 
 	/**
 	 * 
@@ -84,7 +82,7 @@ public class ServerGroupContext extends GroupContext {
 	 * @author: tanyaowu
 	 */
 	public ServerGroupContext(ServerAioHandler serverAioHandler, ServerAioListener serverAioListener, SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
-		this(null, null, serverAioHandler, serverAioListener, tioExecutor, groupExecutor);
+		this(null, serverAioHandler, serverAioListener, tioExecutor, groupExecutor);
 	}
 
 	/**
@@ -98,7 +96,8 @@ public class ServerGroupContext extends GroupContext {
 	 */
 	public ServerGroupContext(String name, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener, SynThreadPoolExecutor tioExecutor,
 			ThreadPoolExecutor groupExecutor) {
-		this(name, null, serverAioHandler, serverAioListener, tioExecutor, groupExecutor);
+		super(tioExecutor, groupExecutor);
+		init(name, serverAioHandler, serverAioListener, tioExecutor, groupExecutor);
 	}
 
 	/**
@@ -111,14 +110,28 @@ public class ServerGroupContext extends GroupContext {
 	 * @param groupExecutor
 	 * @author: tanyaowu
 	 */
-	public ServerGroupContext(String name, TioClusterConfig tioClusterConfig, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener,
+//	public ServerGroupContext(String name, TioClusterConfig tioClusterConfig, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener,
+//			SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
+//		super(tioClusterConfig, tioExecutor, groupExecutor);
+//		init(name, serverAioHandler, serverAioListener, tioExecutor, groupExecutor);
+//	}
+	
+	/**
+	 * 
+	 * @param name
+	 * @param serverAioHandler
+	 * @param serverAioListener
+	 * @param tioExecutor
+	 * @param groupExecutor
+	 * @author tanyaowu
+	 */
+	private void init(String name, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener,
 			SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
-		super(tioClusterConfig, tioExecutor, groupExecutor);
 		this.name = name;
 		this.groupStat = new ServerGroupStat();
 		this.acceptCompletionHandler = new AcceptCompletionHandler();
 		this.serverAioHandler = serverAioHandler;
-		this.serverAioListener = serverAioListener == null ? new DefaultServerAioListener() : serverAioListener;
+		this.serverAioListener = serverAioListener;// == null ? new DefaultServerAioListener() : serverAioListener;
 		checkHeartbeatThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -140,7 +153,7 @@ public class ServerGroupContext extends GroupContext {
 					} catch (InterruptedException e1) {
 						log.error(e1.toString(), e1);
 					}
-					long start = SystemTimer.currentTimeMillis();
+					long start = SystemTimer.currTime;
 					SetWithLock<ChannelContext> setWithLock = ServerGroupContext.this.connections;
 					Set<ChannelContext> set = null;
 					long start1 = 0;
@@ -148,15 +161,13 @@ public class ServerGroupContext extends GroupContext {
 					ReadLock readLock = setWithLock.readLock();
 					readLock.lock();
 					try {
-						start1 = SystemTimer.currentTimeMillis();
+						start1 = SystemTimer.currTime;
 						set = setWithLock.getObj();
 
-						for (ChannelContext entry : set) {
+						for (ChannelContext channelContext : set) {
 							count++;
-							ChannelContext channelContext = entry;
-							ChannelStat stat = channelContext.stat;
-							long compareTime = Math.max(stat.latestTimeOfReceivedByte, stat.latestTimeOfSentPacket);
-							long currtime = SystemTimer.currentTimeMillis();
+							long compareTime = Math.max(channelContext.stat.latestTimeOfReceivedByte, channelContext.stat.latestTimeOfSentPacket);
+							long currtime = SystemTimer.currTime;
 							long interval = currtime - compareTime;
 							if (interval > heartbeatTimeout) {
 								log.info("{}, {} ms没有收发消息", channelContext, interval);
@@ -171,7 +182,7 @@ public class ServerGroupContext extends GroupContext {
 							if (debug) {
 								StringBuilder builder = new StringBuilder();
 								builder.append("\r\n").append(ServerGroupContext.this.getName());
-								builder.append("\r\n ├ 当前时间:").append(SystemTimer.currentTimeMillis());
+								builder.append("\r\n ├ 当前时间:").append(SystemTimer.currTime);
 								builder.append("\r\n ├ 连接统计");
 								builder.append("\r\n │ \t ├ 共接受过连接数  :").append(((ServerGroupStat)groupStat).accepted.get());
 								builder.append("\r\n │ \t ├ 当前连接数            :").append(set.size());
@@ -195,7 +206,7 @@ public class ServerGroupContext extends GroupContext {
 								}
 
 								builder.append("\r\n ├ 节点统计");
-								builder.append("\r\n │ \t ├ clientNodes :").append(ServerGroupContext.this.clientNodeMap.getObjWithLock().getObj().size());
+								builder.append("\r\n │ \t ├ clientNodes :").append(ServerGroupContext.this.clientNodes.getObjWithLock().getObj().size());
 								builder.append("\r\n │ \t ├ 所有连接               :").append(ServerGroupContext.this.connections.getObj().size());
 								builder.append("\r\n │ \t ├ 绑定user数         :").append(ServerGroupContext.this.users.getMap().getObj().size());
 								builder.append("\r\n │ \t ├ 绑定token数       :").append(ServerGroupContext.this.tokens.getMap().getObj().size());
@@ -206,12 +217,12 @@ public class ServerGroupContext extends GroupContext {
 								builder.append("\r\n └ 拉黑IP ");
 								builder.append("\r\n   \t └ ").append(Json.toJson(ServerGroupContext.this.ipBlacklist.getAll()));
 
-								log.info(builder.toString());
+								log.warn(builder.toString());
 
-								long end = SystemTimer.currentTimeMillis();
+								long end = SystemTimer.currTime;
 								long iv1 = start1 - start;
 								long iv = end - start1;
-								log.info("{}, 检查心跳, 共{}个连接, 取锁耗时{}ms, 循环耗时{}ms, 心跳超时时间:{}ms", ServerGroupContext.this.name, count, iv1, iv, heartbeatTimeout);
+								log.warn("{}, 检查心跳, 共{}个连接, 取锁耗时{}ms, 循环耗时{}ms, 心跳超时时间:{}ms", ServerGroupContext.this.name, count, iv1, iv, heartbeatTimeout);
 							}
 						} catch (Throwable e) {
 							log.error("", e);
@@ -223,6 +234,7 @@ public class ServerGroupContext extends GroupContext {
 		checkHeartbeatThread.setDaemon(true);
 		checkHeartbeatThread.setPriority(Thread.MIN_PRIORITY);
 		checkHeartbeatThread.start();
+	
 	}
 
 	/**
@@ -233,7 +245,7 @@ public class ServerGroupContext extends GroupContext {
 	 * @throws FileNotFoundException
 	 */
 	public void useSsl(String keyStoreFile, String trustStoreFile, String keyStorePwd) throws Exception {
-		if (StringUtils.isNotBlank(keyStoreFile) && StringUtils.isNotBlank(trustStoreFile)) {
+		if (StrUtil.isNotBlank(keyStoreFile) && StrUtil.isNotBlank(trustStoreFile)) {
 			SslConfig sslConfig = SslConfig.forServer(keyStoreFile, trustStoreFile, keyStorePwd);
 			this.setSslConfig(sslConfig);
 		}
@@ -311,6 +323,11 @@ public class ServerGroupContext extends GroupContext {
 	@Override
 	public boolean isServer() {
 		return true;
+	}
+	
+	@Override
+	public String toString() {
+		return "ServerGroupContext [name=" + name + "]";
 	}
 
 }

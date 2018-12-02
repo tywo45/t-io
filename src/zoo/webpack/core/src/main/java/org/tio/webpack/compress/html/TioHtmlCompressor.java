@@ -1,14 +1,13 @@
 package org.tio.webpack.compress.html;
 
 import java.io.File;
+import java.nio.file.Files;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.webpack.compress.ResCompressor;
 
 import com.googlecode.htmlcompressor.compressor.HtmlCompressor;
-
-import jodd.io.FileUtil;
 
 /**
  * 
@@ -82,7 +81,9 @@ public class TioHtmlCompressor implements ResCompressor {
 	public static void main(String[] args) throws Exception {
 		long start = System.currentTimeMillis();
 
-		String xx = FileUtil.readString(new File("E:\\svn\\nbyb\\html\\nbyb_bootstrap\\dist\\index.html"), "utf-8");
+		byte[] bytes = Files.readAllBytes(new File("E:\\\\svn\\\\nbyb\\\\html\\\\nbyb_bootstrap\\\\dist\\\\index.html").toPath());
+		String xx = new String(bytes, "utf-8");
+//		String xx = FileUtil.readString(new File("E:\\svn\\nbyb\\html\\nbyb_bootstrap\\dist\\index.html"), "utf-8");
 		String compiled_code = TioHtmlCompressor.ME.compress("xx.html", xx);
 		System.out.println(compiled_code);
 		long end = System.currentTimeMillis();

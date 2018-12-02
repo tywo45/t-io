@@ -23,7 +23,7 @@ public class HttpSession implements java.io.Serializable {
 
 	private String id = null;
 	
-	private long createTime = SystemTimer.currentTimeMillis();
+	private long createTime = SystemTimer.currTime;
 
 	/**
 	 * 此处空的构造函数必须要有
@@ -73,10 +73,13 @@ public class HttpSession implements java.io.Serializable {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> T getAttribute(String key, Class<T> clazz, T defaultObj) {
+	public <T extends Serializable> T getAttribute(String key, Class<T> clazz, T defaultObj, HttpConfig httpConfig) {
 		T t = (T) data.get(key);
 		if (t == null) {
 			log.warn("key【{}】'value in session is null", key);
+			if (defaultObj != null) {
+				setAttribute(key, defaultObj, httpConfig);
+			}
 			return defaultObj;
 		}
 		return t;

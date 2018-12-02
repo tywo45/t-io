@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.t-io</groupId>
 		<artifactId>tio-http-parent</artifactId>
-		<version>3.0.6.v20180626-RELEASE</version>
+		<version>3.2.2.v20181122-RELEASE</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -24,10 +24,7 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
-		</dependency>
+		
 
 		
 
@@ -39,32 +36,6 @@
 			<artifactId>logback-classic</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-access</artifactId>
-			<scope>provided</scope>
-		</dependency>
-
-
-		<!-- redirect apache commons logging -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jcl-over-slf4j</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<!-- redirect jdk util logging -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jul-to-slf4j</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<!-- redirect log4j -->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>log4j-over-slf4j</artifactId>
-			<scope>provided</scope>
-		</dependency>
-
 
 		<dependency>
 			<groupId>junit</groupId>
@@ -80,11 +51,8 @@
 		<dependency>
 			<groupId>org.freemarker</groupId>
 			<artifactId>freemarker</artifactId>
+			<scope>provided</scope>
 		</dependency>
-
-
-
-
 
 	</dependencies>
 	<build>

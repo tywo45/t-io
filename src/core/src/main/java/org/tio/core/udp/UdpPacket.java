@@ -10,14 +10,6 @@ import org.tio.utils.SystemTimer;
 public class UdpPacket {
 
 	/**
-	 * @param args
-	 * @author tanyaowu
-	 */
-	public static void main(String[] args) {
-
-	}
-
-	/**
 	 *
 	 */
 	private byte[] data;
@@ -30,7 +22,7 @@ public class UdpPacket {
 	/**
 	 * 收到消息的时间
 	 */
-	private long time = SystemTimer.currentTimeMillis();
+	private long time = SystemTimer.currTime;
 
 	/**
 	 *

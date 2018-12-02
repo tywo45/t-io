@@ -3,6 +3,8 @@ package org.tio.webpack.compress.js;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -17,8 +19,6 @@ import com.google.javascript.jscomp.Compiler;
 import com.google.javascript.jscomp.CompilerOptions;
 import com.google.javascript.jscomp.CompilerOptions.LanguageMode;
 import com.google.javascript.jscomp.SourceFile;
-
-import jodd.io.FileUtil;
 
 /**
  * An example of how to call the Closure Compiler programmatically, 
@@ -147,10 +147,13 @@ public class TioJsCompressor implements ResCompressor {
 			File initFile = new File("D:\\svn_nb\\nbyb\\html\\nbyb\\web_server\\src\\res\\js\\live\\live-all.txt");
 			//			File initFile = new File("D:\\svn_nb\\nbyb\\html\\nbyb\\web_server\\src\\res\\public\\js\\validate\\talent-validate-all.js");
 
-			String content = FileUtil.readString(initFile, "utf-8");
+			byte[] bytes = Files.readAllBytes(initFile.toPath());
+			String content = new String(bytes, "utf-8");
+//			String content = FileUtil.readString(initFile, "utf-8");
 			String compiled_code = TioJsCompressor.ME.compress(initFile.getAbsolutePath(), content);
 			System.out.println(compiled_code);
-			FileUtil.writeString(filePath, compiled_code, "utf-8");
+			Files.write(Paths.get(filePath), compiled_code.getBytes("utf-8"));
+//			FileUtil.writeString(compiled_code, filePath, "utf-8");
 			long end = System.currentTimeMillis();
 			long iv = end - start;
 			System.out.println("耗时:" + iv + "ms");

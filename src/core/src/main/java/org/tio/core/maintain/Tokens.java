@@ -7,17 +7,16 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
+import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.lock.MapWithLock;
-import org.tio.utils.lock.ObjWithLock;
 import org.tio.utils.lock.SetWithLock;
 
 /**
- * 
+ *一对多  (token <--> ChannelContext)<br>
  * @author tanyaowu 
  * 2017年10月19日 上午9:40:40
  */
@@ -44,7 +43,7 @@ public class Tokens {
 				return;
 			}
 
-			if (StringUtils.isBlank(token)) {
+			if (StrUtil.isBlank(token)) {
 				return;
 			}
 			String key = token;
@@ -83,7 +82,7 @@ public class Tokens {
 			return null;
 		}
 
-		if (StringUtils.isBlank(token)) {
+		if (StrUtil.isBlank(token)) {
 			return null;
 		}
 		String key = token;
@@ -102,7 +101,7 @@ public class Tokens {
 	/**
 	 * @return the mapWithLock
 	 */
-	public ObjWithLock<Map<String, SetWithLock<ChannelContext>>> getMap() {
+	public MapWithLock<String, SetWithLock<ChannelContext>> getMap() {
 		return mapWithLock;
 	}
 
@@ -119,7 +118,7 @@ public class Tokens {
 			}
 
 			String token = channelContext.getToken();
-			if (StringUtils.isBlank(token)) {
+			if (StrUtil.isBlank(token)) {
 				log.debug("{}, {}, 并没有绑定Token", groupContext.getName(), channelContext.toString());
 				return;
 			}
@@ -161,7 +160,7 @@ public class Tokens {
 				return;
 			}
 
-			if (StringUtils.isBlank(token)) {
+			if (StrUtil.isBlank(token)) {
 				return;
 			}
 

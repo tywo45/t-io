@@ -2,16 +2,12 @@ package org.tio.core;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.core.ssl.SslFacadeContext;
-import org.tio.core.stat.GroupStat;
 import org.tio.core.stat.IpStat;
-import org.tio.core.utils.AioUtils;
 import org.tio.core.utils.ByteBufferUtils;
+import org.tio.core.utils.TioUtils;
 import org.tio.utils.SystemTimer;
 
 /**
@@ -33,7 +29,7 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuf
 	 */
 	public ReadCompletionHandler(ChannelContext channelContext) {
 		this.channelContext = channelContext;
-		this.readByteBuffer = ByteBuffer.allocate(channelContext.groupContext.readBufferSize);
+		this.readByteBuffer = ByteBuffer.allocate(channelContext.groupContext.getReadBufferSize());
 	}
 
 	@Override
@@ -41,12 +37,15 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuf
 		if (result > 0) {
 			GroupContext groupContext = channelContext.groupContext;
 
-			groupContext.groupStat.receivedBytes.addAndGet(result);
-			groupContext.groupStat.receivedTcps.incrementAndGet();
+			if (groupContext.statOn) {
+				groupContext.groupStat.receivedBytes.addAndGet(result);
+				groupContext.groupStat.receivedTcps.incrementAndGet();
 
-			channelContext.stat.receivedBytes.addAndGet(result);
-			channelContext.stat.receivedTcps.incrementAndGet();
-			channelContext.stat.latestTimeOfReceivedByte = SystemTimer.currentTimeMillis();
+				channelContext.stat.receivedBytes.addAndGet(result);
+				channelContext.stat.receivedTcps.incrementAndGet();
+			}
+			
+			channelContext.stat.latestTimeOfReceivedByte = SystemTimer.currTime;
 
 			if (groupContext.ipStats.durationList != null && groupContext.ipStats.durationList.size() > 0) {
 				try {
@@ -61,36 +60,40 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuf
 				}
 			}
 
-			try {
-				groupContext.getAioListener().onAfterReceivedBytes(channelContext, result);
-			} catch (Exception e) {
-				log.error("", e);
+			if (groupContext.getAioListener() != null) {
+				try {
+					groupContext.getAioListener().onAfterReceivedBytes(channelContext, result);
+				} catch (Exception e) {
+					log.error("", e);
+				}
 			}
-
-			if (channelContext.isTraceClient) {
-				Map<String, Object> map = new HashMap<>(10);
-				map.put("p_r_buf_len", result);
-				channelContext.traceClient(ChannelAction.RECEIVED_BUF, null, map);
-			}
-
-			SslFacadeContext sslFacadeContext = channelContext.sslFacadeContext;
-			if (sslFacadeContext == null) {
-				readByteBuffer.flip();
-				channelContext.decodeRunnable.setNewByteBuffer(readByteBuffer);
-				channelContext.decodeRunnable.run();
+			
+			
+			readByteBuffer.flip();
+			if (channelContext.sslFacadeContext == null) {
+				if (groupContext.useQueueDecode) {
+					channelContext.decodeRunnable.addMsg(ByteBufferUtils.copy(readByteBuffer));
+					channelContext.decodeRunnable.execute();
+				} else {
+					channelContext.decodeRunnable.setNewByteBuffer(readByteBuffer);
+					channelContext.decodeRunnable.decode();
+				}
 			} else {
 				ByteBuffer copiedByteBuffer = null;
 				try {
-					copiedByteBuffer = ByteBufferUtils.copy(readByteBuffer, 0, readByteBuffer.position());
+					copiedByteBuffer = ByteBufferUtils.copy(readByteBuffer);
 					log.debug("{}, 丢给SslFacade解密:{}", channelContext, copiedByteBuffer);
-					sslFacadeContext.getSslFacade().decrypt(copiedByteBuffer);
+					channelContext.sslFacadeContext.getSslFacade().decrypt(copiedByteBuffer);
 				} catch (Exception e) {
 					log.error(channelContext + ", " + e.toString() + copiedByteBuffer, e);
 					Tio.close(channelContext, e, e.toString());
 				}
 			}
-			//			decodeRunnable.addMsg(newByteBuffer);
-			//			groupContext.getDecodeExecutor().execute(decodeRunnable);
+			
+			if (TioUtils.checkBeforeIO(channelContext)) {
+				read();
+			}
+			
 		} else if (result == 0) {
 			log.error("{}, 读到的数据长度为0", channelContext);
 			Tio.close(channelContext, null, "读到的数据长度为0");
@@ -104,12 +107,12 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuf
 				return;
 			}
 		}
-
-		if (AioUtils.checkBeforeIO(channelContext)) {
-			readByteBuffer.position(0);
-			readByteBuffer.limit(readByteBuffer.capacity());
-			channelContext.asynchronousSocketChannel.read(readByteBuffer, readByteBuffer, this);
-		}
+	}
+	
+	private void read() {
+		readByteBuffer.position(0);
+		readByteBuffer.limit(readByteBuffer.capacity());
+		channelContext.asynchronousSocketChannel.read(readByteBuffer, readByteBuffer, this);
 	}
 
 	/**

@@ -7,11 +7,10 @@ import java.util.Enumeration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.http.common.HttpConfig;
 import org.tio.http.common.HttpRequest;
+import org.tio.utils.hutool.StrUtil;
 
 /**
  *
@@ -55,32 +54,41 @@ public class IpUtils {
 	}
 
 	/**
+	 * 如果是被代理了，获取客户端ip时，依次从下面这些头部中获取
+	 */
+	private final static String[] HEADER_NAMES_FOR_REALIP = new String[] { "x-forwarded-for", "proxy-client-ip", "wl-proxy-client-ip" };
+
+	/**
 	 * 
 	 * @param request
 	 * @return
 	 * @author tanyaowu
 	 */
 	public static String getRealIp(HttpRequest request) {
-		HttpConfig httpConfig = request.getHttpConfig();
-		if (httpConfig == null) {
+		if (request.httpConfig == null) {
 			return request.getRemote().getIp();
 		}
 
-		if (httpConfig.isProxied()) {
-			String ip = request.getHeader("x-forwarded-for");
-			if (StringUtils.isBlank(ip) || "unknown".equalsIgnoreCase(ip)) {
-				ip = request.getHeader("proxy-client-ip");
+		if (request.httpConfig.isProxied()) {
+			String headerName = null;
+			String ip = null;
+			for (String name : HEADER_NAMES_FOR_REALIP) {
+				headerName = name;
+				ip = request.getHeader(headerName);
+
+				if (StrUtil.isNotBlank(ip) && !"unknown".equalsIgnoreCase(ip)) {
+					break;
+				}
 			}
-			if (StringUtils.isBlank(ip) || "unknown".equalsIgnoreCase(ip)) {
-				ip = request.getHeader("wl-proxy-client-ip");
-			}
-			if (StringUtils.isBlank(ip) || "unknown".equalsIgnoreCase(ip)) {
+
+			if (StrUtil.isBlank(ip) || "unknown".equalsIgnoreCase(ip)) {
+				headerName = null;
 				ip = request.getRemote().getIp();
 			}
 
-			if (StringUtils.contains(ip, ",")) {
-				log.error("ip[{}]", ip);
-				ip = StringUtils.split(ip, ",")[0].trim();
+			if (ip.contains(",")) {
+				log.error("ip[{}], header name:{}", ip, headerName);
+				ip = ip.split(",")[0].trim();
 			}
 			return ip;
 		} else {
@@ -106,38 +114,5 @@ public class IpUtils {
 		boolean ipAddress = mat.find();
 		return ipAddress;
 	}
-	
-	  public static void main(String[] args)   
-	    {  
-	        /** 
-	         * 符合IP地址的范围 
-	         */  
-	         String oneAddress = "10.43.30.45";  
-	         /** 
-	         * 符合IP地址的长度范围但是不符合格式 
-	         */  
-	         String twoAddress = "127.30.45";  
-	         /** 
-	         * 不符合IP地址的长度范围 
-	         */  
-	         String threeAddress = "7.0.4";  
-	         /** 
-	         * 不符合IP地址的长度范围但是不符合IP取值范围 
-	         */  
-	         String fourAddress = "255.155.255.3e";  
 
-	        
-
-	         //判断oneAddress是否是IP  
-	         System.out.println(isIp(oneAddress));  
-
-	         //判断twoAddress是否是IP  
-	         System.out.println(isIp(twoAddress));  
-
-	         //判断threeAddress是否是IP  
-	         System.out.println(isIp(threeAddress));  
-
-	         //判断fourAddress是否是IP  
-	         System.out.println(isIp(fourAddress));  
-	    }  
 }

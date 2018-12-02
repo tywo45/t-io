@@ -1,18 +1,16 @@
 package org.tio.http.common;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.http.common.utils.HttpGzipUtils;
-import org.tio.utils.HttpDateTimer;
-
+import org.tio.utils.hutool.StrUtil;
 
 /**
  *
@@ -20,33 +18,103 @@ import org.tio.utils.HttpDateTimer;
  *
  */
 public class HttpResponse extends HttpPacket {
+	@SuppressWarnings("unused")
 	private static Logger log = LoggerFactory.getLogger(HttpResponse.class);
 
 	private static final long serialVersionUID = -3512681144230291786L;
+	
+	public static final HttpResponse NULL_RESPONSE = new HttpResponse();
+
+	public HttpResponse() {
+		//		addHeader(HeaderName.Server, HeaderValue.Server.TIO);  //在encode()中添加了，此处不必再加
+		//		addHeader(HeaderName.Date, HttpDateTimer.httpDateValue);  //在encode()中添加了，此处不必再加
+	}
 
 	/**
-	 * @param args
-	 *
-	 * @author tanyaowu
-	 * 2017年2月22日 下午4:14:40
-	 *
+	 * 
+	 * @param request
 	 */
-	public static void main(String[] args) {
+	public HttpResponse(HttpRequest request) {
+		this();
+		this.request = request;
+		if (request == null) {
+			return;
+		}
+
+		if (request.httpConfig != null && request.httpConfig.compatible1_0) {
+			String connection = request.getConnection();//StrUtil.lowerCase(request.getHeader(HttpConst.RequestHeaderKey.Connection));
+			switch (request.requestLine.version) {
+			case HttpConst.HttpVersion.V1_0:
+				if (StrUtil.equals(connection, HttpConst.RequestHeaderValue.Connection.keep_alive)) {
+					addHeader(HeaderName.Connection, HeaderValue.Connection.keep_alive);
+					addHeader(HeaderName.Keep_Alive, HeaderValue.Keep_Alive.TIMEOUT_10_MAX_20);
+				} else {
+					//					addHeader(HeaderName.Connection, HeaderValue.Connection.close);
+				}
+				break;
+
+			default:
+				if (StrUtil.equals(connection, HttpConst.RequestHeaderValue.Connection.close)) {
+					//					addHeader(HeaderName.Connection, HeaderValue.Connection.close);
+				} else {
+					//					addHeader(HeaderName.Connection, HeaderValue.Connection.keep_alive);
+					//					addHeader(HeaderName.Keep_Alive, HeaderValue.Keep_Alive.TIMEOUT_10_MAX_20);
+				}
+				break;
+			}
+		}
 	}
-	
+
+	/**
+	 * 
+	 * @param responseHeaders
+	 * @param body
+	 */
+	public HttpResponse(Map<HeaderName, HeaderValue> responseHeaders, byte[] body) {
+		if (responseHeaders != null) {
+			this.headers.putAll(responseHeaders);
+		}
+		this.setBody(body);
+		HttpGzipUtils.gzip(this);
+	}
+
+	/**
+	 * 支持跨域
+	 * @author tanyaowu
+	 */
+	public void crossDomain() {
+		addHeader(HeaderName.Access_Control_Allow_Origin, HeaderValue.from("*"));
+		addHeader(HeaderName.Access_Control_Allow_Headers, HeaderValue.from("x-requested-with,content-type"));
+	}
+
 	public static HttpResponse cloneResponse(HttpRequest request, HttpResponse response) {
 		HttpResponse cloneResponse = new HttpResponse(request);
 		cloneResponse.setStatus(response.getStatus());
 		cloneResponse.setBody(response.getBody());
 		cloneResponse.setHasGzipped(response.isHasGzipped());
 		cloneResponse.addHeaders(response.getHeaders());
-		
+
 		if (cloneResponse.getCookies() != null) {
 			cloneResponse.getCookies().clear();
 		}
 		return cloneResponse;
 	}
 
+	/**
+	 * <span style='color:red'>
+	 *  <p style='color:red;font-size:12pt;'>警告：通过本方法获得Map<HeaderName, HeaderValue>对象后，请勿调用put(key, value)。<p>
+	 *  <p style='color:red;font-size:12pt;'>添加响应头只能通过HttpResponse.addHeader(HeaderName, HeaderValue)或HttpResponse.addHeaders(Map<HeaderName, HeaderValue> headers)方式添加<p>
+	 * </span>
+	 * @return
+	 * @author tanyaowu
+	 */
+	public Map<HeaderName, HeaderValue> getHeaders() {
+		return headers;
+	}
+
+	/**
+	 * 服务器端用（因为服务器端可以直接枚举）
+	 */
 	private HttpResponseStatus status = HttpResponseStatus.C200;
 
 	/**
@@ -57,7 +125,13 @@ public class HttpResponse extends HttpPacket {
 
 	private HttpRequest request = null;
 	private List<Cookie> cookies = null;
-	
+
+	private Map<HeaderName, HeaderValue> headers = new HashMap<>();
+
+	private int headerByteCount = 2;
+
+	//	private int cookieByteCount = 0;
+
 	/**
 	 * 是否已经被gzip压缩过了，防止重复压缩
 	 */
@@ -67,10 +141,10 @@ public class HttpResponse extends HttpPacket {
 	//	private byte[] bodyBytes;
 	private String charset = HttpConst.CHARSET_NAME;
 
-//	/**
-//	 * 已经编码好的byte[]
-//	 */
-//	private byte[] encodedBytes = null;
+	//	/**
+	//	 * 已经编码好的byte[]
+	//	 */
+	//	private byte[] encodedBytes = null;
 
 	/**
 	 * 忽略ip访问统计
@@ -80,128 +154,80 @@ public class HttpResponse extends HttpPacket {
 	 * 忽略token访问统计
 	 */
 	private boolean skipTokenStat = false;
-	
-//	private String lastModified = null;//HttpConst.ResponseHeaderKey.Last_Modified
-	
-//	/**
-//	 *
-//	 * @param request
-//	 * @param httpConfig 可以为null
-//	 * @author tanyaowu
-//	 */
-//	public HttpResponse(HttpRequest request, HttpConfig httpConfig) {
-//		this.request = request;
-//
-//		String Connection = StringUtils.lowerCase(request.getHeader(HttpConst.RequestHeaderKey.Connection));
-//		RequestLine requestLine = request.getRequestLine();
-//		String version = requestLine.getVersion();
-//		if ("1.0".equals(version)) {
-//			if (StringUtils.equals(Connection, HttpConst.RequestHeaderValue.Connection.keep_alive)) {
-//				addHeader(HttpConst.ResponseHeaderKey.Connection, HttpConst.ResponseHeaderValue.Connection.keep_alive);
-//				addHeader(HttpConst.ResponseHeaderKey.Keep_Alive, "timeout=10, max=20");
-//			} else {
-//				addHeader(HttpConst.ResponseHeaderKey.Connection, HttpConst.ResponseHeaderValue.Connection.close);
-//			}
-//		} else {
-//			if (StringUtils.equals(Connection, HttpConst.RequestHeaderValue.Connection.close)) {
-//				addHeader(HttpConst.ResponseHeaderKey.Connection, HttpConst.ResponseHeaderValue.Connection.close);
-//			} else {
-//				addHeader(HttpConst.ResponseHeaderKey.Connection, HttpConst.ResponseHeaderValue.Connection.keep_alive);
-//				addHeader(HttpConst.ResponseHeaderKey.Keep_Alive, "timeout=10, max=20");
-//			}
-//		}
-//		
-//
-//		if (httpConfig != null) {
-//			addHeader(HttpConst.ResponseHeaderKey.Server, httpConfig.getServerInfo());
-//		}
-//		//		String xx = DatePattern.HTTP_DATETIME_FORMAT.format(SystemTimer.currentTimeMillis());
-//		//		addHeader(HttpConst.ResponseHeaderKey.Date, DatePattern.HTTP_DATETIME_FORMAT.format(SystemTimer.currentTimeMillis()));
-//		//		addHeader(HttpConst.ResponseHeaderKey.Date, new Date().toGMTString());
-//	}
-	
-	/**
-	 * 
-	 * @param request
-	 */
-	public HttpResponse(HttpRequest request) {
-		this.request = request;
 
-		String connection = request.getConnection();//StringUtils.lowerCase(request.getHeader(HttpConst.RequestHeaderKey.Connection));
-		String version = request.getRequestLine().getVersion();
+	//	private String lastModified = null;//HttpConst.ResponseHeaderKey.Last_Modified
 
-		switch (version) {
-		case "1.0":
-			if (StringUtils.equals(connection, HttpConst.RequestHeaderValue.Connection.keep_alive)) {
-				addHeader(HttpConst.ResponseHeaderKey.Connection, HttpConst.ResponseHeaderValue.Connection.keep_alive);
-				addHeader(HttpConst.ResponseHeaderKey.Keep_Alive, "timeout=10, max=20");
-			} else {
-				addHeader(HttpConst.ResponseHeaderKey.Connection, HttpConst.ResponseHeaderValue.Connection.close);
-			}
-			break;
+	//	/**
+	//	 *
+	//	 * @param request
+	//	 * @param httpConfig 可以为null
+	//	 * @author tanyaowu
+	//	 */
+	//	public HttpResponse(HttpRequest request, HttpConfig httpConfig) {
+	//		this.request = request;
+	//
+	//		String Connection = StrUtil.lowerCase(request.getHeader(HttpConst.RequestHeaderKey.Connection));
+	//		RequestLine requestLine = request.getRequestLine();
+	//		String version = requestLine.getVersion();
+	//		if ("1.0".equals(version)) {
+	//			if (StrUtil.equals(Connection, HttpConst.RequestHeaderValue.Connection.keep_alive)) {
+	//				addHeader(HttpConst.ResponseHeaderKey.Connection, HttpConst.ResponseHeaderValue.Connection.keep_alive);
+	//				addHeader(HttpConst.ResponseHeaderKey.Keep_Alive, "timeout=10, max=20");
+	//			} else {
+	//				addHeader(HttpConst.ResponseHeaderKey.Connection, HttpConst.ResponseHeaderValue.Connection.close);
+	//			}
+	//		} else {
+	//			if (StrUtil.equals(Connection, HttpConst.RequestHeaderValue.Connection.close)) {
+	//				addHeader(HttpConst.ResponseHeaderKey.Connection, HttpConst.ResponseHeaderValue.Connection.close);
+	//			} else {
+	//				addHeader(HttpConst.ResponseHeaderKey.Connection, HttpConst.ResponseHeaderValue.Connection.keep_alive);
+	//				addHeader(HttpConst.ResponseHeaderKey.Keep_Alive, "timeout=10, max=20");
+	//			}
+	//		}
+	//		
+	//
+	//		if (httpConfig != null) {
+	//			addHeader(HttpConst.ResponseHeaderKey.Server, httpConfig.getServerInfo());
+	//		}
+	//		//		String xx = DatePattern.HTTP_DATETIME_FORMAT.format(SystemTimer.currTime);
+	//		//		addHeader(HttpConst.ResponseHeaderKey.Date, DatePattern.HTTP_DATETIME_FORMAT.format(SystemTimer.currTime));
+	//		//		addHeader(HttpConst.ResponseHeaderKey.Date, new Date().toGMTString());
+	//	}
 
-		default:
-			if (StringUtils.equals(connection, HttpConst.RequestHeaderValue.Connection.close)) {
-				addHeader(HttpConst.ResponseHeaderKey.Connection, HttpConst.ResponseHeaderValue.Connection.close);
-			} else {
-				addHeader(HttpConst.ResponseHeaderKey.Connection, HttpConst.ResponseHeaderValue.Connection.keep_alive);
-				addHeader(HttpConst.ResponseHeaderKey.Keep_Alive, "timeout=10, max=20");
-			}
-			break;
-		}
-		HttpConfig httpConfig = request.getHttpConfig();
-		if (httpConfig != null) {
-			addHeader(HttpConst.ResponseHeaderKey.Server, httpConfig.getServerInfo());
-		}
-		addHeader(HttpConst.ResponseHeaderKey.Date, HttpDateTimer.currDateString());
-	}
-	
-	/**
-	 * 
-	 * @param responseHeaders
-	 * @param body
-	 */
-	public HttpResponse(Map<String, String> responseHeaders, byte[] body) {
-		if (responseHeaders != null) {
-			this.headers.putAll(responseHeaders);
-		}
-		this.setBody(body);
-		HttpGzipUtils.gzip(this);
-	}
-	
-	public void addHeader(String key, String value) {
+	public void addHeader(HeaderName key, HeaderValue value) {
 		headers.put(key, value);
+		headerByteCount += (key.bytes.length + value.bytes.length + 3);
 	}
 
-	public void addHeaders(Map<String, String> headers) {
+	public void addHeaders(Map<HeaderName, HeaderValue> headers) {
 		if (headers != null) {
-			Set<Entry<String, String>> set = headers.entrySet();
-			for (Entry<String, String> entry : set) {
+			Set<Entry<HeaderName, HeaderValue>> set = headers.entrySet();
+			for (Entry<HeaderName, HeaderValue> entry : set) {
 				this.addHeader(entry.getKey(), entry.getValue());
 			}
 		}
 	}
-	
+
 	/**
 	 * 获取"Content-Type"头部内容
 	 * @return
 	 * @author tanyaowu
 	 */
-	public String getContentType() {
-		return this.headers.get(HttpConst.RequestHeaderKey.Content_Type);
+	public HeaderValue getContentType() {
+		return this.headers.get(HeaderName.Content_Type);
 	}
 
 	public boolean addCookie(Cookie cookie) {
 		if (cookies == null) {
-//			synchronized (this) {
-//				if (cookies == null) {
-//					cookies = new ArrayList<>();
-//				}
-//			}
-			
+			//			synchronized (this) {
+			//				if (cookies == null) {
+			//					cookies = new ArrayList<>();
+			//				}
+			//			}
+
 			cookies = new ArrayList<>();
 		}
-//		log.error("cookie domain:{}, value:{}", cookie.getDomain(), cookie.getValue());
+		//		log.error("cookie domain:{}, value:{}", cookie.getDomain(), cookie.getValue());
 		return cookies.add(cookie);
 	}
 
@@ -219,12 +245,12 @@ public class HttpResponse extends HttpPacket {
 		return cookies;
 	}
 
-//	/**
-//	 * @return the encodedBytes
-//	 */
-//	public byte[] getEncodedBytes() {
-//		return encodedBytes;
-//	}
+	//	/**
+	//	 * @return the encodedBytes
+	//	 */
+	//	public byte[] getEncodedBytes() {
+	//		return encodedBytes;
+	//	}
 
 	/**
 	 * @return the request
@@ -239,8 +265,6 @@ public class HttpResponse extends HttpPacket {
 	public HttpResponseStatus getStatus() {
 		return status;
 	}
-
-
 
 	/**
 	 * @return the isStaticRes
@@ -261,7 +285,6 @@ public class HttpResponse extends HttpPacket {
 		return str;
 	}
 
-
 	/**
 	 * @param charset the charset to set
 	 */
@@ -276,12 +299,12 @@ public class HttpResponse extends HttpPacket {
 		this.cookies = cookies;
 	}
 
-//	/**
-//	 * @param encodedBytes the encodedBytes to set
-//	 */
-//	public void setEncodedBytes(byte[] encodedBytes) {
-//		this.encodedBytes = encodedBytes;
-//	}
+	//	/**
+	//	 * @param encodedBytes the encodedBytes to set
+	//	 */
+	//	public void setEncodedBytes(byte[] encodedBytes) {
+	//		this.encodedBytes = encodedBytes;
+	//	}
 
 	/**
 	 * @param request the request to set
@@ -328,30 +351,54 @@ public class HttpResponse extends HttpPacket {
 		this.skipTokenStat = skipTokenStat;
 	}
 
-	public String getLastModified() {
-//		if (lastModified != null) {
-//			return lastModified;
-//		}
-		return this.getHeader(HttpConst.ResponseHeaderKey.Last_Modified);
+	public HeaderValue getLastModified() {
+		//		if (lastModified != null) {
+		//			return lastModified;
+		//		}
+		return this.getHeader(HeaderName.Last_Modified);
 	}
 
-	public void setLastModified(String lastModified) {
-		if (StringUtils.isNotBlank(lastModified)) {
-//			this.lastModified = lastModified;
-			this.headers.put(HttpConst.ResponseHeaderKey.Last_Modified, lastModified);
+	/**
+	 * 
+	 * @param name 从HeaderName中找，或者HeaderName.from(name)
+	 * @return
+	 * @author tanyaowu
+	 */
+	public HeaderValue getHeader(HeaderName name) {
+		return headers.get(name);
+	}
+
+	public void setLastModified(HeaderValue lastModified) {
+		if (lastModified != null) {
+			//			this.lastModified = lastModified;
+			this.addHeader(HeaderName.Last_Modified, lastModified);
 		}
 	}
-	
+
 	@Override
 	public String toString() {
-		String ret =  this.getHeaderString();
-		if (this.getBody() != null) {
-			try {
-				ret += new String(this.getBody(), this.request.getCharset());
-			} catch (UnsupportedEncodingException e) {
-				log.error(e.toString(), e);
-			}
-		}
-		return ret;//requestLine.getPathAndQuery() + System.lineSeparator() + Json.toFormatedJson(params);
+//		String ret = this.getHeaderString();
+//		if (this.getBody() != null) {
+//			try {
+//				ret += new String(this.getBody(), this.request.getCharset());
+//			} catch (UnsupportedEncodingException e) {
+//				log.error(e.toString(), e);
+//			}
+//		}
+		return this.status.toString();
 	}
+
+	/**
+	 * @return the headerByteCount
+	 */
+	public int getHeaderByteCount() {
+		return headerByteCount;
+	}
+
+	//	/**
+	//	 * @return the cookieByteCount
+	//	 */
+	//	public int getCookieByteCount() {
+	//		return cookieByteCount;
+	//	}
 }

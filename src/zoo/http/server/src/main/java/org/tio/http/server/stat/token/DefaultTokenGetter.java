@@ -30,18 +30,12 @@ public class DefaultTokenGetter implements TokenGetter {
 		if (httpSession != null) {
 			return httpSession.getId();
 		}
-		Cookie cookie = DefaultHttpRequestHandler.getSessionCookie(request, request.getHttpConfig());
+		Cookie cookie = DefaultHttpRequestHandler.getSessionCookie(request, request.httpConfig);
 		if (cookie != null) {
 			log.error("token from cookie: {}", cookie.getValue());
 			return cookie.getValue();
 		}
 		return null;
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
 	}
 
 }

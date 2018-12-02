@@ -3,13 +3,14 @@ package org.tio.utils.quartz;
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.quartz.CronTrigger;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
@@ -19,8 +20,8 @@ import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import cn.hutool.setting.dialect.Props;
+import org.tio.utils.hutool.ResourceUtil;
+import org.tio.utils.hutool.StrUtil;
 
 /**
  * 对Quartz的封装, 使用方法见:<a href="https://my.oschina.net/talenttan/blog/1550826">https://my.oschina.net/talenttan/blog/1550826</a>
@@ -33,7 +34,7 @@ public class QuartzUtils {
 	/**
 	 * 默认的配置文件
 	 */
-	private static final String DEFAULT_FILE = "classpath:config/tio-quartz.properties";
+	private static final String DEFAULT_FILE = "config/tio-quartz.properties";
 
 	private static String file = DEFAULT_FILE;
 
@@ -64,7 +65,7 @@ public class QuartzUtils {
 	 * @author: tanyaowu
 	 */
 	public static void start(String file1) {
-		if (StringUtils.isBlank(file1)) {
+		if (StrUtil.isBlank(file1)) {
 			file = DEFAULT_FILE;
 		}
 		initJobClasses();
@@ -106,12 +107,18 @@ public class QuartzUtils {
 	 * @author: tanyaowu
 	 */
 	private static void initJobClasses() {
-		Props props = new Props(file);
+		Properties props = new Properties();
+		try {
+			props.load(ResourceUtil.getResourceAsStream(file));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 		Set<Entry<Object, Object>> set = props.entrySet();//.keySet();
 		if (set != null && set.size() > 0) {
 			for (Entry<Object, Object> entry : set) {
-				String clazz = StringUtils.trim((String) entry.getKey());
-				String cron = StringUtils.trim((String) entry.getValue());
+				
+				String clazz = StrUtil.trim((String) entry.getKey());
+				String cron = StrUtil.trim((String) entry.getValue());
 
 				QuartzTimeVo quartzTimeVo = new QuartzTimeVo(clazz, cron);
 				JOB_CLASSES.add(quartzTimeVo);

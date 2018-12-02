@@ -27,6 +27,7 @@ public class ClientGroupContext extends GroupContext {
 
 	private ClientAioListener clientAioListener = null;
 
+	protected ReconnConf reconnConf;//重连配置
 
 	private ConnectionCompletionHandler connectionCompletionHandler = new ConnectionCompletionHandler();
 	
@@ -157,6 +158,15 @@ public class ClientGroupContext extends GroupContext {
 	public void setReconnConf(ReconnConf reconnConf) {
 		this.reconnConf = reconnConf;
 	}
+	
+	/**
+	 * 
+	 * @return
+	 * @author tanyaowu
+	 */
+	public ReconnConf getReconnConf() {
+		return reconnConf;
+	}
 
 	/** 
 	 * @return
@@ -166,5 +176,8 @@ public class ClientGroupContext extends GroupContext {
 	public boolean isServer() {
 		return false;
 	}
-
+	@Override
+	public String toString() {
+		return "ClientGroupContext [name=" + name + "]";
+	}
 }

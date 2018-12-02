@@ -5,16 +5,17 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
+import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.lock.MapWithLock;
 import org.tio.utils.lock.SetWithLock;
 
 /**
- * 一个ip有哪些客户端，该维护只在Server侧有
+ * 一对多  (ip <--> ChannelContext)<br>
+ * 一个ip有哪些客户端，该维护只在Server侧有<br>
  * @author tanyaowu 
  * 2017年10月19日 上午9:40:27
  */
@@ -51,7 +52,7 @@ public class Ips {
 				return;
 			}
 
-			if (StringUtils.isBlank(ip)) {
+			if (StrUtil.isBlank(ip)) {
 				return;
 			}
 
@@ -78,6 +79,7 @@ public class Ips {
 
 	/**
 	 * 一个ip有哪些客户端，有可能返回null
+	 * @param groupContext
 	 * @param ip
 	 * @return
 	 * @author tanyaowu
@@ -87,13 +89,10 @@ public class Ips {
 			return null;
 		}
 
-		if (StringUtils.isBlank(ip)) {
+		if (StrUtil.isBlank(ip)) {
 			return null;
 		}
-
-		Map<String, SetWithLock<ChannelContext>> map = ipmap.getObj();
-		SetWithLock<ChannelContext> set = map.get(ip);
-		return set;
+		return ipmap.get(ip);
 	}
 
 	/**
@@ -126,7 +125,7 @@ public class Ips {
 				return;
 			}
 
-			if (StringUtils.isBlank(ip)) {
+			if (StrUtil.isBlank(ip)) {
 				return;
 			}
 
@@ -153,7 +152,7 @@ public class Ips {
 					lock1.unlock();
 				}
 			} else {
-				log.error("{}, ip【{}】 找不到对应的SetWithLock", groupContext.getName(), ip);
+				log.info("{}, ip【{}】 找不到对应的SetWithLock", groupContext.getName(), ip);
 			}
 		} catch (Exception e) {
 			log.error(e.toString(), e);

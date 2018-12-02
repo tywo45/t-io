@@ -2,19 +2,23 @@ package org.tio.http.common;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tio.http.common.handler.HttpRequestHandler;
+import org.tio.http.common.intf.SessionRateLimiter;
 import org.tio.http.common.session.HttpSession;
 import org.tio.http.common.session.id.ISessionIdGenerator;
 import org.tio.http.common.view.freemarker.FreemarkerConfig;
 import org.tio.utils.cache.ICache;
-
-import cn.hutool.core.io.FileUtil;
+import org.tio.utils.hutool.StrUtil;
 
 /**
  * @author tanyaowu
@@ -22,7 +26,8 @@ import cn.hutool.core.io.FileUtil;
  */
 public class HttpConfig {
 
-	//	private static Logger log = LoggerFactory.getLogger(HttpConfig.class);
+	@SuppressWarnings("unused")
+	private static Logger log = LoggerFactory.getLogger(HttpConfig.class);
 
 	/**
 	 * 存放HttpSession对象的cacheName
@@ -30,7 +35,7 @@ public class HttpConfig {
 	public static final String SESSION_CACHE_NAME = "tio-h-s";
 
 	/**
-	 * 存放sessionId的cookie name
+	 * 存放sessionId的cookie value
 	 */
 	public static final String SESSION_COOKIE_NAME = "PHPSESSID";
 
@@ -63,6 +68,26 @@ public class HttpConfig {
 	 * 文件上传时，体的最大长度
 	 */
 	private int maxLengthOfMultiBody = MAX_LENGTH_OF_MULTI_BODY;
+	
+	
+	
+	/**
+	 *POST体的最大长度默认值（2M）
+	 */
+	public static final int MAX_LENGTH_OF_POST_BODY = 1024 * 1024 * 2;
+
+	/**
+	 * POST体的最大长度
+	 */
+	private int maxLengthOfPostBody = MAX_LENGTH_OF_POST_BODY;
+	
+	
+	public static final int MAX_FORWARD_COUNT = 10;
+	
+	/**
+	 * 
+	 */
+	public int maxForwardCount = MAX_FORWARD_COUNT;
 
 	/**
 	 * 是否使用session
@@ -70,25 +95,18 @@ public class HttpConfig {
 	private boolean useSession = true;
 
 	/**
-	 * 是否拼接http request header string
+	 * 是否兼容1.0
+	 * true：兼容
+	 * false：不兼容
+	 * 默认兼容
+	 */
+	public boolean compatible1_0 = true;
+
+	/**
+	 * 是否拼接http request header value
 	 * 
 	 */
 	private boolean appendRequestHeaderString = false;
-
-	/**
-	 * @param args
-	 * @author tanyaowu
-	 */
-	public static void main(String[] args) {
-		String d = ".t-io.org";
-		String domain = "www.t-io.org";
-
-		boolean s1 = StringUtils.startsWith(d, ".");
-		boolean s2 = StringUtils.endsWith(domain, d);
-
-		System.out.println(s1);
-		System.out.println(s2);
-	}
 
 	private String bindIp = null;//"127.0.0.1";
 
@@ -102,6 +120,8 @@ public class HttpConfig {
 	private String charset = HttpConst.CHARSET_NAME;
 
 	private ICache sessionStore = null;
+	
+	public SessionRateLimiter sessionRateLimiter;
 
 	/**
 	 * 访问路径前缀，譬如"/api"
@@ -116,7 +136,7 @@ public class HttpConfig {
 	/**
 	 * 如果访问路径是以"/"结束，则实际访问路径会自动加上welcomeFile，从而变成形如"/index.html"的路径
 	 */
-	private String welcomeFile = "index.html";
+	private String welcomeFile = null;//"index.html";
 
 	/**
 	 * 允许访问的域名，如果不限制，则为null
@@ -149,7 +169,7 @@ public class HttpConfig {
 	private ISessionIdGenerator sessionIdGenerator;
 
 	private HttpRequestHandler httpRequestHandler;
-	
+
 	/**
 	 * ip被拉黑时，服务器给的响应，如果是null，服务器会直接断开连接
 	 */
@@ -165,20 +185,24 @@ public class HttpConfig {
 	 * 1、classpath中：page
 	 * 2、绝对路径：/page
 	 */
-	private File pageRoot = null;//FileUtil.getAbsolutePath("page");//"/page";
+	private String pageRoot = null;//FileUtil.getAbsolutePath("page");//"/page";
+	
+	private boolean pageInClasspath = false;
 
 	/**
-	 * 临时支持freemarker，主要用于开发环境中的前端开发，暂时不重点作为tio-http-server功能
+	 * 临时支持freemarker，主要用于开发环境中的前端开发，暂时不重点作为tio-http-server功能<br>
 	 * 请大家暂时不要使用该功能，因为api随时会变
 	 */
 	private FreemarkerConfig freemarkerConfig = null;
 
 	/**
-	 * 域名和页面根目录映射。当客户端通过不同域名访问时，其页面根目录是不一样的
-	 * key: www.t-io.org
-	 * value: 域名对应的页面根目录
+	 * 域名和页面根目录映射。当客户端通过不同域名访问时，其页面根目录是不一样的<br>
+	 * key: www.t-io.org<br>
+	 * value: 域名对应的页面根目录<br>
 	 */
-	private Map<String, File> domainPageMap = null;//new HashMap<>();
+	private volatile Map<String, String> domainPageMap = null;//new HashMap<>();
+
+	public boolean checkHost = true;
 
 	//	/**
 	//	 * @return the httpSessionManager
@@ -194,10 +218,16 @@ public class HttpConfig {
 	//		this.httpSessionManager = httpSessionManager;
 	//	}
 
-	public Map<String, File> getDomainPageMap() {
+	public Map<String, String> getDomainPageMap() {
 		return domainPageMap;
 	}
 
+	
+	public HttpConfig(Integer bindPort, boolean useSession) {
+		this.bindPort = bindPort;
+		this.useSession = useSession;
+	}
+	
 	/**
 	 *
 	 * @author tanyaowu
@@ -218,8 +248,6 @@ public class HttpConfig {
 		}
 		this.suffix = suffix;
 	}
-
-	//	private File rootFile = null;
 
 	/**
 	 * @return the bindIp
@@ -260,33 +288,76 @@ public class HttpConfig {
 	/**
 	 * @return the pageRoot
 	 */
-	public File getPageRoot() {
+	public String getPageRoot() {
 		return pageRoot;
 	}
 
-	public File getPageRoot(HttpRequest request) {
+	public String getPageRoot(HttpRequest request) {
 		if (this.domainPageMap == null || domainPageMap.size() == 0) {
 			return pageRoot;
 		}
 
 		String domain = request.getDomain();
-		File root = domainPageMap.get(domain);
+		String root = domainPageMap.get(domain);
 		if (root != null) {
 			return root;
 		}
 
-		Set<Entry<String, File>> set = domainPageMap.entrySet();
+		Set<Entry<String, String>> set = domainPageMap.entrySet();
 
-		for (Entry<String, File> entry : set) {
+		for (Entry<String, String> entry : set) {
 			String d = entry.getKey();
-			if (StringUtils.startsWith(d, ".") && StringUtils.endsWith(domain, d)) {
-				File file = entry.getValue();
+			if (d.startsWith(".") && domain.endsWith(d)) {
+				String file = entry.getValue();
 				domainPageMap.put(domain, file);
 				return file;
 			}
 		}
 		domainPageMap.put(domain, pageRoot);
 		return pageRoot;
+	}
+	
+	/**
+	 * 
+	 * @param request
+	 * @param path 形如 /xx/aa.html
+	 * @return
+	 * @throws Exception
+	 * @author tanyaowu
+	 */
+	public HttpResource getResource(HttpRequest request, String path) throws Exception {
+		String pageRoot = getPageRoot(request);
+		HttpResource httpResource = null;
+//		File file = null;
+		if (pageRoot != null) {
+			if (StrUtil.endWith(path, "/")) {
+				path = path + "index.html";
+			}
+
+			String complatePath = pageRoot + path;
+			if (isPageInClasspath()) {
+				URL url = this.getClass().getClassLoader().getResource(complatePath);
+				if (url != null) {
+					String protocol = url.getProtocol();
+					if (Objects.equals(protocol, "jar")) {
+						InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(complatePath);
+						httpResource = new HttpResource(path, inputStream, null); 
+					} else {
+						File file = new File(url.toURI());
+						if (file.exists()) {
+							httpResource = new HttpResource(path, null, file);
+						}
+					}
+				}
+			} else {
+				File file = new File(complatePath);
+				if (file.exists()) {
+					httpResource = new HttpResource(path, null, file);
+				}
+			}
+		}
+		
+		return httpResource;
 	}
 
 	/**
@@ -359,7 +430,15 @@ public class HttpConfig {
 	 * @throws IOException 
 	 */
 	public void setPageRoot(String pageRoot) throws IOException {
-		this.pageRoot = fromPath(pageRoot);
+		if (StrUtil.startWith(pageRoot, "classpath:")) {
+			this.pageRoot = pageRoot.substring("classpath:".length());//.replaceFirst("classpath:", "classpath:/");
+			if (this.pageRoot.startsWith("/")) {
+				this.pageRoot = this.pageRoot.substring(1);
+			}
+			this.pageInClasspath = true;
+		} else {
+			this.pageRoot = pageRoot;//fromPath(pageRoot);
+		}
 	}
 
 	/**
@@ -367,17 +446,17 @@ public class HttpConfig {
 	 * @param path 如果是以"classpath:"开头，则从classpath中查找，否则视为普通的文件路径
 	 * @return
 	 */
-	public static File fromPath(String path) {
-		if (path == null) {
-			return null;
-		}
-
-		if (StringUtils.startsWithIgnoreCase(path, "classpath:")) {
-			return new File(FileUtil.getAbsolutePath(path));
-		} else {
-			return new File(path);
-		}
-	}
+//	public static File fromPath(String path) {
+//		if (path == null) {
+//			return null;
+//		}
+//
+//		if (StrUtil.startWithIgnoreCase(path, "classpath:")) {
+//			return new File(ResourceUtil.getAbsolutePath(path));
+//		} else {
+//			return new File(path);
+//		}
+//	}
 
 	/**
 	 * 
@@ -386,14 +465,14 @@ public class HttpConfig {
 	 * @throws IOException 
 	 */
 	public void addDomainPage(String domain, String pageRoot) throws IOException {
-		File pageRootFile = fromPath(pageRoot);
-		if (!pageRootFile.exists()) {
-			throw new IOException("文件【" + pageRoot + "】不存在");
-		}
-
-		if (!pageRootFile.isDirectory()) {
-			throw new IOException("文件【" + pageRoot + "】不是目录");
-		}
+//		File pageRootFile = fromPath(pageRoot);
+//		if (!pageRootFile.exists()) {
+//			throw new IOException("文件【" + pageRoot + "】不存在");
+//		}
+//
+//		if (!pageRootFile.isDirectory()) {
+//			throw new IOException("文件【" + pageRoot + "】不是目录");
+//		}
 
 		if (domainPageMap == null) {
 			synchronized (this) {
@@ -403,10 +482,10 @@ public class HttpConfig {
 			}
 		}
 
-		domainPageMap.put(domain, pageRootFile);
+		domainPageMap.put(domain, pageRoot);
 
 		if (this.freemarkerConfig != null) {
-			freemarkerConfig.addDomainConfiguration(domain, pageRootFile);
+			freemarkerConfig.addDomainConfiguration(domain, pageRoot);
 		}
 	}
 
@@ -495,7 +574,7 @@ public class HttpConfig {
 	 * @return
 	 */
 	public HttpSession getHttpSession(String sessionId) {
-		if (StringUtils.isBlank(sessionId)) {
+		if (StrUtil.isBlank(sessionId)) {
 			return null;
 		}
 		HttpSession httpSession = (HttpSession) getSessionStore().get(sessionId);
@@ -553,14 +632,55 @@ public class HttpConfig {
 	public void setRespForBlackIp(HttpResponse respForBlackIp) {
 		this.respForBlackIp = respForBlackIp;
 	}
-	
-	
 
-	//	public Map<String, File> getDomainPageMap() {
-	//		return domainPageMap;
-	//	}
-	//
-	//	public void setDomainPageMap(Map<String, File> domainPageMap) {
-	//		this.domainPageMap = domainPageMap;
-	//	}
+	/**
+	 * @param checkHost
+	 * @author tanyaowu
+	 */
+	public void setCheckHost(boolean checkHost) {
+		this.checkHost = checkHost;
+	}
+
+	public void setCompatible1_0(boolean compatible1_0) {
+		this.compatible1_0 = compatible1_0;
+	}
+
+
+	public boolean isPageInClasspath() {
+		return pageInClasspath;
+	}
+
+
+	public void setPageInClasspath(boolean pageInClasspath) {
+		this.pageInClasspath = pageInClasspath;
+	}
+
+
+	public SessionRateLimiter getSessionRateLimiter() {
+		return sessionRateLimiter;
+	}
+
+
+	public void setSessionRateLimiter(SessionRateLimiter sessionRateLimiter) {
+		this.sessionRateLimiter = sessionRateLimiter;
+	}
+
+	public int getMaxForwardCount() {
+		return maxForwardCount;
+	}
+
+
+	public void setMaxForwardCount(int maxForwardCount) {
+		this.maxForwardCount = maxForwardCount;
+	}
+
+
+	public int getMaxLengthOfPostBody() {
+		return maxLengthOfPostBody;
+	}
+
+
+	public void setMaxLengthOfPostBody(int maxLengthOfPostBody) {
+		this.maxLengthOfPostBody = maxLengthOfPostBody;
+	}
 }

@@ -16,35 +16,80 @@ import org.tio.utils.thread.pool.SynThreadPoolExecutor;
  * 2017年7月7日 上午11:12:03
  */
 public class Threads {
-	public static int CORE_POOL_SIZE = Runtime.getRuntime().availableProcessors() * 1;
 
-	public static final int MAX_POOL_SIZE_FOR_TIO = Math.max(CORE_POOL_SIZE * 4, 128);
-	
-	public static final int MAX_POOL_SIZE_FOR_GROUP = Math.max(CORE_POOL_SIZE * 4, 256);
+	public static int AVAILABLE_PROCESSORS = Runtime.getRuntime().availableProcessors();
 
-	public static final long KEEP_ALIVE_TIME = 360000L;
-	public static ThreadPoolExecutor groupExecutor = null;
-	public static SynThreadPoolExecutor tioExecutor = null;
-	public static SynThreadPoolExecutor tioCloseExecutor = null;
+	public static int CORE_POOL_SIZE = AVAILABLE_PROCESSORS * 1;
 
-	static {
-		LinkedBlockingQueue<Runnable> tioQueue = new LinkedBlockingQueue<>();
-		String tioThreadName = "tio";
-		tioExecutor = new SynThreadPoolExecutor(MAX_POOL_SIZE_FOR_TIO, MAX_POOL_SIZE_FOR_TIO, KEEP_ALIVE_TIME, tioQueue, DefaultThreadFactory.getInstance(tioThreadName, Thread.NORM_PRIORITY),
-				tioThreadName);
-		tioExecutor.prestartAllCoreThreads();
-		
-		LinkedBlockingQueue<Runnable> tioCloseQueue = new LinkedBlockingQueue<>();
-		String tioCloseThreadName = "tio-close";
-		tioCloseExecutor = new SynThreadPoolExecutor(16, 16, KEEP_ALIVE_TIME, tioCloseQueue, DefaultThreadFactory.getInstance(tioCloseThreadName, Thread.NORM_PRIORITY),
-				tioCloseThreadName);
-		tioCloseExecutor.prestartAllCoreThreads();
+	public static final int MAX_POOL_SIZE_FOR_TIO = Math.max(CORE_POOL_SIZE * 3, 64);
 
-		LinkedBlockingQueue<Runnable> groupQueue = new LinkedBlockingQueue<>();
-		String groupThreadName = "tio-group";
-		groupExecutor = new ThreadPoolExecutor(MAX_POOL_SIZE_FOR_GROUP, MAX_POOL_SIZE_FOR_GROUP, KEEP_ALIVE_TIME, TimeUnit.SECONDS, groupQueue,
-				DefaultThreadFactory.getInstance(groupThreadName, Thread.NORM_PRIORITY));
-		groupExecutor.prestartAllCoreThreads();
+	public static final int MAX_POOL_SIZE_FOR_GROUP = Math.max(CORE_POOL_SIZE * 16, 256);
+
+	public static final long KEEP_ALIVE_TIME = 0L;//360000L;
+
+	@SuppressWarnings("unused")
+	private static final int QUEUE_CAPACITY = 1000000;
+
+	private static ThreadPoolExecutor groupExecutor = null;
+
+	private static SynThreadPoolExecutor tioExecutor = null;
+
+	/**
+	 * 
+	 * @return
+	 * @author tanyaowu
+	 */
+	public static ThreadPoolExecutor getGroupExecutor() {
+		if (groupExecutor != null) {
+			return groupExecutor;
+		}
+
+		synchronized (Threads.class) {
+			if (groupExecutor != null) {
+				return groupExecutor;
+			}
+
+			LinkedBlockingQueue<Runnable> groupQueue = new LinkedBlockingQueue<>();
+			//			ArrayBlockingQueue<Runnable> groupQueue = new ArrayBlockingQueue<>(QUEUE_CAPACITY);
+			String groupThreadName = "tio-group";
+			DefaultThreadFactory defaultThreadFactory = DefaultThreadFactory.getInstance(groupThreadName, Thread.MAX_PRIORITY);
+
+			groupExecutor = new ThreadPoolExecutor(MAX_POOL_SIZE_FOR_GROUP, MAX_POOL_SIZE_FOR_GROUP, KEEP_ALIVE_TIME, TimeUnit.SECONDS, groupQueue, defaultThreadFactory);
+			//			groupExecutor = new ThreadPoolExecutor(AVAILABLE_PROCESSORS * 2, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), defaultThreadFactory);
+
+			groupExecutor.prestartCoreThread();
+//			groupExecutor.prestartAllCoreThreads();
+			return groupExecutor;
+		}
+	}
+
+	/**
+	 * 
+	 * @return
+	 * @author tanyaowu
+	 */
+	public static SynThreadPoolExecutor getTioExecutor() {
+		if (tioExecutor != null) {
+			return tioExecutor;
+		}
+
+		synchronized (Threads.class) {
+			if (tioExecutor != null) {
+				return tioExecutor;
+			}
+
+			LinkedBlockingQueue<Runnable> tioQueue = new LinkedBlockingQueue<>();
+			//			ArrayBlockingQueue<Runnable> tioQueue = new ArrayBlockingQueue<>(QUEUE_CAPACITY);
+			String tioThreadName = "tio-worker";
+			DefaultThreadFactory defaultThreadFactory = DefaultThreadFactory.getInstance(tioThreadName, Thread.MAX_PRIORITY);
+
+			tioExecutor = new SynThreadPoolExecutor(MAX_POOL_SIZE_FOR_TIO, MAX_POOL_SIZE_FOR_TIO, KEEP_ALIVE_TIME, tioQueue, defaultThreadFactory, tioThreadName);
+			//			tioExecutor = new SynThreadPoolExecutor(AVAILABLE_PROCESSORS * 2, Integer.MAX_VALUE, 60, new SynchronousQueue<Runnable>(), defaultThreadFactory, tioThreadName);
+
+			tioExecutor.prestartCoreThread();
+//			tioExecutor.prestartAllCoreThreads();
+			return tioExecutor;
+		}
 	}
 
 	/**
@@ -52,5 +97,4 @@ public class Threads {
 	 */
 	private Threads() {
 	}
-
 }

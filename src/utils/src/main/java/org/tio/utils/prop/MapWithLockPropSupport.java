@@ -1,10 +1,7 @@
 package org.tio.utils.prop;
 
 import java.util.HashMap;
-import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tio.utils.lock.MapWithLock;
 
 /**
@@ -12,18 +9,8 @@ import org.tio.utils.lock.MapWithLock;
  * 2017年8月18日 下午5:36:02
  */
 public class MapWithLockPropSupport implements IPropSupport {
-	@SuppressWarnings("unused")
-	private static Logger log = LoggerFactory.getLogger(MapWithLockPropSupport.class);
 
-	/**
-	 * @param args
-	 * @author tanyaowu
-	 */
-	public static void main(String[] args) {
-
-	}
-
-	private MapWithLock<String, Object> props = null;//
+	private final MapWithLock<String, Object> props = new MapWithLock<>(new HashMap<String, Object>(8));
 
 	/**
 	 *
@@ -38,7 +25,7 @@ public class MapWithLockPropSupport implements IPropSupport {
 	 */
 	@Override
 	public void clearAttribute() {
-		initProps();
+		//initProps();
 		props.clear();
 	}
 
@@ -50,21 +37,19 @@ public class MapWithLockPropSupport implements IPropSupport {
 	 */
 	@Override
 	public Object getAttribute(String key) {
-		initProps();
-		Map<String, Object> m = props.getObj();
-		Object ret = m.get(key);
-		return ret;
+		//initProps();
+		return props.getObj().get(key);
 	}
 
-	private void initProps() {
-		if (props == null) {
-			synchronized (this) {
-				if (props == null) {
-					props = new MapWithLock<>(new HashMap<String, Object>(10));
-				}
-			}
-		}
-	}
+//	private void initProps() {
+//		if (props == null) {
+//			synchronized (this) {
+//				if (props == null) {
+//					props = new MapWithLock<>(new HashMap<String, Object>(10));
+//				}
+//			}
+//		}
+//	}
 
 	/**
 	 * @param key
@@ -72,7 +57,7 @@ public class MapWithLockPropSupport implements IPropSupport {
 	 */
 	@Override
 	public void removeAttribute(String key) {
-		initProps();
+		//initProps();
 		props.remove(key);
 	}
 
@@ -84,7 +69,7 @@ public class MapWithLockPropSupport implements IPropSupport {
 	 */
 	@Override
 	public void setAttribute(String key, Object value) {
-		initProps();
+		//initProps();
 		props.put(key, value);
 	}
 }

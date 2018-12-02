@@ -3,10 +3,10 @@ package org.tio.core.utils;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.exception.LengthOverflowException;
+import org.tio.utils.hutool.StrUtil;
 
 /**
  * 
@@ -25,7 +25,7 @@ public class ByteBufferUtils {
 	 * @author: tanyaowu
 	 */
 	public static ByteBuffer composite(ByteBuffer byteBuffer1, ByteBuffer byteBuffer2) {
-		int capacity = byteBuffer1.limit() - byteBuffer1.position() + byteBuffer2.limit() - byteBuffer2.position();
+		int capacity = byteBuffer1.remaining() + byteBuffer2.remaining();
 		ByteBuffer ret = ByteBuffer.allocate(capacity);
 
 		ret.put(byteBuffer1);
@@ -50,7 +50,7 @@ public class ByteBufferUtils {
 
 	/**
 	 *
-	 * @param src
+	 * @param src 本方法不会改变position等指针变量
 	 * @param startindex 从0开始
 	 * @param endindex
 	 * @return
@@ -60,10 +60,30 @@ public class ByteBufferUtils {
 	 */
 	public static ByteBuffer copy(ByteBuffer src, int startindex, int endindex) {
 		int size = endindex - startindex;
-		byte[] dest = new byte[size];
-		System.arraycopy(src.array(), startindex, dest, 0, dest.length);
-		ByteBuffer newByteBuffer = ByteBuffer.wrap(dest);
-		return newByteBuffer;
+		int initPosition = src.position();
+		int initLimit = src.limit();
+
+		src.position(startindex);
+		src.limit(endindex);
+		ByteBuffer ret = ByteBuffer.allocate(size);
+		ret.put(src);
+		ret.flip();
+
+		src.position(initPosition);
+		src.limit(initLimit);
+		return ret;
+	}
+
+	/**
+	 * 
+	 * @param src 本方法不会改变position等指针变量
+	 * @return
+	 * @author tanyaowu
+	 */
+	public static ByteBuffer copy(ByteBuffer src) {
+		int startindex = src.position();
+		int endindex = src.limit();
+		return copy(src, startindex, endindex);
 	}
 
 	/**
@@ -104,26 +124,6 @@ public class ByteBufferUtils {
 	//	public static Packet[] split(Packet packet, int unitSize) {
 	//		
 	//	}
-
-	public static void main(String[] args) throws Throwable {
-//		ByteBuffer buffer = ByteBuffer.allocate(1024);
-//		char theChar = '\n';
-//		int maxlength = 9999999;
-//		buffer.put(new String("\n").getBytes());
-////		buffer.putChar('\n');
-//		buffer.flip();
-////		int index = indexOf(buffer, theChar, maxlength);
-//		int index = lineEnd(buffer, maxlength);//(buffer, theChar, maxlength);
-//		
-//		System.out.println(Math.ceil((double) 3 / (double) 2));
-//		System.out.println(Math.ceil((double) 6 / (double) 2));
-//		System.out.println(Math.ceil((double) 7 / (double) 2));
-//
-//		System.out.println((int) Math.ceil((double) 4434 / (double) 3000));
-//
-//		System.out.println(7 % 4);
-
-	}
 
 	/**
 	 * 
@@ -195,7 +195,7 @@ public class ByteBufferUtils {
 	 */
 	public static String readString(ByteBuffer buffer, int length, String charset) throws UnsupportedEncodingException {
 		byte[] bs = readBytes(buffer, length);
-		if (StringUtils.isNotBlank(charset)) {
+		if (StrUtil.isNotBlank(charset)) {
 			return new String(bs, charset);
 		}
 		return new String(bs);
@@ -235,7 +235,7 @@ public class ByteBufferUtils {
 			buffer.position(startPosition);
 			buffer.get(bs);
 			buffer.position(nowPosition);
-			if (StringUtils.isNotBlank(charset)) {
+			if (StrUtil.isNotBlank(charset)) {
 				try {
 					return new String(bs, charset);
 				} catch (UnsupportedEncodingException e) {
@@ -274,7 +274,7 @@ public class ByteBufferUtils {
 			buffer.position(startPosition);
 			buffer.get(bs);
 			buffer.position(nowPosition);
-			if (StringUtils.isNotBlank(charset)) {
+			if (StrUtil.isNotBlank(charset)) {
 				try {
 					return new String(bs, charset);
 				} catch (UnsupportedEncodingException e) {

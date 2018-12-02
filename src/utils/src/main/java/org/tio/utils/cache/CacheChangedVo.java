@@ -13,14 +13,6 @@ public class CacheChangedVo implements Serializable {
 
 	public static final String CLIENTID = UUID.randomUUID().toString();
 
-	/**
-	 * @param args
-	 * @author tanyaowu
-	 */
-	public static void main(String[] args) {
-
-	}
-
 	private String cacheName;
 
 	private String key;

@@ -16,14 +16,6 @@ public class JfinalRecordSerializer implements ObjectSerializer {
 	public static final JfinalRecordSerializer INSTANCE = new JfinalRecordSerializer();
 
 	/**
-	 * @param args
-	 * @author tanyaowu
-	 */
-	public static void main(String[] args) {
-
-	}
-
-	/**
 	 *
 	 * @author tanyaowu
 	 */

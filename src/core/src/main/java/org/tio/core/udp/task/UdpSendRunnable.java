@@ -15,14 +15,6 @@ import org.tio.core.udp.UdpConf;
 public class UdpSendRunnable implements Runnable {
 	private static Logger log = LoggerFactory.getLogger(UdpSendRunnable.class);
 
-	/**
-	 * @param args
-	 * @author tanyaowu
-	 */
-	public static void main(String[] args) {
-
-	}
-
 	private LinkedBlockingQueue<DatagramPacket> queue;
 
 	private UdpConf udpConf;

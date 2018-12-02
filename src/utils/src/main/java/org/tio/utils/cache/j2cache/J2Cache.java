@@ -6,7 +6,7 @@ package org.tio.utils.cache.j2cache;
 import java.io.Serializable;
 import java.util.Collection;
 
-import org.tio.utils.cache.ICache;
+import org.tio.utils.cache.AbsCache;
 
 import net.oschina.j2cache.CacheChannel;
 import net.oschina.j2cache.CacheObject;
@@ -16,21 +16,13 @@ import net.oschina.j2cache.CacheObject;
  * @author tanyaowu
  *
  */
-public class J2Cache implements ICache {
-
-	private String cacheName = null;
+public class J2Cache extends AbsCache {
 
 	/**
 	 * 
 	 */
 	public J2Cache(String cacheName) {
-		this.cacheName = cacheName;
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
+		super(cacheName);
 	}
 
 	private static CacheChannel getChannel() {

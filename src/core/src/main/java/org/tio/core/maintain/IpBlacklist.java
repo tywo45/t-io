@@ -2,8 +2,8 @@ package org.tio.core.maintain;
 
 import java.util.Collection;
 
-import org.tio.core.Tio;
 import org.tio.core.GroupContext;
+import org.tio.core.Tio;
 import org.tio.utils.SystemTimer;
 import org.tio.utils.cache.caffeine.CaffeineCache;
 import org.tio.utils.time.Time;
@@ -35,7 +35,7 @@ public class IpBlacklist {
 	
 	public boolean add(String ip) {
 		//先添加到黑名单列表
-		cache.put(ip, SystemTimer.currentTimeMillis());
+		cache.put(ip, SystemTimer.currTime);
 
 		//再删除相关连接
 		Tio.remove(groupContext, ip, "ip[" + ip + "]被加入了黑名单");

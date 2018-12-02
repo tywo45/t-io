@@ -7,15 +7,6 @@ import org.tio.core.Node;
  * 2017年7月5日 下午2:53:38
  */
 public class UdpConf {
-	//	private static Logger log = LoggerFactory.getLogger(UdpConf.class);
-
-	/**
-	 * @param args
-	 * @author tanyaowu
-	 */
-	public static void main(String[] args) {
-
-	}
 
 	private int timeout = 5000;
 

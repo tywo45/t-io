@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.core.ChannelAction;
 import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
 import org.tio.core.intf.Packet;
@@ -47,9 +46,8 @@ public class HandlerRunnable extends AbstractQueueRunnable<Packet> {
 	public void handler(Packet packet) {
 		//		int ret = 0;
 
-		long start = SystemTimer.currentTimeMillis();
+		long start = SystemTimer.currTime;
 		try {
-
 			Integer synSeq = packet.getSynSeq();
 			if (synSeq != null && synSeq > 0) {
 				MapWithLock<Integer, Packet> syns = groupContext.getWaitingResps();
@@ -63,24 +61,22 @@ public class HandlerRunnable extends AbstractQueueRunnable<Packet> {
 					log.error("[{}]同步消息失败, synSeq is {}, 但是同步集合中没有对应key值", synFailCount.incrementAndGet(), synSeq);
 				}
 			} else {
-				channelContext.traceClient(ChannelAction.BEFORE_HANDLER, packet, null);
 				groupContext.getAioHandler().handler(packet, channelContext);
-				channelContext.traceClient(ChannelAction.AFTER_HANDLER, packet, null);
 			}
-			//			ret++;
 		} catch (Throwable e) {
 			log.error(packet.logstr(), e);
-			//			return ret;
 		} finally {
-			long end = SystemTimer.currentTimeMillis();
+			long end = SystemTimer.currTime;
 			long iv = end - start;
-			channelContext.stat.handledPackets.incrementAndGet();
-			channelContext.stat.handledBytes.addAndGet(packet.getByteCount());
-			channelContext.stat.handledPacketCosts.addAndGet(iv);
+			if (groupContext.statOn) {
+				channelContext.stat.handledPackets.incrementAndGet();
+				channelContext.stat.handledBytes.addAndGet(packet.getByteCount());
+				channelContext.stat.handledPacketCosts.addAndGet(iv);
 
-			groupContext.groupStat.handledPackets.incrementAndGet();
-			groupContext.groupStat.handledBytes.addAndGet(packet.getByteCount());
-			groupContext.groupStat.handledPacketCosts.addAndGet(iv);
+				groupContext.groupStat.handledPackets.incrementAndGet();
+				groupContext.groupStat.handledBytes.addAndGet(packet.getByteCount());
+				groupContext.groupStat.handledPacketCosts.addAndGet(iv);
+			}
 
 			if (groupContext.ipStats.durationList != null && groupContext.ipStats.durationList.size() > 0) {
 				try {
@@ -96,18 +92,19 @@ public class HandlerRunnable extends AbstractQueueRunnable<Packet> {
 				}
 			}
 
-			try {
-				groupContext.getAioListener().onAfterHandled(channelContext, packet, iv);
-			} catch (Exception e) {
-				log.error(e.toString(), e);
+			if (groupContext.getAioListener() != null) {
+				try {
+					groupContext.getAioListener().onAfterHandled(channelContext, packet, iv);
+				} catch (Exception e) {
+					log.error(e.toString(), e);
+				}
 			}
+			
 		}
-
-		//		return ret;
 	}
 
 	/**
-	 * @see org.tio.core.threadpool.intf.ISynRunnable#runTask()
+	 * @see org.tio.core.SynRunnable.intf.ISynRunnable#runTask()
 	 *
 	 * @author tanyaowu
 	 * 2016年12月5日 下午3:02:49
@@ -124,5 +121,10 @@ public class HandlerRunnable extends AbstractQueueRunnable<Packet> {
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName() + ":" + channelContext.toString();
+	}
+	
+	@Override
+	public String logstr() {
+		return toString();
 	}
 }

@@ -10,8 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.ssl.SslVo;
-
-import cn.hutool.core.util.ArrayUtil;
+import org.tio.utils.hutool.StrUtil;
 
 class Worker {
 
@@ -224,7 +223,7 @@ class Worker {
 			if (log.isInfoEnabled()) {
 				byte[] bs = new byte[cipherText.limit()];
 				System.arraycopy(cipherText.array(), 0, bs, 0, bs.length);
-				log.error(channelContext + ", 解密Error:" + e.toString() + ", byte:" + ArrayUtil.toString(bs) + ", string:" + new String(bs) + ", buffer:" + cipherText, e);
+				log.error(channelContext + ", 解密Error:" + e.toString() + ", byte:" + StrUtil.arrayToString(bs) + ", string:" + new String(bs) + ", buffer:" + cipherText, e);
 			}
 			throw e;
 		}

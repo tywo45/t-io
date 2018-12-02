@@ -101,24 +101,4 @@ public class CaffeineUtils {
 		//		System.out.println(studentCache.stats().toString());
 	}
 
-	public static void main(String[] args) throws Exception {
-		Long timeToLiveSeconds = 1L;
-		Long timeToIdleSeconds = null;
-		Integer initialCapacity = 10;
-		Integer maximumSize = 1000;
-		boolean recordStats = false;
-		LoadingCache<String, Object> loadingCache = CaffeineUtils.createLoadingCache("testCachename", timeToLiveSeconds, timeToIdleSeconds, initialCapacity, maximumSize,
-				recordStats);
-
-		loadingCache.put("1", "11111");
-		Object o = loadingCache.get("1");
-
-		TimeUnit.SECONDS.sleep(3);
-		loadingCache.put("2", "2222");
-		o = loadingCache.getIfPresent("1");
-		System.out.println(o);
-		o = loadingCache.getIfPresent("2");
-		System.out.println(o);
-	}
-
 }

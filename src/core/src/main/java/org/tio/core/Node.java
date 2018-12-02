@@ -2,7 +2,7 @@ package org.tio.core;
 
 import java.util.Objects;
 
-import org.apache.commons.lang3.StringUtils;
+import org.tio.utils.hutool.StrUtil;
 
 /**
  * 
@@ -15,7 +15,7 @@ public class Node implements Comparable<Node> {
 
 	public Node(String ip, int port) {
 		super();
-		if (StringUtils.isBlank(ip)) {
+		if (StrUtil.isBlank(ip)) {
 			ip = "0.0.0.0";
 		}
 

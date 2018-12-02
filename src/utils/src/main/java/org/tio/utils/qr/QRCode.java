@@ -1,19 +1,19 @@
 package org.tio.utils.qr;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+
+import org.tio.utils.qr.exception.QRGenerationException;
+import org.tio.utils.qr.image.ImageType;
+import org.tio.utils.qr.scheme.Schema;
+
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageConfig;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import org.tio.utils.qr.AbstractQRCode;
-import org.tio.utils.qr.exception.QRGenerationException;
-import org.tio.utils.qr.image.ImageType;
-import org.tio.utils.qr.scheme.Schema;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
 
 public class QRCode extends AbstractQRCode {
 

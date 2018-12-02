@@ -3,7 +3,7 @@
  */
 package org.tio.core.ssl;
 
-import org.tio.core.ChannelContext;
+import org.tio.core.GroupContext;
 import org.tio.core.intf.Packet;
 
 /**
@@ -15,52 +15,30 @@ public class SslUtils {
 	/**
 	 * 
 	 */
-	public SslUtils() {
-		
+	private SslUtils() {
+
 	}
 
 	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		
-	}
-	
-	/**
-	 * 是否需要进行SSL加密 
+	 * 是否需要对这个packet进行SSL加密 
 	 * @param packet
-	 * @param channelContext
+	 * @param groupContext
 	 * @return
 	 */
-	public static boolean needSslEncrypt(Packet packet, ChannelContext channelContext) {
-		if (!packet.isSslEncrypted() && channelContext.sslFacadeContext != null) {
+	public static boolean needSslEncrypt(Packet packet, GroupContext groupContext) {
+		if (!packet.isSslEncrypted() && groupContext.sslConfig != null) {
 			return true;
 		}
 		return false;
 	}
-	
-//	/**
-//	 * 是否需要进行SSL加密 
-//	 * @param obj PacketWithMeta or Packet
-//	 * @param channelContext
-//	 * @return
-//	 */
-//	public static boolean needSslEncrypt(Packet packet, ChannelContext channelContext) {
-//		if (obj instanceof Packet) {
-//			return needSslEncrypt((Packet)obj, channelContext);
-//		} else {
-//			PacketWithMeta packetWithMeta = (PacketWithMeta)obj;
-//			return needSslEncrypt(packetWithMeta.getPacket(), channelContext);
-//		}
-//	}
-	
+
 	/**
-	 * 是否 是SSL连接
-	 * @param channelContext
+	 * 是否是SSL连接
+	 * @param groupContext
 	 * @return
 	 */
-	public static boolean isSsl(ChannelContext channelContext) {
-		return channelContext.sslFacadeContext != null;
+	public static boolean isSsl(GroupContext groupContext) {
+		return groupContext.isSsl();
 	}
 
 }

@@ -2,11 +2,12 @@ package org.tio.http.common.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tio.http.common.HeaderName;
+import org.tio.http.common.HeaderValue;
 import org.tio.http.common.HttpConst;
 import org.tio.http.common.HttpRequest;
 import org.tio.http.common.HttpResponse;
-
-import cn.hutool.core.util.ZipUtil;
+import org.tio.utils.hutool.ZipUtil;
 
 /**
  * @author tanyaowu
@@ -59,7 +60,7 @@ public class HttpGzipUtils {
 			if (bs2.length < bs.length) {
 				response.setBody(bs2);
 				response.setHasGzipped(true);
-				response.addHeader(HttpConst.ResponseHeaderKey.Content_Encoding, "gzip");
+				response.addHeader(HeaderName.Content_Encoding, HeaderValue.Content_Encoding.gzip);
 			}
 		}
 	}

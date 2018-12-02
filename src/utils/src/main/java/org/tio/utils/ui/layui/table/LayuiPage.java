@@ -17,14 +17,6 @@ public class LayuiPage {
 		return new LayuiPage(2);
 	}
 
-	/**
-	 * @param args
-	 * @author: tanyaowu
-	 */
-	public static void main(String[] args) {
-
-	}
-
 	public static LayuiPage ok(Collection<?> data, long count) {
 		return new LayuiPage(data, count);
 	}

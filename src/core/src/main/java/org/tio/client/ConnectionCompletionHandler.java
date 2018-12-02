@@ -78,7 +78,6 @@ public class ConnectionCompletionHandler implements CompletionHandler<Void, Conn
 				} else {
 					channelContext = new ClientChannelContext(clientGroupContext, asynchronousSocketChannel);
 					channelContext.setServerNode(serverNode);
-					channelContext.stat.timeClosed = SystemTimer.currentTimeMillis();
 				}
 
 				channelContext.setBindIp(bindIp);
@@ -101,14 +100,13 @@ public class ConnectionCompletionHandler implements CompletionHandler<Void, Conn
 
 				log.info("connected to {}", serverNode);
 				if (isConnected && !isReconnect) {
-					channelContext.stat.setTimeFirstConnected(SystemTimer.currentTimeMillis());
+					channelContext.stat.setTimeFirstConnected(SystemTimer.currTime);
 				}
 			} else {
 				log.error(throwable.toString(), throwable);
 				if (channelContext == null) {
 					channelContext = new ClientChannelContext(clientGroupContext, asynchronousSocketChannel);
 					channelContext.setServerNode(serverNode);
-					channelContext.stat.setTimeClosed(SystemTimer.currentTimeMillis());
 				}
 
 				if (!isReconnect) //不是重连，则是第一次连接，需要把channelContext加到closeds行列
@@ -130,16 +128,20 @@ public class ConnectionCompletionHandler implements CompletionHandler<Void, Conn
 			try {
 				channelContext.setReconnect(isReconnect);
 
-				if (SslUtils.isSsl(channelContext)) {
+				if (SslUtils.isSsl(channelContext.groupContext)) {
 					if (isConnected) {
 						//						channelContext.sslFacadeContext.beginHandshake();
 						SslFacadeContext sslFacadeContext = new SslFacadeContext(channelContext);
 						sslFacadeContext.beginHandshake();
 					} else {
-						clientAioListener.onAfterConnected(channelContext, isConnected, isReconnect);
+						if (clientAioListener != null) {
+							clientAioListener.onAfterConnected(channelContext, isConnected, isReconnect);
+						}
 					}
 				} else {
-					clientAioListener.onAfterConnected(channelContext, isConnected, isReconnect);
+					if (clientAioListener != null) {
+						clientAioListener.onAfterConnected(channelContext, isConnected, isReconnect);
+					}
 				}
 
 				GroupContext groupContext = channelContext.groupContext;

@@ -1,10 +1,8 @@
 package org.tio.http.server;
 
-import org.apache.commons.lang3.StringUtils;
 import org.tio.core.ChannelContext;
 import org.tio.core.Tio;
 import org.tio.core.intf.Packet;
-import org.tio.core.ssl.SslFacadeContext;
 import org.tio.http.common.HttpConst;
 import org.tio.http.common.HttpRequest;
 import org.tio.http.common.HttpResponse;
@@ -31,27 +29,42 @@ public class HttpServerAioListener implements ServerAioListener {
 
 	@Override
 	public void onAfterSent(ChannelContext channelContext, Packet packet, boolean isSentSuccess) {
-		SslFacadeContext sslFacadeContext = channelContext.sslFacadeContext;
-		if ((sslFacadeContext == null || sslFacadeContext.isHandshakeCompleted())/** && packet instanceof HttpResponse*/
-		) {
-			HttpResponse httpResponse = (HttpResponse) packet;
+		//		if ((channelContext.sslFacadeContext == null || channelContext.sslFacadeContext.isHandshakeCompleted())/** && packet instanceof HttpResponse*/
+		//		) {}
 
-			String Connection = httpResponse.getHeader(HttpConst.ResponseHeaderKey.Connection);
-			// 现在基本都是1.1了，所以用close来判断
-			if (StringUtils.equalsIgnoreCase(Connection, HttpConst.ResponseHeaderValue.Connection.close)) {
-				HttpRequest request = httpResponse.getHttpRequest();
-				String line = request.getRequestLine().getLine();
-				Tio.remove(channelContext, "onAfterSent, " + line);
+		HttpResponse httpResponse = (HttpResponse) packet;
+		HttpRequest request = httpResponse.getHttpRequest();
+		//		String connection = request.getConnection();
+
+		if (request != null) {
+			if (request.httpConfig.compatible1_0) {
+				switch (request.requestLine.version) {
+				case HttpConst.HttpVersion.V1_0:
+					if (!HttpConst.RequestHeaderValue.Connection.keep_alive.equals(request.getConnection())) {
+						Tio.remove(channelContext, "http 请求头Connection!=keep-alive：" + request.getRequestLine());
+					}
+					break;
+
+				default:
+					if (HttpConst.RequestHeaderValue.Connection.close.equals(request.getConnection())) {
+						Tio.remove(channelContext, "http 请求头Connection=close：" + request.getRequestLine());
+					}
+					break;
+				}
+			} else {
+				if (HttpConst.RequestHeaderValue.Connection.close.equals(request.getConnection())) {
+					Tio.remove(channelContext, "http 请求头Connection=close：" + request.getRequestLine());
+				}
 			}
 		}
 	}
 
 	@Override
 	public void onBeforeClose(ChannelContext channelContext, Throwable throwable, String remark, boolean isRemove) {
-		HttpRequest request = (HttpRequest) channelContext.getAttribute(HttpServerAioHandler.REQUEST_KEY);
-		if (request != null) {
-			request.setClosed(true);
-		}
+		//		HttpRequest request = (HttpRequest) channelContext.getAttribute(HttpServerAioHandler.REQUEST_KEY);
+		//		if (request != null) {
+		//			request.setClosed(true);
+		//		}
 	}
 
 	@Override

@@ -2,15 +2,15 @@ package org.tio.core.maintain;
 
 import java.util.HashMap;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
+import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.lock.MapWithLock;
 
 /**
- *
+ *一对一  (ChannelContext.id <--> ChannelContext)<br>
  * @author tanyaowu
  * 2017年4月15日 下午12:13:19
  */
@@ -36,7 +36,7 @@ public class Ids {
 			}
 
 			String key = channelContext.getId();
-			if (StringUtils.isBlank(key)) {
+			if (StrUtil.isBlank(key)) {
 				return;
 			}
 			map.put(key, channelContext);
@@ -56,7 +56,7 @@ public class Ids {
 			return null;
 		}
 
-		if (StringUtils.isBlank(id)) {
+		if (StrUtil.isBlank(id)) {
 			return null;
 		}
 
@@ -83,7 +83,7 @@ public class Ids {
 			}
 
 			String key = channelContext.getId();
-			if (StringUtils.isBlank(key)) {
+			if (StrUtil.isBlank(key)) {
 				return;
 			}
 			map.remove(key);

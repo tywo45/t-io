@@ -1,6 +1,7 @@
 package org.tio.utils.qr.scheme;
 
 import static org.tio.utils.qr.scheme.SchemeUtil.getParameters;
+
 import java.util.Map;
 
 /**

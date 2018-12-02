@@ -8,17 +8,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.client.ReconnConf;
-import org.tio.core.cluster.DefaultMessageListener;
-import org.tio.core.cluster.TioClusterConfig;
+import org.tio.cluster.TioClusterConfig;
+import org.tio.cluster.TioClusterMessageListener;
 import org.tio.core.intf.AioHandler;
 import org.tio.core.intf.AioListener;
-import org.tio.core.intf.ChannelTraceHandler;
 import org.tio.core.intf.GroupListener;
 import org.tio.core.intf.Packet;
 import org.tio.core.intf.TioUuid;
 import org.tio.core.maintain.BsIds;
-import org.tio.core.maintain.ClientNodeMap;
+import org.tio.core.maintain.ClientNodes;
 import org.tio.core.maintain.Groups;
 import org.tio.core.maintain.Ids;
 import org.tio.core.maintain.IpBlacklist;
@@ -30,6 +28,8 @@ import org.tio.core.ssl.SslConfig;
 import org.tio.core.stat.DefaultIpStatListener;
 import org.tio.core.stat.GroupStat;
 import org.tio.core.stat.IpStatListener;
+import org.tio.core.task.CloseRunnable;
+import org.tio.utils.SystemTimer;
 import org.tio.utils.Threads;
 import org.tio.utils.lock.MapWithLock;
 import org.tio.utils.lock.SetWithLock;
@@ -59,6 +59,25 @@ public abstract class GroupContext extends MapWithLockPropSupport {
 	public boolean debug = false;
 	
 	public GroupStat groupStat = null;
+	
+	public boolean statOn = true;
+	
+	public PacketConverter packetConverter = null;
+	
+	/**
+	 * 启动时间
+	 */
+	public long startTime = SystemTimer.currTime;
+	
+	/**
+	 * 是否用队列发送
+	 */
+	public boolean useQueueSend = true;
+
+	/**
+	 *  是否用队列解码（系统初始化时确定该值，中途不要变更此值，否则在切换的时候可能导致消息丢失）
+	 */
+	public boolean useQueueDecode = false;
 
 	/**
 	 * 心跳超时时间(单位: 毫秒)，如果用户不希望框架层面做心跳相关工作，请把此值设为0或负数
@@ -70,11 +89,7 @@ public abstract class GroupContext extends MapWithLockPropSupport {
 	/**
 	 * 接收数据的buffer size
 	 */
-	public int readBufferSize = READ_BUFFER_SIZE;
-
-	protected ReconnConf reconnConf;//重连配置
-
-	public final ChannelTraceHandler clientTraceHandler = new DefaultChannelTraceHandler();
+	private int readBufferSize = READ_BUFFER_SIZE;
 
 	private GroupListener groupListener = null;
 
@@ -82,17 +97,17 @@ public abstract class GroupContext extends MapWithLockPropSupport {
 
 	public SynThreadPoolExecutor tioExecutor = null;
 
-	public SynThreadPoolExecutor tioCloseExecutor = null;
+	public CloseRunnable closeRunnable;
 
 	public ThreadPoolExecutor groupExecutor = null;
-	public final ClientNodeMap clientNodeMap = new ClientNodeMap();
-	public final SetWithLock<ChannelContext> connections = new SetWithLock<ChannelContext>(new HashSet<ChannelContext>());
-	public final Groups groups = new Groups();
-	public final Users users = new Users();
-	public final Tokens tokens = new Tokens();
-	public final Ids ids = new Ids();
-	public final BsIds bsIds = new BsIds();
-	public final Ips ips = new Ips();
+	public ClientNodes clientNodes = new ClientNodes();
+	public SetWithLock<ChannelContext> connections = new SetWithLock<ChannelContext>(new HashSet<ChannelContext>());
+	public Groups groups = new Groups();
+	public Users users = new Users();
+	public Tokens tokens = new Tokens();
+	public Ids ids = new Ids();
+	public BsIds bsIds = new BsIds();
+	public Ips ips = new Ips();
 	public IpStats ipStats = null;
 
 	/**
@@ -100,7 +115,17 @@ public abstract class GroupContext extends MapWithLockPropSupport {
 	 */
 	public IpBlacklist ipBlacklist = null;//new IpBlacklist();
 
-	public final MapWithLock<Integer, Packet> waitingResps = new MapWithLock<Integer, Packet>(new HashMap<Integer, Packet>());
+	public MapWithLock<Integer, Packet> waitingResps = new MapWithLock<Integer, Packet>(new HashMap<Integer, Packet>());
+	
+	public void share(GroupContext groupContext) {
+		this.clientNodes = groupContext.clientNodes;
+		this.connections = groupContext.connections;
+		this.groups = groupContext.groups;
+		this.users = groupContext.users;
+		this.tokens = groupContext.tokens;
+		this.ids = groupContext.ids;
+		this.bsIds = groupContext.bsIds;
+	}
 
 	/**
 	 * packet编码成bytebuffer时，是否与ChannelContext相关，false: packet编码与ChannelContext无关
@@ -136,52 +161,37 @@ public abstract class GroupContext extends MapWithLockPropSupport {
 	 * @author: tanyaowu
 	 */
 	public GroupContext(SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
-		this(null, tioExecutor, groupExecutor);
-	}
-
-	/**
-	 * 
-	 * @param tioClusterConfig
-	 * @param tioExecutor
-	 * @param groupExecutor
-	 * @author: tanyaowu
-	 */
-	public GroupContext(TioClusterConfig tioClusterConfig, SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
-		this(tioClusterConfig, tioExecutor, null, groupExecutor);
-	}
-
-	/**
-	 * 
-	 * @param tioClusterConfig
-	 * @param tioExecutor
-	 * @param groupExecutor
-	 * @author: tanyaowu
-	 */
-	public GroupContext(TioClusterConfig tioClusterConfig, SynThreadPoolExecutor tioExecutor, SynThreadPoolExecutor tioCloseExecutor, ThreadPoolExecutor groupExecutor) {
 		super();
 		this.id = ID_ATOMIC.incrementAndGet() + "";
 		this.ipBlacklist = new IpBlacklist(id, this);
 		this.ipStats = new IpStats(this, null);
 
-		// 调整rtopicMessageListener设定位置
-		// 原来在TioClusterConfig内，这样不太友好，
-		// 因为TioClusterConfig做为GroupContext的构造形参同时GroupContext又是TioClusterConfig的初始化参数，无解…
-		this.setTioClusterConfig(tioClusterConfig);
+		
 		this.tioExecutor = tioExecutor;
 		if (this.tioExecutor == null) {
-			this.tioExecutor = Threads.tioExecutor;
+			this.tioExecutor = Threads.getTioExecutor();
 		}
 
 		this.groupExecutor = groupExecutor;
 		if (this.groupExecutor == null) {
-			this.groupExecutor = Threads.groupExecutor;
+			this.groupExecutor = Threads.getGroupExecutor();
 		}
 
-		this.tioCloseExecutor = tioCloseExecutor;
-		if (this.tioCloseExecutor == null) {
-			this.tioCloseExecutor = Threads.tioCloseExecutor;
-		}
+		closeRunnable = new CloseRunnable(this.tioExecutor);
 	}
+
+
+//	/**
+//	 * 
+//	 * @param tioClusterConfig
+//	 * @param tioExecutor
+//	 * @param groupExecutor
+//	 * @author: tanyaowu
+//	 */
+//	public GroupContext(TioClusterConfig tioClusterConfig, SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
+//		this(tioExecutor, groupExecutor);
+//		this.setTioClusterConfig(tioClusterConfig);
+//	}
 
 	/**
 	 * 获取AioHandler对象
@@ -242,12 +252,7 @@ public abstract class GroupContext extends MapWithLockPropSupport {
 		return name;
 	}
 
-	/**
-	 * @return the reconnConf
-	 */
-	public ReconnConf getReconnConf() {
-		return reconnConf;
-	}
+	
 
 	/**
 	 * @return the tioUuid
@@ -360,7 +365,8 @@ public abstract class GroupContext extends MapWithLockPropSupport {
 	public void setTioClusterConfig(TioClusterConfig tioClusterConfig) {
 		this.tioClusterConfig = tioClusterConfig;
 		if (this.tioClusterConfig != null) {
-			this.tioClusterConfig.addMessageListener(new DefaultMessageListener(this));
+			this.tioClusterConfig.getTioClusterTopic().addMessageListener(new TioClusterMessageListener(this));
+//			this.tioClusterConfig.addMessageListener(new RedissonMessageListener(this));
 		}
 	}
 
@@ -382,9 +388,35 @@ public abstract class GroupContext extends MapWithLockPropSupport {
 	}
 	
 	/**
+	 * 是否用队列解码（系统初始化时确定该值，中途不要变更此值，否则在切换的时候可能导致消息丢失
+	 * @param useQueueDecode
+	 * @author tanyaowu
+	 */
+	public void setUseQueueDecode(boolean useQueueDecode) {
+		this.useQueueDecode = useQueueDecode;
+	}
+	
+	/**
+	 * 是否用队列发送，可以随时切换
+	 * @param useQueueSend
+	 * @author tanyaowu
+	 */
+	public void setUseQueueSend(boolean useQueueSend) {
+		this.useQueueSend = useQueueSend;
+	}
+	
+	/**
 	 * 是服务器端还是客户端
 	 * @return
 	 * @author tanyaowu
 	 */
 	public abstract boolean isServer();
+
+	public int getReadBufferSize() {
+		return readBufferSize;
+	}
+	
+	public boolean isSsl() {
+		return sslConfig != null;
+	}
 }

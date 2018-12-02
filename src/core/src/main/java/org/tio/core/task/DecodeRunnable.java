@@ -1,26 +1,22 @@
 package org.tio.core.task;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.Executor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.core.ChannelAction;
 import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
 import org.tio.core.Tio;
 import org.tio.core.exception.AioDecodeException;
-import org.tio.core.intf.AioListener;
 import org.tio.core.intf.Packet;
 import org.tio.core.stat.ChannelStat;
 import org.tio.core.stat.IpStat;
 import org.tio.core.utils.ByteBufferUtils;
 import org.tio.utils.SystemTimer;
-import org.tio.utils.thread.pool.ISynRunnable;
+import org.tio.utils.thread.pool.AbstractQueueRunnable;
 
 /**
  * 解码任务对象，一个连接对应一个本对象
@@ -28,7 +24,7 @@ import org.tio.utils.thread.pool.ISynRunnable;
  * @author 谭耀武
  * 2012-08-09
  */
-public class DecodeRunnable implements Runnable {
+public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 	private static final Logger log = LoggerFactory.getLogger(DecodeRunnable.class);
 
 	/**
@@ -48,7 +44,7 @@ public class DecodeRunnable implements Runnable {
 		switch (groupContext.packetHandlerMode) {
 		case QUEUE:
 			channelContext.handlerRunnable.addMsg(packet);
-			groupContext.tioExecutor.execute(channelContext.handlerRunnable);
+			channelContext.handlerRunnable.execute();
 			break;
 		default:
 			channelContext.handlerRunnable.handler(packet);
@@ -73,7 +69,8 @@ public class DecodeRunnable implements Runnable {
 	/**
 	 *
 	 */
-	public DecodeRunnable(ChannelContext channelContext) {
+	public DecodeRunnable(ChannelContext channelContext, Executor executor) {
+		super(executor);
 		this.channelContext = channelContext;
 		this.groupContext = channelContext.groupContext;
 	}
@@ -82,8 +79,21 @@ public class DecodeRunnable implements Runnable {
 	 * 清空处理的队列消息
 	 */
 	public void clearMsgQueue() {
+		super.clearMsgQueue();
 		lastByteBuffer = null;
 		newByteBuffer = null;
+	}
+
+	@Override
+	public void runTask() {
+		//		int queueSize = msgQueue.size();
+		//		if (queueSize == 0) {
+		//			return;
+		//		}
+
+		while ((newByteBuffer = msgQueue.poll()) != null) {
+			decode();
+		}
 	}
 
 	/**
@@ -93,16 +103,11 @@ public class DecodeRunnable implements Runnable {
 	 * 2017年3月21日 下午4:26:39
 	 *
 	 */
-	@Override
-	public void run() {
+	public void decode() {
 		ByteBuffer byteBuffer = newByteBuffer;
-		if (byteBuffer != null) {
-			if (lastByteBuffer != null) {
-				byteBuffer = ByteBufferUtils.composite(lastByteBuffer, byteBuffer);
-				lastByteBuffer = null;
-			}
-		} else {
-			return;
+		if (lastByteBuffer != null) {
+			byteBuffer = ByteBufferUtils.composite(lastByteBuffer, byteBuffer);
+			lastByteBuffer = null;
 		}
 
 		label_2: while (true) {
@@ -117,12 +122,24 @@ public class DecodeRunnable implements Runnable {
 						packet = groupContext.getAioHandler().decode(byteBuffer, limit, initPosition, readableLength, channelContext);
 					}
 				} else {
-					packet = groupContext.getAioHandler().decode(byteBuffer, limit, initPosition, readableLength, channelContext);
+					try {
+						packet = groupContext.getAioHandler().decode(byteBuffer, limit, initPosition, readableLength, channelContext);
+					} catch (BufferUnderflowException e) {
+						//log.error(e.toString(), e);
+						//数据不够读
+					}
 				}
 
 				if (packet == null)// 数据不够，解不了码
 				{
-					lastByteBuffer = ByteBufferUtils.copy(byteBuffer, initPosition, limit);
+					//					lastByteBuffer = ByteBufferUtils.copy(byteBuffer, initPosition, limit);
+					if (groupContext.useQueueDecode || (byteBuffer != newByteBuffer)) {
+						byteBuffer.position(initPosition);
+						byteBuffer.limit(limit);
+						lastByteBuffer = byteBuffer;
+					} else {
+						lastByteBuffer = ByteBufferUtils.copy(byteBuffer, initPosition, limit);
+					}
 					ChannelStat channelStat = channelContext.stat;
 					channelStat.decodeFailCount++;
 					//					int len = byteBuffer.limit() - initPosition;
@@ -134,9 +151,9 @@ public class DecodeRunnable implements Runnable {
 
 						//检查慢包攻击（只有自用版才有）
 						if (channelStat.decodeFailCount > 10) {
-							int capacity = lastByteBuffer.capacity();
-							int per = capacity / channelStat.decodeFailCount;
-							if (per < Math.min(groupContext.readBufferSize / 2, 256)) {
+							//							int capacity = lastByteBuffer.capacity();
+							int per = readableLength / channelStat.decodeFailCount;
+							if (per < Math.min(groupContext.getReadBufferSize() / 2, 256)) {
 								throw new AioDecodeException("连续解码" + channelStat.decodeFailCount + "次都不成功，并且平均每次接收到的数据为" + per + "字节，有慢攻击的嫌疑");
 							}
 						}
@@ -145,17 +162,16 @@ public class DecodeRunnable implements Runnable {
 				} else //解码成功
 				{
 					channelContext.setPacketNeededLength(null);
-					channelContext.stat.latestTimeOfReceivedPacket = SystemTimer.currentTimeMillis();
+					channelContext.stat.latestTimeOfReceivedPacket = SystemTimer.currTime;
+					channelContext.stat.decodeFailCount = 0;
 
-					ChannelStat channelStat = channelContext.stat;
-					channelStat.decodeFailCount = 0;
-
-					int afterDecodePosition = byteBuffer.position();
-					int len = afterDecodePosition - initPosition;
+					int len = byteBuffer.position() - initPosition;
 					packet.setByteCount(len);
 
-					groupContext.groupStat.receivedPackets.incrementAndGet();
-					channelContext.stat.receivedPackets.incrementAndGet();
+					if (groupContext.statOn) {
+						groupContext.groupStat.receivedPackets.incrementAndGet();
+						channelContext.stat.receivedPackets.incrementAndGet();
+					}
 
 					if (groupContext.ipStats.durationList != null && groupContext.ipStats.durationList.size() > 0) {
 						try {
@@ -168,28 +184,25 @@ public class DecodeRunnable implements Runnable {
 							log.error(packet.logstr(), e1);
 						}
 					}
-					channelContext.traceClient(ChannelAction.RECEIVED, packet, null);
 
-					AioListener aioListener = groupContext.getAioListener();
-					try {
-						if (log.isDebugEnabled()) {
-							log.debug("{} 收到消息 {}", channelContext, packet.logstr());
+					if (groupContext.getAioListener() != null) {
+						try {
+							groupContext.getAioListener().onAfterDecoded(channelContext, packet, len);
+						} catch (Throwable e) {
+							log.error(e.toString(), e);
 						}
-						aioListener.onAfterDecoded(channelContext, packet, len);
-					} catch (Throwable e) {
-						log.error(e.toString(), e);
 					}
 
 					if (log.isDebugEnabled()) {
 						log.debug("{}, 解包获得一个packet:{}", channelContext, packet.logstr());
 					}
+
 					handler(packet, len);
 
-					int remainingLength = byteBuffer.limit() - byteBuffer.position();
-					if (remainingLength > 0)//组包后，还剩有数据
+					if (byteBuffer.hasRemaining())//组包后，还剩有数据
 					{
 						if (log.isDebugEnabled()) {
-							log.debug("{},组包后，还剩有数据:{}", channelContext, remainingLength);
+							log.debug("{},组包后，还剩有数据:{}", channelContext, byteBuffer.remaining());
 						}
 						continue label_2;
 					} else//组包后，数据刚好用完
@@ -201,7 +214,6 @@ public class DecodeRunnable implements Runnable {
 				}
 			} catch (Throwable e) {
 				channelContext.setPacketNeededLength(null);
-				log.error(channelContext + ", " + byteBuffer + ", 解码异常:" + e.toString(), e);
 
 				if (e instanceof AioDecodeException) {
 					List<Long> list = groupContext.ipStats.durationList;
@@ -236,74 +248,20 @@ public class DecodeRunnable implements Runnable {
 		return this.getClass().getSimpleName() + ":" + channelContext.toString();
 	}
 
-	public static void main(String[] args) {
-		//		ReadWriteLock runningLock = new ReentrantReadWriteLock();
-		long start = System.currentTimeMillis();
-		ISynRunnable runnable = new MyISynRunnable();
-		ConcurrentLinkedQueue<String> msgQueue = new ConcurrentLinkedQueue<>();
-
-		for (int i = 0; i < 4000000; i++) {
-			msgQueue.add(i + "");
-			if (i > 10000) {
-				msgQueue.poll();
-			}
-			if (runnable instanceof ISynRunnable) {
-				ISynRunnable synRunnable = (ISynRunnable) runnable;
-				ReadWriteLock runningLock = synRunnable.runningLock();
-				Lock writeLock = runningLock.writeLock();
-				boolean tryLock = false;
-				try {
-					tryLock = writeLock.tryLock();
-					//					return tryLock;
-					continue;
-				} finally {
-					if (tryLock) {
-						writeLock.unlock();
-					}
-				}
-			} else {
-				//				return true;
-				continue;
-			}
-		}
-		long end = System.currentTimeMillis();
-		long iv = end - start;
-		System.out.println(iv);
+	@Override
+	public String logstr() {
+		return toString();
 	}
-
-	public static class MyISynRunnable implements ISynRunnable {
-		ReadWriteLock runningLock = new ReentrantReadWriteLock();
-
-		@Override
-		public void run() {
-
-		}
-
-		@Override
-		public boolean isCanceled() {
-			return false;
-		}
-
-		@Override
-		public boolean isNeededExecute() {
-			return false;
-		}
-
-		@Override
-		public ReadWriteLock runningLock() {
-			return runningLock;
-		}
-
-		@Override
-		public void runTask() {
-
-		}
-
-		@Override
-		public void setCanceled(boolean isCanceled) {
-
-		}
-
+	
+	@SuppressWarnings("unused")
+	private static class LastByteBufferInfo {
+		/**
+		 * 数据长度
+		 */
+		int len = 0;
+		ByteBuffer data = null;
+		int tempFileIndex = 0;
+		
+		//org.tio.core.maintain.MaintainUtils.tempReceivedFile(ChannelContext)
 	}
-
 }

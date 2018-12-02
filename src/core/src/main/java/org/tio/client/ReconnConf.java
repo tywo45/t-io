@@ -24,7 +24,7 @@ public class ReconnConf {
 		if (reconnConf != null && reconnConf.getInterval() > 0) {
 			if (reconnConf.getRetryCount() <= 0 || reconnConf.getRetryCount() >= clientChannelContext.getReconnCount()) {
 				if (putIfTrue) {
-					clientChannelContext.stat.timeInReconnQueue = SystemTimer.currentTimeMillis();
+					clientChannelContext.stat.timeInReconnQueue = SystemTimer.currTime;
 					reconnConf.getQueue().add(clientChannelContext);
 				}
 				return true;
@@ -56,7 +56,7 @@ public class ReconnConf {
 	/**
 	 * 用来重连的线程池
 	 */
-	private ThreadPoolExecutor threadPoolExecutor = null;
+	private volatile ThreadPoolExecutor threadPoolExecutor = null;
 
 	/**
 	 *

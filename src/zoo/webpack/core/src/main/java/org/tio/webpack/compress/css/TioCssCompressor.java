@@ -3,14 +3,13 @@ package org.tio.webpack.compress.css;
 import java.io.File;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.file.Files;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.webpack.compress.ResCompressor;
 
 import com.yahoo.platform.yui.compressor.CssCompressor;
-
-import jodd.io.FileUtil;
 
 /**
  * @author tanyaowu 
@@ -76,7 +75,8 @@ public class TioCssCompressor implements ResCompressor {
 	public static void main(String[] args) throws Exception {
 		long start = System.currentTimeMillis();
 
-		String xx = FileUtil.readString(new File("E:\\svn\\nbyb\\html\\nbyb_bootstrap\\src\\public\\css\\common.css"), "utf-8");
+		byte[] bytes = Files.readAllBytes(new File("E:\\svn\\nbyb\\html\\nbyb_bootstrap\\src\\public\\css\\common.css").toPath());
+		String xx = new String(bytes, "utf-8");
 		String compiled_code = TioCssCompressor.ME.compress("cc.css", xx);
 		System.out.println(compiled_code);
 		long end = System.currentTimeMillis();

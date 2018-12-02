@@ -9,13 +9,13 @@ import java.net.SocketException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.Node;
 import org.tio.core.udp.intf.UdpHandler;
 import org.tio.core.udp.task.UdpHandlerRunnable;
 import org.tio.core.udp.task.UdpSendRunnable;
+import org.tio.utils.hutool.StrUtil;
 
 /**
  * @author tanyaowu
@@ -68,7 +68,7 @@ public class UdpServer {
 
 	private byte[] readBuf = null;
 
-	private boolean isStopped = false;
+	private volatile boolean isStopped = false;
 
 	private UdpHandlerRunnable udpHandlerRunnable;
 
@@ -101,11 +101,11 @@ public class UdpServer {
 	}
 
 	public void send(String data, String charset, Node remoteNode) {
-		if (StringUtils.isBlank(data)) {
+		if (StrUtil.isBlank(data)) {
 			return;
 		}
 		try {
-			if (StringUtils.isBlank(charset)) {
+			if (StrUtil.isBlank(charset)) {
 				charset = udpServerConf.getCharset();
 			}
 			byte[] bs = data.getBytes(charset);

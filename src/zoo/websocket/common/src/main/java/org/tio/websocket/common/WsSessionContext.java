@@ -11,16 +11,6 @@ import org.tio.http.common.HttpResponse;
  *
  */
 public class WsSessionContext {
-	/**
-	 * @param args
-	 *
-	 * @author tanyaowu
-	 * 2017年2月21日 上午10:27:54
-	 *
-	 */
-	public static void main(String[] args) {
-
-	}
 
 	/**
 	 * 是否已经握过手

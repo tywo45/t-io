@@ -1,9 +1,9 @@
 package org.tio.websocket.common;
 
-import org.tio.core.intf.TioUuid;
+import java.util.concurrent.ThreadLocalRandom;
 
-import cn.hutool.core.lang.Snowflake;
-import cn.hutool.core.util.RandomUtil;
+import org.tio.core.intf.TioUuid;
+import org.tio.utils.hutool.Snowflake;
 
 /**
  * @author tanyaowu
@@ -13,7 +13,7 @@ public class WsTioUuid implements TioUuid {
 	private Snowflake snowflake;
 
 	public WsTioUuid() {
-		snowflake = new Snowflake(RandomUtil.randomInt(1, 30), RandomUtil.randomInt(1, 30));
+		snowflake = new Snowflake(ThreadLocalRandom.current().nextInt(1, 30), ThreadLocalRandom.current().nextInt(1, 30));
 	}
 
 	public WsTioUuid(long workerId, long datacenterId) {

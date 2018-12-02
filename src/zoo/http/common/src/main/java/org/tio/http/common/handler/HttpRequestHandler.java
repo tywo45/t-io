@@ -1,5 +1,6 @@
 package org.tio.http.common.handler;
 
+import org.tio.http.common.HttpConfig;
 import org.tio.http.common.HttpRequest;
 import org.tio.http.common.HttpResponse;
 import org.tio.http.common.RequestLine;
@@ -26,8 +27,9 @@ public interface HttpRequestHandler {
 	 * @param channelContext
 	 * @return
 	 * @author tanyaowu
+	 * @throws Exception 
 	 */
-	public HttpResponse resp404(HttpRequest request, RequestLine requestLine);
+	public HttpResponse resp404(HttpRequest request, RequestLine requestLine) throws Exception;
 
 	/**
 	 * 响应500
@@ -36,13 +38,21 @@ public interface HttpRequestHandler {
 	 * @param throwable
 	 * @return
 	 * @author tanyaowu
+	 * @throws Exception
 	 */
-	public HttpResponse resp500(HttpRequest request, RequestLine requestLine, java.lang.Throwable throwable);
+	public HttpResponse resp500(HttpRequest request, RequestLine requestLine, java.lang.Throwable throwable) throws Exception;
+	
+	/**
+	 * 
+	 * @return
+	 * @author tanyaowu
+	 */
+	public HttpConfig getHttpConfig(HttpRequest request);
 	
 	/**
 	 * 清空静态资源缓存，如果没有缓存，可以不处理
 	 * @param request
 	 * @author: tanyaowu
 	 */
-	public void clearStaticResCache(HttpRequest request);
+	public void clearStaticResCache();
 }

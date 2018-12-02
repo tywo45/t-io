@@ -36,10 +36,4 @@ public class PacketUtils {
 //		return p;
 //	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-	}
-
 }

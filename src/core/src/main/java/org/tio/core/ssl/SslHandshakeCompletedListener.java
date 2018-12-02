@@ -27,39 +27,41 @@ public class SslHandshakeCompletedListener implements IHandshakeCompletedListene
 		this.channelContext = channelContext;
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-	}
-
 	@Override
 	public void onComplete() {
 		log.info("{}, 完成SSL握手", channelContext);
 		channelContext.sslFacadeContext.setHandshakeCompleted(true);
-		
-		try {
-			channelContext.groupContext.getAioListener().onAfterConnected(channelContext, true, channelContext.isReconnect);
-		} catch (Exception e) {
-			log.error(e.toString(), e);
+
+		if (channelContext.groupContext.getAioListener() != null) {
+			try {
+				channelContext.groupContext.getAioListener().onAfterConnected(channelContext, true, channelContext.isReconnect);
+			} catch (Exception e) {
+				log.error(e.toString(), e);
+			}
 		}
-		
-		ConcurrentLinkedQueue<Packet>  forSendAfterSslHandshakeCompleted = channelContext.sendRunnable.getForSendAfterSslHandshakeCompleted(false);
+
+		ConcurrentLinkedQueue<Packet> forSendAfterSslHandshakeCompleted = channelContext.sendRunnable.getForSendAfterSslHandshakeCompleted(false);
 		if (forSendAfterSslHandshakeCompleted == null || forSendAfterSslHandshakeCompleted.size() == 0) {
 			return;
 		}
-		
+
 		log.info("{} 业务层在SSL握手前就有{}条数据待发送", channelContext, forSendAfterSslHandshakeCompleted.size());
-		while(true) {
+		while (true) {
 			Packet packet = forSendAfterSslHandshakeCompleted.poll();
 			if (packet != null) {
-				channelContext.sendRunnable.addMsg(packet);
+				if (channelContext.groupContext.useQueueSend) {
+					channelContext.sendRunnable.addMsg(packet);
+				} else {
+					channelContext.sendRunnable.sendPacket(packet);
+				}
+
 			} else {
 				break;
 			}
 		}
-		
-		channelContext.groupContext.tioExecutor.execute(channelContext.sendRunnable);
+		if (channelContext.groupContext.useQueueSend) {
+			channelContext.sendRunnable.execute();
+		}
 	}
 
 }

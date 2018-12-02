@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
+import org.tio.utils.hutool.StrUtil;
 
 import okhttp3.FormBody;
 import okhttp3.Headers;
@@ -85,7 +85,7 @@ public class HttpUtils {
 			builder.headers(headers);
 		}
 
-		if (StringUtils.isNotBlank(bodyString)) { //提交bodyString
+		if (false == StrUtil.isBlank(bodyString)) { //提交bodyString
 			if (mediaType == null) {
 				mediaType = MEDIATYPE_JSON_UTF8;
 			}
@@ -124,9 +124,9 @@ public class HttpUtils {
 	 * @throws Exception
 	 */
 	public static Response post(String url, Map<String, String> headerMap, List<String> paramNames, List<String> paramValues) throws Exception {
-		return post(url, headerMap, (MediaType)null, null, null, paramNames, paramValues);
+		return post(url, headerMap, (MediaType) null, null, null, paramNames, paramValues);
 	}
-	
+
 	/**
 	 * 
 	 * @param url
@@ -136,8 +136,9 @@ public class HttpUtils {
 	 * @throws Exception
 	 */
 	public static Response post(String url, Map<String, String> headerMap, Map<String, String> paramMap) throws Exception {
-		return post(url, headerMap, (MediaType)null, null, paramMap, null, null);
+		return post(url, headerMap, (MediaType) null, null, paramMap, null, null);
 	}
+
 	/**
 	 * 
 	 * @param url
@@ -147,7 +148,7 @@ public class HttpUtils {
 	 * @throws Exception
 	 */
 	public static Response post(String url, Map<String, String> headerMap, String bodyString) throws Exception {
-		return post(url, headerMap, (MediaType)null, bodyString, null, null, null);
+		return post(url, headerMap, (MediaType) null, bodyString, null, null, null);
 	}
 
 	/**
@@ -158,7 +159,7 @@ public class HttpUtils {
 	 * @throws Exception
 	 */
 	public static Response post(String url, Map<String, String> headerMap) throws Exception {
-		return post(url, headerMap, (MediaType)null, null, null, null, null);
+		return post(url, headerMap, (MediaType) null, null, null, null, null);
 	}
 
 	/**
@@ -169,18 +170,6 @@ public class HttpUtils {
 	 */
 	public static Response post(String url) throws Exception {
 		return post(url, null);
-	}
-
-	/**
-	 * @param args
-	 * @throws Exception 
-	 */
-	public static void main(String[] args) throws Exception {
-		Response x = post("https://beta.nb350.com/tio");
-		System.out.println(x.body().string());
-		
-		x = get("https://open.weixin.qq.com/");
-		System.out.println(x.body().string());
 	}
 
 }

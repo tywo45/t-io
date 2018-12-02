@@ -115,18 +115,13 @@ public class Cookie {
 	private String name;
 
 	private String value;
-
-	/**
-	 *
-	 * @author tanyaowu
-	 */
-	public Cookie() {
-	}
+	
+	private byte[] bytes;
 
 	/**
 	 * 创建一个 Cookie
 	 * @param domain	cookie的受控域
-	 * @param name		名称
+	 * @param value		名称
 	 * @param value		值
 	 * @param maxAge	失效时间,单位秒
 	 * @return Cookie 对象
@@ -138,6 +133,13 @@ public class Cookie {
 		setDomain(domain);
 		setMaxAge(maxAge);
 		setHttpOnly(false);
+	}
+
+	/**
+	 * 
+	 * @author tanyaowu
+	 */
+	private Cookie() {
 	}
 
 	public String getDomain() {
@@ -209,5 +211,19 @@ public class Cookie {
 		return (this.name != null || this.value != null ? this.name + "=" + this.value : "") + (this.domain != null ? "; Domain=" + this.domain : "")
 				+ (this.maxAge != null ? "; Max-Age=" + this.maxAge : "") + (this.path != null ? "; Path=" + this.path : " ") + (this.httpOnly ? "; httponly; " : "")
 				+ (this.secure ? "; Secure" : "");
+	}
+
+	/**
+	 * @return the bytes
+	 */
+	public byte[] getBytes() {
+		return bytes;
+	}
+
+	/**
+	 * @param bytes the bytes to set
+	 */
+	public void setBytes(byte[] bytes) {
+		this.bytes = bytes;
 	}
 }

@@ -30,14 +30,6 @@ public class RedisExpireUpdateTask {
 		setWithLock.add(expireVo);
 	}
 
-	/**
-	 * @param args
-	 * @author tanyaowu
-	 */
-	public static void main(String[] args) {
-
-	}
-
 	public static void start() {
 		//		INSTANCE = new RedisExpireUpdateTask();
 		if (started) {

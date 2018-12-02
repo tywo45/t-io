@@ -40,7 +40,8 @@ public class SslFacadeContext {
 		this.isHandshakeCompleted = false;
 
 		sslContext = SSLContext.getInstance("TLS");
-		sslContext.init(channelContext.groupContext.sslConfig.getKeyManagerFactory().getKeyManagers(), channelContext.groupContext.sslConfig.getTrustManagerFactory().getTrustManagers(), null);
+		sslContext.init(channelContext.groupContext.sslConfig.getKeyManagerFactory().getKeyManagers(),
+				channelContext.groupContext.sslConfig.getTrustManagerFactory().getTrustManagers(), null);
 
 		DefaultTaskHandler taskHandler = new DefaultTaskHandler();
 
@@ -62,12 +63,6 @@ public class SslFacadeContext {
 	public void beginHandshake() throws Exception {
 		log.info("{} 开始SSL握手", channelContext);
 		sslFacade.beginHandshake();
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
 	}
 
 	public boolean isHandshakeCompleted() {

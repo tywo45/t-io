@@ -18,7 +18,8 @@ public class DefaultIpStatListener implements IpStatListener {
 	/**
 	 * 
 	 */
-	private DefaultIpStatListener() {}
+	private DefaultIpStatListener() {
+	}
 
 	/* (non-Javadoc)
 	 * @see org.tio.core.stat.IpStatListener#onExpired(org.tio.core.GroupContext, org.tio.core.stat.IpStat)
@@ -67,12 +68,6 @@ public class DefaultIpStatListener implements IpStatListener {
 	 */
 	@Override
 	public void onAfterHandled(ChannelContext channelContext, Packet packet, IpStat ipStat, long cost) throws Exception {
-	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
 	}
 
 }

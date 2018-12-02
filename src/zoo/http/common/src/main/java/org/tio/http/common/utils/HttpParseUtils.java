@@ -8,8 +8,8 @@ public class HttpParseUtils {
 
 	/**
 	 * obtain sub attribute
-	 * @param str 形如:"multipart/form-data; boundary=ujjLiiJBznFt70fG1F4EUCkIupn7H4tzm", "application/x-www-form-urlencoded; charset=UTF-8", "form-data; name="before""
-	 * @param name 形如："boundary", "charset", "name"
+	 * @param str 形如:"multipart/form-data; boundary=ujjLiiJBznFt70fG1F4EUCkIupn7H4tzm", "application/x-www-form-urlencoded; charset=UTF-8", "form-data; value="before""
+	 * @param value 形如："boundary", "charset", "value"
 	 * @return 形如："ujjLiiJBznFt70fG1F4EUCkIupn7H4tzm", "UTF-8", "before"
 	 * @author tanyaowu
 	 */
@@ -39,47 +39,6 @@ public class HttpParseUtils {
 				return String.copyValueOf(cs, 0, i);
 			}
 		}
-	}
-
-	/**
-	 * @param args
-	 * @author tanyaowu
-	 */
-	public static void main(String[] args) {
-		String str = "multipart/form-data; boundary=ujjLiiJBznFt70fG1F4EUCkIupn7H4tzm";
-		String name = "boundary";
-		String attr = getSubAttribute(str, name);
-		System.out.println(attr);
-
-		str = "multipart/form-data;";
-		name = "boundary";
-		attr = getSubAttribute(str, name);
-		System.out.println(attr);
-
-		str = "application/x-www-form-urlencoded; charset=UTF-8; name=tanyaowu";
-		name = "charset";
-		attr = getSubAttribute(str, name);
-		System.out.println(attr);
-
-		str = "application/x-www-form-urlencoded; charset=UTF-8;";
-		name = "charset";
-		attr = getSubAttribute(str, name);
-		System.out.println(attr);
-
-		str = "application/x-www-form-urlencoded; charset=UTF-8";
-		name = "charset";
-		attr = getSubAttribute(str, name);
-		System.out.println(attr);
-
-		str = "application/x-www-form-urlencoded; charset=UTF-8; name=tanyaowu";
-		name = "name";
-		attr = getSubAttribute(str, name);
-		System.out.println(attr);
-		
-		str = "form-data; name=\"before\"";
-		name = "name";
-		attr = getSubAttribute(str, name);
-		System.out.println(attr);
 	}
 
 	/**
