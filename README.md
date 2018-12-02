@@ -1,7 +1,7 @@
 ### 本项目在码云的地址（主战场）：[https://gitee.com/tywo45/t-io](https://gitee.com/tywo45/t-io "https://gitee.com/tywo45/t-io")
 
 
-## **t-io: 让天下没有难开发的网络编程**
+## **[t-io: 让天下没有难开发的网络编程](https://www.t-io.org/)**
 **旧时王谢堂前燕，飞入寻常百姓家**----当年那些王谢贵族们才拥有的"百万级即时通讯"应用，将因为t-io的诞生，纷纷飞入普通人家的屋檐下。
 
 ## **t-io是啥**
@@ -19,7 +19,7 @@
 	- **游戏服务器端**：[贝密游戏](https://gitee.com/beimigame/beimi "贝密游戏")
 	- **推送服务**：[牛吧云播](https://www.nb350.com "牛吧云播")
 	- **物联网**：[氦氪云](https://hekr.me/cn/ "氦氪云")
-	- **TCP私有协议**：[这个太多了，直接看案例列表吧](https://t-io.org/case/index.html "这个太多了，直接看案例列表吧")
+	- **TCP私有协议**：[这个太多了，直接看案例列表吧](https://www.t-io.org/case/index.html "这个太多了，直接看案例列表吧")
 	
 ## **tio-core提供了哪些功能**
 - 内置对半包和粘包的处理：源码分析见：https://my.oschina.net/talenttan/blog/1610690
@@ -102,8 +102,8 @@
 - tio官网不间断运行88天，各项监控数据良好，见：https://gitee.com/uploads/images/2018/0607/150205_de698afe_351037.png
 
 ## **t-io生态**
-- 在册案例（更多的案例是不在册的）：https://t-io.org/case/index.html
-- 商务合作：https://t-io.org/bs/index.html
+- 在册案例（更多的案例是不在册的）：https://www.t-io.org/case/index.html
+- 商务合作：https://www.t-io.org/bs/index.html
 - t-io相关博客：https://www.oschina.net/search?q=t-io&scope=blog&sort_by_time=1
 - t-io相关讨论：https://www.oschina.net/search?q=t-io&scope=bbs&catalog=1&sort_by_time=1
 
@@ -146,10 +146,10 @@
 - [tio-http-server-showcase](https://gitee.com/tywo45/tio-http-server-showcase "tio-http-server-showcase") (用于学习tio-http-server，可以关注里面的TestController)
 
 ## **t-io番外**
-- [t-io文档](https://t-io.org/blog/index.html "t-io文档")
-- [t-io成功案例](https://t-io.org/case/index.html "t-io成功案例")
-- [t-io官网访问统计](https://t-io.org/stat/index.html "t-io官网访问统计")
-- [tio-websocket文档](https://t-io.org/blog/index.html?p=%2Fblog%2Ftio%2Fws%2Fshowcase.html "tio-websocket文档")
+- [t-io文档](https://www.t-io.org/blog/index.html "t-io文档")
+- [t-io成功案例](https://www.t-io.org/case/index.html "t-io成功案例")
+- [t-io官网访问统计](https://www.t-io.org/stat/index.html "t-io官网访问统计")
+- [tio-websocket文档](https://www.t-io.org/blog/index.html?p=%2Fblog%2Ftio%2Fws%2Fshowcase.html "tio-websocket文档")
 
 ## **学习tio-core的步骤**
 **学习io框架的最好方式并不是各种理论和概念的讲解，而是通过示范程序领悟其中的概念，本人根据自身学习编程的经验，提供了详细的示例程序，这些程序既可当作入门教程，也可以作为你日后项目的脚手架。请各位t-io新用户按照如下步骤学习tio，必有所获！**
@@ -168,8 +168,8 @@
 ## **t-io推荐**
 - 优客服 - 智能客服系统 + 呼叫中心
 
-	[![image](https://res.t-io.org/img/ad/ukf.png)](https://t-io.org/api/ad/1.php)
-- 更专业的通用后台管理模板----[layuiAdmin，layui作者亲自倾力打造](https://t-io.org/api/ad/12.php "layuiAdmin，layui作者亲自倾力打造")
+	[![image](https://res.t-io.org/img/ad/ukf.png)](https://www.t-io.org/mytio/ad/1.tio_x)
+- 更专业的通用后台管理模板----[layuiAdmin，layui作者亲自倾力打造](https://www.t-io.org/mytio/ad/12.tio_x "layuiAdmin，layui作者亲自倾力打造")
 	
-	[![image](https://res.t-io.org/img/ad/layui.png)](https://t-io.org/api/ad/12.php)
+	[![image](https://res.t-io.org/img/ad/layui.png)](https://www.t-io.org/mytio/ad/12.tio_x)
 
