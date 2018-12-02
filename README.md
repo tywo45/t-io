@@ -1,5 +1,6 @@
 ### 本项目在码云的地址（主战场）：[https://gitee.com/tywo45/t-io](https://gitee.com/tywo45/t-io "https://gitee.com/tywo45/t-io")
 
+
 ## **t-io: 让天下没有难开发的网络编程**
 **旧时王谢堂前燕，飞入寻常百姓家**----当年那些王谢贵族们才拥有的"百万级即时通讯"应用，将因为t-io的诞生，纷纷飞入普通人家的屋檐下。
 
@@ -108,29 +109,33 @@
 
 ## **引入t-io**
 - 如果你只是想用tio-core，只需引入
-```
+```xml
 <dependency>
 	<groupId>org.t-io</groupId>
 	<artifactId>tio-core</artifactId>
-	<version>3.0.6.v20180626-RELEASE</version>
+	<version>3.2.2.v20181122-RELEASE</version>
 </dependency>
 ```
 - 如果你想用tio-websocket-server，只需引入
-```
+```xml
 <dependency>
 	<groupId>org.t-io</groupId>
 	<artifactId>tio-websocket-server</artifactId>
-	<version>3.0.6.v20180626-RELEASE</version>
+	<version>3.2.2.v20181122-RELEASE</version>
 </dependency>
 ```
 - 如果你想用tio-http-server，只需引入
-```
+```xml
 <dependency>
 	<groupId>org.t-io</groupId>
 	<artifactId>tio-http-server</artifactId>
-	<version>3.0.6.v20180626-RELEASE</version>
+	<version>3.2.2.v20181122-RELEASE</version>
 </dependency>
 ```
+
+
+
+
 - 查看t-io最新版本
 	- [t-io版本列表](http://repo.maven.apache.org/maven2/org/t-io/tio-core/ "t-io版本列表")
 
@@ -147,6 +152,7 @@
 - [tio-websocket文档](https://t-io.org/blog/index.html?p=%2Fblog%2Ftio%2Fws%2Fshowcase.html "tio-websocket文档")
 
 ## **学习tio-core的步骤**
+**学习io框架的最好方式并不是各种理论和概念的讲解，而是通过示范程序领悟其中的概念，本人根据自身学习编程的经验，提供了详细的示例程序，这些程序既可当作入门教程，也可以作为你日后项目的脚手架。请各位t-io新用户按照如下步骤学习tio，必有所获！**
 - 熟练掌握ByteBuffer的使用，这是所有基于aio/nio编程的必修课程，这个懒没人躲得掉
 - 下载tio-core示范程序：[tio-showcase](https://gitee.com/tywo45/tio-showcase "tio-showcase")
 - 导入到eclipse或其它ide中
@@ -160,9 +166,10 @@
 - 忠告：tio-core已经封装了大量网络开发细节，如果你连上面的步骤都不愿意走一遍，建议你还是继续你的CRUD编程。
 
 ## **t-io推荐**
-- 智能客服系统 + 呼叫中心
-	- 服务了上万家的优质客服系统：[优客服 - 开源的智能客服系统 + 呼叫中心](https://t-io.org/api/ad/1.php "优客服 - 开源的智能客服系统 + 呼叫中心")
+- 优客服 - 智能客服系统 + 呼叫中心
+
+	[![image](https://res.t-io.org/img/ad/ukf.png)](https://t-io.org/api/ad/1.php)
 - 更专业的通用后台管理模板----[layuiAdmin，layui作者亲自倾力打造](https://t-io.org/api/ad/12.php "layuiAdmin，layui作者亲自倾力打造")
 	
-	[![image](https://t-io.org/res/layui.png)](https://t-io.org/api/ad/12.php)
+	[![image](https://res.t-io.org/img/ad/layui.png)](https://t-io.org/api/ad/12.php)
 
