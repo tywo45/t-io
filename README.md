@@ -2,10 +2,10 @@
 
 
 ### 一张图了解t-io的历史和能力
-![](https://res.t-io.org/doc/t-io-base_01.png?434)
+![](https://res.t-io.org/doc/t-io-base_01.png?44)
 
 ### 一张图了解t-io及官方衍生品
-![](https://res.t-io.org/doc/t-io-base_02.png?434)
+![](https://res.t-io.org/doc/t-io-base_02.png?44)
 
 ### 修改历史
 #### 3.2.4.v20181218-RELEASE
