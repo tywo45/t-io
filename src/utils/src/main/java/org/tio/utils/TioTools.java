@@ -23,7 +23,7 @@ public class TioTools {
 //				newProject();  //新工程
 //		rename();
 				tio();         //tio升级
-//				addBlankFile("D:\\work\\tio-im");
+//				addBlankFile("F:\\work\\tio-site\\src\\frontend\\web-all\\starter\\src\\main\\resources\\config\\page");
 //		deleteFiles(new String[] { "D:\\work\\tio-im-new", "F:\\gitee\\java" }, new String[] { ".externalToolBuilders" });
 		
 //		replaceFiles(new File("C:\\Users\\tanyw\\Desktop\\nb830.dic"), new String[] { "D:\\work\\tio-im", "F:\\gitee\\java", "D:\\work\\tio-im(改名前)" });
@@ -193,15 +193,20 @@ public class TioTools {
 	 * @author tanyaowu
 	 */
 	public static void tio() {
-		String[] rootDirStrs = new String[] { "D:\\work\\tio-im", "D:\\svn_nb\\base", "G:\\work", "D:\\work\\dts", "D:\\work\\tio-webpack", "D:\\svn_nb\\nbyb", "D:\\work\\t-io",
-				"D:\\svn_nb\\fire", "D:\\work\\tio-start", "D:\\svn_nb\\media", "F:\\gitee", "F:\\work\\tio-site", "D:\\work\\tio-im(改名前)" };
+		String[] rootDirStrs = new String[] { "F:\\work\\tio-site", "F:\\work\\nb", "D:\\work\\tio-im", "D:\\svn_nb\\base", "G:\\work", "D:\\work\\dts", "D:\\work\\tio-webpack", "D:\\svn_nb\\nbyb", "D:\\work\\t-io",
+				 "D:\\work\\tio-start", "F:\\gitee", "D:\\work\\tio-im(改名前)", "F:\\work\\nb" };
+		
+		String newversion = "3.2.5.v20190101-RELEASE";
+		
+		Map<String, String> old2newStr = new HashMap<>();
+//		Map<String, String> old2newFilename = new HashMap<>();
+
+//		old2newStr.put("3.2.2.v20181122-RELEASE", newversion);
+//		old2newStr.put("3.2.3.v20181212-RELEASE", newversion);
+		old2newStr.put("3.2.4.v20181218-RELEASE", newversion);
+		
 		for (String rootDirStr : rootDirStrs) {
-			Map<String, String> old2newStr = new HashMap<>();
-			Map<String, String> old2newFilename = new HashMap<>();
-
-			old2newStr.put("3.2.1.v20181024-RELEASE", "3.2.2.v20181122-RELEASE");
-
-			old2newFilename.putAll(old2newStr);
+//			old2newFilename.putAll(old2newStr);
 
 			try {
 				//如果需要修改文件名字，就在这里调一下rename

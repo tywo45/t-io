@@ -30,6 +30,8 @@ public class HttpRequest extends HttpPacket {
 	private static final long serialVersionUID = -3849253977016967211L;
 	
 	private boolean needForward = false;
+	
+	private boolean isForward = false;
 
 	public RequestLine requestLine = null;
 	/**
@@ -518,7 +520,7 @@ public class HttpRequest extends HttpPacket {
 		return str;
 	}
 
-	public void parseCookie() {
+	public void parseCookie(HttpConfig httpConfig) {
 		String cookieline = headers.get(HttpConst.RequestHeaderKey.Cookie);
 		if (StrUtil.isNotBlank(cookieline)) {
 			cookies = new ArrayList<>();
@@ -531,7 +533,7 @@ public class HttpRequest extends HttpPacket {
 				cookieOneMap.put(cookieMapEntry.getKey(), cookieMapEntry.getValue());
 				cookieListMap.add(cookieOneMap);
 
-				Cookie cookie = Cookie.buildCookie(cookieOneMap);
+				Cookie cookie = Cookie.buildCookie(cookieOneMap, httpConfig);
 				cookies.add(cookie);
 				cookieMap.put(cookie.getName(), cookie);
 				//				log.error("{}, 收到cookie:{}", channelContext, cookie.toString());
@@ -596,7 +598,7 @@ public class HttpRequest extends HttpPacket {
 	public void setHeaders(Map<String, String> headers) {
 		this.headers = headers;
 		if (headers != null) {
-			parseCookie();
+			parseCookie(httpConfig);
 		}
 
 		//		String Sec_WebSocket_Key = headers.get(HttpConst.RequestHeaderKey.Sec_WebSocket_Key);
@@ -718,6 +720,14 @@ public class HttpRequest extends HttpPacket {
 
 	public void setNeedForward(boolean needForward) {
 		this.needForward = needForward;
+	}
+
+	public boolean isForward() {
+		return isForward;
+	}
+
+	public void setForward(boolean isForward) {
+		this.isForward = isForward;
 	}
 
 	//	/**

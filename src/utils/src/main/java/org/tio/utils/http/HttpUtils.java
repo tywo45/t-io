@@ -172,4 +172,15 @@ public class HttpUtils {
 		return post(url, null);
 	}
 
+	
+	public static void main(String[] args) throws Exception {
+		String url = "https://www.t-io.org/api/app/conf.php";
+		Response response = get(url);
+		String body = response.body().string();
+		Headers headers = response.headers();
+		String cookie = headers.get("Set-Cookie");
+		System.out.println(body);
+		System.out.println(cookie);
+		
+	}
 }

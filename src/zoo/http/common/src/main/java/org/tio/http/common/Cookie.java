@@ -1,6 +1,5 @@
 package org.tio.http.common;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +24,7 @@ public class Cookie {
 	 * @param cookieMap Cookie 属性 Map
 	 * @return Cookie 对象
 	 */
-	public static Cookie buildCookie(Map<String, String> cookieMap) {
+	public static Cookie buildCookie(Map<String, String> cookieMap, HttpConfig httpConfig) {
 		Cookie cookie = new Cookie();
 		for (Entry<String, String> cookieMapItem : cookieMap.entrySet()) {
 			switch (cookieMapItem.getKey().toLowerCase()) {
@@ -50,9 +49,9 @@ public class Cookie {
 			default:
 				cookie.setName(cookieMapItem.getKey());
 				try {
-					cookie.setValue(URLDecoder.decode(cookieMapItem.getValue(), HttpConst.CHARSET_NAME));
-				} catch (UnsupportedEncodingException e) {
-					log.error(e.toString(), e);
+					cookie.setValue(URLDecoder.decode(cookieMapItem.getValue(), httpConfig.getCharset()));
+				} catch (Exception e) {
+					log.error("cookie值解码时异常：" + cookieMapItem.getValue(), e);
 				}
 				break;
 			}

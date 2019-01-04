@@ -83,6 +83,11 @@ public abstract class GroupContext extends MapWithLockPropSupport {
 	 * 心跳超时时间(单位: 毫秒)，如果用户不希望框架层面做心跳相关工作，请把此值设为0或负数
 	 */
 	public long heartbeatTimeout = 1000 * 120;
+	
+	/**
+	 * 解码出现异常时，是否打印异常日志
+	 */
+	public boolean logWhenDecodeError = false;
 
 	public PacketHandlerMode packetHandlerMode = PacketHandlerMode.SINGLE_THREAD;//.queue;
 
@@ -163,7 +168,7 @@ public abstract class GroupContext extends MapWithLockPropSupport {
 	public GroupContext(SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
 		super();
 		this.id = ID_ATOMIC.incrementAndGet() + "";
-		this.ipBlacklist = new IpBlacklist(id, this);
+		
 		this.ipStats = new IpStats(this, null);
 
 		

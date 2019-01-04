@@ -76,7 +76,7 @@ public class Routes {
 
 	/**
 	 * Method路径映射<br>
-	 * key: /user/update<br>
+	 * key: /user/update，包含forward的路径<br>
 	 * value: method<br>
 	 */
 	public final Map<String, Method> PATH_METHOD_MAP = new TreeMap<>();

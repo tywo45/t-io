@@ -20,12 +20,12 @@ public class WsSessionContext {
 	/**
 	 * websocket 握手请求包
 	 */
-	private HttpRequest handshakeRequestPacket = null;
+	private HttpRequest handshakeRequest = null;
 
 	/**
 	 * websocket 握手响应包
 	 */
-	private HttpResponse handshakeResponsePacket = null;
+	private HttpResponse handshakeResponse = null;
 
 	private String token = null;
 
@@ -44,17 +44,17 @@ public class WsSessionContext {
 	}
 
 	/**
-	 * @return the httpHandshakePacket
+	 * @return the handshakeRequest
 	 */
-	public HttpRequest getHandshakeRequestPacket() {
-		return handshakeRequestPacket;
+	public HttpRequest getHandshakeRequest() {
+		return handshakeRequest;
 	}
 
 	/**
-	 * @return the handshakeResponsePacket
+	 * @return the handshakeResponse
 	 */
-	public HttpResponse getHandshakeResponsePacket() {
-		return handshakeResponsePacket;
+	public HttpResponse getHandshakeResponse() {
+		return handshakeResponse;
 	}
 
 	/**
@@ -86,17 +86,17 @@ public class WsSessionContext {
 	}
 
 	/**
-	 * @param httpHandshakePacket the httpHandshakePacket to set
+	 * @param handshakeRequest the handshakeRequest to set
 	 */
-	public void setHandshakeRequestPacket(HttpRequest handshakeRequestPacket) {
-		this.handshakeRequestPacket = handshakeRequestPacket;
+	public void setHandshakeRequest(HttpRequest handshakeRequest) {
+		this.handshakeRequest = handshakeRequest;
 	}
 
 	/**
-	 * @param handshakeResponsePacket the handshakeResponsePacket to set
+	 * @param handshakeResponse the handshakeResponse to set
 	 */
-	public void setHandshakeResponsePacket(HttpResponse handshakeResponsePacket) {
-		this.handshakeResponsePacket = handshakeResponsePacket;
+	public void setHandshakeResponse(HttpResponse handshakeResponse) {
+		this.handshakeResponse = handshakeResponse;
 	}
 
 	/**

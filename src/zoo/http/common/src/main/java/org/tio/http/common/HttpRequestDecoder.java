@@ -66,10 +66,10 @@ public class HttpRequestDecoder {
 		byte[] bodyBytes = null;
 		StringBuilder headerSb = null;//new StringBuilder(512);
 		RequestLine firstLine = null;
-		boolean appendRequestHeaderString = false;
-		if (httpConfig != null) {
-			appendRequestHeaderString = httpConfig.isAppendRequestHeaderString();
-		}
+		boolean appendRequestHeaderString = httpConfig.isAppendRequestHeaderString();;
+//		if (httpConfig != null) {
+//			
+//		}
 		if (appendRequestHeaderString) {
 			headerSb = new StringBuilder(512);
 		}
@@ -121,7 +121,7 @@ public class HttpRequestDecoder {
 		
 
 		// ----------------------------------------------- request body start
-		if (httpConfig != null && httpConfig.checkHost) {
+		if (httpConfig.checkHost) {
 			if (!headers.containsKey(HttpConst.RequestHeaderKey.Host)) {
 				throw new AioDecodeException("there is no host header");
 			}

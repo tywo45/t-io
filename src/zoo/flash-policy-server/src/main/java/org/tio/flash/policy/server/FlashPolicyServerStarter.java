@@ -1,6 +1,5 @@
 package org.tio.flash.policy.server;
 
-import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;

@@ -60,7 +60,7 @@ public class WsServerAioHandler implements ServerAioHandler {
 		//		int initPosition = buffer.position();
 
 		if (!wsSessionContext.isHandshaked()) {
-			HttpRequest request = HttpRequestDecoder.decode(buffer, limit, position, readableLength, channelContext, null);
+			HttpRequest request = HttpRequestDecoder.decode(buffer, limit, position, readableLength, channelContext, wsServerConfig);
 			if (request == null) {
 				return null;
 			}
@@ -70,8 +70,8 @@ public class WsServerAioHandler implements ServerAioHandler {
 				throw new AioDecodeException("http协议升级到websocket协议失败");
 			}
 
-			wsSessionContext.setHandshakeRequestPacket(request);
-			wsSessionContext.setHandshakeResponsePacket(httpResponse);
+			wsSessionContext.setHandshakeRequest(request);
+			wsSessionContext.setHandshakeResponse(httpResponse);
 
 			WsRequest wsRequestPacket = new WsRequest();
 			//			wsRequestPacket.setHeaders(httpResponse.getHeaders());
@@ -92,9 +92,9 @@ public class WsServerAioHandler implements ServerAioHandler {
 		//握手包
 		if (wsResponse.isHandShake()) {
 			WsSessionContext imSessionContext = (WsSessionContext) channelContext.getAttribute();
-			HttpResponse handshakeResponsePacket = imSessionContext.getHandshakeResponsePacket();
+			HttpResponse handshakeResponse = imSessionContext.getHandshakeResponse();
 			try {
-				return HttpResponseEncoder.encode(handshakeResponsePacket, groupContext, channelContext);
+				return HttpResponseEncoder.encode(handshakeResponse, groupContext, channelContext);
 			} catch (UnsupportedEncodingException e) {
 				log.error(e.toString(), e);
 				return null;
@@ -154,14 +154,14 @@ public class WsServerAioHandler implements ServerAioHandler {
 
 		if (wsRequest.isHandShake()) {
 			WsSessionContext wsSessionContext = (WsSessionContext) channelContext.getAttribute();
-			HttpRequest request = wsSessionContext.getHandshakeRequestPacket();
-			HttpResponse httpResponse = wsSessionContext.getHandshakeResponsePacket();
+			HttpRequest request = wsSessionContext.getHandshakeRequest();
+			HttpResponse httpResponse = wsSessionContext.getHandshakeResponse();
 			HttpResponse r = wsMsgHandler.handshake(request, httpResponse, channelContext);
 			if (r == null) {
 				Tio.remove(channelContext, "业务层不同意握手");
 				return;
 			}
-			wsSessionContext.setHandshakeResponsePacket(r);
+			wsSessionContext.setHandshakeResponse(r);
 
 			WsResponse wsResponse = new WsResponse();
 			wsResponse.setHandShake(true);

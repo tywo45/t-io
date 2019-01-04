@@ -40,6 +40,18 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	//	public boolean isTraceSynPacket = false;
 
 	public boolean isReconnect = false;
+	
+	/**
+	 * 解码出现异常时，是否打印异常日志
+	 * 此值默认与org.tio.core.GroupContext.logWhenDecodeError保持一致
+	 */
+	public boolean logWhenDecodeError = false;
+	
+	/**
+	 * 此值不设时，心跳时间取org.tio.core.GroupContext.heartbeatTimeout
+	 * 当然这个值如果小于org.tio.core.GroupContext.heartbeatTimeout，定时检查的时间间隔还是以org.tio.core.GroupContext.heartbeatTimeout为准，只是在判断时用此值
+	 */
+	public Long heartbeatTimeout = null;
 
 	/**
 	 * 一个packet所需要的字节数（用于应用告诉框架，下一次解码所需要的字节长度，省去冗余解码带来的性能损耗）
@@ -73,6 +85,8 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	public boolean isRemoved = false;
 
 	public boolean isVirtual = false;
+	
+	public boolean hasTempDir = false;
 
 	public final ChannelStat stat = new ChannelStat();
 
@@ -146,23 +160,32 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	 */
 	public abstract Node createClientNode(AsynchronousSocketChannel asynchronousSocketChannel) throws IOException;
 
-	/**
-	 *
-	 * @param obj
-	 * @return
-	 * @author tanyaowu
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		ChannelContext other = (ChannelContext) obj;
-		return Objects.equals(other.hashCode(), this.hashCode());
-	}
+    /**
+     *
+     * @param obj
+     * @return
+     * @author tanyaowu
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ChannelContext other = (ChannelContext) obj;
+        if (id == null) {
+            if (other.id != null)
+                return false;
+        } else if (!id.equals(other.id)) {
+            return false;
+        }
+        return true;
+    }
 
 	public Object getAttribute() {
 		return getAttribute(DEFAULT_ATTUBITE_KEY);
@@ -246,6 +269,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 		this.setAsynchronousSocketChannel(asynchronousSocketChannel);
 		this.readCompletionHandler = new ReadCompletionHandler(this);
 		this.writeCompletionHandler = new WriteCompletionHandler(this);
+		this.logWhenDecodeError = groupContext.logWhenDecodeError;
 	}
 
 	/**
@@ -402,7 +426,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	}
 
 	/**
-	 * @param reConnCount the reConnCount to set
+	 * @param reconnCount the reConnCount to set
 	 */
 	public void setReconnCount(int reconnCount) {
 		this.reconnCount = reconnCount;
@@ -552,6 +576,20 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	 * @author tanyaowu
 	 */
 	public abstract boolean isServer();
+
+	/**
+	 * @return the heartbeatTimeout
+	 */
+	public Long getHeartbeatTimeout() {
+		return heartbeatTimeout;
+	}
+
+	/**
+	 * @param heartbeatTimeout the heartbeatTimeout to set
+	 */
+	public void setHeartbeatTimeout(Long heartbeatTimeout) {
+		this.heartbeatTimeout = heartbeatTimeout;
+	}
 
 	/**
 	 * @author tanyaowu

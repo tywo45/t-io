@@ -5,7 +5,7 @@
 	<groupId>org.t-io</groupId>
 	<artifactId>tio-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>3.2.2.v20181122-RELEASE</version>
+	<version>3.2.5.v20190101-RELEASE</version>
 	<name>${project.artifactId}</name>
 	<url>http://maven.apache.org</url>
 
@@ -38,7 +38,7 @@
 
 
 
-		<tio-utils.version>3.2.2.v20181122-RELEASE</tio-utils.version>
+		<tio-utils.version>3.2.5.v20190101-RELEASE</tio-utils.version>
 		<tio-core.version>${tio-utils.version}</tio-core.version>
 		<tio-flash-policy-server.version>${tio-utils.version}</tio-flash-policy-server.version>
 
@@ -52,7 +52,7 @@
 		<maven.test.skip>true</maven.test.skip>
 		<maven.version>3.5.0</maven.version>
 
-		<mysql.driver.version>5.1.46</mysql.driver.version>
+		<mysql.driver.version>8.0.13</mysql.driver.version><!-- 5.1.46 -->
 		<druid.version>1.1.12</druid.version>
 		<jfinal.version>3.5</jfinal.version>
 
@@ -68,31 +68,31 @@
 		<commons-compress.version>1.18</commons-compress.version>
 		<fastjson.version>1.2.54</fastjson.version>
 		<testng.version>6.14.3</testng.version>
-		<hutool.version>4.2.1</hutool.version>
+		<hutool.version>4.3.2</hutool.version>
 
 		<protobuf-java.version>3.6.1</protobuf-java.version>
 		<commons-beanutils.version>1.9.3</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
 
 		<protostuff.version>1.6.0</protostuff.version>
-		<redisson.version>3.9.1</redisson.version>
+		<redisson.version>3.10.0</redisson.version>
 		<jodd.version>5.0.6</jodd.version>
 		<quartz.version>2.3.0</quartz.version>
 		<caffeine.version>2.6.2</caffeine.version>
 
-		<binarywang.version>3.2.0</binarywang.version>
+		<binarywang.version>3.3.0</binarywang.version>
 		<zxing.version>3.3.3</zxing.version>
 
 		<httpcore.version>4.4.10</httpcore.version>
 		<httpclient.version>4.5.6</httpclient.version>
 
-		<closure.version>v20181125</closure.version>
+		<closure.version>v20181210</closure.version>
 
 		<freemarker.version>2.3.28</freemarker.version>
 
 		<UserAgentUtils.version>1.21</UserAgentUtils.version>
 		
-		<scribejava-apis.version>6.1.0</scribejava-apis.version>
+		<scribejava-apis.version>6.2.0</scribejava-apis.version>
 		
 		<oltu.oauth2.version>1.0.2</oltu.oauth2.version>
 
@@ -263,7 +263,7 @@
 			<dependency>
 				<groupId>com.squareup.okhttp3</groupId>
 				<artifactId>okhttp</artifactId>
-				<version>3.12.0</version>
+				<version>3.12.1</version>
 			</dependency>
 
 
@@ -475,18 +475,13 @@
 			<dependency>
 				<groupId>com.github.javen205</groupId>
 				<artifactId>IJPay</artifactId>
-				<version>1.1.7</version>
+				<version>1.1.9</version>
 			</dependency>
 
 			<dependency>
-				<groupId>io.github.lukehutch</groupId>
-				<artifactId>fast-classpath-scanner</artifactId>
-				<version>3.1.13</version>
-			</dependency>
-			<dependency>
 				<groupId>io.github.classgraph</groupId>
 				<artifactId>classgraph</artifactId>
-				<version>4.4.12</version>
+				<version>4.6.10</version>
 			</dependency>
 			<dependency>
 				<groupId>com.thoughtworks.paranamer</groupId>
@@ -497,7 +492,7 @@
 			<dependency>
 				<groupId>org.mongodb</groupId>
 				<artifactId>mongo-java-driver</artifactId>
-				<version>3.9.0</version>
+				<version>3.9.1</version>
 			</dependency>
 
 			<dependency>
@@ -607,7 +602,7 @@
 			<dependency>
 				<groupId>org.apache.curator</groupId>
 				<artifactId>curator-x-discovery</artifactId>
-				<version>4.0.1</version>
+				<version>4.1.0</version>
 			</dependency>
 
 			<!-- QQ登录 -->
@@ -655,7 +650,7 @@
 			<dependency>
 				<groupId>com.esotericsoftware</groupId>
 				<artifactId>reflectasm</artifactId>
-				<version>1.11.7</version>
+				<version>1.11.8</version>
 			</dependency>
 
 
@@ -680,7 +675,7 @@
 			<dependency>
 				<groupId>com.github.hazendaz</groupId>
 				<artifactId>htmlcompressor</artifactId>
-				<version>1.6.4</version>
+				<version>1.6.5</version>
 			</dependency>
 
 			<dependency>
@@ -710,6 +705,12 @@
 				<groupId>org.apache.oltu.oauth2</groupId>
 				<artifactId>org.apache.oltu.oauth2.common</artifactId>
 				<version>${oltu.oauth2.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>com.github.dfabulich</groupId>
+				<artifactId>sitemapgen4j</artifactId>
+				<version>1.1.1</version>
 			</dependency>
 
 		</dependencies>
@@ -786,6 +787,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
+					<version>3.0.1</version>
 				</plugin>
 
 				<!-- clean插件 -->
@@ -898,7 +900,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>2.10.3</version>
+					<version>3.0.1</version>
 					<configuration>
 						<aggregate>true</aggregate>
 						<additionalparam>-Xdoclint:none</additionalparam>
@@ -999,7 +1001,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
-						<version>1.5</version>
+						<version>1.6</version>
 						<executions>
 							<execution>
 								<phase>verify</phase>

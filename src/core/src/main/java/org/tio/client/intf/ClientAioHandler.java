@@ -1,5 +1,6 @@
 package org.tio.client.intf;
 
+import org.tio.core.ChannelContext;
 import org.tio.core.intf.AioHandler;
 import org.tio.core.intf.Packet;
 
@@ -14,5 +15,5 @@ public interface ClientAioHandler extends AioHandler {
 	 * @return
 	 * @author tanyaowu
 	 */
-	Packet heartbeatPacket();
+	Packet heartbeatPacket(ChannelContext channelContext);
 }

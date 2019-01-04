@@ -233,7 +233,7 @@ public class HttpMultiBodyDecoder {
 	 * @param httpConfig 
 	 */
 	public static Step parseBody(Header header, HttpRequest request, ByteBuffer buffer, String boundary, String endBoundary, ChannelContext channelContext, HttpConfig httpConfig)
-			throws UnsupportedEncodingException, LengthOverflowException {
+			throws UnsupportedEncodingException, LengthOverflowException, AioDecodeException {
 		int initPosition = buffer.position();
 
 		while (buffer.hasRemaining()) {
@@ -267,7 +267,7 @@ public class HttpMultiBodyDecoder {
 				}
 			}
 		}
-		return null;
+		throw new AioDecodeException("step is null");
 	}
 
 	/**

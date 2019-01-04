@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.tio.client.ClientGroupContext;
 import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
+import org.tio.utils.hutool.FileUtil;
 
 /**
  * 
@@ -21,7 +22,7 @@ public class MaintainUtils {
 	
 	private static final Logger log = LoggerFactory.getLogger(MaintainUtils.class);
 
-	public static final String TEMP_DIR = "tiotemp/";
+	public static final String TEMP_DIR = "TIO_TEMP_FILE/";
 
 	/**
 	 * 彻底删除，不再维护
@@ -74,12 +75,13 @@ public class MaintainUtils {
 	}
 
 	public static void deleteTempDir(ChannelContext channelContext) {
-		try {
-			String dir = channelContext.getId();
-			File dirFile = new File(TEMP_DIR + dir);
-			dirFile.deleteOnExit();
-		} catch (Exception e) {
-			log.error(e.toString(), e);
+		if (channelContext.hasTempDir) {
+			try {
+				File dirFile = tempDir(channelContext, false);
+				FileUtil.del(dirFile);
+			} catch (Exception e) {
+				log.error(e.toString(), e);
+			}
 		}
 	}
 
@@ -89,23 +91,27 @@ public class MaintainUtils {
 	 * @return
 	 * @author tanyaowu
 	 */
-	public static File createTempDir(ChannelContext channelContext) {
-		String dir = channelContext.getId();
-		File dirFile = new File(TEMP_DIR + dir);
+	public static File tempDir(ChannelContext channelContext, boolean forceCreate) {
+		File dirFile = new File(TEMP_DIR + channelContext.groupContext.getId() + "/" + channelContext.getId());
 		if (!dirFile.exists()) {
-			dirFile.mkdirs();
+			if (forceCreate) {
+				dirFile.mkdirs();
+				channelContext.hasTempDir = true;
+			}
+		} else {
+			channelContext.hasTempDir = true;
 		}
 		return dirFile;
 	}
 
 	public static File tempReceivedFile(ChannelContext channelContext) {
-		File tempDir = createTempDir(channelContext);
+		File tempDir = tempDir(channelContext, true);
 		File tempReceivedFile = new File(tempDir, "received");
 		return tempReceivedFile;
 	}
 
 	public static File tempWriteFile(ChannelContext channelContext) {
-		File tempDir = createTempDir(channelContext);
+		File tempDir = tempDir(channelContext, true);
 		File tempReceivedFile = new File(tempDir, "write");
 		return tempReceivedFile;
 	}

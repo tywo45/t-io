@@ -356,7 +356,7 @@ public class TioClient {
 							long compareTime = Math.max(stat.latestTimeOfReceivedByte, stat.latestTimeOfSentPacket);
 							long interval = currtime - compareTime;
 							if (interval >= clientGroupContext.heartbeatTimeout / 2) {
-								Packet packet = aioHandler.heartbeatPacket();
+								Packet packet = aioHandler.heartbeatPacket(channelContext);
 								if (packet != null) {
 									if (log.isInfoEnabled()) {
 										log.info("{}发送心跳包", channelContext.toString());

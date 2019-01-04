@@ -26,6 +26,8 @@ import org.tio.http.common.HttpResponseStatus;
 import org.tio.http.common.RequestLine;
 import org.tio.http.common.handler.HttpRequestHandler;
 import org.tio.http.common.session.HttpSession;
+import org.tio.http.common.session.limiter.SessionRateLimiter;
+import org.tio.http.common.session.limiter.SessionRateVo;
 import org.tio.http.common.utils.HttpGzipUtils;
 import org.tio.http.common.view.freemarker.FreemarkerConfig;
 import org.tio.http.server.intf.CurrUseridGetter;
@@ -405,40 +407,49 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 			
 			//流控
 			if (httpConfig.isUseSession()) {
-				if (httpConfig.sessionRateLimiter != null) {
-					Integer interval = httpConfig.sessionRateLimiter.interval(request);
+				SessionRateLimiter sessionRateLimiter = httpConfig.sessionRateLimiter;
+				if (sessionRateLimiter != null) {
 					boolean pass = false;
-					if (interval != null && interval > 0) {
-						String key = path + SESSIONRATELIMITER_KEY_SPLIT + request.getHttpSession().getId();
-						Long lastAccessTime = sessionRateLimiterCache.get(key, Long.class);
-						if (lastAccessTime == null) {
-							synchronized (httpConfig.sessionRateLimiter) {
-								lastAccessTime = sessionRateLimiterCache.get(key, Long.class);
-								if (lastAccessTime == null) {
-									lastAccessTime = System.currentTimeMillis();
-									sessionRateLimiterCache.put(key, lastAccessTime);
-									pass = true;
-								}
-							}
-						}
-						
-						if (!pass) {
-							if (System.currentTimeMillis() - lastAccessTime > interval) {
+					
+					HttpSession httpSession = request.getHttpSession();
+					String key = path + SESSIONRATELIMITER_KEY_SPLIT + httpSession.getId();
+					SessionRateVo sessionRateVo = sessionRateLimiterCache.get(key, SessionRateVo.class);
+					if (sessionRateVo == null) {
+						synchronized (httpSession) {
+							sessionRateVo = sessionRateLimiterCache.get(key, SessionRateVo.class);
+							if (sessionRateVo == null) {
+								sessionRateVo = SessionRateVo.create(path);
+								sessionRateLimiterCache.put(key, sessionRateVo);
 								pass = true;
 							}
 						}
-						
-//						//更新上次访问时间
-//						sessionRateLimiterCache.put(key, System.currentTimeMillis());
-						
-						if (!pass) {
-							response = httpConfig.sessionRateLimiter.response(request, lastAccessTime);
-							return response;
-						}
-						
-						//更新上次访问时间（放在这个位置：被拒绝访问的就不更新lastAccessTime）
-						sessionRateLimiterCache.put(key, System.currentTimeMillis());
 					}
+					
+//					log.error(Json.toFormatedJson(sessionRateVo));
+					
+					if (!pass) {
+//						if (System.currentTimeMillis() - lastAccessTime > interval) {
+//							pass = true;
+//						}
+						
+						if (sessionRateLimiter.allow(request, sessionRateVo)) {
+							pass = true;
+						}
+					}
+					
+//					//更新上次访问时间
+//					sessionRateLimiterCache.put(key, System.currentTimeMillis());
+					
+					if (!pass) {
+						response = sessionRateLimiter.response(request, sessionRateVo);
+						return response;
+					}
+					
+					//更新上次访问时间（放在这个位置：被拒绝访问的就不更新lastAccessTime）
+					sessionRateVo.setLastAccessTime(SystemTimer.currTime);
+					sessionRateVo.getAccessCount().incrementAndGet();
+//					sessionRateLimiterCache.put(key, sessionRateVo);
+				
 				}
 			}
 			
@@ -764,6 +775,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 				log.error(request.requestLine.toString(), e);
 			} finally {
 				if (request.isNeedForward()) {
+					request.setForward(true);
 					return handler(request);
 				}
 			}
@@ -794,7 +806,8 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 		//统计一下IP访问数据
 		String ip = request.getClientIp();//IpUtils.getRealIp(request);
 
-		Cookie cookie = getSessionCookie(request, httpConfig);
+//		Cookie cookie = getSessionCookie(request, httpConfig);
+		String sessionId = getSessionId(request);
 
 		StatPathFilter statPathFilter = ipPathAccessStats.getStatPathFilter();
 
@@ -805,10 +818,10 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 			ipAccessStat.count.incrementAndGet();
 			ipAccessStat.timeCost.addAndGet(iv);
 			ipAccessStat.setLastAccessTime(SystemTimer.currTime);
-			if (cookie == null) {
+			if (StrUtil.isBlank(sessionId)) {
 				ipAccessStat.noSessionCount.incrementAndGet();
 			} else {
-				ipAccessStat.sessionIds.add(cookie.getValue());
+				ipAccessStat.sessionIds.add(sessionId);
 			}
 
 			if (statPathFilter.filter(path, request, response)) {
@@ -817,7 +830,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 				ipPathAccessStat.timeCost.addAndGet(iv);
 				ipPathAccessStat.setLastAccessTime(SystemTimer.currTime);
 
-				if (cookie == null) {
+				if (StrUtil.isBlank(sessionId)) {
 					ipPathAccessStat.noSessionCount.incrementAndGet();
 				}
 				//				else {
@@ -917,14 +930,13 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 		}
 
 		HttpSession httpSession = request.getHttpSession();//(HttpSession) channelContext.getAttribute();//.getHttpSession();//not null
-		Cookie cookie = getSessionCookie(request, httpConfig);
-		String sessionId = null;
+//		Cookie cookie = getSessionCookie(request, httpConfig);
+		String sessionId = getSessionId(request);
 
-		if (cookie == null) {
+		if (StrUtil.isBlank(sessionId)) {
 			createSessionCookie(request, httpSession, httpResponse);
 			//			log.info("{} 创建会话Cookie, {}", request.getChannelContext(), cookie);
 		} else {
-			sessionId = cookie.getValue();
 			HttpSession httpSession1 = (HttpSession) httpConfig.getSessionStore().get(sessionId);
 
 			if (httpSession1 == null) {//有cookie但是超时了
@@ -932,6 +944,8 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 			}
 		}
 	}
+	
+	
 
 	/**
 	 * 
@@ -985,13 +999,16 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 			return;
 		}
 
-		Cookie cookie = getSessionCookie(request, httpConfig);
+		String sessionId = getSessionId(request);
+//		Cookie cookie = getSessionCookie(request, httpConfig);
 		HttpSession httpSession = null;
-		if (cookie == null) {
+		if (StrUtil.isBlank(sessionId)) {
 			httpSession = createSession(request);
 		} else {
-			//			httpSession = (HttpSession)httpSession.getAttribute(SESSIONID_KEY);//loadingCache.getIfPresent(sessionCookie.getValue());
-			String sessionId = cookie.getValue();
+//			if (StrUtil.isBlank(sessionId)) {
+//				sessionId = cookie.getValue();
+//			}
+			
 			httpSession = (HttpSession) httpConfig.getSessionStore().get(sessionId);
 			if (httpSession == null) {
 				log.info("{} session【{}】超时", request.channelContext, sessionId);
@@ -999,6 +1016,20 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 			}
 		}
 		request.setHttpSession(httpSession);
+	}
+	
+	public static String getSessionId(HttpRequest request) {
+		String sessionId = request.getString(org.tio.http.common.HttpConfig.TIO_HTTP_SESSIONID);
+		if (StrUtil.isNotBlank(sessionId)) {
+			return sessionId;
+		}
+		
+		Cookie cookie = getSessionCookie(request, request.httpConfig);
+		if (cookie != null) {
+			return cookie.getValue();
+		}
+		
+		return null;
 	}
 
 	@Override

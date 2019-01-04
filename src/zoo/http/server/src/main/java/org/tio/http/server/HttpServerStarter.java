@@ -78,13 +78,13 @@ public class HttpServerStarter {
 	 * @author tanyaowu
 	 */
 	public HttpServerStarter(HttpConfig httpConfig, HttpRequestHandler requestHandler, SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
-		preAccessFileType.add("css");
-		preAccessFileType.add("js");
-		preAccessFileType.add("jsp");
+//		preAccessFileType.add("css");
+//		preAccessFileType.add("js");
+//		preAccessFileType.add("jsp");
 		preAccessFileType.add("html");
 		preAccessFileType.add("ftl");
 //		preAccessFileType.add("xml");
-		preAccessFileType.add("htm");
+//		preAccessFileType.add("htm");
 
 		if (tioExecutor == null) {
 			tioExecutor = Threads.getTioExecutor();
@@ -304,16 +304,20 @@ public class HttpServerStarter {
 				});
 				Set<Entry<String, Long>> entrySet = pathCostMap.entrySet();
 				for (Entry<String, Long> entry : entrySet) {
-					Long cost = entry.getValue();
-					String path = entry.getKey();
-					Set<String> pathSet = costPathsMap.get(cost);
-					if (pathSet == null) {
-						pathSet = new TreeSet<>();
-						costPathsMap.put(cost, pathSet);
-					}
-					boolean added = pathSet.add(path);
-					if (!added) {
-						log.error("可能重复访问了:{}", path);
+					try {
+						Long cost = entry.getValue();
+						String path = entry.getKey();
+						Set<String> pathSet = costPathsMap.get(cost);
+						if (pathSet == null) {
+							pathSet = new TreeSet<>();
+							costPathsMap.put(cost, pathSet);
+						}
+						boolean added = pathSet.add(path);
+						if (!added) {
+							log.error("可能重复访问了:{}", path);
+						}
+					} catch (Exception e) {
+						log.error(e.toString(), e);
 					}
 				}
 

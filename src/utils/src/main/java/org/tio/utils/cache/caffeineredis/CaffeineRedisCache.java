@@ -29,7 +29,7 @@ public class CaffeineRedisCache extends AbsCache {
 	private static Logger log = LoggerFactory.getLogger(CaffeineRedisCache.class);
 	public static Map<String, CaffeineRedisCache> map = new HashMap<>();
 
-	static RTopic topic;
+	public static RTopic topic;
 
 	private static boolean inited = false;
 

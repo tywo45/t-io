@@ -1,11 +1,14 @@
 package org.tio.utils.hutool;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FileUtil {
 
@@ -157,4 +160,84 @@ public class FileUtil {
 		byte[] data = readBytes(file);
 		return new String(data, "utf-8");
 	}
+	
+	/**
+	 * 递归遍历目录以及子目录中的所有文件<br>
+	 * 如果提供file为文件，直接返回过滤结果
+	 * 
+	 * @param path 当前遍历文件或目录的路径
+	 * @param fileFilter 文件过滤规则对象，选择要保留的文件，只对文件有效，不过滤目录
+	 * @return 文件列表
+	 * @since 3.2.0
+	 */
+	public static List<File> loopFiles(String path, FileFilter fileFilter) {
+		return loopFiles(file(path), fileFilter);
+	}
+
+	/**
+	 * 递归遍历目录以及子目录中的所有文件<br>
+	 * 如果提供file为文件，直接返回过滤结果
+	 * 
+	 * @param file 当前遍历文件或目录
+	 * @param fileFilter 文件过滤规则对象，选择要保留的文件，只对文件有效，不过滤目录
+	 * @return 文件列表
+	 */
+	public static List<File> loopFiles(File file, FileFilter fileFilter) {
+		List<File> fileList = new ArrayList<File>();
+		if (null == file) {
+			return fileList;
+		} else if (false == file.exists()) {
+			return fileList;
+		}
+
+		if (file.isDirectory()) {
+			final File[] subFiles = file.listFiles();
+			if (subFiles != null && subFiles.length > 0) {
+				for (File tmp : subFiles) {
+					fileList.addAll(loopFiles(tmp, fileFilter));
+				}
+			}
+		} else {
+			if (null == fileFilter || fileFilter.accept(file)) {
+				fileList.add(file);
+			}
+		}
+
+		return fileList;
+	}
+
+	/**
+	 * 递归遍历目录以及子目录中的所有文件
+	 * 
+	 * @param path 当前遍历文件或目录的路径
+	 * @return 文件列表
+	 * @since 3.2.0
+	 */
+	public static List<File> loopFiles(String path) {
+		return loopFiles(file(path));
+	}
+
+	/**
+	 * 递归遍历目录以及子目录中的所有文件
+	 * 
+	 * @param file 当前遍历文件
+	 * @return 文件列表
+	 */
+	public static List<File> loopFiles(File file) {
+		return loopFiles(file, null);
+	}
+	
+	/**
+	 * 创建File对象，自动识别相对或绝对路径，相对路径将自动从ClassPath下寻找
+	 * 
+	 * @param path 文件路径
+	 * @return File
+	 */
+	public static File file(String path) {
+		if (StrUtil.isBlank(path)) {
+			throw new NullPointerException("File path is blank!");
+		}
+		return new File(path);
+	}
+
 }

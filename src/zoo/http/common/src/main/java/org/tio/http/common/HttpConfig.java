@@ -1,23 +1,28 @@
 package org.tio.http.common;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.http.common.handler.HttpRequestHandler;
-import org.tio.http.common.intf.SessionRateLimiter;
 import org.tio.http.common.session.HttpSession;
 import org.tio.http.common.session.id.ISessionIdGenerator;
+import org.tio.http.common.session.limiter.SessionRateLimiter;
 import org.tio.http.common.view.freemarker.FreemarkerConfig;
 import org.tio.utils.cache.ICache;
+import org.tio.utils.hutool.FileUtil;
 import org.tio.utils.hutool.StrUtil;
 
 /**
@@ -28,7 +33,12 @@ public class HttpConfig {
 
 	@SuppressWarnings("unused")
 	private static Logger log = LoggerFactory.getLogger(HttpConfig.class);
-
+	
+	/**
+	 * 用于覆盖session cookie的参数名，客户端可以用这个传递sessionid
+	 */
+	public static final String TIO_HTTP_SESSIONID = "tio_http_sessionid";
+	
 	/**
 	 * 存放HttpSession对象的cacheName
 	 */
@@ -52,12 +62,12 @@ public class HttpConfig {
 	/**
 	 * 文件上传时，boundary值的最大长度
 	 */
-	public static final int MAX_LENGTH_OF_BOUNDARY = 256;
+	public static final int MAX_LENGTH_OF_BOUNDARY = 512;
 
 	/**
 	 * 文件上传时，头部的最大长度
 	 */
-	public static final int MAX_LENGTH_OF_MULTI_HEADER = 128;
+	public static final int MAX_LENGTH_OF_MULTI_HEADER = 512;
 
 	/**
 	 * 文件上传时，体的最大长度(默认值2M)
@@ -424,12 +434,111 @@ public class HttpConfig {
 	}
 
 	/**
+	 * 静态文件路径，必须先设置好pageRoot后再用
+	 * key:  文件名后缀
+	 * path: 访问路径  如 /user/set.html
+	 */
+	private Map<String, Set<String>> staticPathsMap = null;
+	
+	/**
+	 * path: 访问路径  如 /user/set.html
+	 */
+	private Set<String> staticPaths = null;
+	
+	public Map<String, Set<String>> getStaticPathsMap(){
+		initStaticPaths();
+		return staticPathsMap;
+	}
+	
+	public Set<String> getStaticPaths(){
+		initStaticPaths();
+		return staticPaths;
+	}
+	
+	private Map<String, Set<String>> initStaticPaths() {
+		if (staticPathsMap != null) {
+			return staticPathsMap;
+		}
+		
+		if (pageInClasspath) {
+			throw new RuntimeException("classpath的pageRoot是");
+		}
+		
+		staticPathsMap = new TreeMap<>();
+		staticPaths = new TreeSet<>();
+		
+		List<File> files = FileUtil.loopFiles(pageRoot, new FileFilter() {
+			@Override
+			public boolean accept(File file) {
+				String filename = file.getName();
+				String ext = FileUtil.extName(filename);//.getExtension(filename);
+				if (file.isDirectory()) {
+					if ("svn-base".equalsIgnoreCase(ext)) {
+						return false;
+					}
+					return true;
+				}
+//				String ext = FileUtil.extName(file);
+				return true;
+			}
+		});
+		
+		if (files == null) {
+			return staticPathsMap;
+		}
+		
+		log.info("一共{}个文件", files.size());
+		
+		File pageRootFile = new File(pageRoot);
+		String pageRootAbs;
+		try {
+			pageRootAbs = pageRootFile.getCanonicalPath();
+		} catch (IOException e1) {
+			log.error(e1.toString(), e1);
+			return null;
+		}
+		for (File file : files) {
+			try {
+				if (file.isDirectory()) {
+					
+				} else {
+					String absPath = file.getCanonicalPath();
+//					long start = System.currentTimeMillis();
+					String path = absPath.substring(pageRootAbs.length());
+
+					path = path.replaceAll("\\\\", "/");
+					
+					if (!(path.startsWith("/"))) {
+						path = "/" + path;
+					}
+					log.info("访问路径:{}", path);
+					String ext = FileUtil.extName(path);
+					Set<String> set = staticPathsMap.get(ext);
+					if (set == null) {
+						set = new TreeSet<>();
+						staticPathsMap.put(ext, set);
+					}
+					set.add(path);
+					staticPaths.add(path);
+					
+				}
+			} catch (Exception e) {
+				log.error(e.toString());
+			}
+		}
+//		log.error(Json.toFormatedJson(staticPaths));
+//		log.error(Json.toFormatedJson(staticPathsMap));
+		return staticPathsMap;
+	}
+	
+	/**
 	 * 
 	 * @param pageRoot 如果是以"classpath:"开头，则从classpath中查找，否则视为普通的文件路径
 	 * @author tanyaowu
 	 * @throws IOException 
 	 */
 	public void setPageRoot(String pageRoot) throws IOException {
+		staticPathsMap = null;
 		if (StrUtil.startWith(pageRoot, "classpath:")) {
 			this.pageRoot = pageRoot.substring("classpath:".length());//.replaceFirst("classpath:", "classpath:/");
 			if (this.pageRoot.startsWith("/")) {
@@ -438,6 +547,7 @@ public class HttpConfig {
 			this.pageInClasspath = true;
 		} else {
 			this.pageRoot = pageRoot;//fromPath(pageRoot);
+			
 		}
 	}
 

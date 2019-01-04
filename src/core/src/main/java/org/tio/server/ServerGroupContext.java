@@ -13,6 +13,7 @@ import org.tio.core.GroupContext;
 import org.tio.core.Tio;
 import org.tio.core.intf.AioHandler;
 import org.tio.core.intf.AioListener;
+import org.tio.core.maintain.IpBlacklist;
 import org.tio.core.ssl.SslConfig;
 import org.tio.server.intf.ServerAioHandler;
 import org.tio.server.intf.ServerAioListener;
@@ -97,6 +98,7 @@ public class ServerGroupContext extends GroupContext {
 	public ServerGroupContext(String name, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener, SynThreadPoolExecutor tioExecutor,
 			ThreadPoolExecutor groupExecutor) {
 		super(tioExecutor, groupExecutor);
+		this.ipBlacklist = new IpBlacklist(id, this);
 		init(name, serverAioHandler, serverAioListener, tioExecutor, groupExecutor);
 	}
 
@@ -169,7 +171,15 @@ public class ServerGroupContext extends GroupContext {
 							long compareTime = Math.max(channelContext.stat.latestTimeOfReceivedByte, channelContext.stat.latestTimeOfSentPacket);
 							long currtime = SystemTimer.currTime;
 							long interval = currtime - compareTime;
-							if (interval > heartbeatTimeout) {
+							
+							boolean needRemove = false;
+							if(channelContext.heartbeatTimeout != null && channelContext.heartbeatTimeout > 0) {
+								needRemove = interval > channelContext.heartbeatTimeout;
+							} else {
+								needRemove = interval > heartbeatTimeout;
+							}
+							
+							if (needRemove) {
 								log.info("{}, {} ms没有收发消息", channelContext, interval);
 								Tio.remove(channelContext, interval + " ms没有收发消息");
 							}

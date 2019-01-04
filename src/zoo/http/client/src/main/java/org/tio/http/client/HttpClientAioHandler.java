@@ -100,7 +100,7 @@ public class HttpClientAioHandler implements ClientAioHandler {
 	 * @author tanyaowu
 	 */
 	@Override
-	public Packet heartbeatPacket() {
+	public Packet heartbeatPacket(ChannelContext channelContext) {
 		return null;
 	}
 

@@ -414,6 +414,23 @@ public class Resps {
 		ret.addHeader(HeaderName.Location, HeaderValue.from(path));
 		return ret;
 	}
+	
+	/**
+	 * 用页面重定向
+	 * @param request
+	 * @param path
+	 * @return
+	 * @author tanyaowu
+	 */
+	public static HttpResponse redirectWithPage(HttpRequest request, String path) {
+		StringBuilder sb = new StringBuilder(64);
+		sb.append("<script>");
+		sb.append("window.location.href='").append(path).append("'");
+		sb.append("</script>");
+		
+		return Resps.html(request, sb.toString());
+		
+	}
 
 	/**
 	 * 创建字符串输出

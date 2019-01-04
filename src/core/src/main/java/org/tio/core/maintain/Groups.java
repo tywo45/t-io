@@ -65,10 +65,6 @@ public class Groups {
 				return;
 			}
 
-			if (StrUtil.isBlank(groupid)) {
-				return;
-			}
-
 			SetWithLock<ChannelContext> channelContexts = null;
 			Lock lock1 = groupmap.writeLock();
 			lock1.lock();

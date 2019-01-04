@@ -5,12 +5,20 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 自带读写锁的对象.
  *
  * @author tanyaowu
  */
 public class ObjWithLock<T> implements Serializable {
+	
+	private static final long serialVersionUID = -3048283373239453901L;
+	
+	private static Logger log = LoggerFactory.getLogger(ObjWithLock.class);
+
 	/**
 	 * 
 	 */
@@ -85,5 +93,36 @@ public class ObjWithLock<T> implements Serializable {
 		this.obj = obj;
 	}
 	
-	private static final long serialVersionUID = -3048283373239453901L;
+	/**
+	 * 操作obj时，带上读锁
+	 * @param readLockHandler
+	 */
+	public void handle(ReadLockHandler<T>  readLockHandler) {
+		ReadLock readLock = lock.readLock();
+		readLock.lock();
+		try {
+			readLockHandler.handler(obj);
+		} catch (Throwable e) {
+			log.error(e.getMessage(), e);
+		} finally {
+			readLock.unlock();
+		}
+	}
+	
+	/**
+	 * 操作obj时，带上写锁
+	 * @param writeLockHandler
+	 */
+	public void handle(WriteLockHandler<T>  writeLockHandler) {
+		WriteLock writeLock = lock.writeLock();
+		writeLock.lock();
+		try {
+			writeLockHandler.handler(obj);
+		} catch (Throwable e) {
+			log.error(e.getMessage(), e);
+		} finally {
+			writeLock.unlock();
+		}
+	}
+	
 }
