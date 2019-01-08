@@ -17,13 +17,37 @@ import org.tio.utils.thread.pool.DefaultThreadFactory;
  */
 public class ReconnConf {
 	private static Logger log = LoggerFactory.getLogger(ChannelContext.class);
-
-	public static boolean isNeedReconn(ClientChannelContext clientChannelContext, boolean putIfTrue) {
-		ClientGroupContext clientGroupContext = (ClientGroupContext) clientChannelContext.groupContext;
+	
+	public static ReconnConf getReconnConf(ClientChannelContext clientChannelContext) {
+		ClientGroupContext clientGroupContext = (ClientGroupContext)clientChannelContext.groupContext;
 		ReconnConf reconnConf = clientGroupContext.getReconnConf();
-		if (reconnConf != null && reconnConf.getInterval() > 0) {
+		return reconnConf;
+	}
+	
+	public static ReconnConf getReconnConf(ChannelContext channelContext) {
+		return getReconnConf((ClientChannelContext) channelContext);
+	}
+
+	/**
+	 * 
+	 * @param clientChannelContext
+	 * @param putIfNeedConn 如果需要重连，则把该ClientChannelContext放到重连队列中
+	 * @return
+	 */
+	public static boolean isNeedReconn(ClientChannelContext clientChannelContext, boolean putIfNeedConn) {
+		if (clientChannelContext == null) {
+			return false;
+		}
+		ReconnConf reconnConf = getReconnConf(clientChannelContext);
+		if (reconnConf == null) {
+			return false;
+		}
+		
+		if (reconnConf.getInterval() > 0) {
 			if (reconnConf.getRetryCount() <= 0 || reconnConf.getRetryCount() >= clientChannelContext.getReconnCount()) {
-				if (putIfTrue) {
+				if (putIfNeedConn) {
+					ClientGroupContext clientGroupContext = (ClientGroupContext)clientChannelContext.groupContext;
+					clientGroupContext.closeds.add(clientChannelContext);
 					clientChannelContext.stat.timeInReconnQueue = SystemTimer.currTime;
 					reconnConf.getQueue().add(clientChannelContext);
 				}
@@ -37,8 +61,17 @@ public class ReconnConf {
 		return false;
 	}
 
-	public static void put(ClientChannelContext clientChannelContext) {
-		isNeedReconn(clientChannelContext, true);
+	/**
+	 * @param clientChannelContext
+	 * @return true:需要重连;     false:不需要重连
+	 */
+	public static boolean put(ClientChannelContext clientChannelContext) {
+		if (clientChannelContext == null) {
+			return false;
+		}
+		
+//		ReconnConf reconnConf = ReconnConf.getReconnConf(clientChannelContext);	
+		return isNeedReconn(clientChannelContext, true);
 	}
 
 	/**
@@ -116,6 +149,7 @@ public class ReconnConf {
 	}
 
 	/**
+	 * 连续重连次数，当连续重连这么多次都失败时，不再重连。0和负数则一直重连
 	 * @return the retryCount
 	 */
 	public int getRetryCount() {
@@ -137,6 +171,7 @@ public class ReconnConf {
 	}
 
 	/**
+	 * 连续重连次数，当连续重连这么多次都失败时，不再重连。0和负数则一直重连
 	 * @param retryCount the retryCount to set
 	 */
 	public void setRetryCount(int retryCount) {

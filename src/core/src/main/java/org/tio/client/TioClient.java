@@ -391,7 +391,6 @@ public class TioClient {
 	/**
 	 * 启动重连任务
 	 *
-	 *
 	 * @author tanyaowu
 	 *
 	 */

@@ -339,7 +339,7 @@ public class Tio {
 				isNeedRemove = true;
 			} else {
 				ClientChannelContext clientChannelContext = (ClientChannelContext) channelContext;
-				if (!ReconnConf.isNeedReconn(clientChannelContext, false)) {
+				if (!ReconnConf.isNeedReconn(clientChannelContext, false)) { //不需要重连
 					isNeedRemove = true;
 				}
 			}

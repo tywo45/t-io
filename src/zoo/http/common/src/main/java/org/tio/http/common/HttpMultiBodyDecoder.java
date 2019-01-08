@@ -267,6 +267,7 @@ public class HttpMultiBodyDecoder {
 				}
 			}
 		}
+		log.error("文件上传，协议不对，step is null");
 		throw new AioDecodeException("step is null");
 	}
 

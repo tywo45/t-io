@@ -105,17 +105,19 @@ public class ConnectionCompletionHandler implements CompletionHandler<Void, Conn
 			} else {
 				log.error(throwable.toString(), throwable);
 				if (channelContext == null) {
-					channelContext = new ClientChannelContext(clientGroupContext, asynchronousSocketChannel);
-					channelContext.setServerNode(serverNode);
+					ReconnConf reconnConf = clientGroupContext.getReconnConf();
+					if (reconnConf != null) {
+						channelContext = new ClientChannelContext(clientGroupContext, asynchronousSocketChannel);
+						channelContext.setServerNode(serverNode);
+					}
 				}
 
-				if (!isReconnect) //不是重连，则是第一次连接，需要把channelContext加到closeds行列
+				if (!isReconnect) //不是重连，则是第一次连接
 				{
-					clientGroupContext.closeds.add(channelContext);
+					if (channelContext != null) {
+						attachment.setChannelContext(channelContext);
+					}
 				}
-
-				attachment.setChannelContext(channelContext);
-
 				ReconnConf.put(channelContext);
 			}
 		} catch (Throwable e) {
@@ -126,34 +128,36 @@ public class ConnectionCompletionHandler implements CompletionHandler<Void, Conn
 			}
 
 			try {
-				channelContext.setReconnect(isReconnect);
+				if (channelContext != null) {
+					channelContext.setReconnect(isReconnect);
 
-				if (SslUtils.isSsl(channelContext.groupContext)) {
-					if (isConnected) {
-						//						channelContext.sslFacadeContext.beginHandshake();
-						SslFacadeContext sslFacadeContext = new SslFacadeContext(channelContext);
-						sslFacadeContext.beginHandshake();
+					if (SslUtils.isSsl(channelContext.groupContext)) {
+						if (isConnected) {
+							//						channelContext.sslFacadeContext.beginHandshake();
+							SslFacadeContext sslFacadeContext = new SslFacadeContext(channelContext);
+							sslFacadeContext.beginHandshake();
+						} else {
+							if (clientAioListener != null) {
+								clientAioListener.onAfterConnected(channelContext, isConnected, isReconnect);
+							}
+						}
 					} else {
 						if (clientAioListener != null) {
 							clientAioListener.onAfterConnected(channelContext, isConnected, isReconnect);
 						}
 					}
-				} else {
-					if (clientAioListener != null) {
-						clientAioListener.onAfterConnected(channelContext, isConnected, isReconnect);
-					}
-				}
 
-				GroupContext groupContext = channelContext.groupContext;
-				if (groupContext.ipStats.durationList != null && groupContext.ipStats.durationList.size() > 0) {
-					try {
-						for (Long v : groupContext.ipStats.durationList) {
-							IpStat ipStat = groupContext.ipStats.get(v, channelContext.getClientNode().getIp());
-							ipStat.getRequestCount().incrementAndGet();
-							groupContext.getIpStatListener().onAfterConnected(channelContext, isConnected, isReconnect, ipStat);
+					GroupContext groupContext = channelContext.groupContext;
+					if (groupContext.ipStats.durationList != null && groupContext.ipStats.durationList.size() > 0) {
+						try {
+							for (Long v : groupContext.ipStats.durationList) {
+								IpStat ipStat = groupContext.ipStats.get(v, channelContext.getClientNode().getIp());
+								ipStat.getRequestCount().incrementAndGet();
+								groupContext.getIpStatListener().onAfterConnected(channelContext, isConnected, isReconnect, ipStat);
+							}
+						} catch (Exception e) {
+							log.error(e.toString(), e);
 						}
-					} catch (Exception e) {
-						log.error(e.toString(), e);
 					}
 				}
 			} catch (Throwable e1) {
