@@ -196,13 +196,14 @@ public class TioTools {
 		String[] rootDirStrs = new String[] { "F:\\work\\tio-site", "F:\\work\\nb", "D:\\work\\tio-im", "D:\\svn_nb\\base", "G:\\work", "D:\\work\\dts", "D:\\work\\tio-webpack", "D:\\svn_nb\\nbyb", "D:\\work\\t-io",
 				 "D:\\work\\tio-start", "F:\\gitee", "D:\\work\\tio-im(改名前)", "F:\\work\\nb" };
 		
-		String newversion = "3.2.5.v20190101-RELEASE";
+		String newversion = "3.2.6.v20190110-RELEASE";
 		
 		Map<String, String> old2newStr = new HashMap<>();
 //		Map<String, String> old2newFilename = new HashMap<>();
 
 //		old2newStr.put("3.2.2.v20181122-RELEASE", newversion);
 //		old2newStr.put("3.2.3.v20181212-RELEASE", newversion);
+		old2newStr.put("3.2.5.v20190101-RELEASE", newversion);
 		old2newStr.put("3.2.4.v20181218-RELEASE", newversion);
 		
 		for (String rootDirStr : rootDirStrs) {

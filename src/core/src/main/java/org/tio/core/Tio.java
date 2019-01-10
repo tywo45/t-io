@@ -289,15 +289,20 @@ public class Tio {
 		close(channelContext, throwable, remark, false);
 	}
 
+	
+	public static void close(ChannelContext channelContext, Throwable throwable, String remark, boolean isNeedRemove) {
+		close(channelContext, throwable, remark, isNeedRemove, true);
+	}
+	
 	/**
-	 *
+	 * 
 	 * @param channelContext
 	 * @param throwable
 	 * @param remark
 	 * @param isNeedRemove
-	 * @author tanyaowu
+	 * @param needCloseLock
 	 */
-	private static void close(ChannelContext channelContext, Throwable throwable, String remark, boolean isNeedRemove) {
+	public static void close(ChannelContext channelContext, Throwable throwable, String remark, boolean isNeedRemove, boolean needCloseLock) {
 		if (channelContext == null) {
 			return;
 		}
@@ -306,14 +311,20 @@ public class Tio {
 			return;
 		}
 
-		WriteLock writeLock = channelContext.closeLock.writeLock();
-		boolean tryLock = writeLock.tryLock();
-		if (!tryLock) {
-			return;
+		WriteLock writeLock = null;
+		if (needCloseLock) {
+			writeLock = channelContext.closeLock.writeLock();
+			
+			boolean tryLock = writeLock.tryLock();
+			if (!tryLock) {
+				return;
+			}
+			channelContext.isWaitingClose = true;
+			writeLock.unlock();
+		} else {
+			channelContext.isWaitingClose = true;
 		}
-		channelContext.isWaitingClose = true;
-		writeLock.unlock();
-
+		
 		if (channelContext.asynchronousSocketChannel != null) {
 			try {
 				channelContext.asynchronousSocketChannel.shutdownInput();

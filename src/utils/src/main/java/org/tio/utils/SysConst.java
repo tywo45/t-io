@@ -10,7 +10,7 @@ public interface SysConst {
 	
 	String TIO_URL_SITE = "https://t-io.org/";
 	
-	String TIO_CORE_VERSION = "3.2.5.v20190101-RELEASE";
+	String TIO_CORE_VERSION = "3.2.6.v20190110-RELEASE";
 	/**
 	 * \r
 	 */

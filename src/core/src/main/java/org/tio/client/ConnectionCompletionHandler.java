@@ -10,6 +10,7 @@ import org.tio.client.intf.ClientAioListener;
 import org.tio.core.GroupContext;
 import org.tio.core.Node;
 import org.tio.core.ReadCompletionHandler;
+import org.tio.core.Tio;
 import org.tio.core.ssl.SslFacadeContext;
 import org.tio.core.ssl.SslUtils;
 import org.tio.core.stat.IpStat;
@@ -83,7 +84,7 @@ public class ConnectionCompletionHandler implements CompletionHandler<Void, Conn
 				channelContext.setBindIp(bindIp);
 				channelContext.setBindPort(bindPort);
 
-				channelContext.setReconnCount(0);
+				channelContext.getReconnCount().set(0);
 				channelContext.setClosed(false);
 				isConnected = true;
 
@@ -118,7 +119,10 @@ public class ConnectionCompletionHandler implements CompletionHandler<Void, Conn
 						attachment.setChannelContext(channelContext);
 					}
 				}
-				ReconnConf.put(channelContext);
+				boolean f = ReconnConf.put(channelContext);
+				if (!f) {
+					Tio.close(channelContext, null, "不需要重连，关闭该连接", true, false);
+				}
 			}
 		} catch (Throwable e) {
 			log.error(e.toString(), e);

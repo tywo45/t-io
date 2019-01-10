@@ -3,6 +3,7 @@ package org.tio.client;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
@@ -18,6 +19,13 @@ public class ClientChannelContext extends ChannelContext {
 	private String bindIp;
 
 	private Integer bindPort;
+	
+	private ReconnRunnable reconnRunnable;
+	
+	/**
+	 * 连续重连次数，连接成功后，此值会被重置0
+	 */
+	private AtomicInteger reconnCount = new AtomicInteger();
 
 	/**
 	 * @param groupContext
@@ -90,6 +98,22 @@ public class ClientChannelContext extends ChannelContext {
 	@Override
 	public boolean isServer() {
 		return false;
+	}
+
+	public ReconnRunnable getReconnRunnable() {
+		return reconnRunnable;
+	}
+
+	public void setReconnRunnable(ReconnRunnable reconnRunnable) {
+		this.reconnRunnable = reconnRunnable;
+	}
+
+	public AtomicInteger getReconnCount() {
+		return reconnCount;
+	}
+
+	public void setReconnCount(AtomicInteger reconnCount) {
+		this.reconnCount = reconnCount;
 	}
 
 }

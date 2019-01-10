@@ -9,9 +9,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,63 +30,6 @@ import org.tio.utils.lock.SetWithLock;
  * 2017年4月1日 上午9:29:58
  */
 public class TioClient {
-	/**
-	 * 自动重连任务
-	 * @author tanyaowu
-	 *
-	 */
-	private static class ReconnRunnable implements Runnable {
-		ClientChannelContext channelContext = null;
-		TioClient tioClient = null;
-
-		//		private static Map<Node, Long> cacheMap = new HashMap<>();
-
-		public ReconnRunnable(ClientChannelContext channelContext, TioClient tioClient) {
-			this.channelContext = channelContext;
-			this.tioClient = tioClient;
-		}
-
-		/**
-		 * @see java.lang.Runnable#run()
-		 *
-		 * @author tanyaowu
-		 * 2017年2月2日 下午8:24:40
-		 *
-		 */
-		@Override
-		public void run() {
-			ReentrantReadWriteLock closeLock = channelContext.closeLock;
-			WriteLock writeLock = closeLock.writeLock();
-			writeLock.lock();
-			try {
-				if (!channelContext.isClosed) //已经连上了，不需要再重连了
-				{
-					return;
-				}
-				long start = SystemTimer.currTime;
-				tioClient.reconnect(channelContext, 2);
-				long end = SystemTimer.currTime;
-				long iv = end - start;
-				if (iv >= 100) {
-					log.error("{},重连耗时:{} ms", channelContext, iv);
-				} else {
-					log.info("{},重连耗时:{} ms", channelContext, iv);
-				}
-
-				if (channelContext.isClosed) {
-					channelContext.setReconnCount(channelContext.getReconnCount() + 1);
-					//					cacheMap.put(channelContext.getServerNode(), SystemTimer.currTime);
-					return;
-				}
-			} catch (java.lang.Throwable e) {
-				log.error(e.toString(), e);
-			} finally {
-				writeLock.unlock();
-			}
-
-		}
-	}
-
 	private static Logger log = LoggerFactory.getLogger(TioClient.class);
 
 	private AsynchronousChannelGroup channelGroup;
@@ -208,7 +149,7 @@ public class TioClient {
 	 * @author tanyaowu
 	 */
 	private ClientChannelContext connect(Node serverNode, String bindIp, Integer bindPort, ClientChannelContext initClientChannelContext, Integer timeout, boolean isSyn)
-			throws Exception {
+	        throws Exception {
 
 		AsynchronousSocketChannel asynchronousSocketChannel = null;
 		ClientChannelContext channelContext = null;
@@ -303,7 +244,7 @@ public class TioClient {
 	/**
 	 *
 	 * @param channelContext
-	 * @param timeout
+	 * @param timeout 单位秒
 	 * @return
 	 * @throws Exception
 	 *
@@ -327,7 +268,7 @@ public class TioClient {
 	 *
 	 */
 	private void startHeartbeatTask() {
-		final ClientGroupStat clientGroupStat = (ClientGroupStat)clientGroupContext.groupStat;
+		final ClientGroupStat clientGroupStat = (ClientGroupStat) clientGroupContext.groupStat;
 		final ClientAioHandler aioHandler = clientGroupContext.getClientAioHandler();
 
 		final String id = clientGroupContext.getId();
@@ -335,7 +276,7 @@ public class TioClient {
 			@Override
 			public void run() {
 				while (!clientGroupContext.isStopped()) {
-//					final long heartbeatTimeout = clientGroupContext.heartbeatTimeout;
+					//					final long heartbeatTimeout = clientGroupContext.heartbeatTimeout;
 					if (clientGroupContext.heartbeatTimeout <= 0) {
 						log.warn("用户取消了框架层面的心跳定时发送功能，请用户自己去完成心跳机制");
 						break;
@@ -367,8 +308,8 @@ public class TioClient {
 						}
 						if (log.isInfoEnabled()) {
 							log.info("[{}]: curr:{}, closed:{}, received:({}p)({}b), handled:{}, sent:({}p)({}b)", id, set.size(), clientGroupStat.closed.get(),
-									clientGroupStat.receivedPackets.get(), clientGroupStat.receivedBytes.get(), clientGroupStat.handledPackets.get(),
-									clientGroupStat.sentPackets.get(), clientGroupStat.sentBytes.get());
+							        clientGroupStat.receivedPackets.get(), clientGroupStat.receivedBytes.get(), clientGroupStat.handledPackets.get(),
+							        clientGroupStat.sentPackets.get(), clientGroupStat.sentBytes.get());
 						}
 
 					} catch (Throwable e) {
@@ -405,6 +346,7 @@ public class TioClient {
 			@Override
 			public void run() {
 				while (!clientGroupContext.isStopped()) {
+					log.error("closeds:{}, connections:{}", clientGroupContext.closeds.size(), clientGroupContext.connections.size());
 					//log.info("准备重连");
 					LinkedBlockingQueue<ChannelContext> queue = reconnConf.getQueue();
 					ClientChannelContext channelContext = null;
@@ -422,7 +364,7 @@ public class TioClient {
 					{
 						continue;
 					}
-					
+
 					SslFacadeContext sslFacadeContext = channelContext.sslFacadeContext;
 					if (sslFacadeContext != null) {
 						sslFacadeContext.setHandshakeCompleted(false);
@@ -441,9 +383,20 @@ public class TioClient {
 					if (channelContext.isRemoved || !channelContext.isClosed) //已经删除的和已经连上的，不需要重新再连
 					{
 						continue;
+					} else {
+						ReconnRunnable runnable = channelContext.getReconnRunnable();
+						if (runnable == null) {
+							synchronized (channelContext) {
+								runnable = channelContext.getReconnRunnable();
+								if (runnable == null) {
+									runnable = new ReconnRunnable(channelContext, TioClient.this, reconnConf.getThreadPoolExecutor());
+									channelContext.setReconnRunnable(runnable);
+								}
+							}
+						}
+						runnable.execute();
+						//						reconnConf.getThreadPoolExecutor().execute(runnable);
 					}
-					ReconnRunnable runnable = new ReconnRunnable(channelContext, TioClient.this);
-					reconnConf.getThreadPoolExecutor().execute(runnable);
 				}
 			}
 		});
@@ -470,8 +423,7 @@ public class TioClient {
 		} catch (Exception e1) {
 			log.error(e1.toString(), e1);
 		}
-		
-		
+
 		clientGroupContext.setStopped(true);
 		try {
 			ret = ret && clientGroupContext.groupExecutor.awaitTermination(6000, TimeUnit.SECONDS);

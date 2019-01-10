@@ -1,14 +1,13 @@
 package org.tio.client;
 
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.utils.SystemTimer;
 import org.tio.utils.thread.pool.DefaultThreadFactory;
+import org.tio.utils.thread.pool.SynThreadPoolExecutor;
 
 /**
  *
@@ -44,13 +43,14 @@ public class ReconnConf {
 		}
 		
 		if (reconnConf.getInterval() > 0) {
-			if (reconnConf.getRetryCount() <= 0 || reconnConf.getRetryCount() >= clientChannelContext.getReconnCount()) {
+			if (reconnConf.getRetryCount() <= 0 || reconnConf.getRetryCount() > clientChannelContext.getReconnCount().get()) {
 				if (putIfNeedConn) {
 					ClientGroupContext clientGroupContext = (ClientGroupContext)clientChannelContext.groupContext;
 					clientGroupContext.closeds.add(clientChannelContext);
 					clientChannelContext.stat.timeInReconnQueue = SystemTimer.currTime;
 					reconnConf.getQueue().add(clientChannelContext);
 				}
+				
 				return true;
 			} else {
 				log.info("不需要重连{}", clientChannelContext);
@@ -89,7 +89,7 @@ public class ReconnConf {
 	/**
 	 * 用来重连的线程池
 	 */
-	private volatile ThreadPoolExecutor threadPoolExecutor = null;
+	private volatile SynThreadPoolExecutor threadPoolExecutor = null;
 
 	/**
 	 *
@@ -101,8 +101,21 @@ public class ReconnConf {
 		if (threadPoolExecutor == null) {
 			synchronized (ReconnConf.class) {
 				if (threadPoolExecutor == null) {
-					threadPoolExecutor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors(), 60L, TimeUnit.SECONDS,
-							new LinkedBlockingQueue<Runnable>(), DefaultThreadFactory.getInstance("tio-client-reconn"));
+//					threadPoolExecutor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors(), 60L, TimeUnit.SECONDS,
+//							new LinkedBlockingQueue<Runnable>(), DefaultThreadFactory.getInstance("tio-client-reconn"));
+//					
+//					
+					
+					
+					LinkedBlockingQueue<Runnable> tioQueue = new LinkedBlockingQueue<>();
+					//			ArrayBlockingQueue<Runnable> tioQueue = new ArrayBlockingQueue<>(QUEUE_CAPACITY);
+					String tioThreadName = "tio-client-reconn";
+					DefaultThreadFactory defaultThreadFactory = DefaultThreadFactory.getInstance(tioThreadName, Thread.MAX_PRIORITY);
+
+					threadPoolExecutor = new SynThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors(), 60L, tioQueue, defaultThreadFactory, tioThreadName);
+					//			tioExecutor = new SynThreadPoolExecutor(AVAILABLE_PROCESSORS * 2, Integer.MAX_VALUE, 60, new SynchronousQueue<Runnable>(), defaultThreadFactory, tioThreadName);
+
+					
 				}
 			}
 
@@ -159,7 +172,7 @@ public class ReconnConf {
 	/**
 	 * @return the threadPoolExecutor
 	 */
-	public ThreadPoolExecutor getThreadPoolExecutor() {
+	public SynThreadPoolExecutor getThreadPoolExecutor() {
 		return threadPoolExecutor;
 	}
 

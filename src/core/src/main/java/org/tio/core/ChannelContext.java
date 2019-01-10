@@ -70,7 +70,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 
 	public SslFacadeContext sslFacadeContext;
 
-	private int reconnCount = 0;//连续重连次数，连接成功后，此值会被重置0
+	
 
 	public String userid;
 
@@ -223,12 +223,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 		return readCompletionHandler;
 	}
 
-	/**
-	 * @return the reConnCount
-	 */
-	public int getReconnCount() {
-		return reconnCount;
-	}
+
 
 	/**
 	 * @return the serverNode
@@ -423,13 +418,6 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 
 	public void setPacketNeededLength(Integer packetNeededLength) {
 		this.packetNeededLength = packetNeededLength;
-	}
-
-	/**
-	 * @param reconnCount the reConnCount to set
-	 */
-	public void setReconnCount(int reconnCount) {
-		this.reconnCount = reconnCount;
 	}
 
 	public void setReconnect(boolean isReconnect) {
