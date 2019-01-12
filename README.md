@@ -1,3 +1,6 @@
+### 官网
+https://www.t-io.org/
+
 ### 一张图了解t-io的历史和能力
 ![](https://res.t-io.org/doc/t-io-base_01.png?434)
 
@@ -9,7 +12,7 @@
 <dependency>
     <groupId>org.t-io</groupId>
     <artifactId>tio-core</artifactId>
-    <version>3.2.5.v20190101-RELEASE</version>
+    <version>3.2.6.v20190110-RELEASE</version>
 </dependency>
 ```
 
