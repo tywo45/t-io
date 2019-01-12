@@ -507,7 +507,7 @@ public class Tio {
 	}
 
 	/**
-	 * 这个方法是给服务器端用的
+	 * 这个方法是给客户器端用的
 	 * @param clientGroupContext
 	 * @param pageIndex
 	 * @param pageSize
@@ -521,12 +521,13 @@ public class Tio {
 	}
 
 	/**
-	 * 
+	 * 这个方法是给客户器端用的
 	 * @param clientGroupContext
 	 * @param pageIndex
 	 * @param pageSize
 	 * @param converter
 	 * @return
+	 * @author tanyaowu
 	 */
 	public static <T> Page<T> getPageOfConnecteds(ClientGroupContext clientGroupContext, Integer pageIndex, Integer pageSize, Converter<T> converter) {
 		SetWithLock<ChannelContext> setWithLock = Tio.getAllConnectedsChannelContexts(clientGroupContext);
