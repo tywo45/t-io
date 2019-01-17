@@ -20,9 +20,9 @@ public class TioTools {
 
 	public static void main(String[] args) throws Exception {
 //		changeSiteStyle();//切换网站风格
-//				newProject();  //新工程
+				newProject();  //新工程
 //		rename();
-				tio();         //tio升级
+//				tio();         //tio升级
 //				addBlankFile("F:\\work\\tio-site\\src\\frontend\\web-all\\starter\\src\\main\\resources\\config\\page");
 //		deleteFiles(new String[] { "D:\\work\\tio-im-new", "F:\\gitee\\java" }, new String[] { ".externalToolBuilders" });
 		
@@ -222,17 +222,17 @@ public class TioTools {
 	}
 
 	public static void newProject() {
-		String[] rootDirStrs = new String[] { "D:\\work\\tio-im(改名前)" };
+		String[] rootDirStrs = new String[] { "G:\\svn_nb\\html\\etf" };
 
 		for (String rootDirStr : rootDirStrs) {
 			Map<String, String> old2newStr = new HashMap<>();
 			Map<String, String> old2newFilename = new HashMap<>();
 
-//			String oldName = "live";
-//			String newName = "im";
+			String oldName = "live";
+			String newName = "etf";
 			
-			String oldName = "im";
-			String newName = "live";
+//			String oldName = "im";
+//			String newName = "live";
 			
 			String splitStr = "-";
 			//中划线
