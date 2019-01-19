@@ -948,7 +948,8 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	
 
 	/**
-	 * 
+	 * 根据session创建session对应的cookie
+	 * 注意：先有session，后有session对应的cookie
 	 * @param request
 	 * @param httpSession
 	 * @param httpResponse

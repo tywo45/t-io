@@ -31,7 +31,6 @@ import org.tio.utils.hutool.StrUtil;
  */
 public class HttpConfig {
 
-	@SuppressWarnings("unused")
 	private static Logger log = LoggerFactory.getLogger(HttpConfig.class);
 	
 	/**
