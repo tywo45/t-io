@@ -713,6 +713,10 @@ public class HttpRequest extends HttpPacket {
 	public void setConnection(String connection) {
 		this.connection = connection;
 	}
+	
+	public String getReferer() {
+		return getHeader(HttpConst.RequestHeaderKey.Referer);
+	}
 
 	public boolean isNeedForward() {
 		return needForward;
