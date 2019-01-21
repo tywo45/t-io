@@ -85,12 +85,12 @@ public class SSLFacade implements ISSLFacade {
 		ByteBuffer src = sslVo.getByteBuffer();
 		ByteBuffer[] byteBuffers = org.tio.core.utils.ByteBufferUtils.split(src, 1024 * 8);
 		if (byteBuffers == null) {
-			log.info("{}, 准备, SSL加密{}, 明文:{}", channelContext, channelContext.getId() + "_" + seq, sslVo);
+			log.debug("{}, 准备, SSL加密{}, 明文:{}", channelContext, channelContext.getId() + "_" + seq, sslVo);
 			SSLEngineResult result = _worker.wrap(sslVo, sslVo.getByteBuffer());
-			log.info("{}, 完成, SSL加密{}, 明文:{}, 结果:{}", channelContext, channelContext.getId() + "_" + seq, sslVo, result);
+			log.debug("{}, 完成, SSL加密{}, 明文:{}, 结果:{}", channelContext, channelContext.getId() + "_" + seq, sslVo, result);
 
 		} else {
-			log.info("{}, 准备, SSL加密{}, 包过大，被拆成了[{}]个包进行发送, 明文:{}", channelContext, channelContext.getId() + "_" + seq, byteBuffers.length , sslVo);
+			log.debug("{}, 准备, SSL加密{}, 包过大，被拆成了[{}]个包进行发送, 明文:{}", channelContext, channelContext.getId() + "_" + seq, byteBuffers.length , sslVo);
 			ByteBuffer[] encryptedByteBuffers = new ByteBuffer[byteBuffers.length];
 			int alllen = 0;
 			for (int i = 0; i < byteBuffers.length; i++) {
@@ -99,7 +99,7 @@ public class SSLFacade implements ISSLFacade {
 				ByteBuffer encryptedByteBuffer = sslVo1.getByteBuffer();
 				encryptedByteBuffers[i] = encryptedByteBuffer;
 				alllen += encryptedByteBuffer.limit();
-				log.info("{}, 完成, SSL加密{}, 明文:{}, 拆包[{}]的结果:{}", channelContext, channelContext.getId() + "_" + seq, sslVo, (i + 1), result);
+				log.debug("{}, 完成, SSL加密{}, 明文:{}, 拆包[{}]的结果:{}", channelContext, channelContext.getId() + "_" + seq, sslVo, (i + 1), result);
 			}
 			
 			
@@ -115,9 +115,9 @@ public class SSLFacade implements ISSLFacade {
 	@Override
 	public void decrypt(ByteBuffer byteBuffer) throws SSLException {
 		long seq = sslSeq.incrementAndGet();
-		log.info("{}, 准备, SSL解密{}, 密文:{}", channelContext, channelContext.getId() + "_" + seq, byteBuffer);
+		log.debug("{}, 准备, SSL解密{}, 密文:{}", channelContext, channelContext.getId() + "_" + seq, byteBuffer);
 		SSLEngineResult result = _worker.unwrap(byteBuffer);
-		log.info("{}, 完成, SSL解密{}, 密文:{}, 结果:{}", channelContext, channelContext.getId() + "_" + seq, byteBuffer, result);
+		log.debug("{}, 完成, SSL解密{}, 密文:{}, 结果:{}", channelContext, channelContext.getId() + "_" + seq, byteBuffer, result);
 		_handshaker.handleUnwrapResult(result);
 	}
 
