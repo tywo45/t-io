@@ -52,7 +52,7 @@
 		<maven.test.skip>true</maven.test.skip>
 		<maven.version>3.5.0</maven.version>
 
-		<mysql.driver.version>8.0.13</mysql.driver.version><!-- 5.1.46 -->
+		<mysql.driver.version>8.0.14</mysql.driver.version><!-- 5.1.46 -->
 		<druid.version>1.1.12</druid.version>
 		<jfinal.version>3.5</jfinal.version>
 
@@ -66,7 +66,7 @@
 		<commons-lang3.version>3.8.1</commons-lang3.version>
 		<commons-codec.version>1.11</commons-codec.version>
 		<commons-compress.version>1.18</commons-compress.version>
-		<fastjson.version>1.2.54</fastjson.version>
+		<fastjson.version>1.2.55</fastjson.version>
 		<testng.version>6.14.3</testng.version>
 		<hutool.version>4.4.2</hutool.version>
 
@@ -75,7 +75,7 @@
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
 
 		<protostuff.version>1.6.0</protostuff.version>
-		<redisson.version>3.10.0</redisson.version>
+		<redisson.version>3.10.1</redisson.version>
 		<jodd.version>5.0.6</jodd.version>
 		<quartz.version>2.3.0</quartz.version>
 		<caffeine.version>2.6.2</caffeine.version>
@@ -83,7 +83,7 @@
 		<binarywang.version>3.3.0</binarywang.version>
 		<zxing.version>3.3.3</zxing.version>
 
-		<httpcore.version>4.4.10</httpcore.version>
+		<httpcore.version>4.4.11</httpcore.version>
 		<httpclient.version>4.5.6</httpclient.version>
 
 		<closure.version>v20190106</closure.version>
