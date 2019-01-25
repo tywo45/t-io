@@ -1368,7 +1368,8 @@ public class Tio {
 	 * 注意：<br>
 	 * 1、参数packet的synSeq不为空且大于0（null、等于小于0都不行）<br>
 	 * 2、对端收到此消息后，需要回一条synSeq一样的消息。业务需要在decode()方法中为packet的synSeq赋值<br>
-	 * 3、对于同步发送，框架层面并不会帮应用去调用handler.handler(packet, channelContext)方法，应用需要自己去处理响应的消息包，参考：groupContext.getAioHandler().handler(packet, channelContext);<br>
+	 * 3、对于同步发送，框架层面并不会帮应用去调用handler.handler(packet, channelContext)方法，应用需要自己去处理响应的消息包，
+	 *参考：groupContext.getAioHandler().handler(packet, channelContext);<br>
 	 *
 	 * @param channelContext
 	 * @param packet 业务层必须设置好synSeq字段的值，而且要保证唯一（不能重复）。可以在groupContext范围内用AtomicInteger

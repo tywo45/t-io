@@ -72,13 +72,6 @@ import freemarker.template.Configuration;
 public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	private static Logger log = LoggerFactory.getLogger(DefaultHttpRequestHandler.class);
 
-	//	/**
-	//	 * 静态资源的CacheName
-	//	 * key:   path 譬如"/index.html"
-	//	 * value: HttpResponse
-	//	 */
-	//	private static final String STATIC_RES_CACHENAME = "TIO_HTTP_STATIC_RES";
-
 	/**
 	 * 静态资源的CacheName
 	 * key:   path 譬如"/index.html"
@@ -350,8 +343,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 			if (StrUtil.startWith(path, contextPath)) {
 				path = StrUtil.subSuf(path, contextPathLength);
 			} else {
-				//				Tio.remove(request.getChannelContext(), "请求路径不合法，必须以" + contextPath + "开头：" + requestLine.getLine());
-				//				return null;
+
 			}
 		}
 
@@ -359,8 +351,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 			if (StrUtil.endWith(path, suffix)) {
 				path = StrUtil.sub(path, 0, path.length() - suffixLength);
 			} else {
-				//				Tio.remove(request.getChannelContext(), "请求路径不合法，必须以" + suffix + "结尾：" + requestLine.getLine());
-				//				return null;
+
 			}
 		}
 		requestLine.setPath(path);
@@ -370,25 +361,6 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 			
 			requestLine = request.getRequestLine();
 
-//			Method method = null;
-//			if (routes != null) {
-//				method = routes.getMethodByPath(path, request);
-//				path = requestLine.path;
-//			}
-//			if (method == null) {
-//				if (StrUtil.isNotBlank(httpConfig.getWelcomeFile())) {
-//					if (StrUtil.endWith(path, "/")) {
-//						path = path + httpConfig.getWelcomeFile();
-//						requestLine.setPath(path);
-//
-//						if (routes != null) {
-//							method = routes.getMethodByPath(path, request);
-//							path = requestLine.path;
-//						}
-//					}
-//				}
-//			}
-			
 			Method method = getMethod(request, requestLine);
 			path = requestLine.path;
 			
@@ -403,7 +375,6 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 				method = getMethod(request, requestLine);
 				path = requestLine.path;
 			}
-			
 			
 			//流控
 			if (httpConfig.isUseSession()) {
@@ -424,21 +395,12 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 							}
 						}
 					}
-					
-//					log.error(Json.toFormatedJson(sessionRateVo));
-					
+										
 					if (!pass) {
-//						if (System.currentTimeMillis() - lastAccessTime > interval) {
-//							pass = true;
-//						}
-						
 						if (sessionRateLimiter.allow(request, sessionRateVo)) {
 							pass = true;
 						}
 					}
-					
-//					//更新上次访问时间
-//					sessionRateLimiterCache.put(key, System.currentTimeMillis());
 					
 					if (!pass) {
 						response = sessionRateLimiter.response(request, sessionRateVo);
@@ -448,8 +410,6 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 					//更新上次访问时间（放在这个位置：被拒绝访问的就不更新lastAccessTime）
 					sessionRateVo.setLastAccessTime(SystemTimer.currTime);
 					sessionRateVo.getAccessCount().incrementAndGet();
-//					sessionRateLimiterCache.put(key, sessionRateVo);
-				
 				}
 			}
 			
@@ -461,12 +421,6 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 				Object bean = routes.METHOD_BEAN_MAP.get(method);
 				Object obj = null;
 				if (parameterTypes == null || parameterTypes.length == 0) {
-//					String forward = routes.PATH_FORWARD_MAP.get(path);
-//					if (forward != null) {
-//						return request.forward(forward);
-//					} else {
-//						obj = Routes.BEAN_METHODACCESS_MAP.get(bean).invoke(bean, method.getName(), parameterTypes, (Object) null);
-//					}
 					obj = Routes.BEAN_METHODACCESS_MAP.get(bean).invoke(bean, method.getName(), parameterTypes, (Object) null);
 				} else {
 					//赋值这段代码待重构，先用上
@@ -562,14 +516,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 							i++;
 						}
 					}
-					//					obj = method.invoke(bean, paramValues);
-					
-//					String forward = routes.PATH_FORWARD_MAP.get(path);
-//					if (forward != null) {
-//						return request.forward(forward);
-//					} else {
-//						obj = Routes.BEAN_METHODACCESS_MAP.get(bean).invoke(bean, method.getName(), parameterTypes, paramValues);
-//					}
+
 					obj = Routes.BEAN_METHODACCESS_MAP.get(bean).invoke(bean, method.getName(), parameterTypes, paramValues);
 				}
 

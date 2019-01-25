@@ -35,10 +35,6 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 
 	public static final AtomicInteger UNKNOWN_ADDRESS_PORT_SEQ = new AtomicInteger();
 
-	//	public boolean isTraceClient = false;
-
-	//	public boolean isTraceSynPacket = false;
-
 	public boolean isReconnect = false;
 	
 	/**
@@ -197,13 +193,6 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	public Node getClientNode() {
 		return clientNode;
 	}
-
-	//	/**
-	//	 * @return the clientNodeTraceFilename
-	//	 */
-	//	public String getClientNodeTraceFilename() {
-	//		return clientNodeTraceFilename;
-	//	}
 
 	public SetWithLock<String> getGroups() {
 		return groups;
@@ -376,13 +365,6 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 			//			clientNodeTraceFilename = StrUtil.replaceAll(clientNode.toString(), ":", "_");
 		}
 	}
-
-	//	/**
-	//	 * @param clientNodeTraceFilename the clientNodeTraceFilename to set
-	//	 */
-	//	public void setClientNodeTraceFilename(String clientNodeTraceFilename) {
-	//		this.clientNodeTraceFilename = clientNodeTraceFilename;
-	//	}
 
 	/**
 	 * @param isClosed the isClosed to set

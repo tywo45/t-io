@@ -14,7 +14,6 @@ import java.util.concurrent.locks.ReadWriteLock;
  * 2017年4月26日 下午2:18:30
  */
 public class SynThreadPoolExecutor extends ThreadPoolExecutor {
-	//	private static Logger log = LoggerFactory.getLogger(SynThreadPoolExecutor.class);
 
 	/** The name. */
 	private String name = null;
