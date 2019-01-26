@@ -1,6 +1,9 @@
 ### 官网
 https://www.t-io.org/
 
+### t-io与netty的差异
+https://www.t-io.org/doc/156
+
 ### 一张图了解t-io的历史和能力
 ![](https://res.t-io.org/doc/t-io-base_01.png?4345)
 
