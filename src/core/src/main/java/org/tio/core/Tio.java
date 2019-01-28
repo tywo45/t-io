@@ -289,11 +289,10 @@ public class Tio {
 		close(channelContext, throwable, remark, false);
 	}
 
-	
 	public static void close(ChannelContext channelContext, Throwable throwable, String remark, boolean isNeedRemove) {
 		close(channelContext, throwable, remark, isNeedRemove, true);
 	}
-	
+
 	/**
 	 * 
 	 * @param channelContext
@@ -314,7 +313,7 @@ public class Tio {
 		WriteLock writeLock = null;
 		if (needCloseLock) {
 			writeLock = channelContext.closeLock.writeLock();
-			
+
 			boolean tryLock = writeLock.tryLock();
 			if (!tryLock) {
 				return;
@@ -324,7 +323,7 @@ public class Tio {
 		} else {
 			channelContext.isWaitingClose = true;
 		}
-		
+
 		if (channelContext.asynchronousSocketChannel != null) {
 			try {
 				channelContext.asynchronousSocketChannel.shutdownInput();
@@ -389,7 +388,6 @@ public class Tio {
 			public void handler(Set<ChannelContext> set) {
 				for (ChannelContext channelContext : set) {
 					Tio.close(channelContext, remark);
-					;
 				}
 			}
 		});
