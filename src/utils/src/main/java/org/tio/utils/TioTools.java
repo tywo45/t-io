@@ -20,10 +20,10 @@ public class TioTools {
 
 	public static void main(String[] args) throws Exception {
 //		changeSiteStyle();//切换网站风格
-				newProject();  //新工程
+				newProject2();  //新工程
 //		rename();
 //				tio();         //tio升级
-//				addBlankFile("F:\\work\\tio-site\\src\\frontend\\web-all\\starter\\src\\main\\resources\\config\\page");
+//				addBlankFile("F:\\work\\tio-site\\src\\backend");
 //		deleteFiles(new String[] { "D:\\work\\tio-im-new", "F:\\gitee\\java" }, new String[] { ".externalToolBuilders" });
 		
 //		replaceFiles(new File("C:\\Users\\tanyw\\Desktop\\nb830.dic"), new String[] { "D:\\work\\tio-im", "F:\\gitee\\java", "D:\\work\\tio-im(改名前)" });
@@ -222,14 +222,14 @@ public class TioTools {
 	}
 
 	public static void newProject() {
-		String[] rootDirStrs = new String[] { "G:\\svn_nb\\html\\etf" };
+		String[] rootDirStrs = new String[] { "F:\\work\\tio-site\\src\\frontend-new" };
 
 		for (String rootDirStr : rootDirStrs) {
 			Map<String, String> old2newStr = new HashMap<>();
 			Map<String, String> old2newFilename = new HashMap<>();
 
 			String oldName = "live";
-			String newName = "etf";
+			String newName = "site";
 			
 //			String oldName = "im";
 //			String newName = "live";
@@ -280,7 +280,6 @@ public class TioTools {
 			old2newStr.put("TIO-LIVEEI", "TIO-IMEI");
 			old2newStr.put("tio-liveei", "tio-imei");
 			
-			
 			old2newFilename.putAll(old2newStr);
 
 			try {
@@ -295,6 +294,35 @@ public class TioTools {
 		}
 	}
 	
+	
+	public static void newProject2() {
+		String[] rootDirStrs = new String[] { "D:\\work\\share-bike" };
+
+		for (String rootDirStr : rootDirStrs) {
+			Map<String, String> old2newStr = new HashMap<>();
+			Map<String, String> old2newFilename = new HashMap<>();
+
+
+			old2newStr.put("gateway-dts", "share-bike");
+			old2newStr.put("dts", "sharebike");
+			old2newStr.put("DTS", "SHAREBIKE");
+			old2newStr.put("Dts", "Sharebike");
+			old2newStr.put("gateway", "sharebike");
+			
+			
+			old2newFilename.putAll(old2newStr);
+
+			try {
+				//如果需要修改文件名字，就在这里调一下rename
+				rename(rootDirStr, old2newFilename);
+
+				//替换文字
+				replaceStr(rootDirStr, old2newStr);
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
+			}
+		}
+	}
 	
 	/**
 	 * 切换网站风格
