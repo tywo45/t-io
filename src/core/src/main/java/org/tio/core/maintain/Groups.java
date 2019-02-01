@@ -237,7 +237,8 @@ public class Groups {
 			if (setWithLock != null) {
 				boolean ss = setWithLock.remove(channelContext);
 				if (!ss) {
-					log.error("{}, 移除失败", channelContext);
+					log.error("{}, 移除失败, cid:{}", channelContext, channelContext.getId());
+					
 				}
 
 				if (deleteFromChannelContext) {

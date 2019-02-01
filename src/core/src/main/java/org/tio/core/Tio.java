@@ -200,12 +200,12 @@ public class Tio {
 
 	/**
 	 * 发消息给指定ChannelContext id
-	 * @param channelId
+	 * @param channelContextId
 	 * @param packet
 	 * @author tanyaowu
 	 */
-	public static Boolean bSendToId(GroupContext groupContext, String channelId, Packet packet) {
-		return sendToId(groupContext, channelId, packet, true);
+	public static Boolean bSendToId(GroupContext groupContext, String channelContextId, Packet packet) {
+		return sendToId(groupContext, channelContextId, packet, true);
 	}
 
 	/**
@@ -438,12 +438,12 @@ public class Tio {
 
 	/**
 	 * 根据id获取ChannelContext
-	 * @param channelId
+	 * @param channelContextId
 	 * @return
 	 * @author tanyaowu
 	 */
-	public static ChannelContext getChannelContextById(GroupContext groupContext, String channelId) {
-		return groupContext.ids.find(groupContext, channelId);
+	public static ChannelContext getChannelContextById(GroupContext groupContext, String channelContextId) {
+		return groupContext.ids.find(groupContext, channelContextId);
 	}
 
 	/**
@@ -640,15 +640,15 @@ public class Tio {
 	}
 
 	/**
-	 * 在集群环境下，把channelId消息通知到集群中的其它机器
+	 * 在集群环境下，把channelContextId消息通知到集群中的其它机器
 	 * @param groupContext
-	 * @param channelId
+	 * @param channelContextId
 	 * @param packet
 	 */
-	public static void notifyClusterForId(GroupContext groupContext, String channelId, Packet packet) {
+	public static void notifyClusterForId(GroupContext groupContext, String channelContextId, Packet packet) {
 		TioClusterConfig tioClusterConfig = groupContext.getTioClusterConfig();
 		TioClusterVo tioClusterVo = new TioClusterVo(packet);
-		tioClusterVo.setChannelId(channelId);
+		tioClusterVo.setChannelId(channelContextId);
 		tioClusterConfig.publish(tioClusterVo);
 	}
 
@@ -1025,30 +1025,30 @@ public class Tio {
 
 	/**
 	 * 发消息给指定ChannelContext id
-	 * @param channelId
+	 * @param channelContextId
 	 * @param packet
 	 * @author tanyaowu
 	 */
-	public static Boolean sendToId(GroupContext groupContext, String channelId, Packet packet) {
-		return sendToId(groupContext, channelId, packet, false);
+	public static Boolean sendToId(GroupContext groupContext, String channelContextId, Packet packet) {
+		return sendToId(groupContext, channelContextId, packet, false);
 	}
 
 	/**
 	 * 发消息给指定ChannelContext id
-	 * @param channelId
+	 * @param channelContextId
 	 * @param packet
 	 * @param isBlock
 	 * @return
 	 * @author tanyaowu
 	 */
-	private static Boolean sendToId(GroupContext groupContext, String channelId, Packet packet, boolean isBlock) {
-		ChannelContext channelContext = Tio.getChannelContextById(groupContext, channelId);
+	private static Boolean sendToId(GroupContext groupContext, String channelContextId, Packet packet, boolean isBlock) {
+		ChannelContext channelContext = Tio.getChannelContextById(groupContext, channelContextId);
 		if (channelContext == null) {
 			if (groupContext.isCluster() && !packet.isFromCluster()) {
 				TioClusterConfig tioClusterConfig = groupContext.getTioClusterConfig();
 
 				if (tioClusterConfig.isCluster4channelId()) {
-					notifyClusterForId(groupContext, channelId, packet);
+					notifyClusterForId(groupContext, channelContextId, packet);
 				}
 			}
 			return false;

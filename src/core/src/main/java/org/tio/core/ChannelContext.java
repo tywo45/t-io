@@ -348,7 +348,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	/**
 	 * @param remoteNode the remoteNode to set
 	 */
-	private void setClientNode(Node clientNode) {
+	public void setClientNode(Node clientNode) {
 		if (!this.groupContext.isShortConnection) {
 			if (this.clientNode != null) {
 				groupContext.clientNodes.remove(this);
