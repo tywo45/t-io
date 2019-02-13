@@ -16,7 +16,6 @@ import org.tio.http.common.view.ModelGenerator;
 import org.tio.utils.freemarker.ShortMessageTemplateExceptionHandler;
 
 import freemarker.template.Configuration;
-import freemarker.template.TemplateExceptionHandler;
 
 /**
  * @author tanyaowu 

@@ -39,7 +39,7 @@ public class ChannelStat implements java.io.Serializable {
 	/**
 	 * ChannelContext对象创建的时间
 	 */
-	public long timeCreated = System.currentTimeMillis();
+	public long timeCreated = SystemTimer.currTime;
 
 	/**
 	 * 第一次连接成功的时间

@@ -130,6 +130,7 @@ public abstract class GroupContext extends MapWithLockPropSupport {
 		this.tokens = groupContext.tokens;
 		this.ids = groupContext.ids;
 		this.bsIds = groupContext.bsIds;
+		this.ipBlacklist = groupContext.ipBlacklist;
 	}
 
 	/**
