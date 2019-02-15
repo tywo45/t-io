@@ -12,6 +12,7 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.retry.RetryForever;
 import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException.NodeExistsException;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +71,7 @@ public class Zk {
 			throw new RuntimeException("zk address is null");
 		}
 
-//		RetryPolicy rp = new ExponentialBackoffRetry(500, Integer.MAX_VALUE);//Retry mechanism
+		//		RetryPolicy rp = new ExponentialBackoffRetry(500, Integer.MAX_VALUE);//Retry mechanism
 		RetryPolicy rp = new RetryForever(500);
 		Builder builder = CuratorFrameworkFactory.builder().connectString(address).connectionTimeoutMs(15 * 1000).sessionTimeoutMs(60 * 1000).retryPolicy(rp);
 		//				builder.namespace(nameSpace);
@@ -101,12 +102,12 @@ public class Zk {
 	 * @author: tanyaowu
 	 * @创建时间:　2013年8月3日 上午10:39:00
 	 */
-	public static String createOrUpdate(String path, String content, CreateMode createMode) throws Exception {
+	public static void createOrUpdate(String path, String content, CreateMode createMode) throws Exception {
 		if (content != null) {
-			return createOrUpdate(path, content.getBytes(CHARSET), createMode);
+			createOrUpdate(path, content.getBytes(CHARSET), createMode);
+			return;
 		}
-		return createOrUpdate(path, (byte[]) null, createMode);
-
+		createOrUpdate(path, (byte[]) null, createMode);
 	}
 
 	/**
@@ -119,19 +120,25 @@ public class Zk {
 	 * @author: tanyaowu
 	 * @创建时间:　2013年8月3日 上午11:06:54
 	 */
-	public static String createOrUpdate(String path, byte[] content, CreateMode createMode) throws Exception {
+	public static void createOrUpdate(String path, byte[] content, CreateMode createMode) throws Exception {
 		if (!createMode.isSequential()) {
 			if (exists(path)) {
 				log.info("节点已经存在:{}", path);
 				if (content != null) {
 					setData(path, content);
 				}
-				return path;
+				return;
 			}
 		}
-		String str = zkclient.create().creatingParentsIfNeeded().withMode(createMode).forPath(path, content);
 
-		return str;
+		try {
+			zkclient.create().creatingParentsIfNeeded().withMode(createMode).forPath(path, content);
+		} catch (NodeExistsException e) {
+//			node exists skip it
+//			log.error(e.toString(), e);
+		}
+
+		return;
 	}
 
 	public static void createContainers(String path) throws Exception {
@@ -240,7 +247,12 @@ public class Zk {
 			if (Zk.exists(path)) {
 				zkclient.setData().forPath(path, bs);
 			} else {
-				zkclient.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path, bs);
+				try {
+					zkclient.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path, bs);
+				} catch (NodeExistsException e) {
+					//节点已经存在, skip it
+					//log.error(e.toString(), e);
+				}
 			}
 		}
 	}

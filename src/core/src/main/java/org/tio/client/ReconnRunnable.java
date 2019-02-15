@@ -10,7 +10,7 @@ import org.tio.utils.SystemTimer;
 import org.tio.utils.thread.pool.AbstractSynRunnable;
 
 /**
- * @author tanyw
+ * @author tanyaowu
  *
  */
 public class ReconnRunnable extends AbstractSynRunnable {
