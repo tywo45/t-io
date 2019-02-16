@@ -22,45 +22,59 @@ public class TioHtmlCompressor implements ResCompressor {
 	
 	public static TioHtmlCompressor ME = new TioHtmlCompressor();
 
+	/**
+	 * @param compressor
+	 * @author tanyaowu
+	 */
+	public TioHtmlCompressor() {
+		super();
+		
+		HtmlCompressor compressor = new HtmlCompressor();
+		compressor.setEnabled(true);
+		compressor.setCompressCss(false);
+		compressor.setCompressJavaScript(false);
+
+		compressor.setGenerateStatistics(false);
+
+		compressor.setRemoveComments(options.isRemoveComments());
+		compressor.setRemoveMultiSpaces(options.isRemoveMutliSpaces());
+		compressor.setRemoveIntertagSpaces(options.isRemoveIntertagSpaces());
+		compressor.setRemoveQuotes(options.isRemoveQuotes());
+		compressor.setSimpleDoctype(options.isSimpleDoctype());
+		compressor.setRemoveScriptAttributes(options.isRemoveScriptAttributes());
+		compressor.setRemoveStyleAttributes(options.isRemoveStyleAttributes());
+		compressor.setRemoveLinkAttributes(options.isRemoveLinkAttributes());
+		compressor.setRemoveFormAttributes(options.isRemoveFormAttributes());
+		compressor.setRemoveInputAttributes(options.isRemoveInputAttributes());
+		compressor.setSimpleBooleanAttributes(options.isSimpleBooleanAttributes());
+		compressor.setRemoveJavaScriptProtocol(options.isRemoveJavaScriptProtocol());
+		compressor.setRemoveHttpProtocol(options.isRemoveHttpProtocol());
+		compressor.setRemoveHttpsProtocol(options.isRemoveHttpsProtocol());
+		compressor.setPreserveLineBreaks(options.isPreserveLineBreaks());
+		this.compressor = compressor;
+	}
+
+	HtmlCompressor compressor = null;
+	
 	public String compress(String filePath, String srcContent) {
 		try {
-			HtmlCompressor compressor = new HtmlCompressor();
-			compressor.setEnabled(true);
-			compressor.setCompressCss(false);
-			compressor.setCompressJavaScript(false);
-
-			compressor.setGenerateStatistics(false);
-
-			compressor.setRemoveComments(options.isRemoveComments());
-			compressor.setRemoveMultiSpaces(options.isRemoveMutliSpaces());
-			compressor.setRemoveIntertagSpaces(options.isRemoveIntertagSpaces());
-			compressor.setRemoveQuotes(options.isRemoveQuotes());
-			compressor.setSimpleDoctype(options.isSimpleDoctype());
-			compressor.setRemoveScriptAttributes(options.isRemoveScriptAttributes());
-			compressor.setRemoveStyleAttributes(options.isRemoveStyleAttributes());
-			compressor.setRemoveLinkAttributes(options.isRemoveLinkAttributes());
-			compressor.setRemoveFormAttributes(options.isRemoveFormAttributes());
-			compressor.setRemoveInputAttributes(options.isRemoveInputAttributes());
-			compressor.setSimpleBooleanAttributes(options.isSimpleBooleanAttributes());
-			compressor.setRemoveJavaScriptProtocol(options.isRemoveJavaScriptProtocol());
-			compressor.setRemoveHttpProtocol(options.isRemoveHttpProtocol());
-			compressor.setRemoveHttpsProtocol(options.isRemoveHttpsProtocol());
-			compressor.setPreserveLineBreaks(options.isPreserveLineBreaks());
-
+//			long start = System.currentTimeMillis();
 			String ret = compressor.compress(srcContent);
+//			long end = System.currentTimeMillis();
+//			System.out.println("html压缩耗时" + (end - start) + "ms");
 			
 			if (ret == null || ret.length() == 0) {
 				log.warn("压缩后的文件大小为0, {}", filePath);
 				return srcContent;
 			}
 
-			byte[] initBytes = srcContent.getBytes();
-			byte[] afterBytes = ret.getBytes();
-
-			if (afterBytes.length >= initBytes.length) {
-				log.warn("HTML压缩后的文件反而较大,  init size:{}, after size:{}, file:{}", initBytes.length, afterBytes.length, filePath);
-				return srcContent;
-			}
+//			byte[] initBytes = srcContent.getBytes();
+//			byte[] afterBytes = ret.getBytes();
+//
+//			if (afterBytes.length >= initBytes.length) {
+//				log.warn("HTML压缩后的文件反而较大,  init size:{}, after size:{}, file:{}", initBytes.length, afterBytes.length, filePath);
+//				return srcContent;
+//			}
 
 			return commits + ret;
 		} catch (Exception e) {

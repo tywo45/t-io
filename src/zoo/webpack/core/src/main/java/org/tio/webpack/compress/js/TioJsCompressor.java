@@ -116,13 +116,13 @@ public class TioJsCompressor implements ResCompressor {
 				return srcFileContent;
 			}
 
-			byte[] initBytes = srcFileContent.getBytes();
-			byte[] afterBytes = ret.getBytes();
-
-			if (afterBytes.length >= initBytes.length) {
-				log.warn("压缩后的文件反而较大,  init size:{}, after size:{}, file:{}", initBytes.length, afterBytes.length, srcFilePath);
-				return srcFileContent;
-			}
+//			byte[] initBytes = srcFileContent.getBytes();
+//			byte[] afterBytes = ret.getBytes();
+//
+//			if (afterBytes.length >= initBytes.length) {
+//				log.warn("压缩后的文件反而较大,  init size:{}, after size:{}, file:{}", initBytes.length, afterBytes.length, srcFilePath);
+//				return srcFileContent;
+//			}
 
 			return commits + ret;
 		} catch (Exception e) {
