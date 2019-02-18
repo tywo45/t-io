@@ -30,9 +30,9 @@ public class ClientGroupContext extends GroupContext {
 	protected ReconnConf reconnConf;//重连配置
 
 	private ConnectionCompletionHandler connectionCompletionHandler = new ConnectionCompletionHandler();
-	
-	public final SetWithLock<ChannelContext> connecteds = new SetWithLock<ChannelContext>(new HashSet<ChannelContext>());
-	public final SetWithLock<ChannelContext> closeds = new SetWithLock<ChannelContext>(new HashSet<ChannelContext>());
+
+	public final SetWithLock<ChannelContext>	connecteds	= new SetWithLock<ChannelContext>(new HashSet<ChannelContext>());
+	public final SetWithLock<ChannelContext>	closeds		= new SetWithLock<ChannelContext>(new HashSet<ChannelContext>());
 
 	/**
 	 * 不重连
@@ -53,7 +53,7 @@ public class ClientGroupContext extends GroupContext {
 	public ClientGroupContext(ClientAioHandler aioHandler, ClientAioListener aioListener, ReconnConf reconnConf) {
 		this(aioHandler, aioListener, reconnConf, null, null);
 	}
-	
+
 	/**
 	 * 
 	 * @param aioHandler
@@ -62,7 +62,8 @@ public class ClientGroupContext extends GroupContext {
 	 * @param tioExecutor
 	 * @param groupExecutor
 	 */
-	public ClientGroupContext(ClientAioHandler aioHandler, ClientAioListener aioListener, ReconnConf reconnConf, SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
+	public ClientGroupContext(ClientAioHandler aioHandler, ClientAioListener aioListener, ReconnConf reconnConf, SynThreadPoolExecutor tioExecutor,
+	        ThreadPoolExecutor groupExecutor) {
 		super(tioExecutor, groupExecutor);
 		this.groupStat = new ClientGroupStat();
 		this.setClientAioHandler(aioHandler);
@@ -70,7 +71,7 @@ public class ClientGroupContext extends GroupContext {
 
 		this.reconnConf = reconnConf;
 	}
-	
+
 	/**
 	 * 使用ssl访问
 	 * @throws Exception
@@ -158,7 +159,7 @@ public class ClientGroupContext extends GroupContext {
 	public void setReconnConf(ReconnConf reconnConf) {
 		this.reconnConf = reconnConf;
 	}
-	
+
 	/**
 	 * 
 	 * @return
@@ -176,6 +177,7 @@ public class ClientGroupContext extends GroupContext {
 	public boolean isServer() {
 		return false;
 	}
+
 	@Override
 	public String toString() {
 		return "ClientGroupContext [name=" + name + "]";

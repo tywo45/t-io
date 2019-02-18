@@ -36,7 +36,7 @@ public class BsIds {
 			if (groupContext.isShortConnection) {
 				return;
 			}
-			
+
 			//先解绑，否则如果业务层绑定两个不同的bsid，就会导致资源释放不掉
 			unbind(channelContext);
 

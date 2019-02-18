@@ -19,7 +19,7 @@ import org.tio.utils.hutool.FileUtil;
  * 2017年10月19日 上午9:40:34
  */
 public class MaintainUtils {
-	
+
 	private static final Logger log = LoggerFactory.getLogger(MaintainUtils.class);
 
 	public static final String TEMP_DIR = "TIO_TEMP_FILE/";

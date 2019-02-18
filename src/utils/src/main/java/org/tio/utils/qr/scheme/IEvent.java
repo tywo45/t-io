@@ -22,21 +22,21 @@ import java.util.Map;
  */
 public class IEvent extends SubSchema {
 
-	public static final String NAME = "VEVENT";
-	private static final String BEGIN_EVENT = "BEGIN:VEVENT";
-	private static final String UID = "UID";
-	private static final String STAMP = "DTSTAMP";
-	private static final String ORGANIZER = "ORGANIZER";
-	private static final String START = "DTSTART";
-	private static final String END = "DTEND";
-	private static final String SUMMARY = "SUMMARY";
+	public static final String	NAME		= "VEVENT";
+	private static final String	BEGIN_EVENT	= "BEGIN:VEVENT";
+	private static final String	UID			= "UID";
+	private static final String	STAMP		= "DTSTAMP";
+	private static final String	ORGANIZER	= "ORGANIZER";
+	private static final String	START		= "DTSTART";
+	private static final String	END			= "DTEND";
+	private static final String	SUMMARY		= "SUMMARY";
 
-	private String uid;
-	private String stamp;
-	private String organizer;
-	private String start;
-	private String end;
-	private String summary;
+	private String	uid;
+	private String	stamp;
+	private String	organizer;
+	private String	start;
+	private String	end;
+	private String	summary;
 
 	public IEvent() {
 		super();

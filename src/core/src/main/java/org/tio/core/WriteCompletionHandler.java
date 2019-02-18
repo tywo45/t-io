@@ -32,7 +32,7 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 		 */
 		public WriteCompletionVo(ByteBuffer byteBuffer, Object obj) {
 			super();
-			this.byteBuffer = byteBuffer;  //[pos=0 lim=212 cap=212]
+			this.byteBuffer = byteBuffer; //[pos=0 lim=212 cap=212]
 			this.obj = obj;
 		}
 	}
@@ -50,7 +50,7 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 	@Override
 	public void completed(Integer result, WriteCompletionVo writeCompletionVo) {
 		//		Object attachment = writeCompletionVo.getObj();
-		ByteBuffer byteBuffer = writeCompletionVo.byteBuffer;  //[pos=212 lim=212 cap=212]
+		ByteBuffer byteBuffer = writeCompletionVo.byteBuffer; //[pos=212 lim=212 cap=212]
 		if (byteBuffer.hasRemaining()) {
 			//			int iv = byteBuffer.capacity() - byteBuffer.position();
 			log.info("{} {}/{} has sent", channelContext, byteBuffer.position(), byteBuffer.limit());

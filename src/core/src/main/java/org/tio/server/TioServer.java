@@ -126,14 +126,14 @@ public class TioServer {
 		infoList.add(StrUtil.fillAfter("Tio gitee address", ' ', xxLen) + "| " + SysConst.TIO_URL_GITEE);
 		infoList.add(StrUtil.fillAfter("Tio site address", ' ', xxLen) + "| " + SysConst.TIO_URL_SITE);
 		infoList.add(StrUtil.fillAfter("Tio version", ' ', xxLen) + "| " + SysConst.TIO_CORE_VERSION);
-		
+
 		infoList.add(StrUtil.fillAfter("-", '-', aaLen));
-		
+
 		infoList.add(StrUtil.fillAfter("GroupContext name", ' ', xxLen) + "| " + serverGroupContext.getName());
 		infoList.add(StrUtil.fillAfter("Started at", ' ', xxLen) + "| " + DateUtils.formatDateTime(new Date()));
 		infoList.add(StrUtil.fillAfter("Listen on", ' ', xxLen) + "| " + this.serverNode);
 		infoList.add(StrUtil.fillAfter("Main Class", ' ', xxLen) + "| " + se.getClassName());
-		
+
 		try {
 			RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
 			String runtimeName = runtimeMxBean.getName();
@@ -145,10 +145,10 @@ public class TioServer {
 			infoList.add(StrUtil.fillAfter("Pid", ' ', xxLen) + "| " + pid);
 
 		} catch (Exception e) {
-			
+
 		}
 		//100
-		String printStr = "\r\n"+baseStr+"\r\n";
+		String printStr = "\r\n" + baseStr + "\r\n";
 		//		printStr += "|--" + leftStr + " " + info + " " + rightStr + "--|\r\n";
 		for (String string : infoList) {
 			printStr += "| " + StrUtil.fillAfter(string, ' ', aaLen) + "|\r\n";

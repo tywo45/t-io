@@ -6,7 +6,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
-
 /**
  * 简单缓存，无超时实现，使用{@link WeakHashMap}实现缓存自动清理
  * @author Looly
@@ -17,10 +16,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 public class SimpleCache<K, V> {
 	/** 池 */
 	private final Map<K, V> cache = new WeakHashMap<>();
-	
-	private final ReentrantReadWriteLock cacheLock = new ReentrantReadWriteLock();
-	private final ReadLock readLock = cacheLock.readLock();
-	private final WriteLock writeLock = cacheLock.writeLock();
+
+	private final ReentrantReadWriteLock	cacheLock	= new ReentrantReadWriteLock();
+	private final ReadLock					readLock	= cacheLock.readLock();
+	private final WriteLock					writeLock	= cacheLock.writeLock();
 
 	/**
 	 * 从缓存池中查找值
@@ -39,14 +38,14 @@ public class SimpleCache<K, V> {
 		}
 		return value;
 	}
-	
+
 	/**
 	 * 放入缓存
 	 * @param key 键
 	 * @param value 值
 	 * @return 值
 	 */
-	public V put(K key, V value){
+	public V put(K key, V value) {
 		writeLock.lock();
 		try {
 			cache.put(key, value);

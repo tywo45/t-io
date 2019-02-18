@@ -11,11 +11,11 @@ import org.tio.core.stat.GroupStat;
  */
 public class ServerGroupStat extends GroupStat {
 
-	private static final long serialVersionUID = -139100692961946342L;
+	private static final long	serialVersionUID	= -139100692961946342L;
 	/**
 	 * 接受了多少连接
 	 */
-	public final AtomicLong accepted = new AtomicLong();
+	public final AtomicLong		accepted			= new AtomicLong();
 
 	/**
 	 *

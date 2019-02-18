@@ -25,12 +25,13 @@ import com.jfinal.core.Const;
  * P. P can load properties file from CLASSPATH or File object.
  */
 public class P {
-	
-	private static Prop prop = null;
-	private static final ConcurrentHashMap<String, Prop> map = new ConcurrentHashMap<String, Prop>();
-	
-	private P() {}
-	
+
+	private static Prop										prop	= null;
+	private static final ConcurrentHashMap<String, Prop>	map		= new ConcurrentHashMap<String, Prop>();
+
+	private P() {
+	}
+
 	/**
 	 * Using the properties file. It will loading the properties file if not loading.
 	 * @see #use(String, String)
@@ -38,7 +39,7 @@ public class P {
 	public static Prop use(String fileName) {
 		return use(fileName, Const.DEFAULT_ENCODING);
 	}
-	
+
 	/**
 	 * Using the properties file. It will loading the properties file if not loading.
 	 * <p>
@@ -72,7 +73,7 @@ public class P {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Using the properties file bye File object. It will loading the properties file if not loading.
 	 * @see #use(File, String)
@@ -80,7 +81,7 @@ public class P {
 	public static Prop use(File file) {
 		return use(file, Const.DEFAULT_ENCODING);
 	}
-	
+
 	/**
 	 * Using the properties file bye File object. It will loading the properties file if not loading.
 	 * <p>
@@ -107,7 +108,7 @@ public class P {
 		}
 		return result;
 	}
-	
+
 	public static Prop useless(String fileName) {
 		Prop previous = map.remove(fileName);
 		if (P.prop == previous) {
@@ -115,12 +116,12 @@ public class P {
 		}
 		return previous;
 	}
-	
+
 	public static void clear() {
 		prop = null;
 		map.clear();
 	}
-	
+
 	public static Prop append(Prop prop) {
 		synchronized (P.class) {
 			if (P.prop != null) {
@@ -131,15 +132,15 @@ public class P {
 			return P.prop;
 		}
 	}
-	
+
 	public static Prop append(String fileName, String encoding) {
 		return append(new Prop(fileName, encoding));
 	}
-	
+
 	public static Prop append(String fileName) {
 		return append(fileName, Const.DEFAULT_ENCODING);
 	}
-	
+
 	public static Prop appendIfExists(String fileName, String encoding) {
 		try {
 			return append(new Prop(fileName, encoding));
@@ -147,76 +148,74 @@ public class P {
 			return P.prop;
 		}
 	}
-	
+
 	public static Prop appendIfExists(String fileName) {
 		return appendIfExists(fileName, Const.DEFAULT_ENCODING);
 	}
-	
+
 	public static Prop append(File file, String encoding) {
 		return append(new Prop(file, encoding));
 	}
-	
+
 	public static Prop append(File file) {
 		return append(file, Const.DEFAULT_ENCODING);
 	}
-	
+
 	public static Prop appendIfExists(File file, String encoding) {
 		if (file.exists()) {
 			append(new Prop(file, encoding));
 		}
 		return P.prop;
 	}
-	
+
 	public static Prop appendIfExists(File file) {
 		return appendIfExists(file, Const.DEFAULT_ENCODING);
 	}
-	
+
 	public static Prop getProp() {
 		if (prop == null) {
 			throw new IllegalStateException("Load propties file by invoking P.use(String fileName) method first.");
 		}
 		return prop;
 	}
-	
+
 	public static Prop getProp(String fileName) {
 		return map.get(fileName);
 	}
-	
+
 	public static String get(String key) {
 		return getProp().get(key);
 	}
-	
+
 	public static String get(String key, String defaultValue) {
 		return getProp().get(key, defaultValue);
 	}
-	
+
 	public static Integer getInt(String key) {
 		return getProp().getInt(key);
 	}
-	
+
 	public static Integer getInt(String key, Integer defaultValue) {
 		return getProp().getInt(key, defaultValue);
 	}
-	
+
 	public static Long getLong(String key) {
 		return getProp().getLong(key);
 	}
-	
+
 	public static Long getLong(String key, Long defaultValue) {
 		return getProp().getLong(key, defaultValue);
 	}
-	
+
 	public static Boolean getBoolean(String key) {
 		return getProp().getBoolean(key);
 	}
-	
+
 	public static Boolean getBoolean(String key, Boolean defaultValue) {
 		return getProp().getBoolean(key, defaultValue);
 	}
-	
+
 	public static boolean containsKey(String key) {
 		return getProp().containsKey(key);
 	}
 }
-
-

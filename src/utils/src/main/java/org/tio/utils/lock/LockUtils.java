@@ -10,14 +10,14 @@ import org.tio.utils.cache.caffeine.CaffeineCache;
  */
 public class LockUtils {
 
-	private static final String LOCK_TYPE_OBJ = "OBJ";
-	private static final String LOCK_TYPE_RW = "RW";
+	private static final String	LOCK_TYPE_OBJ	= "OBJ";
+	private static final String	LOCK_TYPE_RW	= "RW";
 
-	private static final Object defaultLockObjForObj = new Object();
-	private static final Object defaultLockObjForRw = new Object();
+	private static final Object	defaultLockObjForObj	= new Object();
+	private static final Object	defaultLockObjForRw		= new Object();
 
-	private static final CaffeineCache LOCAL_LOCKS = CaffeineCache.register(LockUtils.class.getName() + LOCK_TYPE_OBJ, null, 3600L);
-	private static final CaffeineCache LOCAL_READWRITE_LOCKS = CaffeineCache.register(LockUtils.class.getName() + LOCK_TYPE_RW, null, 3600L);
+	private static final CaffeineCache	LOCAL_LOCKS				= CaffeineCache.register(LockUtils.class.getName() + LOCK_TYPE_OBJ, null, 3600L);
+	private static final CaffeineCache	LOCAL_READWRITE_LOCKS	= CaffeineCache.register(LockUtils.class.getName() + LOCK_TYPE_RW, null, 3600L);
 
 	/**
 	 * 获取锁对象，用于synchronized(lockObj)

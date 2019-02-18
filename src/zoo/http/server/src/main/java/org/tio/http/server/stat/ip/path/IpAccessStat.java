@@ -25,14 +25,14 @@ public class IpAccessStat implements Serializable {
 	 * value: IpPathAccessStat
 	 */
 	private MapWithLock<String, IpPathAccessStat> ipPathAccessStatMap = new MapWithLock<>(new HashMap<>());
-	
+
 	private Long durationType;
-	
+
 	/**
 	 * 这个ip下的所有sessionid
 	 */
 	public final SetWithLock<String> sessionIds = new SetWithLock<>(new HashSet<>());
-	
+
 	/**
 	 * 当前统计了多久，单位：毫秒
 	 */
@@ -52,8 +52,6 @@ public class IpAccessStat implements Serializable {
 	 */
 	private String ip;
 
-
-
 	/**
 	 * 第一次访问时间， 单位：毫秒
 	 */
@@ -68,18 +66,17 @@ public class IpAccessStat implements Serializable {
 	 * 这个ip访问的次数
 	 */
 	public final AtomicInteger count = new AtomicInteger();
-	
+
 	/**
 	 * 这个ip访问给服务器带来的时间消耗，单位：毫秒
 	 */
 	public final AtomicLong timeCost = new AtomicLong();
-	
+
 	/**
 	 * 不带session的访问次数
 	 */
 	public final AtomicInteger noSessionCount = new AtomicInteger();
-	
-	
+
 	/**
 	 * 根据ip获取IpAccesspathStat，如果缓存中不存在，则创建
 	 * @param ipAccessStat
@@ -90,7 +87,7 @@ public class IpAccessStat implements Serializable {
 	public IpPathAccessStat get(String path) {
 		return get(path, true);
 	}
-	
+
 	/**
 	 * 根据ipAccessStat获取IpAccesspathStat，如果缓存中不存在，则根据forceCreate的值决定是否创建
 	 * @param ipAccessStat
@@ -103,12 +100,12 @@ public class IpAccessStat implements Serializable {
 		if (path == null) {
 			return null;
 		}
-		
+
 		IpPathAccessStat ipPathAccessStat = ipPathAccessStatMap.get(path);
 		if (ipPathAccessStat == null && forceCreate) {
 			ipPathAccessStat = ipPathAccessStatMap.putIfAbsent(path, new IpPathAccessStat(durationType, ip, path));
 		}
-		
+
 		return ipPathAccessStat;
 	}
 
@@ -130,7 +127,7 @@ public class IpAccessStat implements Serializable {
 	public void setIpPathAccessStatMap(MapWithLock<String, IpPathAccessStat> ipPathAccessStatMap) {
 		this.ipPathAccessStatMap = ipPathAccessStatMap;
 	}
-	
+
 	/**
 	 * @return the duration
 	 */
@@ -139,11 +136,11 @@ public class IpAccessStat implements Serializable {
 		BetweenFormater betweenFormater = new BetweenFormater(duration, Level.MILLSECOND);
 		return betweenFormater.format();
 	}
-	
+
 	public double getPerSecond() {
 		int count = this.count.get();
 		long duration = getDuration();
-		double perSecond = (double)((double)count / (double)duration) * (double)1000;
+		double perSecond = (double) ((double) count / (double) duration) * (double) 1000;
 		return perSecond;
 	}
 

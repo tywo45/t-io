@@ -40,7 +40,7 @@ public class WsServerEncoder {
 		int wsBodyLength = 0;
 		if (wsBody != null) {
 			wsBodyLength += wsBody.length;
-		} else if (wsBodies != null){
+		} else if (wsBodies != null) {
 			for (int i = 0; i < wsBodies.length; i++) {
 				byte[] bs = wsBodies[i];
 				wsBodyLength += bs.length;
@@ -62,10 +62,10 @@ public class WsServerEncoder {
 			buf = ByteBuffer.allocate(10 + wsBodyLength);
 			buf.put(header0);
 			buf.put((byte) 127);
-			
-//			buf.put(new byte[] { 0, 0, 0, 0 });
+
+			//			buf.put(new byte[] { 0, 0, 0, 0 });
 			buf.position(buf.position() + 4);
-			
+
 			ByteBufferUtils.writeUB4WithBigEdian(buf, wsBodyLength);
 		}
 

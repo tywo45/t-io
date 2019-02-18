@@ -21,7 +21,7 @@ public class TokenPathAccessStat implements Serializable {
 	private static final long serialVersionUID = 3463584577647075747L;
 
 	private Long durationType;
-	
+
 	/**
 	 * 当前统计了多久，单位：毫秒
 	 */
@@ -31,9 +31,9 @@ public class TokenPathAccessStat implements Serializable {
 	 * token
 	 */
 	private String token;
-	
+
 	private String ip;
-	
+
 	private String uid;
 
 	/**
@@ -55,12 +55,11 @@ public class TokenPathAccessStat implements Serializable {
 	 * 这个token访问这个路径的次数
 	 */
 	public final AtomicInteger count = new AtomicInteger();
-	
+
 	/**
 	 * 这个token访问这个路径给服务器带来的时间消耗，单位：毫秒
 	 */
 	public final AtomicLong timeCost = new AtomicLong();
-	
 
 	/**
 	 * 
@@ -77,7 +76,7 @@ public class TokenPathAccessStat implements Serializable {
 		this.ip = ip;
 		this.uid = uid;
 	}
-	
+
 	/**
 	 * @return the duration
 	 */
@@ -86,11 +85,11 @@ public class TokenPathAccessStat implements Serializable {
 		BetweenFormater betweenFormater = new BetweenFormater(duration, Level.MILLSECOND);
 		return betweenFormater.format();
 	}
-	
+
 	public double getPerSecond() {
 		int count = this.count.get();
 		long duration = getDuration();
-		double perSecond = (double)((double)count / (double)duration) * (double)1000;
+		double perSecond = (double) ((double) count / (double) duration) * (double) 1000;
 		return perSecond;
 	}
 

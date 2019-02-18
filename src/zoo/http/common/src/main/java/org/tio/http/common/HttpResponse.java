@@ -22,7 +22,7 @@ public class HttpResponse extends HttpPacket {
 	private static Logger log = LoggerFactory.getLogger(HttpResponse.class);
 
 	private static final long serialVersionUID = -3512681144230291786L;
-	
+
 	public static final HttpResponse NULL_RESPONSE = new HttpResponse();
 
 	public HttpResponse() {
@@ -123,8 +123,8 @@ public class HttpResponse extends HttpPacket {
 	 */
 	private boolean isStaticRes = false;
 
-	private HttpRequest request = null;
-	private List<Cookie> cookies = null;
+	private HttpRequest		request	= null;
+	private List<Cookie>	cookies	= null;
 
 	private Map<HeaderName, HeaderValue> headers = new HashMap<>();
 
@@ -149,11 +149,11 @@ public class HttpResponse extends HttpPacket {
 	/**
 	 * 忽略ip访问统计
 	 */
-	private boolean skipIpStat = false;
+	private boolean	skipIpStat		= false;
 	/**
 	 * 忽略token访问统计
 	 */
-	private boolean skipTokenStat = false;
+	private boolean	skipTokenStat	= false;
 
 	//	private String lastModified = null;//HttpConst.ResponseHeaderKey.Last_Modified
 
@@ -377,14 +377,14 @@ public class HttpResponse extends HttpPacket {
 
 	@Override
 	public String toString() {
-//		String ret = this.getHeaderString();
-//		if (this.getBody() != null) {
-//			try {
-//				ret += new String(this.getBody(), this.request.getCharset());
-//			} catch (UnsupportedEncodingException e) {
-//				log.error(e.toString(), e);
-//			}
-//		}
+		//		String ret = this.getHeaderString();
+		//		if (this.getBody() != null) {
+		//			try {
+		//				ret += new String(this.getBody(), this.request.getCharset());
+		//			} catch (UnsupportedEncodingException e) {
+		//				log.error(e.toString(), e);
+		//			}
+		//		}
 		return this.status.toString();
 	}
 

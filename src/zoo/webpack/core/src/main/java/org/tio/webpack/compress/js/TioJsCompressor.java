@@ -116,13 +116,13 @@ public class TioJsCompressor implements ResCompressor {
 				return srcFileContent;
 			}
 
-//			byte[] initBytes = srcFileContent.getBytes();
-//			byte[] afterBytes = ret.getBytes();
-//
-//			if (afterBytes.length >= initBytes.length) {
-//				log.warn("压缩后的文件反而较大,  init size:{}, after size:{}, file:{}", initBytes.length, afterBytes.length, srcFilePath);
-//				return srcFileContent;
-//			}
+			//			byte[] initBytes = srcFileContent.getBytes();
+			//			byte[] afterBytes = ret.getBytes();
+			//
+			//			if (afterBytes.length >= initBytes.length) {
+			//				log.warn("压缩后的文件反而较大,  init size:{}, after size:{}, file:{}", initBytes.length, afterBytes.length, srcFilePath);
+			//				return srcFileContent;
+			//			}
 
 			return commits + ret;
 		} catch (Exception e) {
@@ -149,11 +149,11 @@ public class TioJsCompressor implements ResCompressor {
 
 			byte[] bytes = Files.readAllBytes(initFile.toPath());
 			String content = new String(bytes, "utf-8");
-//			String content = FileUtil.readString(initFile, "utf-8");
+			//			String content = FileUtil.readString(initFile, "utf-8");
 			String compiled_code = TioJsCompressor.ME.compress(initFile.getAbsolutePath(), content);
 			System.out.println(compiled_code);
 			Files.write(Paths.get(filePath), compiled_code.getBytes("utf-8"));
-//			FileUtil.writeString(compiled_code, filePath, "utf-8");
+			//			FileUtil.writeString(compiled_code, filePath, "utf-8");
 			long end = System.currentTimeMillis();
 			long iv = end - start;
 			System.out.println("耗时:" + iv + "ms");

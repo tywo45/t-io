@@ -10,7 +10,7 @@ import org.tio.http.common.HttpRequest;
  *
  */
 public interface CurrUseridGetter {
-	
+
 	/**
 	 * 根据HttpRequest获取当前用户的userid
 	 * @param request

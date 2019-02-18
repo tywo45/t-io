@@ -15,7 +15,7 @@ public interface IpStatListener {
 	 * @param ipStat
 	 */
 	public void onExpired(GroupContext groupContext, IpStat ipStat);
-	
+
 	/**
 	 * 建链后触发本方法，注：建链不一定成功，需要关注参数isConnected
 	 * @param channelContext
@@ -26,14 +26,14 @@ public interface IpStatListener {
 	 * @author: tanyaowu
 	 */
 	public void onAfterConnected(ChannelContext channelContext, boolean isConnected, boolean isReconnect, IpStat ipStat) throws Exception;
-	
+
 	/**
 	 * 解码异常时
 	 * @param channelContext
 	 * @param ipStat
 	 */
 	public void onDecodeError(ChannelContext channelContext, IpStat ipStat);
-	
+
 	/**
 	 * 发送后（注：不一定会发送成功）
 	 * @param channelContext
@@ -43,7 +43,7 @@ public interface IpStatListener {
 	 * @throws Exception
 	 */
 	public void onAfterSent(ChannelContext channelContext, Packet packet, boolean isSentSuccess, IpStat ipStat) throws Exception;
-	
+
 	/**
 	 * 解码成功后
 	 * @param channelContext
@@ -53,7 +53,7 @@ public interface IpStatListener {
 	 * @throws Exception
 	 */
 	public void onAfterDecoded(ChannelContext channelContext, Packet packet, int packetSize, IpStat ipStat) throws Exception;
-	
+
 	/**
 	 * 接收到一些字节数据后
 	 * @param channelContext
@@ -62,7 +62,7 @@ public interface IpStatListener {
 	 * @throws Exception
 	 */
 	public void onAfterReceivedBytes(ChannelContext channelContext, int receivedBytes, IpStat ipStat) throws Exception;
-	
+
 	/**
 	 * 处理一个消息包后
 	 * @param channelContext
@@ -72,6 +72,5 @@ public interface IpStatListener {
 	 * @throws Exception
 	 */
 	public void onAfterHandled(ChannelContext channelContext, Packet packet, IpStat ipStat, long cost) throws Exception;
-
 
 }

@@ -51,73 +51,72 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CachingParanamer implements Paranamer {
 
-    public static final String __PARANAMER_DATA = "v1.0 \n"
-            + "org.tio.utils.thoughtworksparanamer.CachingParanamer <init> org.tio.utils.thoughtworksparanamer.Paranamer delegate \n"
-            + "org.tio.utils.thoughtworksparanamer.CachingParanamer lookupParameterNames java.lang.AccessibleObject methodOrConstructor \n"
-            + "org.tio.utils.thoughtworksparanamer.CachingParanamer lookupParameterNames java.lang.AccessibleObject, boolean methodOrCtor,throwExceptionIfMissing \n";
+	public static final String __PARANAMER_DATA = "v1.0 \n"
+	        + "org.tio.utils.thoughtworksparanamer.CachingParanamer <init> org.tio.utils.thoughtworksparanamer.Paranamer delegate \n"
+	        + "org.tio.utils.thoughtworksparanamer.CachingParanamer lookupParameterNames java.lang.AccessibleObject methodOrConstructor \n"
+	        + "org.tio.utils.thoughtworksparanamer.CachingParanamer lookupParameterNames java.lang.AccessibleObject, boolean methodOrCtor,throwExceptionIfMissing \n";
 
-    private final Paranamer delegate;
+	private final Paranamer delegate;
 
-    private final Map<AccessibleObject,String[]> methodCache = makeMethodCache();
+	private final Map<AccessibleObject, String[]> methodCache = makeMethodCache();
 
-    protected Map<AccessibleObject, String[]> makeMethodCache() {
-        return Collections.synchronizedMap(new WeakHashMap<AccessibleObject, String[]>());
-    }
+	protected Map<AccessibleObject, String[]> makeMethodCache() {
+		return Collections.synchronizedMap(new WeakHashMap<AccessibleObject, String[]>());
+	}
 
-    /**
-     * Uses a DefaultParanamer as the implementation it delegates to.
-     */
-    public CachingParanamer() {
-        this(new DefaultParanamer());
-    }
+	/**
+	 * Uses a DefaultParanamer as the implementation it delegates to.
+	 */
+	public CachingParanamer() {
+		this(new DefaultParanamer());
+	}
 
-    /**
-     * Specify a Paranamer instance to delegates to.
-     * @param delegate the paranamer instance to use
-     */
-    public CachingParanamer(Paranamer delegate) {
-        this.delegate = delegate;
-    }
+	/**
+	 * Specify a Paranamer instance to delegates to.
+	 * @param delegate the paranamer instance to use
+	 */
+	public CachingParanamer(Paranamer delegate) {
+		this.delegate = delegate;
+	}
 
-    public String[] lookupParameterNames(AccessibleObject methodOrConstructor) {
-        return lookupParameterNames(methodOrConstructor, true);
-    }
+	public String[] lookupParameterNames(AccessibleObject methodOrConstructor) {
+		return lookupParameterNames(methodOrConstructor, true);
+	}
 
-    public String[] lookupParameterNames(AccessibleObject methodOrCtor, boolean throwExceptionIfMissing) {
-        String[] names = methodCache.get(methodOrCtor);
-        // refer PARANAMER-19
-        if(names == null) {
-            names = delegate.lookupParameterNames(methodOrCtor, throwExceptionIfMissing);
-            methodCache.put(methodOrCtor, names);
-        }
-        return names;
-    }
+	public String[] lookupParameterNames(AccessibleObject methodOrCtor, boolean throwExceptionIfMissing) {
+		String[] names = methodCache.get(methodOrCtor);
+		// refer PARANAMER-19
+		if (names == null) {
+			names = delegate.lookupParameterNames(methodOrCtor, throwExceptionIfMissing);
+			methodCache.put(methodOrCtor, names);
+		}
+		return names;
+	}
 
-    /**
-     * This implementation has a better concurrent design (ConcurrentHashMap) which
-     * has a better strategy to implement concurrency: segments instead of synchronized.
-     *
-     * It also drops the underlying WeakHashMap implementation as that can't work with
-     * ConcurrentHashMap with some risk of growing permgen for a certain class of usage.
-     *
-     * So instead of wrapping via 'Collections.synchronizedMap(new WeakHashMap())' we now
-     * have 'new ConcurrentHashMap()'
-     *
-     */
-    public static class WithoutWeakReferences extends CachingParanamer {
+	/**
+	 * This implementation has a better concurrent design (ConcurrentHashMap) which
+	 * has a better strategy to implement concurrency: segments instead of synchronized.
+	 *
+	 * It also drops the underlying WeakHashMap implementation as that can't work with
+	 * ConcurrentHashMap with some risk of growing permgen for a certain class of usage.
+	 *
+	 * So instead of wrapping via 'Collections.synchronizedMap(new WeakHashMap())' we now
+	 * have 'new ConcurrentHashMap()'
+	 *
+	 */
+	public static class WithoutWeakReferences extends CachingParanamer {
 
-        public WithoutWeakReferences() {
-        }
+		public WithoutWeakReferences() {
+		}
 
-        public WithoutWeakReferences(Paranamer delegate) {
-            super(delegate);
-        }
+		public WithoutWeakReferences(Paranamer delegate) {
+			super(delegate);
+		}
 
-        @Override
-        protected Map<AccessibleObject, String[]> makeMethodCache() {
-            return new ConcurrentHashMap<AccessibleObject,String[]>();
-        }
-    }
-
+		@Override
+		protected Map<AccessibleObject, String[]> makeMethodCache() {
+			return new ConcurrentHashMap<AccessibleObject, String[]>();
+		}
+	}
 
 }

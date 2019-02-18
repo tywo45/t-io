@@ -50,7 +50,7 @@ public class UAUtils {
 	public static UserAgent parse(String userAgentString) {
 		return ua.parse(userAgentString);
 	}
-	
+
 	/**
 	 * 是否是
 	 * @param userAgent

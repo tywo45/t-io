@@ -10,21 +10,21 @@ import org.tio.utils.hutool.StrUtil;
  * 2017年6月28日 下午2:20:32
  */
 public class RequestLine {
-	public Method method;
-	public String path; //譬如http://www.163.com/user/get?value=tan&id=789，那些此值就是/user/get
-	private String initPath; //同path，只是path可能会被业务端修改，而这个是记录访问者访问的最原始path的
-	public String queryString; //譬如http://www.163.com/user/get?value=tan&id=789，那些此值就是name=tan&id=789
-//	private String pathAndQuery;  //形如：/user/get?value=999
-	private String protocol;
-	public String version;
-//	private String line;
+	public Method	method;
+	public String	path;			//譬如http://www.163.com/user/get?value=tan&id=789，那些此值就是/user/get
+	private String	initPath;		//同path，只是path可能会被业务端修改，而这个是记录访问者访问的最原始path的
+	public String	queryString;	//譬如http://www.163.com/user/get?value=tan&id=789，那些此值就是name=tan&id=789
+	//	private String pathAndQuery;  //形如：/user/get?value=999
+	private String	protocol;
+	public String	version;
+	//	private String line;
 
 	/**
 	 * @return the line
 	 */
-//	public String getLine() {
-//		return line;
-//	}
+	//	public String getLine() {
+	//		return line;
+	//	}
 
 	/**
 	 * @return the method
@@ -71,9 +71,9 @@ public class RequestLine {
 	/**
 	 * @param line the line to set
 	 */
-//	public void setLine(String line) {
-//		this.line = line;
-//	}
+	//	public void setLine(String line) {
+	//		this.line = line;
+	//	}
 
 	/**
 	 * @param method the method to set
@@ -90,14 +90,14 @@ public class RequestLine {
 		this.path = path;
 	}
 
-//	/**
-//	 * 形如：/user/get?value=999
-//	 * @param pathAndQuery
-//	 * @author tanyaowu
-//	 */
-//	public void setPathAndQuery(String pathAndQuery) {
-//		this.pathAndQuery = pathAndQuery;
-//	}
+	//	/**
+	//	 * 形如：/user/get?value=999
+	//	 * @param pathAndQuery
+	//	 * @author tanyaowu
+	//	 */
+	//	public void setPathAndQuery(String pathAndQuery) {
+	//		this.pathAndQuery = pathAndQuery;
+	//	}
 
 	/**
 	 * 譬如http://www.163.com/user/get?value=tan&id=789，那些此值就是name=tan&id=789
@@ -142,17 +142,17 @@ public class RequestLine {
 	 */
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder(); 
+		StringBuilder sb = new StringBuilder();
 		sb.append(method.value).append(" ").append(path);
 		if (StrUtil.isNotBlank(queryString)) {
 			sb.append("?").append(queryString);
 		}
 		sb.append(" ");
 		sb.append(protocol).append("/").append(version);
-		
+
 		return sb.toString();
 	}
-	
+
 	/**
 	 * 用来编码用的
 	 * "GET /json?tan=谭耀武 HTTP/1.1" -->"GET /json?tan=%E8%B0%AD%E8%80%80%E6%AD%A6 HTTP/1.1"
@@ -161,7 +161,7 @@ public class RequestLine {
 	 */
 	@SuppressWarnings("deprecation")
 	public String toUrlEncodedString(String charset) {
-		StringBuilder sb = new StringBuilder(); 
+		StringBuilder sb = new StringBuilder();
 		sb.append(method.value).append(" ").append(path);
 		if (StrUtil.isNotBlank(queryString)) {
 			sb.append("?");//.append(queryString);
@@ -180,15 +180,14 @@ public class RequestLine {
 					} else {
 						sb.append(name).append("=").append(URLEncoder.encode(value));
 					}
-					
+
 				}
 			}
 		}
 		sb.append(" ");
 		sb.append(protocol).append("/").append(version);
-		
+
 		return sb.toString();
 	}
-	
-	
+
 }

@@ -44,18 +44,18 @@ class Buffers {
 	 maintainable to allow the host application to inject its own buffers.
 	 In short, leave these buffers alone!
 	 */
-	private ByteBuffer _peerApp;
-	private ByteBuffer _myApp;
-	private ByteBuffer _peerNet;
-	private ByteBuffer _myNet;
+	private ByteBuffer				_peerApp;
+	private ByteBuffer				_myApp;
+	private ByteBuffer				_peerNet;
+	private ByteBuffer				_myNet;
 	/**
 	 * 待解密的bytebuffer
 	 */
-	private final AppendableBuffer waitUnwrapBuffer;
+	private final AppendableBuffer	waitUnwrapBuffer;
 	/**
 	 * 
 	 */
-	private final SSLSession ssLSession;
+	private final SSLSession		ssLSession;
 
 	@SuppressWarnings("unused")
 	private ChannelContext channelContext;
@@ -214,8 +214,8 @@ class Buffers {
 		try {
 			BufferUtils.copy(get(t), newBuffer);
 			assign(t, newBuffer);
-//			ByteBuffer ss = get(t);
-//			log.error("size:{}, newbytebuffer:{}", size, ss);
+			//			ByteBuffer ss = get(t);
+			//			log.error("size:{}, newbytebuffer:{}", size, ss);
 		} catch (BufferOverflowException e) {
 			throw e;
 		}

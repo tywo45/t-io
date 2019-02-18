@@ -17,9 +17,9 @@ import com.googlecode.htmlcompressor.compressor.HtmlCompressor;
 public class TioHtmlCompressor implements ResCompressor {
 	private static Logger log = LoggerFactory.getLogger(TioHtmlCompressor.class);
 
-	private static HtmlOptions options = new HtmlOptions();
-	static final String commits = "<!-- " + DOC + " -->\r\n";
-	
+	private static HtmlOptions	options	= new HtmlOptions();
+	static final String			commits	= "<!-- " + DOC + " -->\r\n";
+
 	public static TioHtmlCompressor ME = new TioHtmlCompressor();
 
 	/**
@@ -28,7 +28,7 @@ public class TioHtmlCompressor implements ResCompressor {
 	 */
 	public TioHtmlCompressor() {
 		super();
-		
+
 		HtmlCompressor compressor = new HtmlCompressor();
 		compressor.setEnabled(true);
 		compressor.setCompressCss(false);
@@ -55,26 +55,26 @@ public class TioHtmlCompressor implements ResCompressor {
 	}
 
 	HtmlCompressor compressor = null;
-	
+
 	public String compress(String filePath, String srcContent) {
 		try {
-//			long start = System.currentTimeMillis();
+			//			long start = System.currentTimeMillis();
 			String ret = compressor.compress(srcContent);
-//			long end = System.currentTimeMillis();
-//			System.out.println("html压缩耗时" + (end - start) + "ms");
-			
+			//			long end = System.currentTimeMillis();
+			//			System.out.println("html压缩耗时" + (end - start) + "ms");
+
 			if (ret == null || ret.length() == 0) {
 				log.warn("压缩后的文件大小为0, {}", filePath);
 				return srcContent;
 			}
 
-//			byte[] initBytes = srcContent.getBytes();
-//			byte[] afterBytes = ret.getBytes();
-//
-//			if (afterBytes.length >= initBytes.length) {
-//				log.warn("HTML压缩后的文件反而较大,  init size:{}, after size:{}, file:{}", initBytes.length, afterBytes.length, filePath);
-//				return srcContent;
-//			}
+			//			byte[] initBytes = srcContent.getBytes();
+			//			byte[] afterBytes = ret.getBytes();
+			//
+			//			if (afterBytes.length >= initBytes.length) {
+			//				log.warn("HTML压缩后的文件反而较大,  init size:{}, after size:{}, file:{}", initBytes.length, afterBytes.length, filePath);
+			//				return srcContent;
+			//			}
 
 			return commits + ret;
 		} catch (Exception e) {
@@ -83,9 +83,9 @@ public class TioHtmlCompressor implements ResCompressor {
 		}
 	}
 
-//	public static void setOptions(HtmlOptions options) {
-//		TioHtmlCompressor.options = options;
-//	}
+	//	public static void setOptions(HtmlOptions options) {
+	//		TioHtmlCompressor.options = options;
+	//	}
 
 	/**
 	 * @param args
@@ -97,7 +97,7 @@ public class TioHtmlCompressor implements ResCompressor {
 
 		byte[] bytes = Files.readAllBytes(new File("E:\\\\svn\\\\nbyb\\\\html\\\\nbyb_bootstrap\\\\dist\\\\index.html").toPath());
 		String xx = new String(bytes, "utf-8");
-//		String xx = FileUtil.readString(new File("E:\\svn\\nbyb\\html\\nbyb_bootstrap\\dist\\index.html"), "utf-8");
+		//		String xx = FileUtil.readString(new File("E:\\svn\\nbyb\\html\\nbyb_bootstrap\\dist\\index.html"), "utf-8");
 		String compiled_code = TioHtmlCompressor.ME.compress("xx.html", xx);
 		System.out.println(compiled_code);
 		long end = System.currentTimeMillis();

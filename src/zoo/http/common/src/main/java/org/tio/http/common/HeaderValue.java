@@ -35,9 +35,9 @@ public class HeaderValue {
 	}
 
 	public static class Connection extends EnumerableValue {
-		public static final HeaderValue keep_alive = HeaderValue.from(HttpConst.ResponseHeaderValue.Connection.keep_alive);
-		public static final HeaderValue close = HeaderValue.from(HttpConst.ResponseHeaderValue.Connection.close);
-		public static final HeaderValue Upgrade = HeaderValue.from(HttpConst.ResponseHeaderValue.Connection.Upgrade);
+		public static final HeaderValue	keep_alive	= HeaderValue.from(HttpConst.ResponseHeaderValue.Connection.keep_alive);
+		public static final HeaderValue	close		= HeaderValue.from(HttpConst.ResponseHeaderValue.Connection.close);
+		public static final HeaderValue	Upgrade		= HeaderValue.from(HttpConst.ResponseHeaderValue.Connection.Upgrade);
 	}
 
 	public static class Upgrade extends EnumerableValue {
@@ -61,8 +61,8 @@ public class HeaderValue {
 	}
 
 	public static class Tio_From_Cache extends EnumerableValue {
-		public static final HeaderValue TRUE = HeaderValue.from("true");
-		public static final HeaderValue FALSE = HeaderValue.from("false");
+		public static final HeaderValue	TRUE	= HeaderValue.from("true");
+		public static final HeaderValue	FALSE	= HeaderValue.from("false");
 	}
 
 	public static class Tio_Webpack_Used_Cache extends EnumerableValue {
@@ -73,15 +73,12 @@ public class HeaderValue {
 		public static final HeaderValue TEXT_PLAIN_TXT = HeaderValue.Content_Type.from(MimeType.TEXT_PLAIN_TXT.getType());
 
 		public static final HeaderValue TEXT_PLAIN_JSON = HeaderValue.Content_Type.from(MimeType.TEXT_PLAIN_JSON.getType());
-		
-		public static final HeaderValue TEXT_HTML_HTML = HeaderValue.Content_Type.from(MimeType.TEXT_HTML_HTML.getType());
-		
-		public static final HeaderValue APPLICATION_ACAD_DWG = HeaderValue.Content_Type.from(MimeType.APPLICATION_ACAD_DWG.getType());
-		
-		public static final HeaderValue DEFAULT_TYPE = HeaderValue.Content_Type.from("application/octet-stream");
 
-		
-		
+		public static final HeaderValue TEXT_HTML_HTML = HeaderValue.Content_Type.from(MimeType.TEXT_HTML_HTML.getType());
+
+		public static final HeaderValue APPLICATION_ACAD_DWG = HeaderValue.Content_Type.from(MimeType.APPLICATION_ACAD_DWG.getType());
+
+		public static final HeaderValue DEFAULT_TYPE = HeaderValue.Content_Type.from("application/octet-stream");
 
 	}
 

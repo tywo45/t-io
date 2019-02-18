@@ -26,7 +26,7 @@ public class ServerChannelContext extends ChannelContext {
 	public ServerChannelContext(GroupContext groupContext, AsynchronousSocketChannel asynchronousSocketChannel) {
 		super(groupContext, asynchronousSocketChannel);
 	}
-	
+
 	/**
 	 * 创建一个虚拟ChannelContext，主要用来模拟一些操作，真实场景中用得少
 	 * @param groupContext

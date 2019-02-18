@@ -87,13 +87,13 @@ public class DateUtil {
 		}
 		return new java.sql.Timestamp(d.getTime());
 	}
-	
+
 	public static java.sql.Time parseToTime(String dateStr) {
 		Date d = parseToDate(dateStr);
 		if (d == null) {
 			return null;
 		}
 		return new java.sql.Time(d.getTime());
-	} 
+	}
 
 }

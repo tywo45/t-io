@@ -59,7 +59,7 @@ public class FreemarkerUtils {
 	 * @throws TemplateException
 	 */
 	public static void generateFileByFile(String templateFilePath, String destFilePath, Configuration configuration, Object model, boolean override)
-			throws IOException, TemplateException {
+	        throws IOException, TemplateException {
 		generateFileByFile(templateFilePath, destFilePath, configuration, model, override, false);
 	}
 
@@ -76,7 +76,7 @@ public class FreemarkerUtils {
 	 * @throws TemplateException
 	 */
 	public static void generateFileByFile(String templateFilePath, String destFilePath, Configuration configuration, Object model, boolean override, boolean append)
-			throws MalformedTemplateNameException, ParseException, IOException, TemplateException {
+	        throws MalformedTemplateNameException, ParseException, IOException, TemplateException {
 		Template t = configuration.getTemplate(templateFilePath);
 		File destFile = new File(destFilePath);
 		if (override || append || !destFile.exists()) {
@@ -131,7 +131,7 @@ public class FreemarkerUtils {
 	 * @throws TemplateException
 	 */
 	public static void generateStringByPath(Writer writer, String template, Configuration configuration, Object model)
-			throws TemplateNotFoundException, MalformedTemplateNameException, ParseException, IOException, TemplateException {
+	        throws TemplateNotFoundException, MalformedTemplateNameException, ParseException, IOException, TemplateException {
 		Template tpl = configuration.getTemplate(template);
 		tpl.process(model, writer);
 	}

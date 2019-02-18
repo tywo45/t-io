@@ -10,8 +10,8 @@ import java.util.Map;
  */
 public class EMail extends Schema {
 
-	private static final String MAILTO = "mailto";
-	private String email;
+	private static final String	MAILTO	= "mailto";
+	private String				email;
 
 	/**
 	 * Default constructor to construct new e-mail object.

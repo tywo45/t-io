@@ -13,7 +13,7 @@ public interface IpPathAccessStatListener {
 	 * @author tanyaowu
 	 */
 	public void onExpired(GroupContext groupContext, String ip, IpAccessStat ipAccessStat);
-	
+
 	/**
 	 * 
 	 * @param httpRequest
@@ -24,6 +24,5 @@ public interface IpPathAccessStatListener {
 	 * @author tanyaowu
 	 */
 	public boolean onChanged(HttpRequest httpRequest, String ip, String path, IpAccessStat ipAccessStat, IpPathAccessStat ipPathAccessStat);
-
 
 }

@@ -13,9 +13,9 @@ import java.util.List;
 public class FileUtil {
 
 	/** 类Unix路径分隔符 */
-	private static final char UNIX_SEPARATOR = '/';
+	private static final char	UNIX_SEPARATOR		= '/';
 	/** Windows路径分隔符 */
-	private static final char WINDOWS_SEPARATOR = '\\';
+	private static final char	WINDOWS_SEPARATOR	= '\\';
 
 	/**
 	 * 获取文件扩展名，扩展名不带“.”
@@ -155,12 +155,12 @@ public class FileUtil {
 		byte[] data = readBytes(file);
 		return new String(data);
 	}
-	
+
 	public static String readUTF8String(File file) throws Exception {
 		byte[] data = readBytes(file);
 		return new String(data, "utf-8");
 	}
-	
+
 	/**
 	 * 递归遍历目录以及子目录中的所有文件<br>
 	 * 如果提供file为文件，直接返回过滤结果
@@ -226,7 +226,7 @@ public class FileUtil {
 	public static List<File> loopFiles(File file) {
 		return loopFiles(file, null);
 	}
-	
+
 	/**
 	 * 创建File对象，自动识别相对或绝对路径，相对路径将自动从ClassPath下寻找
 	 * 

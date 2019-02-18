@@ -32,15 +32,15 @@ public abstract class DispatcheHttpRequestHandler implements HttpRequestHandler 
 		return httpRequestHandler.resp500(request, requestLine, throwable);
 	}
 
-//	@Override
-//	public void clearStaticResCache() {
-//		HttpRequestHandler httpRequestHandler = _getHttpRequestHandler();
-//		httpRequestHandler.clearStaticResCache();
-//	}
+	//	@Override
+	//	public void clearStaticResCache() {
+	//		HttpRequestHandler httpRequestHandler = _getHttpRequestHandler();
+	//		httpRequestHandler.clearStaticResCache();
+	//	}
 
 	private HttpRequestHandler _getHttpRequestHandler(HttpRequest request) {
 		HttpRequestHandler httpRequestHandler = getHttpRequestHandler(request);
-//		request.setHttpConfig(httpRequestHandler.getHttpConfig(request));
+		//		request.setHttpConfig(httpRequestHandler.getHttpConfig(request));
 		return httpRequestHandler;
 	}
 

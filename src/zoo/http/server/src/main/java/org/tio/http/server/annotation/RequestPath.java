@@ -12,13 +12,13 @@ import java.lang.annotation.Target;
 @Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequestPath {
-	
+
 	/**
 	 * 
 	 * @return
 	 */
 	String value() default "";
-	
+
 	/**
 	 * 这个不能用变量，譬如/user/{id}，这样的路径是不允许的
 	 * @return

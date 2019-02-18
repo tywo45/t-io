@@ -29,8 +29,8 @@ public class IpStats {
 
 	private final static String CACHE_NAME = "TIO_IP_STAT";
 
-	private String groupContextId;
-	private GroupContext groupContext;
+	private String			groupContextId;
+	private GroupContext	groupContext;
 
 	/**
 	 * key: 时长，单位：秒

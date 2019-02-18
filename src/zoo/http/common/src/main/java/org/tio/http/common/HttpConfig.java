@@ -32,12 +32,12 @@ import org.tio.utils.hutool.StrUtil;
 public class HttpConfig {
 
 	private static Logger log = LoggerFactory.getLogger(HttpConfig.class);
-	
+
 	/**
 	 * 用于覆盖session cookie的参数名，客户端可以用这个传递sessionid
 	 */
 	public static final String TIO_HTTP_SESSIONID = "tio_http_sessionid";
-	
+
 	/**
 	 * 存放HttpSession对象的cacheName
 	 */
@@ -77,9 +77,7 @@ public class HttpConfig {
 	 * 文件上传时，体的最大长度
 	 */
 	private int maxLengthOfMultiBody = MAX_LENGTH_OF_MULTI_BODY;
-	
-	
-	
+
 	/**
 	 *POST体的最大长度默认值（2M）
 	 */
@@ -89,10 +87,9 @@ public class HttpConfig {
 	 * POST体的最大长度
 	 */
 	private int maxLengthOfPostBody = MAX_LENGTH_OF_POST_BODY;
-	
-	
+
 	public static final int MAX_FORWARD_COUNT = 10;
-	
+
 	/**
 	 * 
 	 */
@@ -129,7 +126,7 @@ public class HttpConfig {
 	private String charset = HttpConst.CHARSET_NAME;
 
 	private ICache sessionStore = null;
-	
+
 	public SessionRateLimiter sessionRateLimiter;
 
 	/**
@@ -195,7 +192,7 @@ public class HttpConfig {
 	 * 2、绝对路径：/page
 	 */
 	private String pageRoot = null;//FileUtil.getAbsolutePath("page");//"/page";
-	
+
 	private boolean pageInClasspath = false;
 
 	/**
@@ -231,12 +228,11 @@ public class HttpConfig {
 		return domainPageMap;
 	}
 
-	
 	public HttpConfig(Integer bindPort, boolean useSession) {
 		this.bindPort = bindPort;
 		this.useSession = useSession;
 	}
-	
+
 	/**
 	 *
 	 * @author tanyaowu
@@ -325,7 +321,7 @@ public class HttpConfig {
 		domainPageMap.put(domain, pageRoot);
 		return pageRoot;
 	}
-	
+
 	/**
 	 * 
 	 * @param request
@@ -337,7 +333,7 @@ public class HttpConfig {
 	public HttpResource getResource(HttpRequest request, String path) throws Exception {
 		String pageRoot = getPageRoot(request);
 		HttpResource httpResource = null;
-//		File file = null;
+		//		File file = null;
 		if (pageRoot != null) {
 			if (StrUtil.endWith(path, "/")) {
 				path = path + "index.html";
@@ -350,7 +346,7 @@ public class HttpConfig {
 					String protocol = url.getProtocol();
 					if (Objects.equals(protocol, "jar")) {
 						InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(complatePath);
-						httpResource = new HttpResource(path, inputStream, null); 
+						httpResource = new HttpResource(path, inputStream, null);
 					} else {
 						File file = new File(url.toURI());
 						if (file.exists()) {
@@ -365,7 +361,7 @@ public class HttpConfig {
 				}
 			}
 		}
-		
+
 		return httpResource;
 	}
 
@@ -438,34 +434,34 @@ public class HttpConfig {
 	 * path: 访问路径  如 /user/set.html
 	 */
 	private Map<String, Set<String>> staticPathsMap = null;
-	
+
 	/**
 	 * path: 访问路径  如 /user/set.html
 	 */
 	private Set<String> staticPaths = null;
-	
-	public Map<String, Set<String>> getStaticPathsMap(){
+
+	public Map<String, Set<String>> getStaticPathsMap() {
 		initStaticPaths();
 		return staticPathsMap;
 	}
-	
-	public Set<String> getStaticPaths(){
+
+	public Set<String> getStaticPaths() {
 		initStaticPaths();
 		return staticPaths;
 	}
-	
+
 	private Map<String, Set<String>> initStaticPaths() {
 		if (staticPathsMap != null) {
 			return staticPathsMap;
 		}
-		
+
 		if (pageInClasspath) {
 			throw new RuntimeException("classpath的pageRoot是");
 		}
-		
+
 		staticPathsMap = new TreeMap<>();
 		staticPaths = new TreeSet<>();
-		
+
 		List<File> files = FileUtil.loopFiles(pageRoot, new FileFilter() {
 			@Override
 			public boolean accept(File file) {
@@ -477,17 +473,17 @@ public class HttpConfig {
 					}
 					return true;
 				}
-//				String ext = FileUtil.extName(file);
+				//				String ext = FileUtil.extName(file);
 				return true;
 			}
 		});
-		
+
 		if (files == null) {
 			return staticPathsMap;
 		}
-		
+
 		log.info("一共{}个文件", files.size());
-		
+
 		File pageRootFile = new File(pageRoot);
 		String pageRootAbs;
 		try {
@@ -499,14 +495,14 @@ public class HttpConfig {
 		for (File file : files) {
 			try {
 				if (file.isDirectory()) {
-					
+
 				} else {
 					String absPath = file.getCanonicalPath();
-//					long start = System.currentTimeMillis();
+					//					long start = System.currentTimeMillis();
 					String path = absPath.substring(pageRootAbs.length());
 
 					path = path.replaceAll("\\\\", "/");
-					
+
 					if (!(path.startsWith("/"))) {
 						path = "/" + path;
 					}
@@ -519,17 +515,17 @@ public class HttpConfig {
 					}
 					set.add(path);
 					staticPaths.add(path);
-					
+
 				}
 			} catch (Exception e) {
 				log.error(e.toString());
 			}
 		}
-//		log.error(Json.toFormatedJson(staticPaths));
-//		log.error(Json.toFormatedJson(staticPathsMap));
+		//		log.error(Json.toFormatedJson(staticPaths));
+		//		log.error(Json.toFormatedJson(staticPathsMap));
 		return staticPathsMap;
 	}
-	
+
 	/**
 	 * 
 	 * @param pageRoot 如果是以"classpath:"开头，则从classpath中查找，否则视为普通的文件路径
@@ -546,7 +542,7 @@ public class HttpConfig {
 			this.pageInClasspath = true;
 		} else {
 			this.pageRoot = pageRoot;//fromPath(pageRoot);
-			
+
 		}
 	}
 
@@ -555,17 +551,17 @@ public class HttpConfig {
 	 * @param path 如果是以"classpath:"开头，则从classpath中查找，否则视为普通的文件路径
 	 * @return
 	 */
-//	public static File fromPath(String path) {
-//		if (path == null) {
-//			return null;
-//		}
-//
-//		if (StrUtil.startWithIgnoreCase(path, "classpath:")) {
-//			return new File(ResourceUtil.getAbsolutePath(path));
-//		} else {
-//			return new File(path);
-//		}
-//	}
+	//	public static File fromPath(String path) {
+	//		if (path == null) {
+	//			return null;
+	//		}
+	//
+	//		if (StrUtil.startWithIgnoreCase(path, "classpath:")) {
+	//			return new File(ResourceUtil.getAbsolutePath(path));
+	//		} else {
+	//			return new File(path);
+	//		}
+	//	}
 
 	/**
 	 * 
@@ -574,14 +570,14 @@ public class HttpConfig {
 	 * @throws IOException 
 	 */
 	public void addDomainPage(String domain, String pageRoot) throws IOException {
-//		File pageRootFile = fromPath(pageRoot);
-//		if (!pageRootFile.exists()) {
-//			throw new IOException("文件【" + pageRoot + "】不存在");
-//		}
-//
-//		if (!pageRootFile.isDirectory()) {
-//			throw new IOException("文件【" + pageRoot + "】不是目录");
-//		}
+		//		File pageRootFile = fromPath(pageRoot);
+		//		if (!pageRootFile.exists()) {
+		//			throw new IOException("文件【" + pageRoot + "】不存在");
+		//		}
+		//
+		//		if (!pageRootFile.isDirectory()) {
+		//			throw new IOException("文件【" + pageRoot + "】不是目录");
+		//		}
 
 		if (domainPageMap == null) {
 			synchronized (this) {
@@ -754,21 +750,17 @@ public class HttpConfig {
 		this.compatible1_0 = compatible1_0;
 	}
 
-
 	public boolean isPageInClasspath() {
 		return pageInClasspath;
 	}
-
 
 	public void setPageInClasspath(boolean pageInClasspath) {
 		this.pageInClasspath = pageInClasspath;
 	}
 
-
 	public SessionRateLimiter getSessionRateLimiter() {
 		return sessionRateLimiter;
 	}
-
 
 	public void setSessionRateLimiter(SessionRateLimiter sessionRateLimiter) {
 		this.sessionRateLimiter = sessionRateLimiter;
@@ -778,16 +770,13 @@ public class HttpConfig {
 		return maxForwardCount;
 	}
 
-
 	public void setMaxForwardCount(int maxForwardCount) {
 		this.maxForwardCount = maxForwardCount;
 	}
 
-
 	public int getMaxLengthOfPostBody() {
 		return maxLengthOfPostBody;
 	}
-
 
 	public void setMaxLengthOfPostBody(int maxLengthOfPostBody) {
 		this.maxLengthOfPostBody = maxLengthOfPostBody;

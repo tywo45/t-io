@@ -23,10 +23,10 @@ import org.tio.utils.hutool.StrUtil;
  */
 public class HttpMultiBodyDecoder {
 	public static class Header {
-		private String contentDisposition = "form-data";
-		private String name = null;
-		private String filename = null;
-		private String contentType = null;
+		private String	contentDisposition	= "form-data";
+		private String	name				= null;
+		private String	filename			= null;
+		private String	contentType			= null;
 
 		private Map<String, String> map = new HashMap<>();
 
@@ -84,8 +84,8 @@ public class HttpMultiBodyDecoder {
 	 * 2017年7月27日 上午10:18:01
 	 */
 	public static interface MultiBodyHeaderKey {
-		String Content_Disposition = "Content-Disposition".toLowerCase();
-		String Content_Type = "Content-Type".toLowerCase();
+		String	Content_Disposition	= "Content-Disposition".toLowerCase();
+		String	Content_Type		= "Content-Type".toLowerCase();
 	}
 
 	public static enum Step {
@@ -117,7 +117,7 @@ public class HttpMultiBodyDecoder {
 	 * @author tanyaowu
 	 */
 	public static void decode(HttpRequest request, RequestLine firstLine, byte[] bodyBytes, String initboundary, ChannelContext channelContext, HttpConfig httpConfig)
-			throws AioDecodeException {
+	        throws AioDecodeException {
 		if (StrUtil.isBlank(initboundary)) {
 			throw new AioDecodeException("boundary is null");
 		}
@@ -233,7 +233,7 @@ public class HttpMultiBodyDecoder {
 	 * @param httpConfig 
 	 */
 	public static Step parseBody(Header header, HttpRequest request, ByteBuffer buffer, String boundary, String endBoundary, ChannelContext channelContext, HttpConfig httpConfig)
-			throws UnsupportedEncodingException, LengthOverflowException, AioDecodeException {
+	        throws UnsupportedEncodingException, LengthOverflowException, AioDecodeException {
 		int initPosition = buffer.position();
 
 		while (buffer.hasRemaining()) {

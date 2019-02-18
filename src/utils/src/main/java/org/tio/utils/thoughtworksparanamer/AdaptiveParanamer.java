@@ -41,43 +41,43 @@ import java.lang.reflect.AccessibleObject;
  */
 public class AdaptiveParanamer implements Paranamer {
 
-    public static final String __PARANAMER_DATA = "v1.0 \n"
-        + "org.tio.utils.thoughtworksparanamer.AdaptiveParanamer AdaptiveParanamer org.tio.utils.thoughtworksparanamer.Paranamer,org.tio.utils.thoughtworksparanamer.Paranamer delegate,fallback\n"
-        + "org.tio.utils.thoughtworksparanamer.AdaptiveParanamer AdaptiveParanamer org.tio.utils.thoughtworksparanamer.Paranamer,org.tio.utils.thoughtworksparanamer.Paranamer,org.tio.utils.thoughtworksparanamer.Paranamer delegate,fallback,reserve\n"
-        + "org.tio.utils.thoughtworksparanamer.AdaptiveParanamer AdaptiveParanamer org.tio.utils.thoughtworksparanamer.Paranamer[] paranamers\n"
-        + "org.tio.utils.thoughtworksparanamer.AdaptiveParanamer lookupParameterNames java.lang.AccessibleObject methodOrConstructor \n"
-        + "org.tio.utils.thoughtworksparanamer.AdaptiveParanamer lookupParameterNames java.lang.AccessibleObject,boolean methodOrCtor,throwExceptionIfMissing \n";
+	public static final String __PARANAMER_DATA = "v1.0 \n"
+	        + "org.tio.utils.thoughtworksparanamer.AdaptiveParanamer AdaptiveParanamer org.tio.utils.thoughtworksparanamer.Paranamer,org.tio.utils.thoughtworksparanamer.Paranamer delegate,fallback\n"
+	        + "org.tio.utils.thoughtworksparanamer.AdaptiveParanamer AdaptiveParanamer org.tio.utils.thoughtworksparanamer.Paranamer,org.tio.utils.thoughtworksparanamer.Paranamer,org.tio.utils.thoughtworksparanamer.Paranamer delegate,fallback,reserve\n"
+	        + "org.tio.utils.thoughtworksparanamer.AdaptiveParanamer AdaptiveParanamer org.tio.utils.thoughtworksparanamer.Paranamer[] paranamers\n"
+	        + "org.tio.utils.thoughtworksparanamer.AdaptiveParanamer lookupParameterNames java.lang.AccessibleObject methodOrConstructor \n"
+	        + "org.tio.utils.thoughtworksparanamer.AdaptiveParanamer lookupParameterNames java.lang.AccessibleObject,boolean methodOrCtor,throwExceptionIfMissing \n";
 
-    private final Paranamer[] paranamers;
+	private final Paranamer[] paranamers;
 
-    /**
-     * Use DefaultParanamer ahead of BytecodeReadingParanamer
-     */
-    public AdaptiveParanamer() {
-        this(new DefaultParanamer(), new BytecodeReadingParanamer());
-    }
+	/**
+	 * Use DefaultParanamer ahead of BytecodeReadingParanamer
+	 */
+	public AdaptiveParanamer() {
+		this(new DefaultParanamer(), new BytecodeReadingParanamer());
+	}
 
-    /**
-     * Prioritize a series of Paranamers
-     * @param paranamers the paranamers in question
-     */
-    public AdaptiveParanamer(Paranamer... paranamers) {
-        this.paranamers = paranamers;
-    }
+	/**
+	 * Prioritize a series of Paranamers
+	 * @param paranamers the paranamers in question
+	 */
+	public AdaptiveParanamer(Paranamer... paranamers) {
+		this.paranamers = paranamers;
+	}
 
-    public String[] lookupParameterNames(AccessibleObject methodOrConstructor) {
-        return lookupParameterNames(methodOrConstructor, true);
-    }
+	public String[] lookupParameterNames(AccessibleObject methodOrConstructor) {
+		return lookupParameterNames(methodOrConstructor, true);
+	}
 
-    public String[] lookupParameterNames(AccessibleObject methodOrCtor, boolean throwExceptionIfMissing) {
-        for (int i = 0; i < paranamers.length; i++) {
-            Paranamer paranamer = paranamers[i];
-            String[] names = paranamer.lookupParameterNames(methodOrCtor, i+1 < paranamers.length ? false : throwExceptionIfMissing);
-            if (names != Paranamer.EMPTY_NAMES) {
-                return names;
-            }
-        }
-        return Paranamer.EMPTY_NAMES;
-    }
+	public String[] lookupParameterNames(AccessibleObject methodOrCtor, boolean throwExceptionIfMissing) {
+		for (int i = 0; i < paranamers.length; i++) {
+			Paranamer paranamer = paranamers[i];
+			String[] names = paranamer.lookupParameterNames(methodOrCtor, i + 1 < paranamers.length ? false : throwExceptionIfMissing);
+			if (names != Paranamer.EMPTY_NAMES) {
+				return names;
+			}
+		}
+		return Paranamer.EMPTY_NAMES;
+	}
 
 }

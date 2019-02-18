@@ -4,7 +4,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-
 public class ArrayUtil {
 
 	/** 数组中元素未找到的下标，值为-1 */

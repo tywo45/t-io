@@ -22,7 +22,7 @@ public interface HttpServerInterceptor {
 	 * @author tanyaowu
 	 */
 	public HttpResponse doBeforeHandler(HttpRequest request, RequestLine requestLine, HttpResponse responseFromCache) throws Exception;
-	
+
 	/**
 	 * 在执行org.tio.http.server.handler.IHttpRequestHandler.handler()后会调用此方法，业务层可以统一在这里给HttpResponse作一些修饰
 	 * @param request

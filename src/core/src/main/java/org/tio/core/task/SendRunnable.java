@@ -78,7 +78,7 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 			log.info("{}, 任务已经取消，{}添加到发送队列失败", channelContext, packet.logstr());
 			return false;
 		}
-		
+
 		if (groupContext.packetConverter != null) {
 			Packet packet1 = groupContext.packetConverter.convert(packet, channelContext);
 			if (packet1 == null) {
@@ -87,7 +87,7 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 			}
 			packet = packet1;
 		}
-		
+
 		if (channelContext.sslFacadeContext != null && !channelContext.sslFacadeContext.isHandshakeCompleted() && SslUtils.needSslEncrypt(packet, groupContext)) {
 			return this.getForSendAfterSslHandshakeCompleted(true).add(packet);
 		} else {

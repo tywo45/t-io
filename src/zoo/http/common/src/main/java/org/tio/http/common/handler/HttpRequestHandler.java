@@ -41,14 +41,14 @@ public interface HttpRequestHandler {
 	 * @throws Exception
 	 */
 	public HttpResponse resp500(HttpRequest request, RequestLine requestLine, java.lang.Throwable throwable) throws Exception;
-	
+
 	/**
 	 * 
 	 * @return
 	 * @author tanyaowu
 	 */
 	public HttpConfig getHttpConfig(HttpRequest request);
-	
+
 	/**
 	 * 清空静态资源缓存，如果没有缓存，可以不处理
 	 * @param request

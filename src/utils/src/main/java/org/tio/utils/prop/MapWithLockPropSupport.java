@@ -41,15 +41,15 @@ public class MapWithLockPropSupport implements IPropSupport {
 		return props.getObj().get(key);
 	}
 
-//	private void initProps() {
-//		if (props == null) {
-//			synchronized (this) {
-//				if (props == null) {
-//					props = new MapWithLock<>(new HashMap<String, Object>(10));
-//				}
-//			}
-//		}
-//	}
+	//	private void initProps() {
+	//		if (props == null) {
+	//			synchronized (this) {
+	//				if (props == null) {
+	//					props = new MapWithLock<>(new HashMap<String, Object>(10));
+	//				}
+	//			}
+	//		}
+	//	}
 
 	/**
 	 * @param key

@@ -86,8 +86,7 @@ public class ExtendableQRCodeSchemeParser implements QRCodeSchemeParser {
 		return result;
 	}
 
-	protected QRCodeSchemeParser createParserInstance(String className)
-			throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+	protected QRCodeSchemeParser createParserInstance(String className) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		Class<?> clazz = Class.forName(className.trim());
 		return (QRCodeSchemeParser) clazz.newInstance();
 	}

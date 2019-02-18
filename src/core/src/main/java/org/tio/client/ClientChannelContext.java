@@ -19,9 +19,9 @@ public class ClientChannelContext extends ChannelContext {
 	private String bindIp;
 
 	private Integer bindPort;
-	
+
 	private ReconnRunnable reconnRunnable;
-	
+
 	/**
 	 * 连续重连次数，连接成功后，此值会被重置0
 	 */
@@ -37,7 +37,7 @@ public class ClientChannelContext extends ChannelContext {
 	public ClientChannelContext(GroupContext groupContext, AsynchronousSocketChannel asynchronousSocketChannel) {
 		super(groupContext, asynchronousSocketChannel);
 	}
-	
+
 	/**
 	 * 创建一个虚拟ChannelContext，主要用来模拟一些操作，真实场景中用得少
 	 * @param groupContext

@@ -16,13 +16,13 @@ import org.tio.utils.time.Time;
 public class IpBlacklist {
 	private String id;
 
-	private final static String CACHE_NAME = "TIO_IP_BLACK_LIST";
-	private final static Long TIME_TO_LIVE_SECONDS = Time.MINUTE_1 * 120;
-	private final static Long TIME_TO_IDLE_SECONDS = null;
+	private final static String	CACHE_NAME				= "TIO_IP_BLACK_LIST";
+	private final static Long	TIME_TO_LIVE_SECONDS	= Time.MINUTE_1 * 120;
+	private final static Long	TIME_TO_IDLE_SECONDS	= null;
 
-	private String cacheName = null;
-	private CaffeineCache cache = null;
-	
+	private String			cacheName	= null;
+	private CaffeineCache	cache		= null;
+
 	private ServerGroupContext serverGroupContext;
 
 	public IpBlacklist(String id, ServerGroupContext serverGroupContext) {
@@ -32,7 +32,6 @@ public class IpBlacklist {
 		this.cache = CaffeineCache.register(this.cacheName, TIME_TO_LIVE_SECONDS, TIME_TO_IDLE_SECONDS, null);
 	}
 
-	
 	public boolean add(String ip) {
 		//先添加到黑名单列表
 		cache.put(ip, SystemTimer.currTime);

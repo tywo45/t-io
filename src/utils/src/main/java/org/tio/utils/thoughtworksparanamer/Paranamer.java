@@ -43,7 +43,7 @@ import java.lang.reflect.Method;
  */
 public interface Paranamer {
 
-    static final String[] EMPTY_NAMES = new String[0];
+	static final String[] EMPTY_NAMES = new String[0];
 
 	/**
 	 * Lookup the parameter names of a given method.
@@ -69,7 +69,7 @@ public interface Paranamer {
 	 *            the {@link Method} or {@link Constructor} for which the parameter names
 	 *            are looked up.
 	 * @param throwExceptionIfMissing whether to throw an exception if no Paranamer data found (versus return null).
-     * @return A list of the parameter names.
+	 * @return A list of the parameter names.
 	 * @throws ParameterNamesNotFoundException
 	 *             if no parameter names were found.
 	 * @throws NullPointerException
@@ -79,6 +79,5 @@ public interface Paranamer {
 	 *             parameter
 	 */
 	public String[] lookupParameterNames(AccessibleObject methodOrConstructor, boolean throwExceptionIfMissing);
-
 
 }

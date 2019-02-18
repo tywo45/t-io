@@ -40,8 +40,8 @@ public class YuiJsCompressor implements ResCompressor {
 		File initFile = new File("D:\\svn_nb\\nbyb\\html\\nbyb\\web_server\\src\\res\\js\\live\\live-all.txt");
 		byte[] bytes = Files.readAllBytes(initFile.toPath());
 		String content = new String(bytes, "utf-8");
-//		String content = cn.hutool.core.io.FileUtil.readString(initFile, "utf-8");
-		
+		//		String content = cn.hutool.core.io.FileUtil.readString(initFile, "utf-8");
+
 		String xx = YuiJsCompressor.ME.compress(initFile.getAbsolutePath(), content);
 		System.out.println(xx);
 	}
@@ -110,7 +110,7 @@ public class YuiJsCompressor implements ResCompressor {
 		OutputStreamWriter writer = new OutputStreamWriter(output, CHARSET);
 		/**
 		 * Writer out, int linebreak, boolean munge, boolean verbose,
-            boolean preserveAllSemiColons, boolean disableOptimizations
+		    boolean preserveAllSemiColons, boolean disableOptimizations
 		 */
 		boolean verbose = false;
 		compressor.compress(writer, 100000, false, verbose, true, true);

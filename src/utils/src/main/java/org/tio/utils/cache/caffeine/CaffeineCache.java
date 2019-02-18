@@ -22,11 +22,11 @@ import com.github.benmanes.caffeine.cache.RemovalListener;
  * @author tanyaowu
  *
  */
-public class CaffeineCache  extends AbsCache {
+public class CaffeineCache extends AbsCache {
 	private static Logger log = LoggerFactory.getLogger(CaffeineCache.class);
 
 	public static Map<String, CaffeineCache> map = new HashMap<>();
-	
+
 	public static CaffeineCache getCache(String cacheName, boolean skipNull) {
 		CaffeineCache caffeineCache = map.get(cacheName);
 		if (caffeineCache == null && !skipNull) {
@@ -34,7 +34,7 @@ public class CaffeineCache  extends AbsCache {
 		}
 		return caffeineCache;
 	}
-	
+
 	public static CaffeineCache getCache(String cacheName) {
 		return getCache(cacheName, false);
 	}
@@ -62,16 +62,16 @@ public class CaffeineCache  extends AbsCache {
 					Integer maximumSize = 5000000;
 					boolean recordStats = false;
 					LoadingCache<String, Serializable> loadingCache = CaffeineUtils.createLoadingCache(cacheName, timeToLiveSeconds, timeToIdleSeconds, initialCapacity,
-							maximumSize, recordStats, removalListener);
-					
+					        maximumSize, recordStats, removalListener);
+
 					Integer temporaryMaximumSize = 500000;
-					LoadingCache<String, Serializable> temporaryLoadingCache = CaffeineUtils.createLoadingCache(cacheName, 10L, (Long)null, initialCapacity,
-							temporaryMaximumSize, recordStats, removalListener);
+					LoadingCache<String, Serializable> temporaryLoadingCache = CaffeineUtils.createLoadingCache(cacheName, 10L, (Long) null, initialCapacity, temporaryMaximumSize,
+					        recordStats, removalListener);
 					caffeineCache = new CaffeineCache(cacheName, loadingCache, temporaryLoadingCache);
-					
+
 					caffeineCache.setTimeToIdleSeconds(timeToIdleSeconds);
 					caffeineCache.setTimeToLiveSeconds(timeToLiveSeconds);
-					
+
 					map.put(cacheName, caffeineCache);
 				}
 			}
@@ -82,7 +82,7 @@ public class CaffeineCache  extends AbsCache {
 	//
 
 	private LoadingCache<String, Serializable> loadingCache = null;
-	
+
 	private LoadingCache<String, Serializable> temporaryLoadingCache = null;
 
 	private CaffeineCache(String cacheName, LoadingCache<String, Serializable> loadingCache, LoadingCache<String, Serializable> temporaryLoadingCache) {
@@ -106,7 +106,7 @@ public class CaffeineCache  extends AbsCache {
 		if (ret == null) {
 			ret = temporaryLoadingCache.getIfPresent(key);
 		}
-		
+
 		return ret;
 	}
 
@@ -123,7 +123,7 @@ public class CaffeineCache  extends AbsCache {
 		}
 		loadingCache.put(key, value);
 	}
-	
+
 	@Override
 	public void putTemporary(String key, Serializable value) {
 		if (StrUtil.isBlank(key)) {
@@ -149,7 +149,7 @@ public class CaffeineCache  extends AbsCache {
 	public ConcurrentMap<String, Serializable> asMap() {
 		return loadingCache.asMap();
 	}
-	
+
 	/**
 	 * 
 	 * @return
@@ -162,7 +162,7 @@ public class CaffeineCache  extends AbsCache {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T get(String key, Class<T> clazz) {
-		return (T)get(key);
+		return (T) get(key);
 	}
 
 	@Override

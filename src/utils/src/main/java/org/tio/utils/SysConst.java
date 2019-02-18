@@ -5,22 +5,22 @@ package org.tio.utils;
  * 2018年7月1日 下午10:51:59
  */
 public interface SysConst {
-	
+
 	String TIO_URL_GITEE = "https://gitee.com/tywo45/t-io";
-	
+
 	String TIO_URL_SITE = "https://t-io.org/";
-	
-	String TIO_CORE_VERSION = "3.2.6.v20190110-RELEASE";
+
+	String	TIO_CORE_VERSION	= "3.2.6.v20190110-RELEASE";
 	/**
 	 * \r
 	 */
-	byte CR = 13;
-	
+	byte	CR					= 13;
+
 	/**
 	 * \n
 	 */
 	byte LF = 10;
-	
+
 	/**
 	 * =
 	 */
@@ -35,7 +35,7 @@ public interface SysConst {
 	 * :
 	 */
 	byte COL = ':';
-	
+
 	/**
 	 * :
 	 */
@@ -45,12 +45,12 @@ public interface SysConst {
 	 * ;
 	 */
 	byte SEMI_COL = ';';
-	
+
 	/**
 	 * 一个空格
 	 */
 	byte SPACE = ' ';
-	
+
 	/**
 	 * ?
 	 */
@@ -67,11 +67,11 @@ public interface SysConst {
 	byte[] CR_ = { CR };
 
 	byte[] LF_ = { LF };
-	
+
 	/**
 	 * \r\n
 	 */
 	String CRLF = "\r\n";
-	
+
 	String DEFAULT_ENCODING = "utf-8";
 }

@@ -19,7 +19,7 @@ public class Validator {
 	 */
 	public Validator() {
 	}
-	
+
 	/**
 	 * 通过正则表达式验证
 	 * 
@@ -30,7 +30,7 @@ public class Validator {
 	public static boolean isMactchRegex(Pattern pattern, String value) {
 		return ReUtil.isMatch(pattern, value);
 	}
-	
+
 	/**
 	 * 验证是否为IPV4地址
 	 * 
@@ -40,7 +40,7 @@ public class Validator {
 	public static boolean isIpv4(String value) {
 		return isMactchRegex(org.tio.utils.hutool.PatternPool.IPV4, value);
 	}
-	
+
 	/**
 	 * 是否为数字
 	 * 
@@ -75,7 +75,7 @@ public class Validator {
 			}
 		}
 		sz--; // don't want to loop to the last char, check it afterwords
-				// for type qualifiers
+		      // for type qualifiers
 		int i = start;
 		// loop to the next to last char or to the last char if we need another digit to
 		// make a valid number (e.g. chars[0..5] = "1234E")

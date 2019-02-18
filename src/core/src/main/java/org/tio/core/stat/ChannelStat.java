@@ -25,7 +25,7 @@ public class ChannelStat implements java.io.Serializable {
 	 * 最近一次发送业务消息包的时间(一个完整的业务消息包，一部分消息不算)
 	 */
 	public long latestTimeOfSentPacket = SystemTimer.currTime;
-	
+
 	/**
 	 * 最近一次收到业务消息包的时间:收到字节就算
 	 */
@@ -75,7 +75,7 @@ public class ChannelStat implements java.io.Serializable {
 	 * 本连接已处理的packet数
 	 */
 	public final AtomicLong handledPackets = new AtomicLong();
-	
+
 	/**
 	 * 处理消息包耗时，单位：毫秒
 	 * 拿这个值除以handledPackets，就是处理每个消息包的平均耗时
@@ -86,7 +86,7 @@ public class ChannelStat implements java.io.Serializable {
 	 * 本连接已接收的字节数
 	 */
 	public final AtomicLong receivedBytes = new AtomicLong();
-	
+
 	/**
 	 * 本连接已接收了多少次TCP数据包
 	 */
@@ -96,7 +96,7 @@ public class ChannelStat implements java.io.Serializable {
 	 * 本连接已接收的packet数
 	 */
 	public final AtomicLong receivedPackets = new AtomicLong();
-	
+
 	/**
 	 * 平均每次TCP接收到的字节数，这个可以用来监控慢攻击，配置PacketsPerTcpReceive定位慢攻击
 	 */
@@ -104,10 +104,10 @@ public class ChannelStat implements java.io.Serializable {
 		if (receivedTcps.get() == 0) {
 			return 0;
 		}
-		double ret = (double)receivedBytes.get() / (double)receivedTcps.get();
+		double ret = (double) receivedBytes.get() / (double) receivedTcps.get();
 		return ret;
 	}
-	
+
 	/**
 	 * 平均每次TCP接收到的业务包数，这个可以用来监控慢攻击，此值越小越有攻击嫌疑
 	 */
@@ -115,7 +115,7 @@ public class ChannelStat implements java.io.Serializable {
 		if (receivedTcps.get() == 0) {
 			return 0;
 		}
-		double ret = (double)receivedPackets.get() / (double)receivedTcps.get();
+		double ret = (double) receivedPackets.get() / (double) receivedTcps.get();
 		return ret;
 	}
 
@@ -216,7 +216,7 @@ public class ChannelStat implements java.io.Serializable {
 	public void setLatestTimeOfSentPacket(long latestTimeOfSentPacket) {
 		this.latestTimeOfSentPacket = latestTimeOfSentPacket;
 	}
-	
+
 	/**
 	 * @param timeClosed the timeClosed to set
 	 */
@@ -276,7 +276,7 @@ public class ChannelStat implements java.io.Serializable {
 	public AtomicLong getHandledPacketCosts() {
 		return handledPacketCosts;
 	}
-	
+
 	/**
 	 * 处理packet平均耗时，单位：毫秒
 	 * @return

@@ -7,8 +7,8 @@ package org.tio.core.intf;
  */
 public class EncodedPacket extends Packet {
 
-	private static final long serialVersionUID = 1014364783783749718L;
-	private byte[] bytes;
+	private static final long	serialVersionUID	= 1014364783783749718L;
+	private byte[]				bytes;
 
 	/**
 	 *

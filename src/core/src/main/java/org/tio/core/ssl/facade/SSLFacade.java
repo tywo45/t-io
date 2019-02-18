@@ -20,16 +20,16 @@ import org.tio.core.ssl.SslVo;
  */
 public class SSLFacade implements ISSLFacade {
 	@SuppressWarnings("unused")
-	private static final String TAG = "SSLFascade";
-	private static final Logger log = LoggerFactory.getLogger(SSLFacade.class);
-	
+	private static final String	TAG	= "SSLFascade";
+	private static final Logger	log	= LoggerFactory.getLogger(SSLFacade.class);
+
 	private AtomicLong sslSeq = new AtomicLong();
 
-	private Handshaker _handshaker;
-	private IHandshakeCompletedListener _hcl;
-	private final Worker _worker;
-	private boolean _clientMode;
-	private ChannelContext channelContext;
+	private Handshaker					_handshaker;
+	private IHandshakeCompletedListener	_hcl;
+	private final Worker				_worker;
+	private boolean						_clientMode;
+	private ChannelContext				channelContext;
 
 	public SSLFacade(ChannelContext channelContext, SSLContext context, boolean client, boolean clientAuthRequired, ITaskHandler taskHandler) {
 		this.channelContext = channelContext;
@@ -43,9 +43,9 @@ public class SSLFacade implements ISSLFacade {
 		_clientMode = client;
 	}
 
-//	private void debug(final String message, final String... args) {
-//		SSLLog.debug(TAG, message, args);
-//	}
+	//	private void debug(final String message, final String... args) {
+	//		SSLLog.debug(TAG, message, args);
+	//	}
 
 	@Override
 	public boolean isClientMode() {
@@ -81,7 +81,7 @@ public class SSLFacade implements ISSLFacade {
 	@Override
 	public void encrypt(SslVo sslVo) throws SSLException {
 		long seq = sslSeq.incrementAndGet();
-		
+
 		ByteBuffer src = sslVo.getByteBuffer();
 		ByteBuffer[] byteBuffers = org.tio.core.utils.ByteBufferUtils.split(src, 1024 * 8);
 		if (byteBuffers == null) {
@@ -90,7 +90,7 @@ public class SSLFacade implements ISSLFacade {
 			log.debug("{}, 完成, SSL加密{}, 明文:{}, 结果:{}", channelContext, channelContext.getId() + "_" + seq, sslVo, result);
 
 		} else {
-			log.debug("{}, 准备, SSL加密{}, 包过大，被拆成了[{}]个包进行发送, 明文:{}", channelContext, channelContext.getId() + "_" + seq, byteBuffers.length , sslVo);
+			log.debug("{}, 准备, SSL加密{}, 包过大，被拆成了[{}]个包进行发送, 明文:{}", channelContext, channelContext.getId() + "_" + seq, byteBuffers.length, sslVo);
 			ByteBuffer[] encryptedByteBuffers = new ByteBuffer[byteBuffers.length];
 			int alllen = 0;
 			for (int i = 0; i < byteBuffers.length; i++) {
@@ -101,8 +101,7 @@ public class SSLFacade implements ISSLFacade {
 				alllen += encryptedByteBuffer.limit();
 				log.debug("{}, 完成, SSL加密{}, 明文:{}, 拆包[{}]的结果:{}", channelContext, channelContext.getId() + "_" + seq, sslVo, (i + 1), result);
 			}
-			
-			
+
 			ByteBuffer encryptedByteBuffer = ByteBuffer.allocate(alllen);
 			for (int i = 0; i < encryptedByteBuffers.length; i++) {
 				encryptedByteBuffer.put(encryptedByteBuffers[i]);

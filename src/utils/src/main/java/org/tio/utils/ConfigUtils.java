@@ -19,8 +19,7 @@ import org.tio.utils.hutool.StrUtil;
  * @author tanyaowu 
  * 2016年9月14日 下午5:06:51
  */
-public class ConfigUtils
-{
+public class ConfigUtils {
 	private static Logger log = LoggerFactory.getLogger(ConfigUtils.class);
 
 	/**
@@ -32,8 +31,7 @@ public class ConfigUtils
 	 * @throws FileNotFoundException
 	 * @author: tanyaowu
 	 */
-	public static <T extends PropertiesConfiguration> T initConfig(String filename, String encoding, T t) throws FileNotFoundException
-	{
+	public static <T extends PropertiesConfiguration> T initConfig(String filename, String encoding, T t) throws FileNotFoundException {
 		return initConfig(null, filename, encoding, t);
 	}
 
@@ -45,8 +43,7 @@ public class ConfigUtils
 	 * @throws FileNotFoundException
 	 * @author: tanyaowu
 	 */
-	public static PropertiesConfiguration initConfig(String filename, String encoding) throws FileNotFoundException
-	{
+	public static PropertiesConfiguration initConfig(String filename, String encoding) throws FileNotFoundException {
 		return initConfig(null, filename, encoding);
 	}
 
@@ -59,8 +56,7 @@ public class ConfigUtils
 	 * @throws FileNotFoundException
 	 * @author: tanyaowu
 	 */
-	public static PropertiesConfiguration initConfig(String filename1, String filename2, String encoding) throws FileNotFoundException
-	{
+	public static PropertiesConfiguration initConfig(String filename1, String filename2, String encoding) throws FileNotFoundException {
 		return initConfig(filename1, filename2, encoding, ',');
 	}
 
@@ -74,23 +70,19 @@ public class ConfigUtils
 	 * @throws FileNotFoundException
 	 * @author: tanyaowu
 	 */
-	public static PropertiesConfiguration initConfig(String filename1, String filename2, String encoding, char listDelimiter) throws FileNotFoundException
-	{
+	public static PropertiesConfiguration initConfig(String filename1, String filename2, String encoding, char listDelimiter) throws FileNotFoundException {
 		Parameters _parameters = new Parameters();
 		PropertiesBuilderParameters parameters = _parameters.properties();
 		String filename = filename1;
 		ClassLoader cl = ConfigUtils.class.getClassLoader();
 		URL url = null;
-		if (StrUtil.isNotBlank(filename1))
-		{
+		if (StrUtil.isNotBlank(filename1)) {
 			url = (cl != null ? cl.getResource(filename1) : ClassLoader.getSystemResource(filename1));
 		}
 
-		if (url == null)
-		{
+		if (url == null) {
 			url = (cl != null ? cl.getResource(filename2) : ClassLoader.getSystemResource(filename2));
-			if (url == null)
-			{
+			if (url == null) {
 				throw new FileNotFoundException(filename1);
 			}
 			filename = filename2;
@@ -104,12 +96,10 @@ public class ConfigUtils
 		parameters.setIncludesAllowed(true);
 		FileBasedConfigurationBuilder<PropertiesConfiguration> builder = new FileBasedConfigurationBuilder<>(PropertiesConfiguration.class).configure(parameters);
 
-		try
-		{
+		try {
 			PropertiesConfiguration config = builder.getConfiguration();
 			return config;
-		} catch (ConfigurationException e)
-		{
+		} catch (ConfigurationException e) {
 			log.error(e.toString(), e);
 			return null;
 		}
@@ -125,8 +115,7 @@ public class ConfigUtils
 	 * @throws FileNotFoundException
 	 * @author: tanyaowu
 	 */
-	public static <T extends PropertiesConfiguration> T initConfig(String filename1, String filename2, String encoding, T t) throws FileNotFoundException
-	{
+	public static <T extends PropertiesConfiguration> T initConfig(String filename1, String filename2, String encoding, T t) throws FileNotFoundException {
 		return initConfig(filename1, filename2, encoding, ',', t);
 	}
 
@@ -141,8 +130,7 @@ public class ConfigUtils
 	 * @throws FileNotFoundException
 	 * @author: tanyaowu
 	 */
-	public static <T extends PropertiesConfiguration> T initConfig(String filename1, String filename2, String encoding, char listDelimiter, T t) throws FileNotFoundException
-	{
+	public static <T extends PropertiesConfiguration> T initConfig(String filename1, String filename2, String encoding, char listDelimiter, T t) throws FileNotFoundException {
 		PropertiesConfiguration config = initConfig(filename1, filename2, encoding, listDelimiter);
 		t.append(config);
 		return t;

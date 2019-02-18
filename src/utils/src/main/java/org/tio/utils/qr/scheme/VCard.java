@@ -13,24 +13,24 @@ import java.util.Map;
  */
 public class VCard extends Schema {
 
-	private static final String BEGIN_VCARD = "BEGIN:VCARD";
-	private static final String NAME = "N";
-	private static final String COMPANY = "ORG";
-	private static final String TITLE = "TITLE";
-	private static final String PHONE = "TEL";
-	private static final String WEB = "URL";
-	private static final String EMAIL = "EMAIL";
-	private static final String ADDRESS = "ADR";
-	private static final String NOTE = "NOTE";
+	private static final String	BEGIN_VCARD	= "BEGIN:VCARD";
+	private static final String	NAME		= "N";
+	private static final String	COMPANY		= "ORG";
+	private static final String	TITLE		= "TITLE";
+	private static final String	PHONE		= "TEL";
+	private static final String	WEB			= "URL";
+	private static final String	EMAIL		= "EMAIL";
+	private static final String	ADDRESS		= "ADR";
+	private static final String	NOTE		= "NOTE";
 
-	private String name;
-	private String company;
-	private String title;
-	private String phoneNumber;
-	private String email;
-	private String address;
-	private String website;
-	private String note;
+	private String	name;
+	private String	company;
+	private String	title;
+	private String	phoneNumber;
+	private String	email;
+	private String	address;
+	private String	website;
+	private String	note;
 
 	public VCard() {
 		super();

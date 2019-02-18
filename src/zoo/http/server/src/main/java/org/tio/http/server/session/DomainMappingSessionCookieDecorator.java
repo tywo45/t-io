@@ -63,14 +63,14 @@ public class DomainMappingSessionCookieDecorator implements SessionCookieDecorat
 			}
 		}
 	}
-	
+
 	public static void main(String[] args) {
 		boolean ss = ReUtil.isMatch("(.)*(.t-io.org){1}", ".t-io.org");
 		System.out.println(ss);
-		
+
 		ss = ReUtil.isMatch("(.)*(.t-io.org){1}", "www.t-io.org");
 		System.out.println(ss);
-		
+
 		ss = ReUtil.isMatch("(.)*(.t-io.org){1}", "www.xx.t-io.org");
 		System.out.println(ss);
 	}

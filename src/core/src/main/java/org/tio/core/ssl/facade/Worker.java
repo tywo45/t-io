@@ -19,13 +19,13 @@ class Worker {
 	/*  Uses the SSLEngine and Buffers to perform wrap/unwrap operations.
 	 Also, provides access to SSLEngine ops for handshake
 	 */
-	private final static String TAG = "Worker";
-	private final SSLEngine _engine;
-	private final Buffers _buffers;
-	private ISSLListener _sslListener;
-	private ISessionClosedListener _sessionClosedListener = new DefaultOnCloseListener();
+	private final static String		TAG						= "Worker";
+	private final SSLEngine			_engine;
+	private final Buffers			_buffers;
+	private ISSLListener			_sslListener;
+	private ISessionClosedListener	_sessionClosedListener	= new DefaultOnCloseListener();
 	@SuppressWarnings("unused")
-	private String who;
+	private String					who;
 
 	private ChannelContext channelContext;
 

@@ -192,8 +192,8 @@ public class Packet implements java.io.Serializable, Cloneable {
 	}
 
 	public static class Meta {
-		private Boolean isSentSuccess = false;
-		private CountDownLatch countDownLatch = null;
+		private Boolean			isSentSuccess	= false;
+		private CountDownLatch	countDownLatch	= null;
 
 		public Boolean getIsSentSuccess() {
 			return isSentSuccess;

@@ -175,12 +175,10 @@ public enum HttpResponseStatus {
 	public String headerText;
 
 	public byte[] headerBinary;
-	
-	public String responseLine;
-	
-	public byte[] responseLineBinary;
-	
 
+	public String responseLine;
+
+	public byte[] responseLineBinary;
 
 	private HttpResponseStatus(int status, String description, String headerText) {
 		this.status = status;

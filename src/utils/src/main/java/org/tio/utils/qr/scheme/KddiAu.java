@@ -11,26 +11,26 @@ import java.util.Map;
  */
 public class KddiAu extends Schema {
 
-	private static final String BEGIN = "MEMORY";
-	private static final String NAME1 = "NAME1";
-	private static final String NAME2 = "NAME2";
-	private static final String MAIL1 = "MAIL1";
-	private static final String MAIL2 = "MAIL2";
-	private static final String MAIL3 = "MAIL3";
-	private static final String TEL1 = "TEL1";
-	private static final String TEL2 = "TEL2";
-	private static final String TEL3 = "TEL3";
-	private static final String ADD = "ADD";
+	private static final String	BEGIN	= "MEMORY";
+	private static final String	NAME1	= "NAME1";
+	private static final String	NAME2	= "NAME2";
+	private static final String	MAIL1	= "MAIL1";
+	private static final String	MAIL2	= "MAIL2";
+	private static final String	MAIL3	= "MAIL3";
+	private static final String	TEL1	= "TEL1";
+	private static final String	TEL2	= "TEL2";
+	private static final String	TEL3	= "TEL3";
+	private static final String	ADD		= "ADD";
 
-	private String name1;
-	private String name2;
-	private String address;
-	private String telephone1;
-	private String telephone2;
-	private String telephone3;
-	private String email1;
-	private String email2;
-	private String email3;
+	private String	name1;
+	private String	name2;
+	private String	address;
+	private String	telephone1;
+	private String	telephone2;
+	private String	telephone3;
+	private String	email1;
+	private String	email2;
+	private String	email3;
 
 	public KddiAu() {
 		super();

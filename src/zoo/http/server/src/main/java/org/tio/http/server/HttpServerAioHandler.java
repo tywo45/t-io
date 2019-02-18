@@ -87,11 +87,10 @@ public class HttpServerAioHandler implements ServerAioHandler {
 	@Override
 	public void handler(Packet packet, ChannelContext channelContext) throws Exception {
 		HttpRequest request = (HttpRequest) packet;
-//		request.setHttpConfig(requestHandler.getHttpConfig(request));
-		
+		//		request.setHttpConfig(requestHandler.getHttpConfig(request));
+
 		String ip = request.getClientIp();
-		
-		
+
 		if (channelContext.groupContext.ipBlacklist.isInBlacklist(ip)) {
 			HttpResponse httpResponse = request.httpConfig.getRespForBlackIp();
 			if (httpResponse != null) {
@@ -110,7 +109,7 @@ public class HttpServerAioHandler implements ServerAioHandler {
 			if (log.isInfoEnabled()) {
 				log.info("{}, {}, handler return null, request line: {}", channelContext.groupContext.getName(), channelContext.toString(), request.getRequestLine().toString());
 			}
-//			Tio.remove(channelContext, "handler return null");
+			//			Tio.remove(channelContext, "handler return null");
 			request.close("handler return null");
 		}
 	}

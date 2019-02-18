@@ -22,7 +22,7 @@ public abstract class CacheUtils {
 
 	private CacheUtils() {
 	}
-	
+
 	private static class NullClass implements Serializable {
 		private static final long serialVersionUID = -2298613658358477523L;
 	}
@@ -31,8 +31,6 @@ public abstract class CacheUtils {
 	 * 用于临时存放于缓存中的对象，防止缓存null攻击
 	 */
 	private static final NullClass NULL_OBJ = new NullClass();
-	
-	
 
 	/**
 	 * 根据cacheKey从缓存中获取对象，如果缓存中没有该key对象，则用firsthandCreater获取对象，并将对象用cacheKey存于cache中
@@ -60,7 +58,7 @@ public abstract class CacheUtils {
 	 * @author tanyaowu
 	 */
 	public static <T extends Serializable> T get(Long timeToLiveSeconds, Long timeToIdleSeconds, String cacheKey, boolean putTempToCacheIfNull,
-			FirsthandCreater<T> firsthandCreater) {
+	        FirsthandCreater<T> firsthandCreater) {
 		CaffeineCache cache = getCaffeineCache(timeToLiveSeconds, timeToIdleSeconds);
 		return get(cache, cacheKey, putTempToCacheIfNull, firsthandCreater);
 	}

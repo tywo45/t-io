@@ -13,13 +13,13 @@ public class SnowflakeSessionIdGenerator implements ISessionIdGenerator {
 
 	private Snowflake snowflake;
 
-//	/**
-//	 *
-//	 * @author tanyaowu
-//	 */
-//	public SnowflakeSessionIdGenerator() {
-//		snowflake = new Snowflake(RandomUtil.randomInt(0, 31), RandomUtil.randomInt(0, 31));
-//	}
+	//	/**
+	//	 *
+	//	 * @author tanyaowu
+	//	 */
+	//	public SnowflakeSessionIdGenerator() {
+	//		snowflake = new Snowflake(RandomUtil.randomInt(0, 31), RandomUtil.randomInt(0, 31));
+	//	}
 
 	/**
 	 *

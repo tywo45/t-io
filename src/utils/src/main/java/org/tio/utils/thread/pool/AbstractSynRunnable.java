@@ -23,12 +23,12 @@ public abstract class AbstractSynRunnable implements Runnable {
 	 * 提交成功次数
 	 */
 	public AtomicInteger executeCount = new AtomicInteger();
-	
+
 	/**
 	 * 避免重复提交次数
 	 */
 	public AtomicInteger avoidRepeatExecuteCount = new AtomicInteger();
-	
+
 	/**
 	 * 被循环执行的次数
 	 */
@@ -76,20 +76,20 @@ public abstract class AbstractSynRunnable implements Runnable {
 		writeLock.lock();
 		try {
 			runCount.incrementAndGet();
-			
+
 			if (isCanceled()) //任务已经被取消
 			{
 				return;
 			}
 
 			loopCount.set(0);
-			
+
 			runTask();
-			
+
 			while (isNeededExecute() && loopCount.incrementAndGet() <= 10) {
 				runTask();
 			}
-			
+
 		} catch (Throwable e) {
 			log.error(e.toString(), e);
 		} finally {
@@ -137,7 +137,7 @@ public abstract class AbstractSynRunnable implements Runnable {
 	public void setExecuted(boolean executed) {
 		this.executed = executed;
 	}
-	
+
 	public String logstr() {
 		return this.getClass().getName();
 	}

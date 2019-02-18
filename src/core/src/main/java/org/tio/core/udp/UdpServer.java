@@ -43,7 +43,7 @@ public class UdpServer {
 					log.error(str);
 				}
 
-//				log.info("收到来自{}的消息:【{}】", remote, msg);
+				//				log.info("收到来自{}的消息:【{}】", remote, msg);
 				DatagramPacket datagramPacket = new DatagramPacket(data, data.length, new InetSocketAddress(remote.getIp(), remote.getPort()));
 				try {
 					datagramSocket.send(datagramPacket);

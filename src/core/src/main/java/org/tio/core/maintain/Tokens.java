@@ -134,8 +134,8 @@ public class Tokens {
 				}
 				channelContext.setToken(null);
 				setWithLock.remove(channelContext);
-				
-				if(setWithLock.getObj().size() == 0) {
+
+				if (setWithLock.getObj().size() == 0) {
 					m.remove(token);
 				}
 			} catch (Throwable e) {
@@ -183,7 +183,7 @@ public class Tokens {
 						}
 						set.clear();
 					}
-					
+
 					m.remove(token);
 				} catch (Throwable e) {
 					log.error(e.getMessage(), e);

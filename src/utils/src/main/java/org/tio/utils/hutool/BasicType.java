@@ -11,9 +11,9 @@ public enum BasicType {
 	BYTE, SHORT, INT, INTEGER, LONG, DOUBLE, FLOAT, BOOLEAN, CHAR, CHARACTER, STRING;
 
 	/** 包装类型为Key，原始类型为Value，例如： Integer.class =》 int.class. */
-	public static final Map<Class<?>, Class<?>> wrapperPrimitiveMap = new ConcurrentHashMap<>(8);
+	public static final Map<Class<?>, Class<?>>	wrapperPrimitiveMap	= new ConcurrentHashMap<>(8);
 	/** 原始类型为Key，包装类型为Value，例如： int.class =》 Integer.class. */
-	public static final Map<Class<?>, Class<?>> primitiveWrapperMap = new ConcurrentHashMap<>(8);
+	public static final Map<Class<?>, Class<?>>	primitiveWrapperMap	= new ConcurrentHashMap<>(8);
 
 	static {
 		wrapperPrimitiveMap.put(Boolean.class, boolean.class);

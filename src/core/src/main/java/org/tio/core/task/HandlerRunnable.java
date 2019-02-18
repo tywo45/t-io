@@ -25,8 +25,8 @@ import org.tio.utils.thread.pool.AbstractQueueRunnable;
 public class HandlerRunnable extends AbstractQueueRunnable<Packet> {
 	private static final Logger log = LoggerFactory.getLogger(HandlerRunnable.class);
 
-	private ChannelContext channelContext = null;
-	private GroupContext groupContext = null;
+	private ChannelContext	channelContext	= null;
+	private GroupContext	groupContext	= null;
 
 	private AtomicLong synFailCount = new AtomicLong();
 
@@ -99,7 +99,7 @@ public class HandlerRunnable extends AbstractQueueRunnable<Packet> {
 					log.error(e.toString(), e);
 				}
 			}
-			
+
 		}
 	}
 
@@ -122,7 +122,7 @@ public class HandlerRunnable extends AbstractQueueRunnable<Packet> {
 	public String toString() {
 		return this.getClass().getSimpleName() + ":" + channelContext.toString();
 	}
-	
+
 	@Override
 	public String logstr() {
 		return toString();

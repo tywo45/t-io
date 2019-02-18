@@ -12,13 +12,12 @@ import org.tio.websocket.common.WsSessionContext;
  */
 public class WsServerAioListener implements ServerAioListener {
 
-
 	public WsServerAioListener() {
 	}
 
-//	@Override
-//	public void onAfterClose(ChannelContext channelContext, Throwable throwable, String remark, boolean isRemove) {
-//	}
+	//	@Override
+	//	public void onAfterClose(ChannelContext channelContext, Throwable throwable, String remark, boolean isRemove) {
+	//	}
 
 	@Override
 	public void onAfterConnected(ChannelContext channelContext, boolean isConnected, boolean isReconnect) throws Exception {
@@ -28,12 +27,12 @@ public class WsServerAioListener implements ServerAioListener {
 	}
 
 	@Override
-	public void onAfterDecoded(ChannelContext channelContext, Packet packet, int packetSize) throws Exception{
+	public void onAfterDecoded(ChannelContext channelContext, Packet packet, int packetSize) throws Exception {
 
 	}
 
 	@Override
-	public void onAfterSent(ChannelContext channelContext, Packet packet, boolean isSentSuccess) throws Exception{
+	public void onAfterSent(ChannelContext channelContext, Packet packet, boolean isSentSuccess) throws Exception {
 	}
 
 	@Override
@@ -42,7 +41,7 @@ public class WsServerAioListener implements ServerAioListener {
 
 	@Override
 	public void onAfterHandled(ChannelContext channelContext, Packet packet, long cost) throws Exception {
-		
+
 	}
 
 	@Override

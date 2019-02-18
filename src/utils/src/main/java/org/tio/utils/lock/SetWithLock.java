@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
  * 2017年5月14日 上午9:55:37
  */
 public class SetWithLock<T> extends ObjWithLock<Set<T>> {
-	private static final long serialVersionUID = -2305909960649321346L;
-	private static final Logger log = LoggerFactory.getLogger(SetWithLock.class);
+	private static final long	serialVersionUID	= -2305909960649321346L;
+	private static final Logger	log					= LoggerFactory.getLogger(SetWithLock.class);
 
 	/**
 	 * @param set
@@ -90,7 +90,7 @@ public class SetWithLock<T> extends ObjWithLock<Set<T>> {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 
 	 * @return

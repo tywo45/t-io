@@ -20,9 +20,9 @@ import org.tio.utils.hutool.StrUtil;
  * 2017年8月10日 下午1:35:01
  */
 public class RedisCache extends AbsCache {
-	private static Logger log = LoggerFactory.getLogger(RedisCache.class);
-	private static Map<String, RedisCache> map = new HashMap<>();
-	
+	private static Logger					log	= LoggerFactory.getLogger(RedisCache.class);
+	private static Map<String, RedisCache>	map	= new HashMap<>();
+
 	public static final String SPLIT_FOR_CACHENAME = ":";
 
 	public static String cacheKey(String cacheName, String key) {
@@ -58,7 +58,7 @@ public class RedisCache extends AbsCache {
 				redisCache = map.get(cacheName);
 				if (redisCache == null) {
 					redisCache = new RedisCache(redisson, cacheName, timeToLiveSeconds, timeToIdleSeconds);
-					
+
 					redisCache.setTimeToIdleSeconds(timeToIdleSeconds);
 					redisCache.setTimeToLiveSeconds(timeToLiveSeconds);
 					map.put(cacheName, redisCache);
@@ -69,7 +69,6 @@ public class RedisCache extends AbsCache {
 	}
 
 	private RedissonClient redisson = null;
-
 
 	private Long timeToLiveSeconds = null;
 
@@ -125,8 +124,6 @@ public class RedisCache extends AbsCache {
 		RBucket<Serializable> bucket = redisson.getBucket(key);
 		return bucket;
 	}
-
-
 
 	public RedissonClient getRedisson() {
 		return redisson;

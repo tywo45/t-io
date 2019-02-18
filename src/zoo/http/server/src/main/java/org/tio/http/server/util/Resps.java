@@ -94,7 +94,7 @@ public class Resps {
 		if (fileOnServer == null || !fileOnServer.exists()) {
 			return request.httpConfig.getHttpRequestHandler().resp404(request, request.getRequestLine());
 		}
-		
+
 		Date lastModified = new Date(fileOnServer.lastModified());
 		HttpResponse ret = try304(request, lastModified.getTime());
 		if (ret != null) {
@@ -108,7 +108,7 @@ public class Resps {
 		ret.setLastModified(HeaderValue.from(lastModified.getTime() + ""));
 		return ret;
 	}
-	
+
 	/**
 	 * 
 	 * @param request
@@ -143,13 +143,13 @@ public class Resps {
 	 * @throws IOException
 	 * @author: tanyaowu
 	 */
-//	public static HttpResponse file(HttpRequest request, String path, HttpConfig httpConfig) throws Exception {
-//		File file = httpConfig.getFile(request, path);//(pageRoot + path);
-//		if (!file.exists()) {
-//			return resp404(request, request.getRequestLine(), httpConfig);
-//		}
-//		return file(request, file);
-//	}
+	//	public static HttpResponse file(HttpRequest request, String path, HttpConfig httpConfig) throws Exception {
+	//		File file = httpConfig.getFile(request, path);//(pageRoot + path);
+	//		if (!file.exists()) {
+	//			return resp404(request, request.getRequestLine(), httpConfig);
+	//		}
+	//		return file(request, file);
+	//	}
 
 	/**
 	 * 
@@ -167,19 +167,18 @@ public class Resps {
 			HttpResponse ret = Resps.forward(request, file404 + "?tio_initpath=" + URLEncoder.encode(requestLine.getPathAndQuery(), httpConfig.getCharset()));
 			return ret;
 		}
-		
 
-//		File file = httpConfig.getFile(request, file404);// new File(pageRoot + file404);
-//		if (file.exists()) {
-//			HttpResponse ret = Resps.redirect(request, file404 + "?tio_initpath=" + requestLine.getPathAndQuery());
-//			return ret;
-//		}
+		//		File file = httpConfig.getFile(request, file404);// new File(pageRoot + file404);
+		//		if (file.exists()) {
+		//			HttpResponse ret = Resps.redirect(request, file404 + "?tio_initpath=" + requestLine.getPathAndQuery());
+		//			return ret;
+		//		}
 
 		HttpResponse ret = Resps.html(request, "404");
 		ret.setStatus(HttpResponseStatus.C404);
 		return ret;
 	}
-	
+
 	/**
 	 * 
 	 * @param request
@@ -233,7 +232,7 @@ public class Resps {
 		ret.setStatus(HttpResponseStatus.C500);
 		return ret;
 	}
-	
+
 	/**
 	 * 
 	 * @param request
@@ -256,7 +255,7 @@ public class Resps {
 	public static HttpResponse bytesWithContentType(HttpRequest request, byte[] bodyBytes, String contentType) {
 		HttpResponse ret = new HttpResponse(request);
 		ret.setBody(bodyBytes);
-		
+
 		if (StrUtil.isBlank(contentType)) {
 			ret.addHeader(HeaderName.Content_Type, HeaderValue.Content_Type.DEFAULT_TYPE);
 		} else {
@@ -290,7 +289,7 @@ public class Resps {
 	public static HttpResponse html(HttpRequest request, String bodyString) {
 		return html(request, bodyString, request.httpConfig.getCharset());
 	}
-	
+
 	/**
 	 * 
 	 * @param request
@@ -414,7 +413,7 @@ public class Resps {
 		ret.addHeader(HeaderName.Location, HeaderValue.from(path));
 		return ret;
 	}
-	
+
 	/**
 	 * 用页面重定向
 	 * @param request
@@ -427,9 +426,9 @@ public class Resps {
 		sb.append("<script>");
 		sb.append("window.location.href='").append(path).append("'");
 		sb.append("</script>");
-		
+
 		return Resps.html(request, sb.toString());
-		
+
 	}
 
 	/**

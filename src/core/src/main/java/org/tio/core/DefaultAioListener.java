@@ -17,9 +17,9 @@ public class DefaultAioListener implements ClientAioListener, ServerAioListener 
 	 * @param isRemove
 	 * @author tanyaowu
 	 */
-//	@Override
-//	public void onAfterClose(ChannelContext channelContext, Throwable throwable, String remark, boolean isRemove) {
-//	}
+	//	@Override
+	//	public void onAfterClose(ChannelContext channelContext, Throwable throwable, String remark, boolean isRemove) {
+	//	}
 
 	/**
 	 *
@@ -65,7 +65,6 @@ public class DefaultAioListener implements ClientAioListener, ServerAioListener 
 
 	@Override
 	public void onAfterReceivedBytes(ChannelContext channelContext, int receivedBytes) throws Exception {
-		
-		
+
 	}
 }

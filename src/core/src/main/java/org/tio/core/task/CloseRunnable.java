@@ -17,16 +17,15 @@ import org.tio.utils.thread.pool.AbstractQueueRunnable;
  * @author tanyaowu 
  * 2017年10月19日 上午9:39:59
  */
-public class CloseRunnable extends AbstractQueueRunnable<ChannelContext>  {
+public class CloseRunnable extends AbstractQueueRunnable<ChannelContext> {
 
 	private static Logger log = LoggerFactory.getLogger(CloseRunnable.class);
 
-
 	public CloseRunnable(Executor executor) {
 		super(executor);
-	}	
-//	long count = 1;
-	
+	}
+	//	long count = 1;
+
 	@Override
 	public void runTask() {
 		int queueSize = msgQueue.size();
@@ -35,27 +34,27 @@ public class CloseRunnable extends AbstractQueueRunnable<ChannelContext>  {
 		}
 		ChannelContext channelContext = null;
 		while ((channelContext = msgQueue.poll()) != null) {
-//			System.out.println(count++);
+			//			System.out.println(count++);
 			try {
 				boolean isNeedRemove = channelContext.closeMeta.isNeedRemove;
 				String remark = channelContext.closeMeta.remark;
 				Throwable throwable = channelContext.closeMeta.throwable;
 
-//				WriteLock writeLock = channelContext.closeLock.writeLock();
-//				boolean isLock = writeLock.tryLock();
-//				if (!isLock) {
-//					if (isNeedRemove) {
-//						if (channelContext.isRemoved) {
-//							return;
-//						} else {
-//							writeLock.lock();
-//							isLock = true;
-//						}
-//					} else {
-//						return;
-//					}
-//				}
-				
+				//				WriteLock writeLock = channelContext.closeLock.writeLock();
+				//				boolean isLock = writeLock.tryLock();
+				//				if (!isLock) {
+				//					if (isNeedRemove) {
+				//						if (channelContext.isRemoved) {
+				//							return;
+				//						} else {
+				//							writeLock.lock();
+				//							isLock = true;
+				//						}
+				//					} else {
+				//						return;
+				//					}
+				//				}
+
 				channelContext.stat.timeClosed = SystemTimer.currTime;
 				if (channelContext.groupContext.getAioListener() != null) {
 					try {
@@ -64,10 +63,9 @@ public class CloseRunnable extends AbstractQueueRunnable<ChannelContext>  {
 						log.error(e.toString(), e);
 					}
 				}
-				
 
 				try {
-//					channelContext.traceClient(ChannelAction.UNCONNECT, null, null);
+					//					channelContext.traceClient(ChannelAction.UNCONNECT, null, null);
 
 					if (channelContext.isClosed && !isNeedRemove) {
 						log.info("{}, {}已经关闭，备注:{}，异常:{}", channelContext.groupContext, channelContext, remark, throwable == null ? "无" : throwable.toString());
@@ -116,16 +114,16 @@ public class CloseRunnable extends AbstractQueueRunnable<ChannelContext>  {
 					}
 				} catch (Throwable e) {
 					log.error(throwable.toString(), e);
-				} 
-//				finally {
-//					writeLock.unlock();
-//				}
+				}
+				//				finally {
+				//					writeLock.unlock();
+				//				}
 			} finally {
 				channelContext.isWaitingClose = false;
 			}
 		}
 	}
-	
+
 	@Override
 	public String logstr() {
 		return super.logstr();

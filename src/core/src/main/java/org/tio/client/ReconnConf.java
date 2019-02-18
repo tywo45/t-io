@@ -16,13 +16,13 @@ import org.tio.utils.thread.pool.SynThreadPoolExecutor;
  */
 public class ReconnConf {
 	private static Logger log = LoggerFactory.getLogger(ChannelContext.class);
-	
+
 	public static ReconnConf getReconnConf(ClientChannelContext clientChannelContext) {
-		ClientGroupContext clientGroupContext = (ClientGroupContext)clientChannelContext.groupContext;
+		ClientGroupContext clientGroupContext = (ClientGroupContext) clientChannelContext.groupContext;
 		ReconnConf reconnConf = clientGroupContext.getReconnConf();
 		return reconnConf;
 	}
-	
+
 	public static ReconnConf getReconnConf(ChannelContext channelContext) {
 		return getReconnConf((ClientChannelContext) channelContext);
 	}
@@ -41,16 +41,16 @@ public class ReconnConf {
 		if (reconnConf == null) {
 			return false;
 		}
-		
+
 		if (reconnConf.getInterval() > 0) {
 			if (reconnConf.getRetryCount() <= 0 || reconnConf.getRetryCount() > clientChannelContext.getReconnCount().get()) {
 				if (putIfNeedConn) {
-					ClientGroupContext clientGroupContext = (ClientGroupContext)clientChannelContext.groupContext;
+					ClientGroupContext clientGroupContext = (ClientGroupContext) clientChannelContext.groupContext;
 					clientGroupContext.closeds.add(clientChannelContext);
 					clientChannelContext.stat.timeInReconnQueue = SystemTimer.currTime;
 					reconnConf.getQueue().add(clientChannelContext);
 				}
-				
+
 				return true;
 			} else {
 				log.info("不需要重连{}", clientChannelContext);
@@ -69,8 +69,8 @@ public class ReconnConf {
 		if (clientChannelContext == null) {
 			return false;
 		}
-		
-//		ReconnConf reconnConf = ReconnConf.getReconnConf(clientChannelContext);	
+
+		//		ReconnConf reconnConf = ReconnConf.getReconnConf(clientChannelContext);	
 		return isNeedReconn(clientChannelContext, true);
 	}
 
@@ -101,21 +101,20 @@ public class ReconnConf {
 		if (threadPoolExecutor == null) {
 			synchronized (ReconnConf.class) {
 				if (threadPoolExecutor == null) {
-//					threadPoolExecutor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors(), 60L, TimeUnit.SECONDS,
-//							new LinkedBlockingQueue<Runnable>(), DefaultThreadFactory.getInstance("tio-client-reconn"));
-//					
-//					
-					
-					
+					//					threadPoolExecutor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors(), 60L, TimeUnit.SECONDS,
+					//							new LinkedBlockingQueue<Runnable>(), DefaultThreadFactory.getInstance("tio-client-reconn"));
+					//					
+					//					
+
 					LinkedBlockingQueue<Runnable> tioQueue = new LinkedBlockingQueue<>();
 					//			ArrayBlockingQueue<Runnable> tioQueue = new ArrayBlockingQueue<>(QUEUE_CAPACITY);
 					String tioThreadName = "tio-client-reconn";
 					DefaultThreadFactory defaultThreadFactory = DefaultThreadFactory.getInstance(tioThreadName, Thread.MAX_PRIORITY);
 
-					threadPoolExecutor = new SynThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors(), 60L, tioQueue, defaultThreadFactory, tioThreadName);
+					threadPoolExecutor = new SynThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors(), 60L, tioQueue,
+					        defaultThreadFactory, tioThreadName);
 					//			tioExecutor = new SynThreadPoolExecutor(AVAILABLE_PROCESSORS * 2, Integer.MAX_VALUE, 60, new SynchronousQueue<Runnable>(), defaultThreadFactory, tioThreadName);
 
-					
 				}
 			}
 

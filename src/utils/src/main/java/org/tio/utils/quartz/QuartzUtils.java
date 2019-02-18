@@ -116,7 +116,7 @@ public class QuartzUtils {
 		Set<Entry<Object, Object>> set = props.entrySet();//.keySet();
 		if (set != null && set.size() > 0) {
 			for (Entry<Object, Object> entry : set) {
-				
+
 				String clazz = StrUtil.trim((String) entry.getKey());
 				String cron = StrUtil.trim((String) entry.getValue());
 
@@ -127,8 +127,8 @@ public class QuartzUtils {
 	}
 
 	private static class QuartzTimeVo {
-		private String clazz = null;
-		private String cron = null;
+		private String	clazz	= null;
+		private String	cron	= null;
 
 		public QuartzTimeVo(String clazz, String cron) {
 			super();

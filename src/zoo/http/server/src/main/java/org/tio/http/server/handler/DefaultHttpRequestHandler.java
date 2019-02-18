@@ -78,7 +78,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	 * value: FileCache
 	 */
 	private static final String STATIC_RES_CONTENT_CACHENAME = "TIO_HTTP_STATIC_RES_CONTENT";
-	
+
 	private static final String SESSIONRATELIMITER_CACHENAME = "TIO_HTTP_SESSIONRATELIMITER_CACHENAME";
 
 	/**
@@ -86,7 +86,6 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	 * request.channelContext.setAttribute(SESSION_COOKIE_KEY, sessionCookie);
 	 */
 	private static final String SESSION_COOKIE_KEY = "TIO_HTTP_SESSION_COOKIE";
-	
 
 	private static final Map<Class<?>, MethodAccess> CLASS_METHODACCESS_MAP = new HashMap<>();
 
@@ -123,16 +122,16 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	private TokenPathAccessStats tokenPathAccessStats;
 
 	private CaffeineCache staticResCache;
-	
+
 	private CaffeineCache sessionRateLimiterCache;
-	
+
 	private static final String SESSIONRATELIMITER_KEY_SPLIT = "?";
 
-	private String contextPath;
-	private int contextPathLength = 0;
-	private String suffix;
-	private int suffixLength = 0;
-	
+	private String	contextPath;
+	private int		contextPathLength	= 0;
+	private String	suffix;
+	private int		suffixLength		= 0;
+
 	/**
 	 * 
 	 * @param httpConfig
@@ -141,7 +140,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	public DefaultHttpRequestHandler(HttpConfig httpConfig, Class<?> scanRootClasse) {
 		this(httpConfig, new Class<?>[] { scanRootClasse });
 	}
-	
+
 	/**
 	 * 
 	 * @param httpConfig
@@ -160,7 +159,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	public DefaultHttpRequestHandler(HttpConfig httpConfig, Class<?>[] scanRootClasses) {
 		this(httpConfig, scanRootClasses, null);
 	}
-	
+
 	/**
 	 * 
 	 * @param httpConfig
@@ -180,7 +179,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	public DefaultHttpRequestHandler(HttpConfig httpConfig, String scanPackage) {
 		this(httpConfig, scanPackage, null);
 	}
-	
+
 	/**
 	 * 
 	 * @param httpConfig
@@ -199,7 +198,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	public DefaultHttpRequestHandler(HttpConfig httpConfig, String[] scanPackages) {
 		this(httpConfig, scanPackages, null);
 	}
-	
+
 	/**
 	 * 
 	 * @param httpConfig
@@ -239,8 +238,8 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 		if (httpConfig.getMaxLiveTimeOfStaticRes() > 0) {
 			staticResCache = CaffeineCache.register(STATIC_RES_CONTENT_CACHENAME, (long) httpConfig.getMaxLiveTimeOfStaticRes(), null);
 		}
-		
-		sessionRateLimiterCache  = CaffeineCache.register(SESSIONRATELIMITER_CACHENAME, 60 * 1L, null);
+
+		sessionRateLimiterCache = CaffeineCache.register(SESSIONRATELIMITER_CACHENAME, 60 * 1L, null);
 
 		this.routes = routes;
 	}
@@ -320,14 +319,14 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 				}
 			}
 		}
-		
+
 		return method;
 	}
-	
+
 	@Override
 	public HttpResponse handler(HttpRequest request) throws Exception {
 		request.setNeedForward(false);
-		
+
 		if (!checkDomain(request)) {
 			Tio.remove(request.channelContext, "过来的域名[" + request.getDomain() + "]不对");
 			return null;
@@ -358,12 +357,12 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 
 		try {
 			processCookieBeforeHandler(request, requestLine);
-			
+
 			requestLine = request.getRequestLine();
 
 			Method method = getMethod(request, requestLine);
 			path = requestLine.path;
-			
+
 			if (httpServerInterceptor != null) {
 				response = httpServerInterceptor.doBeforeHandler(request, requestLine, response);
 				if (response != null) {
@@ -375,13 +374,13 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 				method = getMethod(request, requestLine);
 				path = requestLine.path;
 			}
-			
+
 			//流控
 			if (httpConfig.isUseSession()) {
 				SessionRateLimiter sessionRateLimiter = httpConfig.sessionRateLimiter;
 				if (sessionRateLimiter != null) {
 					boolean pass = false;
-					
+
 					HttpSession httpSession = request.getHttpSession();
 					String key = path + SESSIONRATELIMITER_KEY_SPLIT + httpSession.getId();
 					SessionRateVo sessionRateVo = sessionRateLimiterCache.get(key, SessionRateVo.class);
@@ -395,25 +394,23 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 							}
 						}
 					}
-										
+
 					if (!pass) {
 						if (sessionRateLimiter.allow(request, sessionRateVo)) {
 							pass = true;
 						}
 					}
-					
+
 					if (!pass) {
 						response = sessionRateLimiter.response(request, sessionRateVo);
 						return response;
 					}
-					
+
 					//更新上次访问时间（放在这个位置：被拒绝访问的就不更新lastAccessTime）
 					sessionRateVo.setLastAccessTime(SystemTimer.currTime);
 					sessionRateVo.getAccessCount().incrementAndGet();
 				}
 			}
-			
-			
 
 			if (method != null) {
 				String[] paramnames = routes.METHOD_PARAMNAME_MAP.get(method);
@@ -569,41 +566,41 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 				} else {
 					String pageRoot = httpConfig.getPageRoot(request);
 					if (pageRoot != null) {
-//						if (StrUtil.endWith(path, "/")) {
-//							path = path + "index.html";
-//						}
-////						else {
-////							path = path + "/index.html";
-////						}
-//						
-//						String complatePath = pageRoot + path;
-//						if (httpConfig.isPageInClasspath()) {
-//							URL url = this.getClass().getClassLoader().getResource(complatePath);
-//							if (url != null) {
-//								file = new File(url.toURI());
-//							}
-//						} else {
-////							String root = FileUtil.getAbsolutePath(pageRoot);
-//							file = new File(complatePath);
-////							if (!file.exists() || file.isDirectory()) {
-////								
-////								file = new File(pageRoot, path);
-////							}
-//						}
-						
+						//						if (StrUtil.endWith(path, "/")) {
+						//							path = path + "index.html";
+						//						}
+						////						else {
+						////							path = path + "/index.html";
+						////						}
+						//						
+						//						String complatePath = pageRoot + path;
+						//						if (httpConfig.isPageInClasspath()) {
+						//							URL url = this.getClass().getClassLoader().getResource(complatePath);
+						//							if (url != null) {
+						//								file = new File(url.toURI());
+						//							}
+						//						} else {
+						////							String root = FileUtil.getAbsolutePath(pageRoot);
+						//							file = new File(complatePath);
+						////							if (!file.exists() || file.isDirectory()) {
+						////								
+						////								file = new File(pageRoot, path);
+						////							}
+						//						}
+
 						HttpResource httpResource = httpConfig.getResource(request, path);//.getFile(request, path);
-						
+
 						if (httpResource != null) {
 							file = httpResource.getFile();
-							String template = httpResource.getPath();  // "/res/css/header-all.css"
+							String template = httpResource.getPath(); // "/res/css/header-all.css"
 							InputStream inputStream = httpResource.getInputStream();
-							
+
 							String extension = FileUtil.extName(template);
-							
+
 							//项目中需要，时间支持一下freemarker模板，后面要做模板支持抽象设计
 							FreemarkerConfig freemarkerConfig = httpConfig.getFreemarkerConfig();
 							if (freemarkerConfig != null) {
-								
+
 								if (ArrayUtil.contains(freemarkerConfig.getSuffixes(), extension)) {
 									Configuration configuration = freemarkerConfig.getConfiguration(request);
 									if (configuration != null) {
@@ -612,7 +609,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 											return null;
 										} else {
 											if (model instanceof HttpResponse) {
-												response = (HttpResponse)model;
+												response = (HttpResponse) model;
 												return response;
 											} else {
 												try {
@@ -633,7 +630,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 							} else {
 								response = Resps.bytes(request, IoUtils.toByteArray(inputStream), extension);//.file(request, file);
 							}
-							
+
 							response.setStaticRes(true);
 
 							//把静态资源放入缓存
@@ -669,7 +666,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 									} else {
 										fileCache = new FileCache(responseInCache, ManagementFactory.getRuntimeMXBean().getStartTime());
 									}
-									
+
 									staticResCache.put(path, fileCache);
 									log.info("放入缓存:[{}], {}", path, response.getBody().length);
 								}
@@ -753,7 +750,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 		//统计一下IP访问数据
 		String ip = request.getClientIp();//IpUtils.getRealIp(request);
 
-//		Cookie cookie = getSessionCookie(request, httpConfig);
+		//		Cookie cookie = getSessionCookie(request, httpConfig);
 		String sessionId = getSessionId(request);
 
 		StatPathFilter statPathFilter = ipPathAccessStats.getStatPathFilter();
@@ -871,13 +868,13 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 		if (httpResponse == null) {
 			return;
 		}
-		
+
 		if (!httpConfig.isUseSession()) {
 			return;
 		}
 
 		HttpSession httpSession = request.getHttpSession();//(HttpSession) channelContext.getAttribute();//.getHttpSession();//not null
-//		Cookie cookie = getSessionCookie(request, httpConfig);
+		//		Cookie cookie = getSessionCookie(request, httpConfig);
 		String sessionId = getSessionId(request);
 
 		if (StrUtil.isBlank(sessionId)) {
@@ -891,8 +888,6 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 			}
 		}
 	}
-	
-	
 
 	/**
 	 * 根据session创建session对应的cookie
@@ -907,7 +902,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 		if (httpResponse == null) {
 			return;
 		}
-		
+
 		Object test = request.channelContext.getAttribute(SESSION_COOKIE_KEY);
 		if (test != null) {
 			return;
@@ -948,15 +943,15 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 		}
 
 		String sessionId = getSessionId(request);
-//		Cookie cookie = getSessionCookie(request, httpConfig);
+		//		Cookie cookie = getSessionCookie(request, httpConfig);
 		HttpSession httpSession = null;
 		if (StrUtil.isBlank(sessionId)) {
 			httpSession = createSession(request);
 		} else {
-//			if (StrUtil.isBlank(sessionId)) {
-//				sessionId = cookie.getValue();
-//			}
-			
+			//			if (StrUtil.isBlank(sessionId)) {
+			//				sessionId = cookie.getValue();
+			//			}
+
 			httpSession = (HttpSession) httpConfig.getSessionStore().get(sessionId);
 			if (httpSession == null) {
 				log.info("{} session【{}】超时", request.channelContext, sessionId);
@@ -965,18 +960,18 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 		}
 		request.setHttpSession(httpSession);
 	}
-	
+
 	public static String getSessionId(HttpRequest request) {
 		String sessionId = request.getString(org.tio.http.common.HttpConfig.TIO_HTTP_SESSIONID);
 		if (StrUtil.isNotBlank(sessionId)) {
 			return sessionId;
 		}
-		
+
 		Cookie cookie = getSessionCookie(request, request.httpConfig);
 		if (cookie != null) {
 			return cookie.getValue();
 		}
-		
+
 		return null;
 	}
 

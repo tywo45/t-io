@@ -13,9 +13,9 @@ public abstract class AbsCache implements ICache {
 	private static Logger log = LoggerFactory.getLogger(AbsCache.class);
 
 	protected String cacheName = null;
-	
+
 	private Long timeToLiveSeconds;
-	
+
 	private Long timeToIdleSeconds;
 
 	/**
@@ -28,7 +28,7 @@ public abstract class AbsCache implements ICache {
 		}
 		this.setCacheName(cacheName);
 	}
-	
+
 	public AbsCache(String cacheName, Long timeToLiveSeconds, Long timeToIdleSeconds) {
 		if (StrUtil.isBlank(cacheName)) {
 			throw new RuntimeException("cacheName不允许为空");

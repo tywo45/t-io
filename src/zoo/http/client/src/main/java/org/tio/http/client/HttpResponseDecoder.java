@@ -103,7 +103,7 @@ public class HttpResponseDecoder {
 
 		ClientHttpResponse httpResponse = new ClientHttpResponse();
 		httpResponse.setChannelContext(channelContext);
-//		httpResponse.setHttpConfig((HttpConfig) channelContext.groupContext.getAttribute(GroupContextKey.HTTP_SERVER_CONFIG));
+		//		httpResponse.setHttpConfig((HttpConfig) channelContext.groupContext.getAttribute(GroupContextKey.HTTP_SERVER_CONFIG));
 
 		if (appendRequestHeaderString) {
 			httpResponse.setHeaderString(headerSb.toString());

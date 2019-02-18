@@ -9,8 +9,8 @@ import java.util.Map;
  */
 public class IJournal extends SubSchema {
 
-	public static final String NAME = "VJOURNAL";
-	private static final String BEGIN_TODO = "BEGIN:VJOURNAL";
+	public static final String	NAME		= "VJOURNAL";
+	private static final String	BEGIN_TODO	= "BEGIN:VJOURNAL";
 
 	public IJournal() {
 		super();

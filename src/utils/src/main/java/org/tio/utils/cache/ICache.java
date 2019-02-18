@@ -89,13 +89,13 @@ public interface ICache {
 	 *          -1 if the key exists but has no associated expire.
 	 */
 	public long ttl(String key);
-	
+
 	/**
 	 * 
 	 * @return
 	 */
 	public Long getTimeToLiveSeconds();
-	
+
 	/**
 	 * 
 	 * @return

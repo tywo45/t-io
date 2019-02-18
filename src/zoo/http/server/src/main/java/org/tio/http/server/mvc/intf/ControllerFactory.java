@@ -8,7 +8,7 @@ package org.tio.http.server.mvc.intf;
  *
  */
 public interface ControllerFactory {
-	
+
 	/**
 	 * 
 	 * @param controllerClazz Controller的class

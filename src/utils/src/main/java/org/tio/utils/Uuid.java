@@ -20,18 +20,17 @@ public class Uuid {
 	public Uuid() {
 	}
 
-
 	/**
 	 * 系统启动时，重设此两值，只
 	 */
-	private static Integer workid = ThreadLocalRandom.current().nextInt(0, 31);
-	private static boolean workidSetted = false;
+	private static Integer	workid			= ThreadLocalRandom.current().nextInt(0, 31);
+	private static boolean	workidSetted	= false;
 
 	/**
 	 * 
 	 */
-	private static Integer datacenterid = ThreadLocalRandom.current().nextInt(0, 31);
-	private static boolean datacenteridSetted = false;
+	private static Integer	datacenterid		= ThreadLocalRandom.current().nextInt(0, 31);
+	private static boolean	datacenteridSetted	= false;
 
 	public static int getWorkid() {
 		return workid;

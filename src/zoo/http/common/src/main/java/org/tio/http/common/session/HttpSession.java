@@ -22,7 +22,7 @@ public class HttpSession implements java.io.Serializable {
 	private Map<String, Serializable> data = new ConcurrentHashMap<>();
 
 	private String id = null;
-	
+
 	private long createTime = SystemTimer.currTime;
 
 	/**

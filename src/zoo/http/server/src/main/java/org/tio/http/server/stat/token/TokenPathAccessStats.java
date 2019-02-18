@@ -33,7 +33,7 @@ public class TokenPathAccessStats {
 	private GroupContext groupContext;
 
 	private String groupContextId;
-	
+
 	private StatPathFilter statPathFilter;
 
 	//	private CaffeineCache[] caches = null;
@@ -63,13 +63,13 @@ public class TokenPathAccessStats {
 	 * @param tokenPathAccessStatListener
 	 * @param durations
 	 */
-	public TokenPathAccessStats(StatPathFilter statPathFilter, TokenGetter tokenGetter, CurrUseridGetter currUseridGetter, GroupContext groupContext, TokenPathAccessStatListener tokenPathAccessStatListener,
-			Long[] durations) {
+	public TokenPathAccessStats(StatPathFilter statPathFilter, TokenGetter tokenGetter, CurrUseridGetter currUseridGetter, GroupContext groupContext,
+	        TokenPathAccessStatListener tokenPathAccessStatListener, Long[] durations) {
 		this.statPathFilter = statPathFilter;
 		if (this.statPathFilter == null) {
 			this.statPathFilter = DefaultStatPathFilter.me;
 		}
-		
+
 		if (tokenGetter == null) {
 			throw new RuntimeException("tokenGetter can not be null");
 		}
@@ -85,7 +85,8 @@ public class TokenPathAccessStats {
 		}
 	}
 
-	public TokenPathAccessStats(StatPathFilter statPathFilter, CurrUseridGetter currUseridGetter, GroupContext groupContext, TokenPathAccessStatListener tokenPathAccessStatListener, Long[] durations) {
+	public TokenPathAccessStats(StatPathFilter statPathFilter, CurrUseridGetter currUseridGetter, GroupContext groupContext,
+	        TokenPathAccessStatListener tokenPathAccessStatListener, Long[] durations) {
 		this(statPathFilter, DefaultTokenGetter.me, currUseridGetter, groupContext, tokenPathAccessStatListener, durations);
 	}
 
@@ -98,7 +99,7 @@ public class TokenPathAccessStats {
 	public void addDuration(Long duration, TokenPathAccessStatListener tokenPathAccessStatListener) {
 		@SuppressWarnings("unchecked")
 		CaffeineCache caffeineCache = CaffeineCache.register(getCacheName(duration), duration, null,
-				new TokenPathAccessStatRemovalListener(groupContext, tokenPathAccessStatListener));
+		        new TokenPathAccessStatRemovalListener(groupContext, tokenPathAccessStatListener));
 		cacheMap.put(duration, caffeineCache);
 		durationList.add(duration);
 

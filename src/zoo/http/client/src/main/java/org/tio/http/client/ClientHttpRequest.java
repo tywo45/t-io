@@ -20,11 +20,11 @@ public class ClientHttpRequest extends HttpRequest {
 	public ClientHttpRequest(Node remote) {
 		super(remote);
 	}
-	
+
 	public static ClientHttpRequest get(String path, String queryString) {
 		return new ClientHttpRequest(Method.GET, path, queryString);
 	}
-	
+
 	public ClientHttpRequest(Method method, String path, String queryString) {
 		super();
 		RequestLine requestLine = new RequestLine();
@@ -35,5 +35,5 @@ public class ClientHttpRequest extends HttpRequest {
 		requestLine.setVersion("1.1");
 		this.setRequestLine(requestLine);
 	}
-	
+
 }

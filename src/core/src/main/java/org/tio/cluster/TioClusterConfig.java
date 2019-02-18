@@ -13,28 +13,28 @@ public class TioClusterConfig {
 	/**
 	 * 群组是否集群（同一个群组是否会分布在不同的机器上），false:不集群，默认不集群
 	 */
-	private boolean cluster4group = false;
+	private boolean	cluster4group		= false;
 	/**
 	 * 用户是否集群（同一个用户是否会分布在不同的机器上），false:不集群，默认集群
 	 */
-	private boolean cluster4user = true;
+	private boolean	cluster4user		= true;
 	/**
 	 * ip是否集群（同一个ip是否会分布在不同的机器上），false:不集群，默认集群
 	 */
-	private boolean cluster4ip = true;
+	private boolean	cluster4ip			= true;
 	/**
 	 * id是否集群（在A机器上的客户端是否可以通过channelId发消息给B机器上的客户端），false:不集群，默认集群<br>
 	 */
-	private boolean cluster4channelId = true;
+	private boolean	cluster4channelId	= true;
 
 	/**
 	 * bsid是否集群（在A机器上的客户端是否可以通过bsid发消息给B机器上的客户端），false:不集群，默认集群<br>
 	 */
-	private boolean cluster4bsId = true;
+	private boolean	cluster4bsId	= true;
 	/**
 	 * 所有连接是否集群（同一个ip是否会分布在不同的机器上），false:不集群，默认集群
 	 */
-	private boolean cluster4all = true;
+	private boolean	cluster4all		= true;
 
 	/**
 	 * 

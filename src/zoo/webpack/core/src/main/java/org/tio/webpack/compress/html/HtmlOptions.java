@@ -1,23 +1,23 @@
 package org.tio.webpack.compress.html;
 
 public class HtmlOptions {
-	private boolean minifyHtml = true;
-	private boolean preventCaching = true;
-	private boolean removeComments = true;
-	private boolean removeMutliSpaces = true;
-	private boolean removeIntertagSpaces = false;
-	private boolean removeQuotes = false;
-	private boolean simpleDoctype = false;
-	private boolean removeScriptAttributes = false;
-	private boolean removeStyleAttributes = false;
-	private boolean removeLinkAttributes = false;
-	private boolean removeFormAttributes = false;
-	private boolean removeInputAttributes = false;
-	private boolean simpleBooleanAttributes = false;
-	private boolean removeJavaScriptProtocol = false;
-	private boolean removeHttpProtocol = false;
-	private boolean removeHttpsProtocol = false;
-	private boolean preserveLineBreaks = false;
+	private boolean	minifyHtml					= true;
+	private boolean	preventCaching				= true;
+	private boolean	removeComments				= true;
+	private boolean	removeMutliSpaces			= true;
+	private boolean	removeIntertagSpaces		= false;
+	private boolean	removeQuotes				= false;
+	private boolean	simpleDoctype				= false;
+	private boolean	removeScriptAttributes		= false;
+	private boolean	removeStyleAttributes		= false;
+	private boolean	removeLinkAttributes		= false;
+	private boolean	removeFormAttributes		= false;
+	private boolean	removeInputAttributes		= false;
+	private boolean	simpleBooleanAttributes		= false;
+	private boolean	removeJavaScriptProtocol	= false;
+	private boolean	removeHttpProtocol			= false;
+	private boolean	removeHttpsProtocol			= false;
+	private boolean	preserveLineBreaks			= false;
 
 	public boolean isMinifyHtml() {
 		return minifyHtml;

@@ -36,13 +36,13 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	public static final AtomicInteger UNKNOWN_ADDRESS_PORT_SEQ = new AtomicInteger();
 
 	public boolean isReconnect = false;
-	
+
 	/**
 	 * 解码出现异常时，是否打印异常日志
 	 * 此值默认与org.tio.core.GroupContext.logWhenDecodeError保持一致
 	 */
 	public boolean logWhenDecodeError = false;
-	
+
 	/**
 	 * 此值不设时，心跳时间取org.tio.core.GroupContext.heartbeatTimeout
 	 * 当然这个值如果小于org.tio.core.GroupContext.heartbeatTimeout，定时检查的时间间隔还是以org.tio.core.GroupContext.heartbeatTimeout为准，只是在判断时用此值
@@ -56,17 +56,15 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 
 	//	private MapWithLock<String, Object> props = null;//
 
-	public GroupContext groupContext = null;
-	public DecodeRunnable decodeRunnable = null;
-	public HandlerRunnable handlerRunnable = null;
-	public SendRunnable sendRunnable = null;
-	public final ReentrantReadWriteLock closeLock = new ReentrantReadWriteLock();
-	private ReadCompletionHandler readCompletionHandler = null;//new ReadCompletionHandler(this);
-	public WriteCompletionHandler writeCompletionHandler = null;//new WriteCompletionHandler(this);
+	public GroupContext					groupContext			= null;
+	public DecodeRunnable				decodeRunnable			= null;
+	public HandlerRunnable				handlerRunnable			= null;
+	public SendRunnable					sendRunnable			= null;
+	public final ReentrantReadWriteLock	closeLock				= new ReentrantReadWriteLock();
+	private ReadCompletionHandler		readCompletionHandler	= null;							//new ReadCompletionHandler(this);
+	public WriteCompletionHandler		writeCompletionHandler	= null;							//new WriteCompletionHandler(this);
 
 	public SslFacadeContext sslFacadeContext;
-
-	
 
 	public String userid;
 
@@ -81,7 +79,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	public boolean isRemoved = false;
 
 	public boolean isVirtual = false;
-	
+
 	public boolean hasTempDir = false;
 
 	public final ChannelStat stat = new ChannelStat();
@@ -156,32 +154,32 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	 */
 	public abstract Node createClientNode(AsynchronousSocketChannel asynchronousSocketChannel) throws IOException;
 
-    /**
-     *
-     * @param obj
-     * @return
-     * @author tanyaowu
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        ChannelContext other = (ChannelContext) obj;
-        if (id == null) {
-            if (other.id != null)
-                return false;
-        } else if (!id.equals(other.id)) {
-            return false;
-        }
-        return true;
-    }
+	/**
+	 *
+	 * @param obj
+	 * @return
+	 * @author tanyaowu
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		ChannelContext other = (ChannelContext) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id)) {
+			return false;
+		}
+		return true;
+	}
 
 	public Object getAttribute() {
 		return getAttribute(DEFAULT_ATTUBITE_KEY);
@@ -211,8 +209,6 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	public ReadCompletionHandler getReadCompletionHandler() {
 		return readCompletionHandler;
 	}
-
-
 
 	/**
 	 * @return the serverNode
@@ -463,7 +459,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 		} else {
 			sb.append(", client:").append("NULL");
 		}
-		
+
 		if (isVirtual) {
 			sb.append(", virtual");
 		}
@@ -565,9 +561,9 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	 * @author tanyaowu
 	 */
 	public static class CloseMeta {
-		public Throwable throwable;
-		public String remark;
-		public boolean isNeedRemove;
+		public Throwable	throwable;
+		public String		remark;
+		public boolean		isNeedRemove;
 
 		public Throwable getThrowable() {
 			return throwable;

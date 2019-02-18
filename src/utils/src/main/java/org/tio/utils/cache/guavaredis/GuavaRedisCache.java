@@ -26,8 +26,8 @@ public class GuavaRedisCache extends AbsCache {
 
 	public static final String CACHE_CHANGE_TOPIC = "TIO_CACHE_CHANGE_TOPIC_GUAVA";
 
-	private static Logger log = LoggerFactory.getLogger(GuavaRedisCache.class);
-	public static Map<String, GuavaRedisCache> map = new HashMap<>();
+	private static Logger						log	= LoggerFactory.getLogger(GuavaRedisCache.class);
+	public static Map<String, GuavaRedisCache>	map	= new HashMap<>();
 
 	static RTopic topic;
 
@@ -103,10 +103,10 @@ public class GuavaRedisCache extends AbsCache {
 					GuavaCache guavaCache = GuavaCache.register(cacheName, timeToLiveSecondsForGuava, timeToIdleSecondsForGuava);
 
 					guavaRedisCache = new GuavaRedisCache(cacheName, guavaCache, redisCache);
-					
+
 					guavaRedisCache.setTimeToIdleSeconds(timeToIdleSeconds);
 					guavaRedisCache.setTimeToLiveSeconds(timeToLiveSeconds);
-					
+
 					map.put(cacheName, guavaRedisCache);
 				}
 			}
@@ -117,7 +117,6 @@ public class GuavaRedisCache extends AbsCache {
 	GuavaCache guavaCache;
 
 	RedisCache redisCache;
-
 
 	/**
 	 * @param guavaCache

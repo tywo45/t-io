@@ -26,8 +26,8 @@ public class CaffeineRedisCache extends AbsCache {
 
 	public static final String CACHE_CHANGE_TOPIC = "TIO_CACHE_CHANGE_TOPIC_CAFFEINE";
 
-	private static Logger log = LoggerFactory.getLogger(CaffeineRedisCache.class);
-	public static Map<String, CaffeineRedisCache> map = new HashMap<>();
+	private static Logger							log	= LoggerFactory.getLogger(CaffeineRedisCache.class);
+	public static Map<String, CaffeineRedisCache>	map	= new HashMap<>();
 
 	public static RTopic topic;
 
@@ -107,10 +107,10 @@ public class CaffeineRedisCache extends AbsCache {
 					CaffeineCache caffeineCache = CaffeineCache.register(cacheName, timeToLiveSecondsForCaffeine, timeToIdleSecondsForCaffeine);
 
 					caffeineRedisCache = new CaffeineRedisCache(cacheName, caffeineCache, redisCache);
-					
+
 					caffeineRedisCache.setTimeToIdleSeconds(timeToIdleSeconds);
 					caffeineRedisCache.setTimeToLiveSeconds(timeToLiveSeconds);
-					
+
 					map.put(cacheName, caffeineRedisCache);
 				}
 			}

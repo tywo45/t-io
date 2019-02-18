@@ -30,7 +30,7 @@ import com.esotericsoftware.reflectasm.MethodAccess;
  */
 public class Routes {
 	private static Logger log = LoggerFactory.getLogger(Routes.class);
-	
+
 	/**
 	 * 
 	 */
@@ -87,7 +87,7 @@ public class Routes {
 	 * value: ["id", "name", "scanPackages"]<br>
 	 */
 	public final Map<Method, String[]> METHOD_PARAMNAME_MAP = new HashMap<>();
-	
+
 	/**
 	 * path跟forward映射<br>
 	 * key: 原访问路径<br>
@@ -238,13 +238,13 @@ public class Routes {
 										continue c;
 									}
 
-//									String methodName = method.getName();
+									//									String methodName = method.getName();
 									String methodPath = mapping.value();
-//									if (StrUtil.isBlank(beanPath)) {
-//										log.error("方法有注解，但类没注解, method:{}, class:{}", methodName, clazz);
-//										errorStr.append("方法有注解，但类没注解, method:" + methodName + ", class:" + clazz + "\r\n\r\n");
-//										continue c;
-//									}
+									//									if (StrUtil.isBlank(beanPath)) {
+									//										log.error("方法有注解，但类没注解, method:{}, class:{}", methodName, clazz);
+									//										errorStr.append("方法有注解，但类没注解, method:" + methodName + ", class:" + clazz + "\r\n\r\n");
+									//										continue c;
+									//									}
 
 									String completePath = beanPath + methodPath;
 									Class<?>[] parameterTypes = method.getParameterTypes();
@@ -256,7 +256,7 @@ public class Routes {
 										if (checkMethod != null) {
 											log.error("mapping[{}] already exists in method [{}]", completePath, checkMethod.getDeclaringClass() + "#" + checkMethod.getName());
 											errorStr.append("mapping[" + completePath + "] already exists in method [" + checkMethod.getDeclaringClass() + "#"
-													+ checkMethod.getName() + "]\r\n\r\n");
+											        + checkMethod.getName() + "]\r\n\r\n");
 											continue c;
 										}
 
@@ -272,7 +272,7 @@ public class Routes {
 											PATH_METHODSTR_MAP.put(mapping.forward(), methodStr);
 											PATH_METHOD_MAP.put(mapping.forward(), method);
 										}
-										
+
 										METHOD_BEAN_MAP.put(method, bean);
 									} catch (Throwable e) {
 										log.error(e.toString(), e);

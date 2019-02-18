@@ -56,7 +56,7 @@ public class HttpRequestDecoder {
 	 * @author tanyaowu
 	 */
 	public static HttpRequest decode(ByteBuffer buffer, int limit, int position, int readableLength, ChannelContext channelContext, HttpConfig httpConfig)
-			throws AioDecodeException {
+	        throws AioDecodeException {
 		//		int initPosition = position;
 		//		int count = 0;
 		//		Step step = Step.firstline;
@@ -66,10 +66,11 @@ public class HttpRequestDecoder {
 		byte[] bodyBytes = null;
 		StringBuilder headerSb = null;//new StringBuilder(512);
 		RequestLine firstLine = null;
-		boolean appendRequestHeaderString = httpConfig.isAppendRequestHeaderString();;
-//		if (httpConfig != null) {
-//			
-//		}
+		boolean appendRequestHeaderString = httpConfig.isAppendRequestHeaderString();
+		;
+		//		if (httpConfig != null) {
+		//			
+		//		}
 		if (appendRequestHeaderString) {
 			headerSb = new StringBuilder(512);
 		}
@@ -80,17 +81,16 @@ public class HttpRequestDecoder {
 			return null;
 		}
 		// request line end
-		
+
 		HttpRequest httpRequest = new HttpRequest(channelContext.getClientNode());
 		httpRequest.setRequestLine(firstLine);
 		httpRequest.setChannelContext(channelContext);
 		httpRequest.setHttpConfig(httpConfig);
-		
-//		HttpRequestHandler httpRequestHandler = (HttpRequestHandler)channelContext.groupContext.getAttribute(GroupContextKey.HTTP_REQ_HANDLER);
-//		if (httpRequestHandler != null) {
-//			httpRequest.setHttpConfig(httpRequestHandler.getHttpConfig(httpRequest));
-//		}
-		
+
+		//		HttpRequestHandler httpRequestHandler = (HttpRequestHandler)channelContext.groupContext.getAttribute(GroupContextKey.HTTP_REQ_HANDLER);
+		//		if (httpRequestHandler != null) {
+		//			httpRequest.setHttpConfig(httpRequestHandler.getHttpConfig(httpRequest));
+		//		}
 
 		// request header start
 		boolean headerCompleted = parseHeaderLine(buffer, headers, 0, httpConfig);
@@ -116,9 +116,6 @@ public class HttpRequestDecoder {
 			return null;
 		}
 		// request header end
-		
-		
-		
 
 		// ----------------------------------------------- request body start
 		if (httpConfig.checkHost) {
@@ -127,12 +124,7 @@ public class HttpRequestDecoder {
 			}
 		}
 
-		
-		
-//		httpRequest.setHttpConfig((HttpConfig) channelContext.groupContext.getAttribute(GroupContextKey.HTTP_SERVER_CONFIG));
-		
-		
-
+		//		httpRequest.setHttpConfig((HttpConfig) channelContext.groupContext.getAttribute(GroupContextKey.HTTP_SERVER_CONFIG));
 
 		if (appendRequestHeaderString) {
 			httpRequest.setHeaderString(headerSb.toString());
@@ -144,7 +136,7 @@ public class HttpRequestDecoder {
 		if (Tio.IpBlacklist.isInBlacklist(channelContext.groupContext, httpRequest.getClientIp())) {
 			throw new AioDecodeException("[" + httpRequest.getClientIp() + "] in black list");
 		}
-		
+
 		httpRequest.setContentLength(contentLength);
 
 		String connection = headers.get(HttpConst.RequestHeaderKey.Connection);
@@ -188,7 +180,6 @@ public class HttpRequestDecoder {
 		//		logstr.append("------------------ websocket header start ------------------------\r\n");
 		//		log.error(logstr.toString());
 
-		
 		return httpRequest;
 
 	}
@@ -246,7 +237,7 @@ public class HttpRequestDecoder {
 	 * @author tanyaowu
 	 */
 	private static void parseBody(HttpRequest httpRequest, RequestLine firstLine, byte[] bodyBytes, ChannelContext channelContext, HttpConfig httpConfig)
-			throws AioDecodeException {
+	        throws AioDecodeException {
 		parseBodyFormat(httpRequest, httpRequest.getHeaders());
 		RequestBodyFormat bodyFormat = httpRequest.getBodyFormat();
 
@@ -450,24 +441,23 @@ public class HttpRequestDecoder {
 			}
 		}
 
-		int lineLength = buffer.position() - initPosition;  //这一行(header line)的字节数
-//		log.error("lineLength:{}, headerLength:{}, headers:\r\n{}", lineLength, hasReceivedHeaderLength, Json.toFormatedJson(headers));
+		int lineLength = buffer.position() - initPosition; //这一行(header line)的字节数
+		//		log.error("lineLength:{}, headerLength:{}, headers:\r\n{}", lineLength, hasReceivedHeaderLength, Json.toFormatedJson(headers));
 		if (lineLength > MAX_LENGTH_OF_HEADERLINE) {
-//			log.error("header line is too long, max length of header line is " + MAX_LENGTH_OF_HEADERLINE);
+			//			log.error("header line is too long, max length of header line is " + MAX_LENGTH_OF_HEADERLINE);
 			throw new AioDecodeException("header line is too long, max length of header line is " + MAX_LENGTH_OF_HEADERLINE);
 		}
-		
+
 		if (needIteration) {
-			int headerLength = lineLength + hasReceivedHeaderLength;  //header占用的字节数
-//			log.error("allHeaderLength:{}", allHeaderLength);
+			int headerLength = lineLength + hasReceivedHeaderLength; //header占用的字节数
+			//			log.error("allHeaderLength:{}", allHeaderLength);
 			if (headerLength > MAX_LENGTH_OF_HEADER) {
-//				log.error("header is too long, max length of header is " + MAX_LENGTH_OF_HEADER);
+				//				log.error("header is too long, max length of header is " + MAX_LENGTH_OF_HEADER);
 				throw new AioDecodeException("header is too long, max length of header is " + MAX_LENGTH_OF_HEADER);
 			}
 			return parseHeaderLine(buffer, headers, headerLength, httpConfig);
 		}
 
-		
 		return false;
 	}
 

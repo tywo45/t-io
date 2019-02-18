@@ -63,16 +63,16 @@ public class ServerGroupContext extends GroupContext {
 		this(name, serverAioHandler, serverAioListener, null, null);
 	}
 
-//	/**
-//	 * 
-//	 * @param name
-//	 * @param serverAioHandler
-//	 * @param serverAioListener
-//	 * @author: tanyaowu
-//	 */
-//	public ServerGroupContext(String name, TioClusterConfig tioClusterConfig, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener) {
-//		this(name, tioClusterConfig, serverAioHandler, serverAioListener, null, null);
-//	}
+	//	/**
+	//	 * 
+	//	 * @param name
+	//	 * @param serverAioHandler
+	//	 * @param serverAioListener
+	//	 * @author: tanyaowu
+	//	 */
+	//	public ServerGroupContext(String name, TioClusterConfig tioClusterConfig, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener) {
+	//		this(name, tioClusterConfig, serverAioHandler, serverAioListener, null, null);
+	//	}
 
 	/**
 	 * 
@@ -96,7 +96,7 @@ public class ServerGroupContext extends GroupContext {
 	 * @author: tanyaowu
 	 */
 	public ServerGroupContext(String name, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener, SynThreadPoolExecutor tioExecutor,
-			ThreadPoolExecutor groupExecutor) {
+	        ThreadPoolExecutor groupExecutor) {
 		super(tioExecutor, groupExecutor);
 		this.ipBlacklist = new IpBlacklist(id, this);
 		init(name, serverAioHandler, serverAioListener, tioExecutor, groupExecutor);
@@ -112,12 +112,12 @@ public class ServerGroupContext extends GroupContext {
 	 * @param groupExecutor
 	 * @author: tanyaowu
 	 */
-//	public ServerGroupContext(String name, TioClusterConfig tioClusterConfig, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener,
-//			SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
-//		super(tioClusterConfig, tioExecutor, groupExecutor);
-//		init(name, serverAioHandler, serverAioListener, tioExecutor, groupExecutor);
-//	}
-	
+	//	public ServerGroupContext(String name, TioClusterConfig tioClusterConfig, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener,
+	//			SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
+	//		super(tioClusterConfig, tioExecutor, groupExecutor);
+	//		init(name, serverAioHandler, serverAioListener, tioExecutor, groupExecutor);
+	//	}
+
 	/**
 	 * 
 	 * @param name
@@ -127,8 +127,7 @@ public class ServerGroupContext extends GroupContext {
 	 * @param groupExecutor
 	 * @author tanyaowu
 	 */
-	private void init(String name, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener,
-			SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
+	private void init(String name, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener, SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
 		this.name = name;
 		this.groupStat = new ServerGroupStat();
 		this.acceptCompletionHandler = new AcceptCompletionHandler();
@@ -171,14 +170,14 @@ public class ServerGroupContext extends GroupContext {
 							long compareTime = Math.max(channelContext.stat.latestTimeOfReceivedByte, channelContext.stat.latestTimeOfSentPacket);
 							long currtime = SystemTimer.currTime;
 							long interval = currtime - compareTime;
-							
+
 							boolean needRemove = false;
-							if(channelContext.heartbeatTimeout != null && channelContext.heartbeatTimeout > 0) {
+							if (channelContext.heartbeatTimeout != null && channelContext.heartbeatTimeout > 0) {
 								needRemove = interval > channelContext.heartbeatTimeout;
 							} else {
 								needRemove = interval > heartbeatTimeout;
 							}
-							
+
 							if (needRemove) {
 								log.info("{}, {} ms没有收发消息", channelContext, interval);
 								Tio.remove(channelContext, interval + " ms没有收发消息");
@@ -194,7 +193,7 @@ public class ServerGroupContext extends GroupContext {
 								builder.append("\r\n").append(ServerGroupContext.this.getName());
 								builder.append("\r\n ├ 当前时间:").append(SystemTimer.currTime);
 								builder.append("\r\n ├ 连接统计");
-								builder.append("\r\n │ \t ├ 共接受过连接数  :").append(((ServerGroupStat)groupStat).accepted.get());
+								builder.append("\r\n │ \t ├ 共接受过连接数  :").append(((ServerGroupStat) groupStat).accepted.get());
 								builder.append("\r\n │ \t ├ 当前连接数            :").append(set.size());
 								//								builder.append("\r\n │ \t ├ 当前群组数            :").append(groups);
 								builder.append("\r\n │ \t ├ 异IP连接数           :").append(ServerGroupContext.this.ips.getIpmap().getObj().size());
@@ -202,10 +201,8 @@ public class ServerGroupContext extends GroupContext {
 
 								builder.append("\r\n ├ 消息统计");
 								builder.append("\r\n │ \t ├ 已处理消息  :").append(groupStat.handledPackets.get());
-								builder.append("\r\n │ \t ├ 已接收消息(packet/byte):").append(groupStat.receivedPackets.get()).append("/")
-										.append(groupStat.receivedBytes.get());
-								builder.append("\r\n │ \t ├ 已发送消息(packet/byte):").append(groupStat.sentPackets.get()).append("/").append(groupStat.sentBytes.get())
-										.append("b");
+								builder.append("\r\n │ \t ├ 已接收消息(packet/byte):").append(groupStat.receivedPackets.get()).append("/").append(groupStat.receivedBytes.get());
+								builder.append("\r\n │ \t ├ 已发送消息(packet/byte):").append(groupStat.sentPackets.get()).append("/").append(groupStat.sentBytes.get()).append("b");
 								builder.append("\r\n │ \t ├ 平均每次TCP包接收的字节数  :").append(groupStat.getBytesPerTcpReceive());
 								builder.append("\r\n │ \t └ 平均每次TCP包接收的业务包  :").append(groupStat.getPacketsPerTcpReceive());
 								builder.append("\r\n └ IP统计时段 ");
@@ -244,7 +241,7 @@ public class ServerGroupContext extends GroupContext {
 		checkHeartbeatThread.setDaemon(true);
 		checkHeartbeatThread.setPriority(Thread.MIN_PRIORITY);
 		checkHeartbeatThread.start();
-	
+
 	}
 
 	/**
@@ -307,7 +304,6 @@ public class ServerGroupContext extends GroupContext {
 		return getServerAioListener();
 	}
 
-
 	/**
 	 * @return the serverAioHandler
 	 */
@@ -334,7 +330,7 @@ public class ServerGroupContext extends GroupContext {
 	public boolean isServer() {
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "ServerGroupContext [name=" + name + "]";

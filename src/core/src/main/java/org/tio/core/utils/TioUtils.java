@@ -26,7 +26,8 @@ public class TioUtils {
 			if (channelContext.isClosed || channelContext.isRemoved) {
 				if (isopen) {
 					try {
-						Tio.close(channelContext, "asynchronousSocketChannel is open, but channelContext isClosed: " + channelContext.isClosed + ", isRemoved: " + channelContext.isRemoved);
+						Tio.close(channelContext,
+						        "asynchronousSocketChannel is open, but channelContext isClosed: " + channelContext.isClosed + ", isRemoved: " + channelContext.isRemoved);
 					} catch (Throwable e) {
 						log.error(e.toString(), e);
 					}
@@ -36,7 +37,7 @@ public class TioUtils {
 			}
 		} else {
 			log.error("{}, 请检查此异常, asynchronousSocketChannel is null, isClosed:{}, isRemoved:{}, {} ", channelContext, channelContext.isClosed, channelContext.isRemoved,
-					ThreadUtils.stackTrace());
+			        ThreadUtils.stackTrace());
 			return false;
 		}
 

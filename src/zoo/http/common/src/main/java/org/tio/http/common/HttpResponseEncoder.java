@@ -24,14 +24,12 @@ public class HttpResponseEncoder {
 	private static Logger log = LoggerFactory.getLogger(HttpResponseEncoder.class);
 
 	public static final int MAX_HEADER_LENGTH = 20480;
-	
+
 	public static final int HEADER_SERVER_LENGTH = HeaderName.Server.bytes.length + HeaderValue.Server.TIO.bytes.length + 3;
-	
+
 	public static final int HEADER_DATE_LENGTH_1 = HeaderName.Date.bytes.length + 3;
-	
+
 	public static final int HEADER_FIXED_LENGTH = HEADER_SERVER_LENGTH + HEADER_DATE_LENGTH_1;
-	
-	
 
 	/**
 	 *
@@ -75,24 +73,24 @@ public class HttpResponseEncoder {
 			}
 			headerLength += httpResponse.getCookies().size() * 3; //冒号和\r\n
 		}
-		
+
 		HeaderValue httpDateValue = HttpDateTimer.httpDateValue;
-		
+
 		headerLength += HEADER_FIXED_LENGTH + httpDateValue.bytes.length;
 
 		ByteBuffer buffer = ByteBuffer.allocate(respLineLength + headerLength + bodyLength);
 		buffer.put(httpResponseStatus.responseLineBinary);
-		
+
 		buffer.put(HeaderName.Server.bytes);
 		buffer.put(SysConst.COL);
 		buffer.put(HeaderValue.Server.TIO.bytes);
 		buffer.put(SysConst.CR_LF);
-		
+
 		buffer.put(HeaderName.Date.bytes);
 		buffer.put(SysConst.COL);
 		buffer.put(httpDateValue.bytes);
 		buffer.put(SysConst.CR_LF);
-		
+
 		Set<Entry<HeaderName, HeaderValue>> headerSet = headers.entrySet();
 		for (Entry<HeaderName, HeaderValue> entry : headerSet) {
 			buffer.put(entry.getKey().bytes);

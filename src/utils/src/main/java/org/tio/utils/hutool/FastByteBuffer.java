@@ -12,27 +12,27 @@ public class FastByteBuffer {
 	/**
 	 * 缓冲集
 	 */
-	private byte[][] buffers = new byte[16][];
+	private byte[][]	buffers				= new byte[16][];
 	/**
 	 * 缓冲数
 	 */
-	private int buffersCount;
+	private int			buffersCount;
 	/**
 	 * 当前缓冲索引
 	 */
-	private int currentBufferIndex = -1;
+	private int			currentBufferIndex	= -1;
 	/**
 	 * 当前缓冲
 	 */
-	private byte[] currentBuffer;
+	private byte[]		currentBuffer;
 	/**
 	 * 当前缓冲偏移量
 	 */
-	private int offset;
+	private int			offset;
 	/**
 	 * 缓冲字节数
 	 */
-	private int size;
+	private int			size;
 
 	/**
 	 * 一个缓冲区的最小字节数

@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
  * 2017年5月14日 上午9:55:37
  */
 public class ListWithLock<T> extends ObjWithLock<List<T>> {
-	private static final long serialVersionUID = 8549668315606224029L;
-	private static final Logger log = LoggerFactory.getLogger(ListWithLock.class);
+	private static final long	serialVersionUID	= 8549668315606224029L;
+	private static final Logger	log					= LoggerFactory.getLogger(ListWithLock.class);
 
 	/**
 	 * @param durationList
@@ -32,8 +32,7 @@ public class ListWithLock<T> extends ObjWithLock<List<T>> {
 	public ListWithLock(List<T> list, ReentrantReadWriteLock lock) {
 		super(list, lock);
 	}
-	
-	
+
 	/**
 	 *
 	 * @param t
@@ -91,7 +90,7 @@ public class ListWithLock<T> extends ObjWithLock<List<T>> {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 
 	 * @return

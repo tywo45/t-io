@@ -34,17 +34,17 @@ public class ResCompressorFactory {
 	 */
 	public static ResCompressor get(String extension) {
 		if ("js".equalsIgnoreCase(extension)) {
-//			return YuiJsCompressor.ME;
+			//			return YuiJsCompressor.ME;
 			return TioJsCompressor.ME;
 		} else if ("css".equalsIgnoreCase(extension)) {
 			return TioCssCompressor.ME;
 		} else if ("html".equalsIgnoreCase(extension) || "htm".equalsIgnoreCase(extension)) {
 			return TioHtmlCompressor.ME;
 		}
-		
+
 		return null;
 	}
-	
+
 	public static boolean isNeedCompress(Root model, String extension) {
 		if ("js".equalsIgnoreCase(extension)) {
 			return model.getCompress().getJs();
@@ -53,7 +53,7 @@ public class ResCompressorFactory {
 		} else if ("html".equalsIgnoreCase(extension) || "htm".equalsIgnoreCase(extension)) {
 			return model.getCompress().getHtml();
 		}
-		
+
 		return false;
 	}
 }

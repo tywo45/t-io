@@ -41,7 +41,7 @@ public class SslFacadeContext {
 
 		sslContext = SSLContext.getInstance("TLS");
 		sslContext.init(channelContext.groupContext.sslConfig.getKeyManagerFactory().getKeyManagers(),
-				channelContext.groupContext.sslConfig.getTrustManagerFactory().getTrustManagers(), null);
+		        channelContext.groupContext.sslConfig.getTrustManagerFactory().getTrustManagers(), null);
 
 		DefaultTaskHandler taskHandler = new DefaultTaskHandler();
 

@@ -8,15 +8,15 @@ import java.util.concurrent.atomic.AtomicLong;
  * 2017年10月19日 上午9:40:48
  */
 public class GroupStat implements java.io.Serializable {
-	private static final long serialVersionUID = -6988655941470121164L;
+	private static final long	serialVersionUID	= -6988655941470121164L;
 	/**
 	 * 关闭了多少连接
 	 */
-	public final AtomicLong closed = new AtomicLong();
+	public final AtomicLong		closed				= new AtomicLong();
 	/**
 	 * 接收到的消息包
 	 */
-	public final AtomicLong receivedPackets = new AtomicLong();
+	public final AtomicLong		receivedPackets		= new AtomicLong();
 
 	/**
 	 * 接收到的消息字节数

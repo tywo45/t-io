@@ -14,12 +14,12 @@ public class WsPacket extends Packet {
 	//	//不包含cookie的头部
 	//	protected Map<String, String> headers = null;
 
-	private static final long serialVersionUID = 4506947563506841436L;
+	private static final long	serialVersionUID		= 4506947563506841436L;
 	/**
 	 * 消息体最多为多少
 	 */
-	public static final int MAX_LENGTH_OF_BODY = (int) (1024 * 1024 * 2.1); //只支持多少M数据
-	public static final int MINIMUM_HEADER_LENGTH = 2;
+	public static final int		MAX_LENGTH_OF_BODY		= (int) (1024 * 1024 * 2.1);	//只支持多少M数据
+	public static final int		MINIMUM_HEADER_LENGTH	= 2;
 
 	public static final int MAX_BODY_LENGTH = 1024 * 512; //最多接受的1024 * 512(半M)数据
 
@@ -31,7 +31,7 @@ public class WsPacket extends Packet {
 	private boolean isHandShake = false;
 
 	private byte[] body;
-	
+
 	/**
 	 *  byte[][] bodys和body的作用一样，当业务数据用多个byte[]比较方便时，就可以用 byte[][] bodys
 	 *  服务器发往客户端时，此字段才可能会有值(业务层进行性能优化时才用得着这个字段)

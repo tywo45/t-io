@@ -13,9 +13,9 @@ import org.tio.core.intf.Packet;
  */
 public class HttpPacket extends Packet {
 	private static final long serialVersionUID = 3903186670675671956L;
-	
+
 	private Map<String, Serializable> props = new HashMap<>();
-	
+
 	/**
 	 * 获取属性
 	 * @param key
@@ -25,7 +25,7 @@ public class HttpPacket extends Packet {
 	public Object getAttribute(String key) {
 		return props.get(key);
 	}
-	
+
 	/**
 	 * 
 	 * @param key
@@ -40,7 +40,7 @@ public class HttpPacket extends Packet {
 		}
 		return ret;
 	}
-	
+
 	/**
 	 * 
 	 * @param key
@@ -59,12 +59,10 @@ public class HttpPacket extends Packet {
 	public void setAttribute(String key, Serializable value) {
 		props.put(key, value);
 	}
-	
+
 	protected byte[] body;
 
 	private String headerString;
-
-	
 
 	public HttpPacket() {
 
@@ -76,19 +74,14 @@ public class HttpPacket extends Packet {
 	public byte[] getBody() {
 		return body;
 	}
-	
+
 	public void setBody(byte[] body) {
 		this.body = body;
 	}
 
-
 	public String getHeaderString() {
 		return headerString;
 	}
-
-	
-
-	
 
 	public void setHeaderString(String headerString) {
 		this.headerString = headerString;

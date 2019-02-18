@@ -10,8 +10,8 @@ import java.util.Map;
  */
 public class YouTube extends Schema {
 
-	public static final String YOUTUBE = "youtube";
-	private String videoId;
+	public static final String	YOUTUBE	= "youtube";
+	private String				videoId;
 
 	/**
 	 * Default constructor to construct new YouTube object.

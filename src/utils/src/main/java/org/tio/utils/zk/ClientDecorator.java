@@ -7,7 +7,7 @@ import org.apache.curator.framework.CuratorFramework;
  * 2017年11月20日 上午9:52:01
  */
 public interface ClientDecorator {
-	
+
 	/**
 	 * 
 	 * @param zclient

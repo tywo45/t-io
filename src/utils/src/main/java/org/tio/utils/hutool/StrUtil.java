@@ -11,8 +11,8 @@ import java.util.Date;
 
 public class StrUtil {
 
-	public static final int INDEX_NOT_FOUND = -1;
-	public static final String EMPTY = "";
+	public static final int		INDEX_NOT_FOUND	= -1;
+	public static final String	EMPTY			= "";
 
 	/**
 	 * 去除字符串两边空白符，传入null也返回null
@@ -1149,7 +1149,7 @@ public class StrUtil {
 		} else if (type == java.sql.Time.class) {
 			return DateUtil.parseToTime(value);
 		}
-		
+
 		throw new Exception("不知道要转换成啥" + type);
 	}
 
@@ -1265,8 +1265,7 @@ public class StrUtil {
 			return ret;
 		}
 	}
-	
-	
+
 	/**
 	 * 查找指定字符串是否包含指定字符串列表中的任意一个字符串
 	 * 
@@ -1278,7 +1277,7 @@ public class StrUtil {
 	public static boolean containsAny(CharSequence str, CharSequence... testStrs) {
 		return null != getContainsStr(str, testStrs);
 	}
-	
+
 	/**
 	 * 查找指定字符串是否包含指定字符串列表中的任意一个字符串，如果包含返回找到的第一个字符串
 	 * 
@@ -1298,8 +1297,7 @@ public class StrUtil {
 		}
 		return null;
 	}
-	
-	
+
 	/**
 	 * 大写首字母<br>
 	 * 例如：str = name, return Name

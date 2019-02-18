@@ -206,7 +206,7 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 				if (channelContext.logWhenDecodeError) {
 					log.error("解码时遇到异常", e);
 				}
-				
+
 				channelContext.setPacketNeededLength(null);
 
 				if (e instanceof AioDecodeException) {

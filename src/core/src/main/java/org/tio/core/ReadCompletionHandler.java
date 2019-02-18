@@ -16,9 +16,9 @@ import org.tio.utils.SystemTimer;
  * 2017年4月4日 上午9:22:04
  */
 public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuffer> {
-	private static Logger log = LoggerFactory.getLogger(ReadCompletionHandler.class);
-	private ChannelContext channelContext = null;
-	private ByteBuffer readByteBuffer;
+	private static Logger	log				= LoggerFactory.getLogger(ReadCompletionHandler.class);
+	private ChannelContext	channelContext	= null;
+	private ByteBuffer		readByteBuffer;
 
 	//	private ByteBuffer byteBuffer = ByteBuffer.allocate(ChannelContext.READ_BUFFER_SIZE);
 
@@ -44,7 +44,7 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuf
 				channelContext.stat.receivedBytes.addAndGet(result);
 				channelContext.stat.receivedTcps.incrementAndGet();
 			}
-			
+
 			channelContext.stat.latestTimeOfReceivedByte = SystemTimer.currTime;
 
 			if (groupContext.ipStats.durationList != null && groupContext.ipStats.durationList.size() > 0) {
@@ -67,8 +67,7 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuf
 					log.error("", e);
 				}
 			}
-			
-			
+
 			readByteBuffer.flip();
 			if (channelContext.sslFacadeContext == null) {
 				if (groupContext.useQueueDecode) {
@@ -89,11 +88,11 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuf
 					Tio.close(channelContext, e, e.toString());
 				}
 			}
-			
+
 			if (TioUtils.checkBeforeIO(channelContext)) {
 				read();
 			}
-			
+
 		} else if (result == 0) {
 			log.error("{}, 读到的数据长度为0", channelContext);
 			Tio.close(channelContext, null, "读到的数据长度为0");
@@ -108,7 +107,7 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuf
 			}
 		}
 	}
-	
+
 	private void read() {
 		readByteBuffer.position(0);
 		readByteBuffer.limit(readByteBuffer.capacity());

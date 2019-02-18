@@ -10,7 +10,7 @@ public interface Const {
 	public static final int PORT = 843;
 
 	public static final int HEARTBEAT_TIMEOUT = 0;//60 * 1000;
-	
+
 	public static final String CHARSET = "utf-8";
 
 }

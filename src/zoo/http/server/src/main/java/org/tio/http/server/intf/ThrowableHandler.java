@@ -11,7 +11,7 @@ import org.tio.http.common.RequestLine;
  * @author tanyaowu
  */
 public interface ThrowableHandler {
-	
+
 	/**
 	 * 
 	 * @param request

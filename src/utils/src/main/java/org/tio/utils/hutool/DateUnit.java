@@ -7,9 +7,9 @@ package org.tio.utils.hutool;
  */
 public enum DateUnit {
 	/** 一毫秒 */
-	MS(1), 
+	MS(1),
 	/** 一秒的毫秒数 */
-	SECOND(1000), 
+	SECOND(1000),
 	/**一分钟的毫秒数 */
 	MINUTE(SECOND.getMillis() * 60),
 	/**一小时的毫秒数 */
@@ -18,16 +18,17 @@ public enum DateUnit {
 	DAY(HOUR.getMillis() * 24),
 	/**一周的毫秒数 */
 	WEEK(DAY.getMillis() * 7);
-	
+
 	private long millis;
-	DateUnit(long millis){
+
+	DateUnit(long millis) {
 		this.millis = millis;
 	}
-	
+
 	/**
 	 * @return 单位对应的毫秒数
 	 */
-	public long getMillis(){
+	public long getMillis() {
 		return this.millis;
 	}
 }

@@ -24,7 +24,7 @@ public class GuavaCache extends AbsCache {
 	private static Logger log = LoggerFactory.getLogger(GuavaCache.class);
 
 	public static Map<String, GuavaCache> map = new HashMap<>();
-	
+
 	public static GuavaCache getCache(String cacheName) {
 		GuavaCache guavaCache = map.get(cacheName);
 		if (guavaCache == null) {
@@ -57,16 +57,16 @@ public class GuavaCache extends AbsCache {
 					Integer maximumSize = 5000000;
 					boolean recordStats = false;
 					LoadingCache<String, Serializable> loadingCache = GuavaUtils.createLoadingCache(concurrencyLevel, timeToLiveSeconds, timeToIdleSeconds, initialCapacity,
-							maximumSize, recordStats, removalListener);
-					
+					        maximumSize, recordStats, removalListener);
+
 					Integer temporaryMaximumSize = 500000;
-					LoadingCache<String, Serializable> temporaryLoadingCache = GuavaUtils.createLoadingCache(concurrencyLevel, 10L, (Long)null, initialCapacity,
-							temporaryMaximumSize, recordStats, removalListener);
+					LoadingCache<String, Serializable> temporaryLoadingCache = GuavaUtils.createLoadingCache(concurrencyLevel, 10L, (Long) null, initialCapacity,
+					        temporaryMaximumSize, recordStats, removalListener);
 					guavaCache = new GuavaCache(cacheName, loadingCache, temporaryLoadingCache);
-					
+
 					guavaCache.setTimeToIdleSeconds(timeToIdleSeconds);
 					guavaCache.setTimeToLiveSeconds(timeToLiveSeconds);
-					
+
 					map.put(cacheName, guavaCache);
 				}
 			}
@@ -77,7 +77,7 @@ public class GuavaCache extends AbsCache {
 	//
 
 	private LoadingCache<String, Serializable> loadingCache = null;
-	
+
 	private LoadingCache<String, Serializable> temporaryLoadingCache = null;
 
 	private GuavaCache(String cacheName, LoadingCache<String, Serializable> loadingCache, LoadingCache<String, Serializable> temporaryLoadingCache) {
@@ -101,7 +101,7 @@ public class GuavaCache extends AbsCache {
 		if (ret == null) {
 			ret = temporaryLoadingCache.getIfPresent(key);
 		}
-		
+
 		return ret;
 	}
 
@@ -118,7 +118,7 @@ public class GuavaCache extends AbsCache {
 		}
 		loadingCache.put(key, value);
 	}
-	
+
 	@Override
 	public void putTemporary(String key, Serializable value) {
 		if (StrUtil.isBlank(key)) {
@@ -144,7 +144,7 @@ public class GuavaCache extends AbsCache {
 	public ConcurrentMap<String, Serializable> asMap() {
 		return loadingCache.asMap();
 	}
-	
+
 	/**
 	 * 
 	 * @return
@@ -157,7 +157,7 @@ public class GuavaCache extends AbsCache {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T get(String key, Class<T> clazz) {
-		return (T)get(key);
+		return (T) get(key);
 	}
 
 	@Override

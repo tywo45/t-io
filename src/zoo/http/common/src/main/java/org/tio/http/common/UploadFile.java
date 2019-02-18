@@ -7,8 +7,8 @@ package org.tio.http.common;
  */
 public class UploadFile {
 
-	private String name = null;
-	private int size = -1;
+	private String	name	= null;
+	private int		size	= -1;
 
 	private byte[] data = null;
 	//    private File file = null;

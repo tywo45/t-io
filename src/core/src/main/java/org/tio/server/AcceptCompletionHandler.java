@@ -38,16 +38,14 @@ public class AcceptCompletionHandler implements CompletionHandler<AsynchronousSo
 			ServerGroupContext serverGroupContext = tioServer.getServerGroupContext();
 			InetSocketAddress inetSocketAddress = (InetSocketAddress) asynchronousSocketChannel.getRemoteAddress();
 			String clientIp = inetSocketAddress.getHostString();
-//			serverGroupContext.ips.get(clientIp).getRequestCount().incrementAndGet();
-			
-//			CaffeineCache[] caches = serverGroupContext.ips.getCaches();
-//			for (CaffeineCache guavaCache : caches) {
-//				IpStat ipStat = (IpStat) guavaCache.get(clientIp);
-//				ipStat.getRequestCount().incrementAndGet();
-//			}
-			
-			
-			
+			//			serverGroupContext.ips.get(clientIp).getRequestCount().incrementAndGet();
+
+			//			CaffeineCache[] caches = serverGroupContext.ips.getCaches();
+			//			for (CaffeineCache guavaCache : caches) {
+			//				IpStat ipStat = (IpStat) guavaCache.get(clientIp);
+			//				ipStat.getRequestCount().incrementAndGet();
+			//			}
+
 			if (org.tio.core.Tio.IpBlacklist.isInBlacklist(serverGroupContext, clientIp)) {
 				log.warn("[{}]在黑名单中", clientIp);
 				asynchronousSocketChannel.close();
@@ -55,21 +53,19 @@ public class AcceptCompletionHandler implements CompletionHandler<AsynchronousSo
 			}
 
 			if (serverGroupContext.statOn) {
-				((ServerGroupStat)serverGroupContext.groupStat).accepted.incrementAndGet();
+				((ServerGroupStat) serverGroupContext.groupStat).accepted.incrementAndGet();
 			}
-			
-			
-			
-//			channelContext.getIpStat().getActivatedCount().incrementAndGet();
-//			for (CaffeineCache guavaCache : caches) {
-//				IpStat ipStat = (IpStat) guavaCache.get(clientIp);
-//				ipStat.getActivatedCount().incrementAndGet();
-//			}
-//			for (Long v : durationList) {
-//				IpStat ipStat = (IpStat) serverGroupContext.ips.get(v, clientIp);
-//				IpStat.getActivatedCount().incrementAndGet();
-//			}
-//			IpStat.getActivatedCount(clientIp, true).incrementAndGet();
+
+			//			channelContext.getIpStat().getActivatedCount().incrementAndGet();
+			//			for (CaffeineCache guavaCache : caches) {
+			//				IpStat ipStat = (IpStat) guavaCache.get(clientIp);
+			//				ipStat.getActivatedCount().incrementAndGet();
+			//			}
+			//			for (Long v : durationList) {
+			//				IpStat ipStat = (IpStat) serverGroupContext.ips.get(v, clientIp);
+			//				IpStat.getActivatedCount().incrementAndGet();
+			//			}
+			//			IpStat.getActivatedCount(clientIp, true).incrementAndGet();
 
 			asynchronousSocketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
 			asynchronousSocketChannel.setOption(StandardSocketOptions.SO_RCVBUF, 64 * 1024);
@@ -80,12 +76,12 @@ public class AcceptCompletionHandler implements CompletionHandler<AsynchronousSo
 			channelContext.setClosed(false);
 			channelContext.stat.setTimeFirstConnected(SystemTimer.currTime);
 			channelContext.setServerNode(tioServer.getServerNode());
-			
-//			channelContext.traceClient(ChannelAction.CONNECT, null, null);
-			
-//			serverGroupContext.connecteds.add(channelContext);
+
+			//			channelContext.traceClient(ChannelAction.CONNECT, null, null);
+
+			//			serverGroupContext.connecteds.add(channelContext);
 			serverGroupContext.ips.bind(channelContext);
-			
+
 			boolean isConnected = true;
 			boolean isReconnect = false;
 			if (serverGroupContext.getServerAioListener() != null) {
@@ -97,10 +93,9 @@ public class AcceptCompletionHandler implements CompletionHandler<AsynchronousSo
 					}
 				}
 			}
-			
-			
+
 			if (serverGroupContext.ipStats.durationList != null && serverGroupContext.ipStats.durationList.size() > 0) {
-				try {				
+				try {
 					for (Long v : serverGroupContext.ipStats.durationList) {
 						IpStat ipStat = (IpStat) serverGroupContext.ipStats.get(v, clientIp);
 						ipStat.getRequestCount().incrementAndGet();
@@ -110,8 +105,6 @@ public class AcceptCompletionHandler implements CompletionHandler<AsynchronousSo
 					log.error(e.toString(), e);
 				}
 			}
-			
-			
 
 			if (!tioServer.isWaitingStop()) {
 				ReadCompletionHandler readCompletionHandler = channelContext.getReadCompletionHandler();

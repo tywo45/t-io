@@ -47,7 +47,7 @@ public class Groups {
 	public void bind(String groupid, ChannelContext channelContext) {
 		bind(groupid, channelContext, true);
 	}
-	
+
 	/**
 	 * 和组绑定
 	 * @param groupid
@@ -60,7 +60,7 @@ public class Groups {
 			if (groupContext.isShortConnection) {
 				return;
 			}
-			
+
 			if (StrUtil.isBlank(groupid)) {
 				return;
 			}
@@ -83,7 +83,7 @@ public class Groups {
 				}
 				set.add(groupid);
 				channelContexts.add(channelContext);
-				
+
 				if (callbackListener) {
 					GroupListener groupListener = groupContext.getGroupListener();
 					if (groupListener != null) {
@@ -151,7 +151,7 @@ public class Groups {
 	public void unbind(ChannelContext channelContext) {
 		unbind(channelContext, true);
 	}
-	
+
 	/**
 	 * 
 	 * @param channelContext
@@ -214,7 +214,7 @@ public class Groups {
 	public void unbind(String groupid, ChannelContext channelContext, boolean deleteFromChannelContext) {
 		unbind(groupid, channelContext, deleteFromChannelContext, true);
 	}
-	
+
 	/**
 	 * 
 	 * @param groupid
@@ -238,7 +238,7 @@ public class Groups {
 				boolean ss = setWithLock.remove(channelContext);
 				if (!ss) {
 					log.error("{}, 移除失败, cid:{}", channelContext, channelContext.getId());
-					
+
 				}
 
 				if (deleteFromChannelContext) {

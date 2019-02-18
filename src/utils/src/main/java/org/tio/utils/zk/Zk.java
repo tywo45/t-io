@@ -134,8 +134,8 @@ public class Zk {
 		try {
 			zkclient.create().creatingParentsIfNeeded().withMode(createMode).forPath(path, content);
 		} catch (NodeExistsException e) {
-//			node exists skip it
-//			log.error(e.toString(), e);
+			//			node exists skip it
+			//			log.error(e.toString(), e);
 		}
 
 		return;

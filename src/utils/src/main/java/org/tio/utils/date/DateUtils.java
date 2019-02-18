@@ -38,7 +38,7 @@ public class DateUtils {
 		return httpDate(new Date(millis));
 		// return HTTP_DATE_FORMATTER.format(millis);
 	}
-	
+
 	/**
 	 * 格式化日期时间<br>
 	 * 格式 yyyy-MM-dd HH:mm:ss

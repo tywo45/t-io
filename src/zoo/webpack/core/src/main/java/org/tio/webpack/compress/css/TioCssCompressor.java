@@ -51,13 +51,13 @@ public class TioCssCompressor implements ResCompressor {
 				return srcCssContent;
 			}
 
-//			byte[] initBytes = srcCssContent.getBytes();
-//			byte[] afterBytes = ret.getBytes();
-//
-//			if (afterBytes.length >= initBytes.length) {
-//				log.warn("CSS压缩后的文件反而较大,  init size:{}, after size:{}, file:{}", initBytes.length, afterBytes.length, filePath);
-//				return srcCssContent;
-//			}
+			//			byte[] initBytes = srcCssContent.getBytes();
+			//			byte[] afterBytes = ret.getBytes();
+			//
+			//			if (afterBytes.length >= initBytes.length) {
+			//				log.warn("CSS压缩后的文件反而较大,  init size:{}, after size:{}, file:{}", initBytes.length, afterBytes.length, filePath);
+			//				return srcCssContent;
+			//			}
 
 			return commits + ret;
 		} catch (Exception e) {

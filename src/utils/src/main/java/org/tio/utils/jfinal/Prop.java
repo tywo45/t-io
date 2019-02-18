@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.utils.SysConst;
 
-
 /**
  * Prop. Prop can load properties file from CLASSPATH or File object.
  */
@@ -35,7 +34,7 @@ public class Prop {
 	private static Logger log = LoggerFactory.getLogger(Prop.class);
 
 	private Properties properties = null;
-	
+
 	/**
 	 * Prop constructor.
 	 * @see #Prop(String, String)
@@ -43,7 +42,7 @@ public class Prop {
 	public Prop(String fileName) {
 		this(fileName, SysConst.DEFAULT_ENCODING);
 	}
-	
+
 	/**
 	 * Prop constructor
 	 * <p>
@@ -60,7 +59,7 @@ public class Prop {
 	public Prop(String fileName, String encoding) {
 		InputStream inputStream = null;
 		try {
-			inputStream = getClassLoader().getResourceAsStream(fileName);		// properties.load(Prop.class.getResourceAsStream(fileName));
+			inputStream = getClassLoader().getResourceAsStream(fileName); // properties.load(Prop.class.getResourceAsStream(fileName));
 			if (inputStream == null) {
 				throw new IllegalArgumentException("Properties file not found in classpath: " + fileName);
 			}
@@ -68,17 +67,21 @@ public class Prop {
 			properties.load(new InputStreamReader(inputStream, encoding));
 		} catch (IOException e) {
 			throw new RuntimeException("Error loading properties file.", e);
-		}
-		finally {
-			if (inputStream != null) try {inputStream.close();} catch (IOException e) {log.error(e.getMessage(), e);}
+		} finally {
+			if (inputStream != null)
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					log.error(e.getMessage(), e);
+				}
 		}
 	}
-	
+
 	private ClassLoader getClassLoader() {
 		ClassLoader ret = Thread.currentThread().getContextClassLoader();
 		return ret != null ? ret : getClass().getClassLoader();
 	}
-	
+
 	/**
 	 * Prop constructor.
 	 * @see #Prop(File, String)
@@ -86,7 +89,7 @@ public class Prop {
 	public Prop(File file) {
 		this(file, SysConst.DEFAULT_ENCODING);
 	}
-	
+
 	/**
 	 * Prop constructor
 	 * <p>
@@ -104,7 +107,7 @@ public class Prop {
 		if (!file.isFile()) {
 			throw new IllegalArgumentException("File not found : " + file.getName());
 		}
-		
+
 		InputStream inputStream = null;
 		try {
 			inputStream = new FileInputStream(file);
@@ -112,12 +115,16 @@ public class Prop {
 			properties.load(new InputStreamReader(inputStream, encoding));
 		} catch (IOException e) {
 			throw new RuntimeException("Error loading properties file.", e);
-		}
-		finally {
-			if (inputStream != null) try {inputStream.close();} catch (IOException e) {log.error(e.getMessage(), e);}
+		} finally {
+			if (inputStream != null)
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					log.error(e.getMessage(), e);
+				}
 		}
 	}
-	
+
 	public Prop append(Prop prop) {
 		if (prop == null) {
 			throw new IllegalArgumentException("prop can not be null");
@@ -125,15 +132,15 @@ public class Prop {
 		properties.putAll(prop.getProperties());
 		return this;
 	}
-	
+
 	public Prop append(String fileName, String encoding) {
 		return append(new Prop(fileName, encoding));
 	}
-	
+
 	public Prop append(String fileName) {
 		return append(fileName, SysConst.DEFAULT_ENCODING);
 	}
-	
+
 	public Prop appendIfExists(String fileName, String encoding) {
 		try {
 			return append(new Prop(fileName, encoding));
@@ -141,42 +148,42 @@ public class Prop {
 			return this;
 		}
 	}
-	
+
 	public Prop appendIfExists(String fileName) {
 		return appendIfExists(fileName, SysConst.DEFAULT_ENCODING);
 	}
-	
+
 	public Prop append(File file, String encoding) {
 		return append(new Prop(file, encoding));
 	}
-	
+
 	public Prop append(File file) {
 		return append(file, SysConst.DEFAULT_ENCODING);
 	}
-	
+
 	public Prop appendIfExists(File file, String encoding) {
 		if (file.exists()) {
 			append(new Prop(file, encoding));
 		}
 		return this;
 	}
-	
+
 	public Prop appendIfExists(File file) {
 		return appendIfExists(file, SysConst.DEFAULT_ENCODING);
 	}
-	
+
 	public String get(String key) {
 		return properties.getProperty(key);
 	}
-	
+
 	public String get(String key, String defaultValue) {
 		return properties.getProperty(key, defaultValue);
 	}
-	
+
 	public Integer getInt(String key) {
 		return getInt(key, null);
 	}
-	
+
 	public Integer getInt(String key, Integer defaultValue) {
 		String value = properties.getProperty(key);
 		if (value != null) {
@@ -184,11 +191,11 @@ public class Prop {
 		}
 		return defaultValue;
 	}
-	
+
 	public Long getLong(String key) {
 		return getLong(key, null);
 	}
-	
+
 	public Long getLong(String key, Long defaultValue) {
 		String value = properties.getProperty(key);
 		if (value != null) {
@@ -196,11 +203,11 @@ public class Prop {
 		}
 		return defaultValue;
 	}
-	
+
 	public Boolean getBoolean(String key) {
 		return getBoolean(key, null);
 	}
-	
+
 	public Boolean getBoolean(String key, Boolean defaultValue) {
 		String value = properties.getProperty(key);
 		if (value != null) {
@@ -214,11 +221,11 @@ public class Prop {
 		}
 		return defaultValue;
 	}
-	
+
 	public boolean containsKey(String key) {
 		return properties.containsKey(key);
 	}
-	
+
 	public Properties getProperties() {
 		return properties;
 	}

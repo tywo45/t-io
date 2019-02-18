@@ -23,15 +23,15 @@ class Handshaker {
 	private static Logger log = LoggerFactory.getLogger(Handshaker.class);
 
 	@SuppressWarnings("unused")
-	private final static String TAG = "Handshaker";
-	private final ITaskHandler _taskHandler;
-	private final Worker _worker;
-	private boolean _finished;
-	private IHandshakeCompletedListener _hscl;
-	private ISessionClosedListener _sessionClosedListener;
+	private final static String			TAG	= "Handshaker";
+	private final ITaskHandler			_taskHandler;
+	private final Worker				_worker;
+	private boolean						_finished;
+	private IHandshakeCompletedListener	_hscl;
+	private ISessionClosedListener		_sessionClosedListener;
 	@SuppressWarnings("unused")
-	private boolean _client;
-	private ChannelContext channelContext;
+	private boolean						_client;
+	private ChannelContext				channelContext;
 
 	public Handshaker(boolean client, Worker worker, ITaskHandler taskHandler, ChannelContext channelContext) {
 		this.channelContext = channelContext;

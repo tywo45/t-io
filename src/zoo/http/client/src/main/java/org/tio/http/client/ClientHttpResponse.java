@@ -31,11 +31,11 @@ public class ClientHttpResponse extends HttpPacket {
 	public ChannelContext channelContext;
 	//	private int contentLength;
 	//	private byte[] bodyBytes;
-	private String charset = HttpConst.CHARSET_NAME;
-	public Integer contentLength = null;
+	private String	charset			= HttpConst.CHARSET_NAME;
+	public Integer	contentLength	= null;
 
-	private List<Cookie> cookies = null;
-	private Map<String, String> headers = new HashMap<>();
+	private List<Cookie>		cookies	= null;
+	private Map<String, String>	headers	= new HashMap<>();
 
 	public HttpConfig httpConfig;
 
@@ -47,7 +47,7 @@ public class ClientHttpResponse extends HttpPacket {
 	public ResponseLine responseLine;
 
 	public String connection;
-	
+
 	public String bodyString;
 
 	public void setBodyString(String bodyString) {
@@ -86,6 +86,7 @@ public class ClientHttpResponse extends HttpPacket {
 			}
 		}
 	}
+
 	/**
 	 * @return the charset
 	 */

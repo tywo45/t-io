@@ -10,7 +10,7 @@ import org.tio.http.server.mvc.intf.ControllerFactory;
  *
  */
 public class DefaultControllerFactory implements ControllerFactory {
-	
+
 	public static final DefaultControllerFactory me = new DefaultControllerFactory();
 
 	/**

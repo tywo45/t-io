@@ -9,8 +9,8 @@ import java.util.Map;
  */
 public class IToDo extends SubSchema {
 
-	public static final String NAME = "VTODO";
-	private static final String BEGIN_TODO = "BEGIN:VTODO";
+	public static final String	NAME		= "VTODO";
+	private static final String	BEGIN_TODO	= "BEGIN:VTODO";
 
 	public IToDo() {
 		super();

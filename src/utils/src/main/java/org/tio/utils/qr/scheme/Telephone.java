@@ -10,8 +10,8 @@ import java.util.Map;
  */
 public class Telephone extends Schema {
 
-	private static final String TEL = "tel";
-	private String telephone;
+	private static final String	TEL	= "tel";
+	private String				telephone;
 
 	/**
 	 * Default constructor to construct new telephone object.

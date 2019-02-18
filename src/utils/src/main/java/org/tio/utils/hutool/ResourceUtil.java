@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-
 /**
  * 资源工具类
  * 
@@ -12,9 +11,9 @@ import java.net.URL;
  *
  */
 public class ResourceUtil {
-	
+
 	private static String CLASSPATH_PRE = "classpath:";
-	
+
 	/**
 	 * 获取ClassPath绝对路径
 	 * @param path classpath路径
@@ -23,7 +22,7 @@ public class ResourceUtil {
 	public static String getAbsolutePath(String path) {
 		return getDecodedPath(getResource(path));
 	}
-	
+
 	/**
 	 * 获得资源相对路径对应的URL
 	 * 
@@ -32,12 +31,12 @@ public class ResourceUtil {
 	 * @return {@link URL}
 	 */
 	public static URL getResource(String path) {
-		if(StrUtil.startWithIgnoreCase(path, CLASSPATH_PRE)) {
+		if (StrUtil.startWithIgnoreCase(path, CLASSPATH_PRE)) {
 			path = path.substring(CLASSPATH_PRE.length());
 		}
 		return getClassLoader().getResource(path);
 	}
-	
+
 	/**
 	 * 获取ClassPath下的资源做为流
 	 * 
@@ -45,12 +44,12 @@ public class ResourceUtil {
 	 * @return {@link InputStream}资源
 	 */
 	public static InputStream getResourceAsStream(String path) {
-		if(StrUtil.startWithIgnoreCase(path, CLASSPATH_PRE)) {
+		if (StrUtil.startWithIgnoreCase(path, CLASSPATH_PRE)) {
 			path = path.substring(CLASSPATH_PRE.length());
 		}
 		return getClassLoader().getResourceAsStream(path);
 	}
-	
+
 	/**
 	 * 获取{@link ClassLoader}<br>
 	 * 获取顺序如下：<br>
@@ -73,7 +72,7 @@ public class ResourceUtil {
 		}
 		return classLoader;
 	}
-	
+
 	/**
 	 * 从URL对象中获取不被编码的路径Path<br>
 	 * 对于本地路径，URL对象的getPath方法对于包含中文或空格时会被编码，导致本读路径读取错误。<br>

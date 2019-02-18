@@ -13,7 +13,7 @@ public interface TokenPathAccessStatListener {
 	 * @author tanyaowu
 	 */
 	public void onExpired(GroupContext groupContext, String token, TokenAccessStat tokenAccessStat);
-	
+
 	/**
 	 * 
 	 * @param httpRequest
@@ -24,6 +24,5 @@ public interface TokenPathAccessStatListener {
 	 * @author tanyaowu
 	 */
 	public boolean onChanged(HttpRequest httpRequest, String token, String path, TokenAccessStat tokenAccessStat, TokenPathAccessStat tokenPathAccessStat);
-
 
 }
