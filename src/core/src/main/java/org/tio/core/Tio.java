@@ -513,8 +513,6 @@ public class Tio {
 	 * @author tanyaowu
 	 */
 	public static Page<ChannelContext> getPageOfConnecteds(ClientGroupContext clientGroupContext, Integer pageIndex, Integer pageSize) {
-		//		SetWithLock<ChannelContext> setWithLock = Tio.getAllConnectedsChannelContexts(clientGroupContext);
-		//		return PageUtils.fromSetWithLock(setWithLock, pageIndex, pageSize);
 		return getPageOfConnecteds(clientGroupContext, pageIndex, pageSize, null);
 	}
 
@@ -542,8 +540,6 @@ public class Tio {
 	 * @author tanyaowu
 	 */
 	public static Page<ChannelContext> getPageOfGroup(GroupContext groupContext, String group, Integer pageIndex, Integer pageSize) {
-		//		SetWithLock<ChannelContext> setWithLock = Tio.getChannelContextsByGroup(groupContext, group);
-		//		return PageUtils.fromSetWithLock(setWithLock, pageIndex, pageSize);
 		return getPageOfGroup(groupContext, group, pageIndex, pageSize, null);
 	}
 
@@ -589,27 +585,6 @@ public class Tio {
 			return false;
 		}
 		return set.getObj().contains(group);
-		//		
-		//		MapWithLock<ChannelContext, SetWithLock<String>> mapWithLock = 
-		//				channelContext.groupContext.groups.getChannelmap();
-		//		ReadLock lock = mapWithLock.readLock();
-		//		lock.lock();
-		//		try {
-		//			Map<ChannelContext, SetWithLock<String>> m = mapWithLock.getObj();
-		//			if (m == null || m.size() == 0) {
-		//				return false;
-		//			}
-		//			SetWithLock<String> set = m.get(channelContext);
-		//			if (set == null) {
-		//				return false;
-		//			}
-		//			return set.getObj().contains(group);
-		//		} catch (Throwable e) {
-		//			log.error(e.toString(), e);
-		//			return false;
-		//		} finally {
-		//			lock.unlock();
-		//		}
 	}
 
 	/**
@@ -770,13 +745,13 @@ public class Tio {
 	 */
 	private static Boolean send(final ChannelContext channelContext, final Packet packet, CountDownLatch countDownLatch, PacketSendMode packetSendMode) {
 		try {
-			if (packet == null) {
+			if (packet == null || channelContext == null) {
 				if (countDownLatch != null) {
 					countDownLatch.countDown();
 				}
 				return false;
 			}
-
+			
 			if (channelContext.isVirtual) {
 				if (countDownLatch != null) {
 					countDownLatch.countDown();
@@ -784,14 +759,11 @@ public class Tio {
 				return true;
 			}
 
-			if (channelContext == null || channelContext.isClosed || channelContext.isRemoved) {
+			if (channelContext.isClosed || channelContext.isRemoved) {
 				if (countDownLatch != null) {
 					countDownLatch.countDown();
 				}
 				if (channelContext != null) {
-					//					log.error("can't send data, {}, isClosed:{}, isRemoved:{}, stack:{} ", channelContext, channelContext.isClosed, channelContext.isRemoved,
-					//							ThreadUtils.stackTrace());
-
 					log.info("can't send data, {}, isClosed:{}, isRemoved:{}", channelContext, channelContext.isClosed, channelContext.isRemoved);
 				}
 				return false;
@@ -825,10 +797,7 @@ public class Tio {
 			if (isSingleBlock) {
 				long timeout = 10;
 				try {
-					//					channelContext.traceBlockPacket(SynPacketAction.BEFORE_WAIT, packet, countDownLatch, null);
 					Boolean awaitFlag = countDownLatch.await(timeout, TimeUnit.SECONDS);
-					//					channelContext.traceBlockPacket(SynPacketAction.AFTER__WAIT, packet, countDownLatch, null);
-
 					if (!awaitFlag) {
 						log.error("{}, 阻塞发送超时, timeout:{}s, packet:{}", channelContext, timeout, packet.logstr());
 					}
@@ -1014,9 +983,6 @@ public class Tio {
 				TioClusterConfig tioClusterConfig = groupContext.getTioClusterConfig();
 
 				if (tioClusterConfig.isCluster4group()) {
-					//					TioClusterVo tioClusterVo = new TioClusterVo(packet);
-					//					tioClusterVo.setGroup(group);
-					//					tioClusterConfig.publish(tioClusterVo);
 					notifyClusterForGroup(groupContext, group, packet);
 				}
 			}
@@ -1107,10 +1073,6 @@ public class Tio {
 				TioClusterConfig tioClusterConfig = groupContext.getTioClusterConfig();
 
 				if (tioClusterConfig.isCluster4ip()) {
-					//					TioClusterVo tioClusterVo = new TioClusterVo(packet);
-					//					tioClusterVo.setIp(ip);
-					//					tioClusterConfig.publish(tioClusterVo);
-
 					notifyClusterForIp(groupContext, ip, packet);
 				}
 			}
@@ -1140,17 +1102,6 @@ public class Tio {
 	 */
 	private static Boolean sendToSet(GroupContext groupContext, SetWithLock<ChannelContext> setWithLock, Packet packet, ChannelContextFilter channelContextFilter,
 	        boolean isBlock) {
-		//		if (isBlock)
-		//		{
-		//			try
-		//			{
-		//				org.tio.core.GroupContext.SYN_SEND_SEMAPHORE.acquire();
-		//			} catch (InterruptedException e)
-		//			{
-		//				log.error(e.toString(), e);
-		//			}
-		//		}
-
 		boolean releasedLock = false;
 		Lock lock = setWithLock.readLock();
 		lock.lock();
@@ -1160,10 +1111,6 @@ public class Tio {
 				log.debug("{}, 集合为空", groupContext.getName());
 				return false;
 			}
-			//			if (!groupContext.isEncodeCareWithChannelContext()) {
-			//				ByteBuffer byteBuffer = groupContext.getAioHandler().encode(packet, groupContext, null);
-			//				packet.setPreEncodedByteBuffer(byteBuffer);
-			//			}
 
 			CountDownLatch countDownLatch = null;
 			if (isBlock) {
@@ -1183,7 +1130,6 @@ public class Tio {
 
 				sendCount++;
 				if (isBlock) {
-					//					channelContext.traceBlockPacket(SynPacketAction.BEFORE_WAIT, packet, countDownLatch, null);
 					send(channelContext, packet, countDownLatch, PacketSendMode.GROUP_BLOCK);
 				} else {
 					send(channelContext, packet, null, null);
@@ -1220,10 +1166,6 @@ public class Tio {
 			log.error(e.toString(), e);
 			return false;
 		} finally {
-			//			if (isBlock)
-			//			{
-			//				org.tio.core.GroupContext.SYN_SEND_SEMAPHORE.release();
-			//			}
 			if (!releasedLock) {
 				lock.unlock();
 			}
@@ -1286,10 +1228,6 @@ public class Tio {
 				TioClusterConfig tioClusterConfig = groupContext.getTioClusterConfig();
 
 				if (tioClusterConfig.isCluster4user()) {
-					//					TioClusterVo tioClusterVo = new TioClusterVo(packet);
-					//					tioClusterVo.setToken(token);
-					//					tioClusterConfig.publish(tioClusterVo);
-
 					notifyClusterForToken(groupContext, token, packet);
 				}
 			}
@@ -1351,10 +1289,6 @@ public class Tio {
 				TioClusterConfig tioClusterConfig = groupContext.getTioClusterConfig();
 
 				if (tioClusterConfig.isCluster4user()) {
-					//					TioClusterVo tioClusterVo = new TioClusterVo(packet);
-					//					tioClusterVo.setUserid(userid);
-					//					tioClusterConfig.publish(tioClusterVo);
-
 					notifyClusterForUser(groupContext, userid, packet);
 				}
 			}
