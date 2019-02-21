@@ -751,7 +751,7 @@ public class Tio {
 				}
 				return false;
 			}
-			
+
 			if (channelContext.isVirtual) {
 				if (countDownLatch != null) {
 					countDownLatch.countDown();
