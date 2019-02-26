@@ -70,12 +70,12 @@
 		<redisson.version>3.10.2</redisson.version>
 		<jodd.version>5.0.6</jodd.version>
 		<quartz.version>2.3.0</quartz.version>
-		<caffeine.version>2.6.2</caffeine.version>
+		<caffeine.version>2.7.0</caffeine.version>
 		<binarywang.version>3.3.0</binarywang.version>
 		<zxing.version>3.3.3</zxing.version>
 		<httpcore.version>4.4.11</httpcore.version>
 		<httpclient.version>4.5.7</httpclient.version>
-		<closure.version>v20190121</closure.version>
+		<closure.version>v20190215</closure.version>
 		<freemarker.version>2.3.28</freemarker.version>
 		<UserAgentUtils.version>1.21</UserAgentUtils.version>
 		<scribejava-apis.version>6.3.0</scribejava-apis.version>
@@ -490,7 +490,7 @@
 			<dependency>
 				<groupId>io.github.classgraph</groupId>
 				<artifactId>classgraph</artifactId>
-				<version>4.6.25</version>
+				<version>4.8.7</version>
 			</dependency>
 			<dependency>
 				<groupId>com.thoughtworks.paranamer</groupId>
