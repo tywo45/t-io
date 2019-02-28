@@ -25,9 +25,8 @@ import java.io.OutputStream;
  * this class copied from org.apache.commons.io.IOUtils
  */
 public class IoUtils {
-	public static final int EOF = -1;
-
-	private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
+	public static final int		EOF					= -1;
+	private static final int	DEFAULT_BUFFER_SIZE	= 1024 * 4;
 
 	public static long copyLarge(final InputStream input, final OutputStream output, final byte[] buffer) throws IOException {
 		long count = 0;
