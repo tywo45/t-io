@@ -105,6 +105,8 @@
 
 		<shardingsphere.version>3.1.0</shardingsphere.version>
 
+		<svnkit.version>1.9.3</svnkit.version>
+
 	</properties>
 
 	<developers>
@@ -793,6 +795,12 @@
 				<version>1.18.6</version>
 			</dependency>
 
+			<dependency>
+				<groupId>org.tmatesoft.svnkit</groupId>
+				<artifactId>svnkit-cli</artifactId>
+				<version>${svnkit.version}</version>
+			</dependency>
+
 
 		</dependencies>
 	</dependencyManagement>
@@ -807,7 +815,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-		
+
 					<configuration>
 						<compilerVersion>${jdk.version}</compilerVersion>
 						<source>${jdk.version}</source>
