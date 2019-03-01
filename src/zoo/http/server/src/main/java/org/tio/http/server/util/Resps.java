@@ -105,6 +105,7 @@ public class Resps {
 		String filename = fileOnServer.getName();
 		String extension = FileUtil.extName(filename);
 		ret = bytes(request, bodyBytes, extension);
+		ret.addHeader(HeaderName.Content_Disposition, HeaderValue.from("attachment;filename=" + fileOnServer.getName()));
 		ret.setLastModified(HeaderValue.from(lastModified.getTime() + ""));
 		return ret;
 	}
