@@ -1,6 +1,7 @@
 package org.tio.utils.json;
 
 import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,19 @@ public class Json {
 			}
 			T t = JSON.parseObject(jsonString, tt);
 			return t;
+		} catch (Exception e) {
+			log.error(jsonString, e);
+			return null;
+		}
+	}
+	
+	public static <T> List<T> toList(String jsonString, Class<T> clazz) {
+		try {
+			if (StrUtil.isBlank(jsonString)) {
+				return null;
+			}
+			List<T> list = JSON.parseArray(jsonString, clazz);
+			return list;
 		} catch (Exception e) {
 			log.error(jsonString, e);
 			return null;

@@ -6,8 +6,6 @@ package org.tio.utils.resp;
  */
 public class Resp implements java.io.Serializable {
 	private static final long serialVersionUID = 7492427869347211588L;
-	//	private static Logger log = LoggerFactory.getLogger(Resp.class);
-
 	public static Resp fail() {
 		Resp resp = new Resp(RespResult.FAIL);
 		return resp;
@@ -76,10 +74,6 @@ public class Resp implements java.io.Serializable {
 		return msg;
 	}
 
-	//	public RespResult getResult() {
-	//		return result;
-	//	}
-
 	public boolean isOk() {
 		return this.result == RespResult.OK;
 	}
@@ -100,8 +94,4 @@ public class Resp implements java.io.Serializable {
 	public void setMsg(String msg) {
 		this.msg = msg;
 	}
-
-	//	public void setResult(RespResult result) {
-	//		this.result = result;
-	//	}
 }

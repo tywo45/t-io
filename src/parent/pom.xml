@@ -75,7 +75,7 @@
 		<zxing.version>3.3.3</zxing.version>
 		<httpcore.version>4.4.11</httpcore.version>
 		<httpclient.version>4.5.7</httpclient.version>
-		<closure.version>v20190215</closure.version>
+		<closure.version>v20190301</closure.version>
 		<freemarker.version>2.3.28</freemarker.version>
 		<UserAgentUtils.version>1.21</UserAgentUtils.version>
 		<scribejava-apis.version>6.3.0</scribejava-apis.version>
