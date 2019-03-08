@@ -15,7 +15,7 @@ import org.tio.utils.thread.pool.SynThreadPoolExecutor;
  * 2017年4月1日 上午9:33:00
  */
 public class ReconnConf {
-	private static Logger log = LoggerFactory.getLogger(ChannelContext.class);
+	private static Logger log = LoggerFactory.getLogger(ReconnConf.class);
 
 	public static ReconnConf getReconnConf(ClientChannelContext clientChannelContext) {
 		ClientGroupContext clientGroupContext = (ClientGroupContext) clientChannelContext.groupContext;
