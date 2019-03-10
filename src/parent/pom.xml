@@ -62,13 +62,13 @@
 		<commons-compress.version>1.18</commons-compress.version>
 		<fastjson.version>1.2.56</fastjson.version>
 		<testng.version>6.14.3</testng.version>
-		<hutool.version>4.5.0</hutool.version>
-		<protobuf-java.version>3.6.1</protobuf-java.version>
+		<hutool.version>4.5.1</hutool.version>
+		<protobuf-java.version>3.7.0</protobuf-java.version>
 		<commons-beanutils.version>1.9.3</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
 		<protostuff.version>1.6.0</protostuff.version>
-		<redisson.version>3.10.3</redisson.version>
-		<jodd.version>5.0.8</jodd.version>
+		<redisson.version>3.10.4</redisson.version>
+		<jodd.version>5.0.10</jodd.version>
 		<quartz.version>2.3.0</quartz.version>
 		<caffeine.version>2.7.0</caffeine.version>
 		<binarywang.version>3.3.0</binarywang.version>
@@ -417,7 +417,7 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>27.0.1-jre</version>
+				<version>27.1-jre</version>
 			</dependency>
 
 			<dependency>
