@@ -17,42 +17,34 @@ public class GroupStat implements java.io.Serializable {
 	 * 接收到的消息包
 	 */
 	public final AtomicLong		receivedPackets		= new AtomicLong();
-
 	/**
 	 * 接收到的消息字节数
 	 */
 	public final AtomicLong receivedBytes = new AtomicLong();
-
 	/**
 	 * 处理了的消息包数
 	 */
 	public final AtomicLong handledPackets = new AtomicLong();
-
 	/**
 	 * 处理消息包耗时，单位：毫秒
 	 */
 	public final AtomicLong handledPacketCosts = new AtomicLong();
-
 	/**
 	 * 处理了多少字节
 	 */
 	public final AtomicLong handledBytes = new AtomicLong();
-
 	/**
 	 * 发送了的消息包数
 	 */
 	public final AtomicLong sentPackets = new AtomicLong();
-
 	/**
 	 * 发送了的字节数
 	 */
 	public final AtomicLong sentBytes = new AtomicLong();
-
 	/**
 	 * 本IP已接收了多少次TCP数据包
 	 */
 	public final AtomicLong receivedTcps = new AtomicLong();
-
 	/**
 	 * 平均每次TCP接收到的字节数，这个可以用来监控慢攻击，配置PacketsPerTcpReceive定位慢攻击
 	 */
@@ -63,7 +55,6 @@ public class GroupStat implements java.io.Serializable {
 		double ret = (double) receivedBytes.get() / (double) receivedTcps.get();
 		return ret;
 	}
-
 	/**
 	 * 平均每次TCP接收到的业务包数，这个可以用来监控慢攻击，此值越小越有攻击嫌疑
 	 */
@@ -74,7 +65,6 @@ public class GroupStat implements java.io.Serializable {
 		double ret = (double) receivedPackets.get() / (double) receivedTcps.get();
 		return ret;
 	}
-
 	/**
 	 * @return the closed
 	 */
