@@ -5,7 +5,7 @@
 	<groupId>org.t-io</groupId>
 	<artifactId>tio-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>3.2.7.v20190222-RELEASE</version>
+	<version>3.2.8.v20190326-RELEASE</version>
 	<name>${project.artifactId}</name>
 	<url>http://maven.apache.org</url>
 
@@ -35,7 +35,7 @@
 
 	<properties>
 		<maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
-		<tio-utils.version>3.2.7.v20190222-RELEASE</tio-utils.version>
+		<tio-utils.version>3.2.8.v20190326-RELEASE</tio-utils.version>
 		<tio-core.version>${tio-utils.version}</tio-core.version>
 		<tio-flash-policy-server.version>${tio-utils.version}</tio-flash-policy-server.version>
 
@@ -62,12 +62,12 @@
 		<commons-compress.version>1.18</commons-compress.version>
 		<fastjson.version>1.2.56</fastjson.version>
 		<testng.version>6.14.3</testng.version>
-		<hutool.version>4.5.1</hutool.version>
+		<hutool.version>4.5.2</hutool.version>
 		<protobuf-java.version>3.7.0</protobuf-java.version>
 		<commons-beanutils.version>1.9.3</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
 		<protostuff.version>1.6.0</protostuff.version>
-		<redisson.version>3.10.4</redisson.version>
+		<redisson.version>3.10.5</redisson.version>
 		<jodd.version>5.0.10</jodd.version>
 		<quartz.version>2.3.0</quartz.version>
 		<caffeine.version>2.7.0</caffeine.version>
@@ -78,7 +78,7 @@
 		<closure.version>v20190301</closure.version>
 		<freemarker.version>2.3.28</freemarker.version>
 		<UserAgentUtils.version>1.21</UserAgentUtils.version>
-		<scribejava-apis.version>6.3.0</scribejava-apis.version>
+		<scribejava-apis.version>6.5.0</scribejava-apis.version>
 		<oltu.oauth2.version>1.0.2</oltu.oauth2.version>
 
 
@@ -502,7 +502,7 @@
 			<dependency>
 				<groupId>io.github.classgraph</groupId>
 				<artifactId>classgraph</artifactId>
-				<version>4.8.7</version>
+				<version>4.8.21</version>
 			</dependency>
 			<dependency>
 				<groupId>com.thoughtworks.paranamer</groupId>
