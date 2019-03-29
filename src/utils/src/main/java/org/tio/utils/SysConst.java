@@ -5,7 +5,7 @@ package org.tio.utils;
  * 2018年7月1日 下午10:51:59
  */
 public interface SysConst {
-	String	TIO_URL_GITEE		= "https://github.com/tywo45/t-io";
+	String	TIO_URL_GITHUB		= "https://github.com/tywo45/t-io";
 	String	TIO_URL_SITE		= "https://www.t-io.org/";
 	String	TIO_CORE_VERSION	= "3.2.8.v20190326-RELEASE";
 	/**

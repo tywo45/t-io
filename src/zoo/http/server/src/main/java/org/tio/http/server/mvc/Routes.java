@@ -19,10 +19,10 @@ import org.tio.utils.hutool.ClassUtil;
 import org.tio.utils.hutool.FileUtil;
 import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.json.Json;
-import org.tio.utils.thoughtworksparanamer.BytecodeReadingParanamer;
-import org.tio.utils.thoughtworksparanamer.Paranamer;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
+import com.thoughtworks.paranamer.BytecodeReadingParanamer;
+import com.thoughtworks.paranamer.Paranamer;
 
 /**
  * @author tanyaowu

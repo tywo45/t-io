@@ -123,7 +123,7 @@ public class TioServer {
 		int xxLen = 18;
 		int aaLen = baseLen - 3;
 		List<String> infoList = new ArrayList<>();
-		infoList.add(StrUtil.fillAfter("Tio on github", ' ', xxLen) + "| " + SysConst.TIO_URL_GITEE);
+		infoList.add(StrUtil.fillAfter("Tio on github", ' ', xxLen) + "| " + SysConst.TIO_URL_GITHUB);
 		infoList.add(StrUtil.fillAfter("Tio site address", ' ', xxLen) + "| " + SysConst.TIO_URL_SITE);
 		infoList.add(StrUtil.fillAfter("Tio version", ' ', xxLen) + "| " + SysConst.TIO_CORE_VERSION);
 
