@@ -20,35 +20,27 @@ public class WsPacket extends Packet {
 	 */
 	public static final int		MAX_LENGTH_OF_BODY		= (int) (1024 * 1024 * 2.1);	//只支持多少M数据
 	public static final int		MINIMUM_HEADER_LENGTH	= 2;
-
-	public static final int MAX_BODY_LENGTH = 1024 * 512; //最多接受的1024 * 512(半M)数据
-
-	public static final String CHARSET_NAME = "utf-8";
-
+	public static final int		MAX_BODY_LENGTH			= 1024 * 512;					//最多接受的1024 * 512(半M)数据
+	public static final String	CHARSET_NAME			= "utf-8";
 	/**
 	 * 是否是握手包
 	 */
-	private boolean isHandShake = false;
-
-	private byte[] body;
-
+	private boolean				isHandShake				= false;
+	/**
+	 * 消息体
+	 */
+	private byte[]				body;
 	/**
 	 *  byte[][] bodys和body的作用一样，当业务数据用多个byte[]比较方便时，就可以用 byte[][] bodys
 	 *  服务器发往客户端时，此字段才可能会有值(业务层进行性能优化时才用得着这个字段)
 	 */
-	private byte[][] bodys;
-
-	private boolean wsEof;
-
-	private Opcode wsOpcode = Opcode.BINARY;
-
-	private boolean wsHasMask;
-
-	private long wsBodyLength;
-
-	private byte[] wsMask;
-
-	private String wsBodyText; //当为文本时才有此字段
+	private byte[][]			bodys;
+	private boolean				wsEof;
+	private Opcode				wsOpcode				= Opcode.BINARY;
+	private boolean				wsHasMask;
+	private long				wsBodyLength;
+	private byte[]				wsMask;
+	private String				wsBodyText;												//当为文本时才有此字段
 
 	public WsPacket() {
 
