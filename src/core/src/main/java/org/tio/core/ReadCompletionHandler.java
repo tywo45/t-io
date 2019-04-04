@@ -30,6 +30,7 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuf
 	public ReadCompletionHandler(ChannelContext channelContext) {
 		this.channelContext = channelContext;
 		this.readByteBuffer = ByteBuffer.allocate(channelContext.groupContext.getReadBufferSize());
+		this.readByteBuffer.order(channelContext.groupContext.getByteOrder());
 	}
 
 	@Override
