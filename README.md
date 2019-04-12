@@ -8,7 +8,7 @@ https://www.t-io.org/doc/156
 [t-io最新版及各历史版本](https://www.t-io.org/doc/149 "t-io最新版及各历史版本")
 
 ### 一张图了解t-io的历史和能力
-![](https://res.t-io.org/doc/t-io-base_01.png?xxxx)
+![](https://res.t-io.org/doc/t-io-base_01.png?xxxxyy)
 
 ### 一张图了解t-io及官方衍生品
 ![](https://res.t-io.org/doc/t-io-base_02.png?xxxx)
