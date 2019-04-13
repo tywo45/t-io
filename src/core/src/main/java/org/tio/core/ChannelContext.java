@@ -27,82 +27,52 @@ import org.tio.utils.prop.MapWithLockPropSupport;
  * 2017年10月19日 上午9:39:46
  */
 public abstract class ChannelContext extends MapWithLockPropSupport {
-	private static Logger log = LoggerFactory.getLogger(ChannelContext.class);
-
-	private static final String DEFAULT_ATTUBITE_KEY = "t-io-d-a-k";
-
-	public static final String UNKNOWN_ADDRESS_IP = "$UNKNOWN";
-
-	public static final AtomicInteger UNKNOWN_ADDRESS_PORT_SEQ = new AtomicInteger();
-
-	public boolean isReconnect = false;
-
+	private static Logger				log							= LoggerFactory.getLogger(ChannelContext.class);
+	private static final String			DEFAULT_ATTUBITE_KEY		= "t-io-d-a-k";
+	public static final String			UNKNOWN_ADDRESS_IP			= "$UNKNOWN";
+	public static final AtomicInteger	UNKNOWN_ADDRESS_PORT_SEQ	= new AtomicInteger();
+	public boolean						isReconnect					= false;
 	/**
 	 * 解码出现异常时，是否打印异常日志
 	 * 此值默认与org.tio.core.GroupContext.logWhenDecodeError保持一致
 	 */
-	public boolean logWhenDecodeError = false;
-
+	public boolean						logWhenDecodeError			= false;
 	/**
 	 * 此值不设时，心跳时间取org.tio.core.GroupContext.heartbeatTimeout
 	 * 当然这个值如果小于org.tio.core.GroupContext.heartbeatTimeout，定时检查的时间间隔还是以org.tio.core.GroupContext.heartbeatTimeout为准，只是在判断时用此值
 	 */
-	public Long heartbeatTimeout = null;
-
+	public Long							heartbeatTimeout			= null;
 	/**
 	 * 一个packet所需要的字节数（用于应用告诉框架，下一次解码所需要的字节长度，省去冗余解码带来的性能损耗）
 	 */
-	public Integer packetNeededLength = null;
-
-	//	private MapWithLock<String, Object> props = null;//
-
-	public GroupContext					groupContext			= null;
-	public DecodeRunnable				decodeRunnable			= null;
-	public HandlerRunnable				handlerRunnable			= null;
-	public SendRunnable					sendRunnable			= null;
-	public final ReentrantReadWriteLock	closeLock				= new ReentrantReadWriteLock();
-	private ReadCompletionHandler		readCompletionHandler	= null;							//new ReadCompletionHandler(this);
-	public WriteCompletionHandler		writeCompletionHandler	= null;							//new WriteCompletionHandler(this);
-
-	public SslFacadeContext sslFacadeContext;
-
-	public String userid;
-
-	private String token;
-
-	private String bsId;
-
-	public boolean isWaitingClose = false;
-
-	public boolean isClosed = true;
-
-	public boolean isRemoved = false;
-
-	public boolean isVirtual = false;
-
-	public boolean hasTempDir = false;
-
-	public final ChannelStat stat = new ChannelStat();
-
+	public Integer						packetNeededLength			= null;
+	public GroupContext					groupContext				= null;
+	public DecodeRunnable				decodeRunnable				= null;
+	public HandlerRunnable				handlerRunnable				= null;
+	public SendRunnable					sendRunnable				= null;
+	public final ReentrantReadWriteLock	closeLock					= new ReentrantReadWriteLock();
+	private ReadCompletionHandler		readCompletionHandler		= null;											//new ReadCompletionHandler(this);
+	public WriteCompletionHandler		writeCompletionHandler		= null;											//new WriteCompletionHandler(this);
+	public SslFacadeContext				sslFacadeContext;
+	public String						userid;
+	private String						token;
+	private String						bsId;
+	public boolean						isWaitingClose				= false;
+	public boolean						isClosed					= true;
+	public boolean						isRemoved					= false;
+	public boolean						isVirtual					= false;
+	public boolean						hasTempDir					= false;
+	public final ChannelStat			stat						= new ChannelStat();
 	/** The asynchronous socket channel. */
-	public AsynchronousSocketChannel asynchronousSocketChannel;
-
-	private String id = null;
-
-	private Node clientNode;
-
-	//	private String clientNodeTraceFilename;
-
-	private Node serverNode;
-
-	//	private Logger traceSynPacketLog = LoggerFactory.getLogger("tio-client-trace-syn-log");
-
+	public AsynchronousSocketChannel	asynchronousSocketChannel;
+	private String						id							= null;
+	private Node						clientNode;
+	private Node						serverNode;
 	/**
 	 * 该连接在哪些组中
 	 */
-	private SetWithLock<String> groups = null;
-
-	public CloseMeta closeMeta = new CloseMeta();
+	private SetWithLock<String>			groups						= null;
+	public CloseMeta					closeMeta					= new CloseMeta();
 
 	/**
 	 *

@@ -18,6 +18,11 @@
 			<artifactId>tio-http-common</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>com.thoughtworks.paranamer</groupId>
+			<artifactId>paranamer</artifactId>
+		</dependency>
+
 
 		<!-- 如果用到freemarker，需要自己引入 -->
 		<dependency>
@@ -31,7 +36,7 @@
 			<artifactId>redisson</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
@@ -48,8 +53,8 @@
 			<artifactId>testng</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
-		
+
+
 		<dependency>
 			<groupId>com.esotericsoftware</groupId>
 			<artifactId>reflectasm</artifactId>

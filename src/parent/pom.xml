@@ -60,10 +60,10 @@
 		<commons-lang3.version>3.8.1</commons-lang3.version>
 		<commons-codec.version>1.12</commons-codec.version>
 		<commons-compress.version>1.18</commons-compress.version>
-		<fastjson.version>1.2.56</fastjson.version>
+		<fastjson.version>1.2.57</fastjson.version>
 		<testng.version>6.14.3</testng.version>
-		<hutool.version>4.5.4</hutool.version>
-		<protobuf-java.version>3.7.0</protobuf-java.version>
+		<hutool.version>4.5.5</hutool.version>
+		<protobuf-java.version>3.7.1</protobuf-java.version>
 		<commons-beanutils.version>1.9.3</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
 		<protostuff.version>1.6.0</protostuff.version>
@@ -196,6 +196,12 @@
 			</dependency>
 
 			<dependency>
+				<groupId>commons-net</groupId>
+				<artifactId>commons-net</artifactId>
+				<version>3.6</version>
+			</dependency>
+
+			<dependency>
 				<groupId>com.jfinal</groupId>
 				<artifactId>jfinal</artifactId>
 				<version>${jfinal.version}</version>
@@ -274,7 +280,7 @@
 			<dependency>
 				<groupId>com.squareup.okhttp3</groupId>
 				<artifactId>okhttp</artifactId>
-				<version>3.14.0</version>
+				<version>3.14.1</version>
 			</dependency>
 
 

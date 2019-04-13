@@ -967,7 +967,8 @@ public class Tio {
 	 * @param group
 	 * @param packet
 	 * @param channelContextFilter
-	 * @author tanyaowu
+	 * @param isBlock
+	 * @return
 	 */
 	private static Boolean sendToGroup(GroupContext groupContext, String group, Packet packet, ChannelContextFilter channelContextFilter, boolean isBlock) {
 		try {
@@ -1379,6 +1380,15 @@ public class Tio {
 	 */
 	public static void unbindToken(ChannelContext channelContext) {
 		channelContext.groupContext.tokens.unbind(channelContext);
+	}
+	
+	/**
+	 * 解除token
+	 * @param groupContext
+	 * @param token
+	 */
+	public static void unbindToken(GroupContext groupContext, String token) {
+		groupContext.tokens.unbind(groupContext, token);
 	}
 
 	//	org.tio.core.GroupContext.ipBlacklist
