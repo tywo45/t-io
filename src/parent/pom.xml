@@ -67,7 +67,7 @@
 		<commons-beanutils.version>1.9.3</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
 		<protostuff.version>1.6.0</protostuff.version>
-		<redisson.version>3.10.6</redisson.version>
+		<redisson.version>3.10.7</redisson.version>
 		<jodd.version>5.0.12</jodd.version>
 		<quartz.version>2.3.1</quartz.version>
 		<caffeine.version>2.7.0</caffeine.version>
