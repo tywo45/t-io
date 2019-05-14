@@ -5,7 +5,7 @@
 	<groupId>org.t-io</groupId>
 	<artifactId>tio-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>3.2.9.v20190401-RELEASE</version>
+	<version>3.3.0.v20190512-RELEASE</version>
 	<name>${project.artifactId}</name>
 	<url>http://maven.apache.org</url>
 
@@ -35,7 +35,7 @@
 
 	<properties>
 		<maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
-		<tio-utils.version>3.2.9.v20190401-RELEASE</tio-utils.version>
+		<tio-utils.version>3.3.0.v20190512-RELEASE</tio-utils.version>
 		<tio-core.version>${tio-utils.version}</tio-core.version>
 		<tio-flash-policy-server.version>${tio-utils.version}</tio-flash-policy-server.version>
 
@@ -62,7 +62,7 @@
 		<commons-compress.version>1.18</commons-compress.version>
 		<fastjson.version>1.2.58</fastjson.version>
 		<testng.version>6.14.3</testng.version>
-		<hutool.version>4.5.8</hutool.version>
+		<hutool.version>4.5.9</hutool.version>
 		<protobuf-java.version>3.7.1</protobuf-java.version>
 		<commons-beanutils.version>1.9.3</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
@@ -411,7 +411,7 @@
 			<dependency>
 				<groupId>org.jsoup</groupId>
 				<artifactId>jsoup</artifactId>
-				<version>1.11.3</version>
+				<version>1.12.1</version>
 			</dependency>
 
 			<dependency>
@@ -429,7 +429,7 @@
 			<dependency>
 				<groupId>nl.basjes.parse.useragent</groupId>
 				<artifactId>yauaa</artifactId>
-				<version>5.9</version>
+				<version>5.10</version>
 			</dependency>
 
 			<dependency>
@@ -508,7 +508,7 @@
 			<dependency>
 				<groupId>io.github.classgraph</groupId>
 				<artifactId>classgraph</artifactId>
-				<version>4.8.29</version>
+				<version>4.8.34</version>
 			</dependency>
 			<dependency>
 				<groupId>com.thoughtworks.paranamer</groupId>

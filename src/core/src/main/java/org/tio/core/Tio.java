@@ -1146,7 +1146,7 @@ public class Tio {
 			if (isBlock) {
 				try {
 					long timeout = sendCount / 5;
-					timeout = timeout < 10 ? 10 : timeout;
+					timeout = Math.max(timeout, 10);//timeout < 10 ? 10 : timeout;
 					boolean awaitFlag = countDownLatch.await(timeout, TimeUnit.SECONDS);
 					if (!awaitFlag) {
 						log.error("{}, 同步群发超时, size:{}, timeout:{}, packet:{}", groupContext.getName(), setWithLock.getObj().size(), timeout, packet.logstr());
