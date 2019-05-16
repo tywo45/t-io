@@ -22,6 +22,7 @@ public class WsRequest extends WsPacket {
 		} catch (UnsupportedEncodingException e) {
 			log.error(e.toString(), e);
 		}
+		wsRequest.setWsEof(true);
 		wsRequest.setWsOpcode(Opcode.TEXT);
 		return wsRequest;
 	}
@@ -29,6 +30,7 @@ public class WsRequest extends WsPacket {
 	public static WsRequest fromBytes(byte[] bytes) {
 		WsRequest wsRequest = new WsRequest();
 		wsRequest.setBody(bytes);
+		wsRequest.setWsEof(true);
 		wsRequest.setWsOpcode(Opcode.BINARY);
 		return wsRequest;
 	}
