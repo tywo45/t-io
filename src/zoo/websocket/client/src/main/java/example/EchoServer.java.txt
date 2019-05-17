@@ -1,0 +1,73 @@
+package example;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tio.core.ChannelContext;
+import org.tio.core.Tio;
+import org.tio.http.common.HttpRequest;
+import org.tio.http.common.HttpResponse;
+import org.tio.websocket.common.WsRequest;
+import org.tio.websocket.common.WsResponse;
+import org.tio.websocket.server.WsServerStarter;
+import org.tio.websocket.server.handler.IWsMsgHandler;
+
+import java.io.IOException;
+
+public class EchoServer {
+  private static Logger log = LoggerFactory.getLogger(Server.class);
+
+  public static void main(String[] args) throws IOException {
+    WsServerStarter echo =
+        new WsServerStarter(
+            7777,
+            new IWsMsgHandler() {
+              @Override
+              public HttpResponse handshake(
+                  HttpRequest httpRequest, HttpResponse httpResponse, ChannelContext channelContext)
+                  throws Exception {
+                return httpResponse;
+              }
+
+              @Override
+              public void onAfterHandshaked(
+                  HttpRequest httpRequest, HttpResponse httpResponse, ChannelContext channelContext)
+                  throws Exception {
+                System.out.printf("connected %s\n", channelContext.getId());
+
+
+              }
+
+              @Override
+              public Object onBytes(
+                  WsRequest wsRequest, byte[] bytes, ChannelContext channelContext)
+                  throws Exception {
+                Tio.send(channelContext, WsResponse.fromBytes(bytes));
+                System.out.printf(
+                    "%s recv bytes length %d\n",
+                    channelContext.getId(), bytes.length);
+                return null;
+              }
+
+              @Override
+              public Object onClose(
+                  WsRequest wsRequest, byte[] bytes, ChannelContext channelContext)
+                  throws Exception {
+                System.out.printf(
+                    "close %s, bytes length %d\n", channelContext.getId(), bytes.length);
+                return null;
+              }
+
+              @Override
+              public Object onText(WsRequest wsRequest, String text, ChannelContext channelContext)
+                  throws Exception {
+                System.out.println(
+                    String.format(
+                        "%s recv text: %s",
+                        channelContext.getId(), text.length() < 11 ? text : text.substring(0, 10)));
+                Tio.send(channelContext, WsResponse.fromText(text, "UTF-8"));
+                return null;
+              }
+            });
+    echo.start();
+  }
+}
