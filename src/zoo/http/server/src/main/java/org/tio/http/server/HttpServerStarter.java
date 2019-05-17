@@ -40,24 +40,17 @@ import okhttp3.Response;
  * @author tanyaowu
  */
 public class HttpServerStarter {
-	private static Logger log = LoggerFactory.getLogger(HttpServerStarter.class);
-
-	private HttpConfig httpConfig = null;
-
-	private HttpServerAioHandler httpServerAioHandler = null;
-
-	private HttpServerAioListener httpServerAioListener = null;
-
-	private ServerGroupContext serverGroupContext = null;
-
-	private TioServer tioServer = null;
-
-	private HttpRequestHandler httpRequestHandler;
-
+	private static Logger			log						= LoggerFactory.getLogger(HttpServerStarter.class);
+	private HttpConfig				httpConfig				= null;
+	private HttpServerAioHandler	httpServerAioHandler	= null;
+	private HttpServerAioListener	httpServerAioListener	= null;
+	private ServerGroupContext		serverGroupContext		= null;
+	private TioServer				tioServer				= null;
+	private HttpRequestHandler		httpRequestHandler;
 	/**
 	 * 预访问路径的后缀
 	 */
-	private List<String> preAccessFileType = new ArrayList<>();
+	private List<String>			preAccessFileType		= new ArrayList<>();
 
 	/**
 	 * 

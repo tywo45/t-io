@@ -24,28 +24,12 @@ import org.tio.server.intf.ServerAioHandler;
  *
  */
 public class HttpServerAioHandler implements ServerAioHandler {
-	private static Logger log = LoggerFactory.getLogger(HttpServerAioHandler.class);
-
-	public static final String REQUEST_KEY = "tio_request_key";
-
-	protected HttpConfig httpConfig;
-
-	//	protected Routes routes = null;
-
-	//	public HttpServerAioHandler(HttpRequestHandler requestHandler) {
-	//		this.requestHandler = requestHandler;
-	//	}
-
-	private HttpRequestHandler requestHandler;
-
-	//	public HttpServerAioHandler(HttpConfig httpConfig, HttpRequestHandler requestHandler) {
-	//		this(httpConfig, requestHandler);
-	////		this.routes = routes;
-	//	}
+	private static Logger		log			= LoggerFactory.getLogger(HttpServerAioHandler.class);
+	public static final String	REQUEST_KEY	= "tio_request_key";
+	protected HttpConfig		httpConfig;
+	private HttpRequestHandler	requestHandler;
 
 	/**
-	 *
-	 *
 	 * @author tanyaowu
 	 * 2016年11月18日 上午9:13:15
 	 *
