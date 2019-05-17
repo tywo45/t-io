@@ -8,9 +8,12 @@ import org.tio.core.utils.ByteBufferUtils;
 
 import java.nio.ByteBuffer;
 import java.util.BitSet;
+import java.util.Random;
 
 public class WsClientEncoder {
   private static Logger log = LoggerFactory.getLogger(WsClientEncoder.class);
+
+  private static final Random reuseableRandom = new Random();
 
   /*
       0                   1                   2                   3
@@ -40,41 +43,50 @@ public class WsClientEncoder {
     if (wsBody != null) {
       wsBodyLength += wsBody.length;
     } else if (wsBodies != null) {
-      for (int i = 0; i < wsBodies.length; i++) {
-        byte[] bs = wsBodies[i];
+      for (byte[] bs : wsBodies) {
         wsBodyLength += bs.length;
       }
     }
 
     byte opcode = packet.getWsOpcode().getCode();
-    byte header0 = (byte) (packet.isWsEof() ? -128 : 0);
-    header0 |= opcode;
+    byte b0 = (byte) (packet.isWsEof() ? -128 : 0);
+    b0 |= opcode;
 
-    ByteBuffer buf = null;
+    byte maskedByte = (byte) -128;
+
+    ByteBuffer buf;
     if (wsBodyLength < 126) {
-      buf = ByteBuffer.allocate(2 + wsBodyLength);
-      buf.put(header0);
-      buf.put((byte) wsBodyLength);
+      buf = ByteBuffer.allocate(2 + wsBodyLength + 4);
+      buf.put(b0);
+      buf.put((byte) (wsBodyLength | maskedByte));
     } else if (wsBodyLength < (1 << 16) - 1) {
-      buf = ByteBuffer.allocate(4 + wsBodyLength);
-      buf.put(header0);
-      buf.put((byte) 126);
+      buf = ByteBuffer.allocate(4 + wsBodyLength + 4);
+      buf.put(b0);
+      buf.put((byte) (126 | maskedByte));
       ByteBufferUtils.writeUB2WithBigEdian(buf, wsBodyLength);
     } else {
-      buf = ByteBuffer.allocate(10 + wsBodyLength);
-      buf.put(header0);
-      buf.put((byte) 127);
+      buf = ByteBuffer.allocate(10 + wsBodyLength + 4);
+      buf.put(b0);
+      buf.put((byte) (127 | maskedByte));
 
       buf.position(buf.position() + 4);
 
       ByteBufferUtils.writeUB4WithBigEdian(buf, wsBodyLength);
     }
 
+    ByteBuffer maskkey = ByteBuffer.allocate(4);
+    maskkey.putInt(reuseableRandom.nextInt());
+    buf.put(maskkey.array());
+
+    if (wsBody != null)
+      for (int i = 0; i < wsBody.length; i++) {
+        wsBody[i] = ((byte) (wsBody[i] ^ maskkey.get(i % 4)));
+      }
+
     if (wsBody != null && wsBody.length > 0) {
       buf.put(wsBody);
     } else if (wsBodies != null) {
-      for (int i = 0; i < wsBodies.length; i++) {
-        byte[] bs = wsBodies[i];
+      for (byte[] bs : wsBodies) {
         buf.put(bs);
       }
     }
