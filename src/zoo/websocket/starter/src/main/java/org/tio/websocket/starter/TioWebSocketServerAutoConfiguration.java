@@ -10,7 +10,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.tio.cluster.redisson.RedissonTioClusterTopic;
+import org.tio.core.intf.GroupListener;
+import org.tio.core.stat.IpStatListener;
 import org.tio.server.ServerGroupContext;
+import org.tio.websocket.server.WsServerAioListener;
 import org.tio.websocket.server.handler.IWsMsgHandler;
 
 
@@ -36,13 +39,13 @@ public class TioWebSocketServerAutoConfiguration {
     private IWsMsgHandler tioWebSocketMsgHandler;
 
     @Autowired(required = false)
-    private TioWebSocketIpStatListener tioWebSocketIpStatListener;
+    private IpStatListener tioWebSocketIpStatListener;
 
     @Autowired(required = false)
-    private TioWebSocketGroupListener tioWebSocketGroupListener;
+    private GroupListener tioWebSocketGroupListener;
 
     @Autowired(required = false)
-    private TioWebSocketServerAioListener tioWebSocketServerAioListener;
+    private WsServerAioListener tioWebSocketServerAioListener;
 
     @Autowired
     private TioWebSocketServerClusterProperties clusterProperties;
