@@ -62,20 +62,20 @@
 		<commons-compress.version>1.18</commons-compress.version>
 		<fastjson.version>1.2.58</fastjson.version>
 		<testng.version>6.14.3</testng.version>
-		<hutool.version>4.5.9</hutool.version>
+		<hutool.version>4.5.10</hutool.version>
 		<protobuf-java.version>3.7.1</protobuf-java.version>
 		<commons-beanutils.version>1.9.3</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
 		<protostuff.version>1.6.0</protostuff.version>
 		<redisson.version>3.10.7</redisson.version>
-		<jodd.version>5.0.12</jodd.version>
+		<jodd.version>5.0.13</jodd.version>
 		<quartz.version>2.3.1</quartz.version>
 		<caffeine.version>2.7.0</caffeine.version>
-		<binarywang.version>3.3.0</binarywang.version>
-		<zxing.version>3.3.3</zxing.version>
+		<binarywang.version>3.4.0</binarywang.version>
+		<zxing.version>3.4.0</zxing.version>
 		<httpcore.version>4.4.11</httpcore.version>
 		<httpclient.version>4.5.8</httpclient.version>
-		<closure.version>v20190415</closure.version>
+		<closure.version>v20190513</closure.version>
 		<freemarker.version>2.3.28</freemarker.version>
 		<UserAgentUtils.version>1.21</UserAgentUtils.version>
 		<scribejava-apis.version>6.5.1</scribejava-apis.version>
