@@ -1,20 +1,24 @@
 package org.tio.websocket.client.httpclient;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.exception.AioDecodeException;
-import org.tio.http.common.*;
+import org.tio.http.common.HeaderName;
+import org.tio.http.common.HeaderValue;
+import org.tio.http.common.HttpConst;
+import org.tio.http.common.HttpResponse;
+import org.tio.http.common.HttpResponseStatus;
+import org.tio.http.common.ResponseLine;
 import org.tio.utils.SysConst;
 import org.tio.utils.hutool.StrUtil;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.ByteBuffer;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * http client中使用 暂时不支持文件下载和chunk，暂时是用来做http性能测试用的

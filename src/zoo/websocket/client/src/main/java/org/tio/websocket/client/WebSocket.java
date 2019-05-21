@@ -1,13 +1,16 @@
 package org.tio.websocket.client;
 
-import io.reactivex.Observable;
-import org.tio.websocket.client.event.*;
-import org.tio.websocket.common.Opcode;
+import java.nio.ByteBuffer;
+import java.util.function.Consumer;
+
+import org.tio.websocket.client.event.CloseEvent;
+import org.tio.websocket.client.event.ErrorEvent;
+import org.tio.websocket.client.event.MessageEvent;
+import org.tio.websocket.client.event.OpenEvent;
 import org.tio.websocket.common.WsPacket;
 import org.tio.websocket.common.WsRequest;
 
-import java.nio.ByteBuffer;
-import java.util.function.Consumer;
+import io.reactivex.Observable;
 
 public interface WebSocket {
   int CONNECTING = 0;
@@ -27,7 +30,7 @@ public interface WebSocket {
   /**
    * To add listener of error event
    * @param listener listener
-   * @return Runnable to remove this listener
+   * @return Runnable to remove this listener 
    */
   Runnable addOnError(Consumer<ErrorEvent> listener);
 

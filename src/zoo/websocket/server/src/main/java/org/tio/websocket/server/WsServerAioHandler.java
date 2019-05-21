@@ -41,6 +41,13 @@ public class WsServerAioHandler implements ServerAioHandler {
 	 * value: List<WsRequest>
 	 */
 	private static final String	NOT_FINAL_WEBSOCKET_PACKET_PARTS	= "TIO_N_F_W_P_P";
+	
+	/**
+	 * SEC_WEBSOCKET_KEY后缀
+	 */
+	private static final String SEC_WEBSOCKET_KEY_SUFFIX = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+	
+	private static final byte[] SEC_WEBSOCKET_KEY_SUFFIX_BYTES = SEC_WEBSOCKET_KEY_SUFFIX.getBytes();
 
 	private WsServerConfig wsServerConfig;
 
@@ -274,8 +281,19 @@ public class WsServerAioHandler implements ServerAioHandler {
 		String Sec_WebSocket_Key = headers.get(HttpConst.RequestHeaderKey.Sec_WebSocket_Key);
 
 		if (StrUtil.isNotBlank(Sec_WebSocket_Key)) {
-			String Sec_WebSocket_Key_Magic = Sec_WebSocket_Key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-			byte[] key_array = SHA1Util.SHA1(Sec_WebSocket_Key_Magic);
+			byte[] Sec_WebSocket_Key_Bytes = null;
+			try {
+				Sec_WebSocket_Key_Bytes = Sec_WebSocket_Key.getBytes(request.getCharset());
+			} catch (UnsupportedEncodingException e) {
+//				log.error(e.toString(), e);
+				throw new RuntimeException(e);
+			}
+			byte[] allBs = new byte[Sec_WebSocket_Key_Bytes.length + SEC_WEBSOCKET_KEY_SUFFIX_BYTES.length];
+			System.arraycopy(Sec_WebSocket_Key_Bytes, 0, allBs, 0, Sec_WebSocket_Key_Bytes.length);
+			System.arraycopy(SEC_WEBSOCKET_KEY_SUFFIX_BYTES, 0, allBs, Sec_WebSocket_Key_Bytes.length, SEC_WEBSOCKET_KEY_SUFFIX_BYTES.length);
+			
+//			String Sec_WebSocket_Key_Magic = Sec_WebSocket_Key + SEC_WEBSOCKET_KEY_SUFFIX_BYTES;
+			byte[] key_array = SHA1Util.SHA1(allBs);
 			String acceptKey = BASE64Util.byteArrayToBase64(key_array);
 			HttpResponse httpResponse = new HttpResponse(request);
 
