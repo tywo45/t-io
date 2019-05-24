@@ -19,14 +19,16 @@ public class MapWithLockPropSupport implements IPropSupport {
 	public MapWithLockPropSupport() {
 	}
 
-	/**
-	 *
-	 * @author tanyaowu
-	 */
 	@Override
 	public void clearAttribute() {
-		//initProps();
 		props.clear();
+	}
+	
+	/**
+	 * 同：clearAttribute()
+	 */
+	public void clear() {
+		clearAttribute();
 	}
 
 	/**
@@ -37,8 +39,16 @@ public class MapWithLockPropSupport implements IPropSupport {
 	 */
 	@Override
 	public Object getAttribute(String key) {
-		//initProps();
 		return props.getObj().get(key);
+	}
+	
+	/**
+	 * 同：getAttribute(String key)
+	 * @param key
+	 * @return
+	 */
+	public Object get(String key) {
+		return getAttribute(key);
 	}
 
 	//	private void initProps() {
@@ -57,8 +67,15 @@ public class MapWithLockPropSupport implements IPropSupport {
 	 */
 	@Override
 	public void removeAttribute(String key) {
-		//initProps();
 		props.remove(key);
+	}
+	
+	/**
+	 * 同：removeAttribute(String key)
+	 * @param key
+	 */
+	public void remove(String key) {
+		removeAttribute(key);
 	}
 
 	/**
@@ -69,7 +86,15 @@ public class MapWithLockPropSupport implements IPropSupport {
 	 */
 	@Override
 	public void setAttribute(String key, Object value) {
-		//initProps();
 		props.put(key, value);
+	}
+	
+	/**
+	 * 同：setAttribute(String key, Object value)
+	 * @param key
+	 * @param value
+	 */
+	public void set(String key, Object value) {
+		setAttribute(key, value);
 	}
 }

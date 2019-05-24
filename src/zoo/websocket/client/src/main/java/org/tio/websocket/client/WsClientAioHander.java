@@ -35,7 +35,7 @@ public class WsClientAioHander implements ClientAioHandler {
   public Packet decode(
       ByteBuffer buffer, int limit, int position, int readableLength, ChannelContext ctx)
       throws AioDecodeException {
-    WsSessionContext session = (WsSessionContext) ctx.getAttribute();
+    WsSessionContext session = (WsSessionContext) ctx.get();
     if (!session.isHandshaked()) {
       HttpResponse response =
           HttpResponseDecoder.decode(buffer, limit, position, readableLength, ctx);
@@ -92,7 +92,7 @@ public class WsClientAioHander implements ClientAioHandler {
 
   @Override
   public ByteBuffer encode(Packet packet, GroupContext groupContext, ChannelContext ctx) {
-    WsSessionContext session = (WsSessionContext) ctx.getAttribute();
+    WsSessionContext session = (WsSessionContext) ctx.get();
     if (!session.isHandshaked() && packet instanceof HttpRequest) {
       try {
         return HttpRequestEncoder.encode((HttpRequest) packet, groupContext, ctx);

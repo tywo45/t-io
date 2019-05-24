@@ -22,7 +22,7 @@ public class WsServerAioListener implements ServerAioListener {
 	@Override
 	public void onAfterConnected(ChannelContext channelContext, boolean isConnected, boolean isReconnect) throws Exception {
 		WsSessionContext wsSessionContext = new WsSessionContext();
-		channelContext.setAttribute(wsSessionContext);
+		channelContext.set(wsSessionContext);
 		return;
 	}
 

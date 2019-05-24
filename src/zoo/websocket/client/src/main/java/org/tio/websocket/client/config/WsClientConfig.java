@@ -1,13 +1,12 @@
 package org.tio.websocket.client.config;
 
+import java.util.function.Consumer;
+
 import org.tio.utils.hutool.StrUtil;
 import org.tio.websocket.client.event.CloseEvent;
 import org.tio.websocket.client.event.ErrorEvent;
 import org.tio.websocket.client.event.MessageEvent;
 import org.tio.websocket.client.event.OpenEvent;
-
-import java.nio.charset.Charset;
-import java.util.function.Consumer;
 
 public class WsClientConfig {
   private String charset = "UTF-8";

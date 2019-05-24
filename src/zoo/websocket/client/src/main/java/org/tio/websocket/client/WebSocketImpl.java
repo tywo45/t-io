@@ -1,29 +1,5 @@
 package org.tio.websocket.client;
 
-import io.reactivex.Observable;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.subjects.PublishSubject;
-import io.reactivex.subjects.Subject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.tio.client.ClientChannelContext;
-import org.tio.core.Node;
-import org.tio.core.Tio;
-import org.tio.core.intf.Packet;
-import org.tio.http.common.*;
-import org.tio.utils.hutool.StrUtil;
-import org.tio.websocket.client.event.*;
-import org.tio.websocket.client.httpclient.ClientHttpRequest;
-import org.tio.websocket.client.kit.ByteKit;
-import org.tio.websocket.client.kit.ObjKit;
-import org.tio.websocket.client.kit.TioKit;
-import org.tio.websocket.common.Opcode;
-import org.tio.websocket.common.WsPacket;
-import org.tio.websocket.common.WsRequest;
-import org.tio.websocket.common.WsSessionContext;
-import org.tio.websocket.common.util.BASE64Util;
-import org.tio.websocket.common.util.SHA1Util;
-
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
@@ -35,8 +11,41 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tio.client.ClientChannelContext;
+import org.tio.core.Node;
+import org.tio.core.Tio;
+import org.tio.core.intf.Packet;
+import org.tio.http.common.HeaderName;
+import org.tio.http.common.HeaderValue;
+import org.tio.http.common.HttpResponse;
+import org.tio.http.common.HttpResponseStatus;
+import org.tio.http.common.Method;
+import org.tio.utils.hutool.StrUtil;
+import org.tio.websocket.client.event.CloseEvent;
+import org.tio.websocket.client.event.ErrorEvent;
+import org.tio.websocket.client.event.MessageEvent;
+import org.tio.websocket.client.event.OpenEvent;
+import org.tio.websocket.client.httpclient.ClientHttpRequest;
+import org.tio.websocket.client.kit.ByteKit;
+import org.tio.websocket.client.kit.ObjKit;
+import org.tio.websocket.client.kit.TioKit;
+import org.tio.websocket.common.Opcode;
+import org.tio.websocket.common.WsPacket;
+import org.tio.websocket.common.WsRequest;
+import org.tio.websocket.common.WsSessionContext;
+import org.tio.websocket.common.util.BASE64Util;
+import org.tio.websocket.common.util.SHA1Util;
+
+import io.reactivex.Observable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
+
 public class WebSocketImpl implements WebSocket {
-  private static final Logger log = LoggerFactory.getLogger(WebSocketImpl.class);
+  @SuppressWarnings("unused")
+private static final Logger log = LoggerFactory.getLogger(WebSocketImpl.class);
   static final String packetPublisherKey = "__WS_PACKET_PUBLISHER__";
   static final String clientIntoCtxAttribute = "__WS_CLIENT__";
   private static final int maxBodyBytesLength = (int) (1024 * 1024 * 0.25); // 0.25 MB
@@ -90,7 +99,7 @@ public class WebSocketImpl implements WebSocket {
     ctx.setAttribute(packetPublisherKey, publisher);
     ctx.setAttribute(clientIntoCtxAttribute, wsClient);
     WsSessionContext session = new WsSessionContext();
-    ctx.setAttribute(session);
+    ctx.set(session);
 
     handshake();
 
@@ -314,7 +323,7 @@ public class WebSocketImpl implements WebSocket {
     readyState = WebSocket.CONNECTING;
 
     ClientChannelContext ctx = wsClient.getClientChannelContext();
-    WsSessionContext session = (WsSessionContext) ctx.getAttribute();
+    WsSessionContext session = (WsSessionContext) ctx.get();
 
     session.setHandshaked(false);
 

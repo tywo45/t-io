@@ -873,7 +873,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 			return;
 		}
 
-		HttpSession httpSession = request.getHttpSession();//(HttpSession) channelContext.getAttribute();//.getHttpSession();//not null
+		HttpSession httpSession = request.getHttpSession();//(HttpSession) channelContext.get();//.getHttpSession();//not null
 		//		Cookie cookie = getSessionCookie(request, httpConfig);
 		String sessionId = getSessionId(request);
 

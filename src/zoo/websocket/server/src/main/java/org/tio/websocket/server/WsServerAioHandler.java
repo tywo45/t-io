@@ -65,7 +65,7 @@ public class WsServerAioHandler implements ServerAioHandler {
 	@SuppressWarnings("unchecked")
 	@Override
 	public WsRequest decode(ByteBuffer buffer, int limit, int position, int readableLength, ChannelContext channelContext) throws AioDecodeException {
-		WsSessionContext wsSessionContext = (WsSessionContext) channelContext.getAttribute();
+		WsSessionContext wsSessionContext = (WsSessionContext) channelContext.get();
 		//		int initPosition = buffer.position();
 
 		if (!wsSessionContext.isHandshaked()) {//尚未握手
@@ -144,7 +144,7 @@ public class WsServerAioHandler implements ServerAioHandler {
 
 		// 握手包
 		if (wsResponse.isHandShake()) {
-			WsSessionContext imSessionContext = (WsSessionContext) channelContext.getAttribute();
+			WsSessionContext imSessionContext = (WsSessionContext) channelContext.get();
 			HttpResponse handshakeResponse = imSessionContext.getHandshakeResponse();
 			try {
 				return HttpResponseEncoder.encode(handshakeResponse, groupContext, channelContext);
@@ -204,7 +204,7 @@ public class WsServerAioHandler implements ServerAioHandler {
 		WsRequest wsRequest = (WsRequest) packet;
 
 		if (wsRequest.isHandShake()) {//是握手包
-			WsSessionContext wsSessionContext = (WsSessionContext) channelContext.getAttribute();
+			WsSessionContext wsSessionContext = (WsSessionContext) channelContext.get();
 			HttpRequest request = wsSessionContext.getHandshakeRequest();
 			HttpResponse httpResponse = wsSessionContext.getHandshakeResponse();
 			HttpResponse r = wsMsgHandler.handshake(request, httpResponse, channelContext);

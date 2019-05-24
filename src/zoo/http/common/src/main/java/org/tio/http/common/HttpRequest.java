@@ -589,7 +589,7 @@ public class HttpRequest extends HttpPacket {
 
 		//		String Sec_WebSocket_Key = headers.get(HttpConst.RequestHeaderKey.Sec_WebSocket_Key);
 		//		if (StrUtil.isNotBlank(Sec_WebSocket_Key)) {
-		//			ImSessionContext httpSession = channelContext.getAttribute();
+		//			ImSessionContext httpSession = channelContext.get();
 		//			httpSession.setWebsocket(true);
 		//		}
 	}
