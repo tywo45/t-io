@@ -5,7 +5,7 @@
     <parent>
         <artifactId>tio-websocket-parent</artifactId>
         <groupId>org.t-io</groupId>
-        <version>3.3.1.v20190520-RELEASE</version>
+        <version>3.3.2.v20190601-RELEASE</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
