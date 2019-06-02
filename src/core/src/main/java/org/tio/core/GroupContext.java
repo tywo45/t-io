@@ -42,49 +42,49 @@ import org.tio.utils.thread.pool.SynThreadPoolExecutor;
  * 2016年10月10日 下午5:25:43
  */
 public abstract class GroupContext extends MapWithLockPropSupport {
-	static Logger						log					= LoggerFactory.getLogger(GroupContext.class);
+	static Logger								log					= LoggerFactory.getLogger(GroupContext.class);
 	/**
 	 * 默认的接收数据的buffer size
 	 */
-	public static final int				READ_BUFFER_SIZE	= Integer.getInteger("tio.default.read.buffer.size", 2048);
-	private final static AtomicInteger	ID_ATOMIC			= new AtomicInteger();
-	private ByteOrder					byteOrder			= ByteOrder.BIG_ENDIAN;
-	public boolean						isShortConnection	= false;
-	public SslConfig					sslConfig			= null;
-	public boolean						debug				= false;
-	public GroupStat					groupStat			= null;
-	public boolean						statOn				= true;
-	public PacketConverter				packetConverter		= null;
+	public static final int						READ_BUFFER_SIZE	= Integer.getInteger("tio.default.read.buffer.size", 2048);
+	private final static AtomicInteger			ID_ATOMIC			= new AtomicInteger();
+	private ByteOrder							byteOrder			= ByteOrder.BIG_ENDIAN;
+	public boolean								isShortConnection	= false;
+	public SslConfig							sslConfig			= null;
+	public boolean								debug				= false;
+	public GroupStat							groupStat			= null;
+	public boolean								statOn				= true;
+	public PacketConverter						packetConverter		= null;
 	/**
 	 * 启动时间
 	 */
-	public long							startTime			= SystemTimer.currTime;
+	public long									startTime			= SystemTimer.currTime;
 	/**
 	 * 是否用队列发送
 	 */
-	public boolean						useQueueSend		= true;
+	public boolean								useQueueSend		= true;
 	/**
 	 *  是否用队列解码（系统初始化时确定该值，中途不要变更此值，否则在切换的时候可能导致消息丢失）
 	 */
-	public boolean						useQueueDecode		= false;
+	public boolean								useQueueDecode		= false;
 	/**
 	 * 心跳超时时间(单位: 毫秒)，如果用户不希望框架层面做心跳相关工作，请把此值设为0或负数
 	 */
-	public long							heartbeatTimeout	= 1000 * 120;
+	public long									heartbeatTimeout	= 1000 * 120;
 	/**
 	 * 解码出现异常时，是否打印异常日志
 	 */
-	public boolean						logWhenDecodeError	= false;
-	public PacketHandlerMode			packetHandlerMode	= PacketHandlerMode.SINGLE_THREAD;							//.queue;
+	public boolean								logWhenDecodeError	= false;
+	public PacketHandlerMode					packetHandlerMode	= PacketHandlerMode.SINGLE_THREAD;							//.queue;
 	/**
 	 * 接收数据的buffer size
 	 */
-	private int							readBufferSize		= READ_BUFFER_SIZE;
-	private GroupListener				groupListener		= null;
-	private TioUuid						tioUuid				= new DefaultTioUuid();
-	public SynThreadPoolExecutor		tioExecutor			= null;
-	public CloseRunnable				closeRunnable;
-	public ThreadPoolExecutor			groupExecutor		= null;
+	private int									readBufferSize		= READ_BUFFER_SIZE;
+	private GroupListener						groupListener		= null;
+	private TioUuid								tioUuid				= new DefaultTioUuid();
+	public SynThreadPoolExecutor				tioExecutor			= null;
+	public CloseRunnable						closeRunnable;
+	public ThreadPoolExecutor					groupExecutor		= null;
 
 	public ClientNodes					clientNodes	= new ClientNodes();
 	public SetWithLock<ChannelContext>	connections	= new SetWithLock<ChannelContext>(new HashSet<ChannelContext>());
@@ -111,17 +111,7 @@ public abstract class GroupContext extends MapWithLockPropSupport {
 
 	public MapWithLock<Integer, Packet> waitingResps = new MapWithLock<Integer, Packet>(new HashMap<Integer, Packet>());
 
-	public void share(GroupContext groupContext) {
-		this.clientNodes = groupContext.clientNodes;
-		this.connections = groupContext.connections;
-		this.groups = groupContext.groups;
-		this.users = groupContext.users;
-		this.tokens = groupContext.tokens;
-		this.ids = groupContext.ids;
-		this.bsIds = groupContext.bsIds;
-		this.ipBlacklist = groupContext.ipBlacklist;
-		this.ips = groupContext.ips;
-	}
+
 
 	/**
 	 * 如果此值不为null，就表示要集群

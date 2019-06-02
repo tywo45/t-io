@@ -2,6 +2,7 @@ package org.tio.server;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
@@ -29,18 +30,13 @@ import org.tio.utils.thread.pool.SynThreadPoolExecutor;
  * 2016年10月10日 下午5:51:56
  */
 public class ServerGroupContext extends GroupContext {
-	static Logger log = LoggerFactory.getLogger(ServerGroupContext.class);
-
-	private AcceptCompletionHandler acceptCompletionHandler = null;
-
-	private ServerAioHandler serverAioHandler = null;
-
-	private ServerAioListener serverAioListener = null;
-
-	/** The accept executor. */
-	//private ThreadPoolExecutor acceptExecutor = null;
-
-	private Thread checkHeartbeatThread = null;
+	static Logger							log						= LoggerFactory.getLogger(ServerGroupContext.class);
+	private AcceptCompletionHandler			acceptCompletionHandler	= null;
+	private ServerAioHandler				serverAioHandler		= null;
+	private ServerAioListener				serverAioListener		= null;
+	private Thread							checkHeartbeatThread	= null;
+	private boolean							needCheckHeartbeat		= true;
+	private static Set<ServerGroupContext>	SHARED_SET				= null;												//new HashSet<>();
 
 	/**
 	 * 
@@ -62,17 +58,6 @@ public class ServerGroupContext extends GroupContext {
 	public ServerGroupContext(String name, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener) {
 		this(name, serverAioHandler, serverAioListener, null, null);
 	}
-
-	//	/**
-	//	 * 
-	//	 * @param name
-	//	 * @param serverAioHandler
-	//	 * @param serverAioListener
-	//	 * @author: tanyaowu
-	//	 */
-	//	public ServerGroupContext(String name, TioClusterConfig tioClusterConfig, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener) {
-	//		this(name, tioClusterConfig, serverAioHandler, serverAioListener, null, null);
-	//	}
 
 	/**
 	 * 
@@ -105,22 +90,6 @@ public class ServerGroupContext extends GroupContext {
 	/**
 	 * 
 	 * @param name
-	 * @param tioClusterConfig
-	 * @param serverAioHandler
-	 * @param serverAioListener
-	 * @param tioExecutor
-	 * @param groupExecutor
-	 * @author: tanyaowu
-	 */
-	//	public ServerGroupContext(String name, TioClusterConfig tioClusterConfig, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener,
-	//			SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
-	//		super(tioClusterConfig, tioExecutor, groupExecutor);
-	//		init(name, serverAioHandler, serverAioListener, tioExecutor, groupExecutor);
-	//	}
-
-	/**
-	 * 
-	 * @param name
 	 * @param serverAioHandler
 	 * @param serverAioListener
 	 * @param tioExecutor
@@ -143,7 +112,7 @@ public class ServerGroupContext extends GroupContext {
 					log.error(e1.toString(), e1);
 				}
 
-				while (!isStopped()) {
+				while (needCheckHeartbeat && !isStopped()) {
 					//					long sleeptime = heartbeatTimeout;
 					if (heartbeatTimeout <= 0) {
 						log.info("{}, 用户取消了框架层面的心跳检测，如果业务需要，请用户自己去完成心跳检测", ServerGroupContext.this.name);
@@ -236,12 +205,13 @@ public class ServerGroupContext extends GroupContext {
 						}
 					}
 				}
+
+				//log.error(name + "--" + needCheckHeartbeat + "-" + isStopped() + "--执行完成了---------------------------------------------------------------------------------------------------执行完成了");
 			}
-		}, "tio-timer-checkheartbeat-" + id);
+		}, "tio-timer-checkheartbeat-" + id + "-" + name);
 		checkHeartbeatThread.setDaemon(true);
 		checkHeartbeatThread.setPriority(Thread.MIN_PRIORITY);
 		checkHeartbeatThread.start();
-
 	}
 
 	/**
@@ -334,6 +304,39 @@ public class ServerGroupContext extends GroupContext {
 	@Override
 	public String toString() {
 		return "ServerGroupContext [name=" + name + "]";
+	}
+
+	public void share(ServerGroupContext groupContext) {
+		synchronized (ServerGroupContext.class) {
+			this.clientNodes = groupContext.clientNodes;
+			this.connections = groupContext.connections;
+			this.groups = groupContext.groups;
+			this.users = groupContext.users;
+			this.tokens = groupContext.tokens;
+			this.ids = groupContext.ids;
+			this.bsIds = groupContext.bsIds;
+			this.ipBlacklist = groupContext.ipBlacklist;
+			this.ips = groupContext.ips;
+
+			if (SHARED_SET == null) {
+				SHARED_SET = new HashSet<>();
+			}
+
+			SHARED_SET.add(this);
+			SHARED_SET.add(groupContext);
+
+			boolean need = true;
+			for (ServerGroupContext gc : SHARED_SET) {
+				if (!need) {
+					gc.needCheckHeartbeat = false;
+					continue;
+				}
+
+				if (gc.needCheckHeartbeat) {
+					need = false;
+				}
+			}
+		}
 	}
 
 }
