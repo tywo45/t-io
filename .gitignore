@@ -1,3 +1,9 @@
 *.iml
 target/
 .idea/
+.project
+.settings/
+*.class
+**/*/bin/
+.classpath
+.externalToolBuilders
