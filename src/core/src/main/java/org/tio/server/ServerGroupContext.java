@@ -308,6 +308,9 @@ public class ServerGroupContext extends GroupContext {
 
 	public void share(ServerGroupContext groupContext) {
 		synchronized (ServerGroupContext.class) {
+			if (groupContext == this) {
+				return;
+			}
 			this.clientNodes = groupContext.clientNodes;
 			this.connections = groupContext.connections;
 			this.groups = groupContext.groups;

@@ -162,6 +162,7 @@ public class HttpConfig {
 	 */
 	private volatile Map<String, String>	domainPageMap				= null;										//new HashMap<>();
 	public boolean							checkHost					= true;
+	private String							name						= null;
 
 	public Map<String, String> getDomainPageMap() {
 		return domainPageMap;
@@ -719,5 +720,19 @@ public class HttpConfig {
 
 	public void setMaxLengthOfPostBody(int maxLengthOfPostBody) {
 		this.maxLengthOfPostBody = maxLengthOfPostBody;
+	}
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * @param name the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
 	}
 }
