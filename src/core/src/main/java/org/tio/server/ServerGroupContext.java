@@ -2,7 +2,6 @@ package org.tio.server;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
@@ -36,7 +35,8 @@ public class ServerGroupContext extends GroupContext {
 	private ServerAioListener				serverAioListener		= null;
 	private Thread							checkHeartbeatThread	= null;
 	private boolean							needCheckHeartbeat		= true;
-	private static Set<ServerGroupContext>	SHARED_SET				= null;												//new HashSet<>();
+//	private static Set<ServerGroupContext>	SHARED_SET				= null;
+	private boolean							isShared				= false;
 
 	/**
 	 * 
@@ -320,25 +320,40 @@ public class ServerGroupContext extends GroupContext {
 			this.bsIds = groupContext.bsIds;
 			this.ipBlacklist = groupContext.ipBlacklist;
 			this.ips = groupContext.ips;
-
-			if (SHARED_SET == null) {
-				SHARED_SET = new HashSet<>();
+			
+			
+			if (!groupContext.isShared && !this.isShared) {
+				this.needCheckHeartbeat = false;
 			}
-
-			SHARED_SET.add(this);
-			SHARED_SET.add(groupContext);
-
-			boolean need = true;
-			for (ServerGroupContext gc : SHARED_SET) {
-				if (!need) {
-					gc.needCheckHeartbeat = false;
-					continue;
-				}
-
-				if (gc.needCheckHeartbeat) {
-					need = false;
-				}
+			if (groupContext.isShared && !this.isShared) {
+				this.needCheckHeartbeat = false;
 			}
+			if (!groupContext.isShared && this.isShared) {
+				groupContext.needCheckHeartbeat = false;
+			}
+			
+			//下面这两行代码要放到前面if的后面
+			groupContext.isShared = true;
+			this.isShared = true;
+
+//			if (SHARED_SET == null) {
+//				SHARED_SET = new HashSet<>();
+//			}
+//
+//			SHARED_SET.add(this);
+//			SHARED_SET.add(groupContext);
+//
+//			boolean need = true;
+//			for (ServerGroupContext gc : SHARED_SET) {
+//				if (!need) {
+//					gc.needCheckHeartbeat = false;
+//					continue;
+//				}
+//
+//				if (gc.needCheckHeartbeat) {
+//					need = false;
+//				}
+//			}
 		}
 	}
 
