@@ -36,7 +36,7 @@ public class Routes {
 	 */
 	public static final String META_PATH_KEY = "TIO_HTTP_META_PATH";
 
-	private boolean writeMappingToFile = true;
+//	private boolean writeMappingToFile = true;
 
 	/**
 	 * 路径和对象映射<br>
@@ -300,7 +300,8 @@ public class Routes {
 			String variablePathMethodstrMapStr = Json.toFormatedJson(VARIABLEPATH_METHODSTR_MAP);
 			log.info("variable path mapping\r\n{}", variablePathMethodstrMapStr);
 
-			if (writeMappingToFile) {
+			String writeMappingToFile = System.getProperty("tio.mvc.route.writeMappingToFile", "true");
+			if ("true".equalsIgnoreCase(writeMappingToFile)) {
 				try {
 					FileUtil.writeString(pathClassMapStr, "/tio_mvc_path_class.json", "utf-8");
 					FileUtil.writeString(pathMethodstrMapStr, "/tio_mvc_path_method.json", "utf-8");
@@ -457,19 +458,5 @@ public class Routes {
 		} else {
 			return method;
 		}
-	}
-
-	/**
-	 * @return the writeMappingToFile
-	 */
-	public boolean isWriteMappingToFile() {
-		return writeMappingToFile;
-	}
-
-	/**
-	 * @param writeMappingToFile the writeMappingToFile to set
-	 */
-	public void setWriteMappingToFile(boolean writeMappingToFile) {
-		this.writeMappingToFile = writeMappingToFile;
 	}
 }
