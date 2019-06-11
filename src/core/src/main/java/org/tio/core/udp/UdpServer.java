@@ -41,7 +41,8 @@ public class UdpServer {
 				if (c % 10000 == 0) {
 					String str = "【" + msg + "】 from " + remote;
 					log.error(str);
-				}
+				}String str = "【" + msg + "】 from " + remote;
+				log.error(str);
 
 				//				log.info("收到来自{}的消息:【{}】", remote, msg);
 				DatagramPacket datagramPacket = new DatagramPacket(data, data.length, new InetSocketAddress(remote.getIp(), remote.getPort()));
