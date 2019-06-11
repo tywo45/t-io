@@ -514,7 +514,8 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 						}
 					}
 
-					obj = Routes.BEAN_METHODACCESS_MAP.get(bean).invoke(bean, method.getName(), parameterTypes, paramValues);
+					MethodAccess methodAccess = Routes.BEAN_METHODACCESS_MAP.get(bean);
+					obj = methodAccess.invoke(bean, method.getName(), parameterTypes, paramValues);
 				}
 
 				if (obj instanceof HttpResponse) {
