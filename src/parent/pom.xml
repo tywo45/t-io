@@ -223,6 +223,12 @@
 			</dependency>
 
 			<dependency>
+				<groupId>org.t-io</groupId>
+				<artifactId>jfinal-activerecord</artifactId>
+				<version>${tio-utils.version}</version>
+			</dependency>
+
+			<dependency>
 				<groupId>cn.hutool</groupId>
 				<artifactId>hutool-core</artifactId>
 				<version>${hutool.version}</version>
