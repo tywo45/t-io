@@ -106,7 +106,11 @@ public abstract class CacheUtils {
 				return (T) ret;
 			}
 
-			ret = firsthandCreater.create();
+			try {
+				ret = firsthandCreater.create();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 			if (ret == null) {
 				if (putTempToCacheIfNull) {
 					cache.putTemporary(cacheKey, NULL_OBJ);

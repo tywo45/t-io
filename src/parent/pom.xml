@@ -51,7 +51,7 @@
 		<druid.version>1.1.17</druid.version>
 		<jfinal.version>4.2</jfinal.version>
 		<logback.version>1.3.0-alpha4</logback.version>
-		<slf4j.version>1.8.0-beta4</slf4j.version>
+		<slf4j.version>1.7.26</slf4j.version>
 		<log4j.version>1.2.17</log4j.version>
 		<jdk.version>1.8</jdk.version>
 		<junit.version>4.12</junit.version>
@@ -62,7 +62,7 @@
 		<commons-compress.version>1.18</commons-compress.version>
 		<fastjson.version>1.2.58</fastjson.version>
 		<testng.version>6.14.3</testng.version>
-		<hutool.version>4.5.10</hutool.version>
+		<hutool.version>4.5.11</hutool.version>
 		<protobuf-java.version>3.8.0</protobuf-java.version>
 		<commons-beanutils.version>1.9.3</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
@@ -74,11 +74,11 @@
 		<binarywang.version>3.4.0</binarywang.version>
 		<zxing.version>3.4.0</zxing.version>
 		<httpcore.version>4.4.11</httpcore.version>
-		<httpclient.version>4.5.8</httpclient.version>
+		<httpclient.version>4.5.9</httpclient.version>
 		<closure.version>v20190528</closure.version>
 		<freemarker.version>2.3.28</freemarker.version>
 		<UserAgentUtils.version>1.21</UserAgentUtils.version>
-		<scribejava-apis.version>6.6.2</scribejava-apis.version>
+		<scribejava-apis.version>6.6.3</scribejava-apis.version>
 		<oltu.oauth2.version>1.0.2</oltu.oauth2.version>
 
 
@@ -201,7 +201,7 @@
 			<dependency>
 				<groupId>net.oschina.j2cache</groupId>
 				<artifactId>j2cache-core</artifactId>
-				<version>2.7.7-release</version>
+				<version>2.7.8-release</version>
 			</dependency>
 
 			<dependency>
@@ -444,7 +444,7 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>27.1-jre</version>
+				<version>28.0-jre</version>
 			</dependency>
 
 			<dependency>
@@ -529,7 +529,7 @@
 			<dependency>
 				<groupId>io.github.classgraph</groupId>
 				<artifactId>classgraph</artifactId>
-				<version>4.8.34</version>
+				<version>4.8.39</version>
 			</dependency>
 			<dependency>
 				<groupId>com.thoughtworks.paranamer</groupId>
