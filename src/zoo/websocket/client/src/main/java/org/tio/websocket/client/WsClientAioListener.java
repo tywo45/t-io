@@ -42,13 +42,12 @@ public class WsClientAioListener implements ClientAioListener {
     if (throwable instanceof SSLHandshakeException && client.uri.getScheme().equals("wss")) {
       log.warn("wss但没有正确的CA证书，更为ws重试");
       ReflectKit.setField(client.uri, "scheme", "ws");
-      ReflectKit.setField(client.uri, "port", 80);
-      client.clientChannelContext = null;
-      client.tioClient = new TioClient(WsClient.clientGroupContext);
-      client.connected = false;
+      if (client.uri.getPort() == 443) ReflectKit.setField(client.uri, "port", 80);
+      client.construct();
       client.connect();
       return;
     }
     client.ws.clear(1011, remark);
+    channelContext.setAttribute(WebSocketImpl.clientIntoCtxAttribute, null);
   }
 }

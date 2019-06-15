@@ -45,7 +45,8 @@ import io.reactivex.subjects.Subject;
 
 public class WebSocketImpl implements WebSocket {
   @SuppressWarnings("unused")
-private static final Logger log = LoggerFactory.getLogger(WebSocketImpl.class);
+  private static final Logger log = LoggerFactory.getLogger(WebSocketImpl.class);
+
   static final String packetPublisherKey = "__WS_PACKET_PUBLISHER__";
   static final String clientIntoCtxAttribute = "__WS_CLIENT__";
   private static final int maxBodyBytesLength = (int) (1024 * 1024 * 0.25); // 0.25 MB
@@ -83,8 +84,6 @@ private static final Logger log = LoggerFactory.getLogger(WebSocketImpl.class);
 
   @Override
   public synchronized void connect() throws Exception {
-    if (wsClient.connected) return;
-
     CountDownLatch wg = new CountDownLatch(1);
     int i = 1;
     while (wsClient.clientChannelContext == null) {
@@ -102,8 +101,6 @@ private static final Logger log = LoggerFactory.getLogger(WebSocketImpl.class);
     ctx.set(session);
 
     handshake();
-
-    wsClient.connected = true;
   }
 
   @Override
@@ -230,7 +227,7 @@ private static final Logger log = LoggerFactory.getLogger(WebSocketImpl.class);
       }
       Tio.send(ctx, close);
       String finalReason = reason;
-      Observable.timer(2, TimeUnit.SECONDS)
+      Observable.timer(1, TimeUnit.SECONDS)
           .subscribe(
               i -> {
                 clear(code, finalReason);
@@ -240,12 +237,15 @@ private static final Logger log = LoggerFactory.getLogger(WebSocketImpl.class);
     }
   }
 
-  void clear(int code, String reason) {
+  synchronized void clear(int code, String reason) {
     if (readyState == WebSocket.CLOSED) return;
     readyState = WebSocket.CLOSED;
-    if (!ctx.isRemoved) Tio.remove(ctx, reason);
     publisher.onComplete();
     onClose(code, reason);
+    try {
+      wsClient.tioClient.stop();
+    } catch (Exception e) {
+    }
   }
 
   @Override

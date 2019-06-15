@@ -22,19 +22,6 @@ public class WsClient {
 
   static ClientAioHandler tioClientHandler = new WsClientAioHander();
   static ClientAioListener aioListener = new WsClientAioListener();
-  static ClientGroupContext clientGroupContext =
-      new ClientGroupContext(tioClientHandler, aioListener, null);
-  static ClientGroupContext clientGroupContextUseSsl =
-      new ClientGroupContext(tioClientHandler, aioListener, null);
-
-  static {
-    clientGroupContext.setHeartbeatTimeout(0);
-    clientGroupContextUseSsl.setHeartbeatTimeout(0);
-    try {
-      clientGroupContextUseSsl.useSsl();
-    } catch (Exception e) {
-    }
-  }
 
   /**
    * To create a WsClient.
@@ -98,9 +85,9 @@ public class WsClient {
   TioClient tioClient;
   WsClientConfig config = new WsClientConfig();
   ClientChannelContext clientChannelContext;
-  Map<String, String> additionalHttpHeaders = null;
-  WebSocketImpl ws = null;
-  boolean connected = false;
+  Map<String, String> additionalHttpHeaders;
+  WebSocketImpl ws;
+  ClientGroupContext clientGroupContext;
 
   WsClient(String rawUri) throws Exception {
     this(rawUri, null);
@@ -109,29 +96,14 @@ public class WsClient {
   WsClient(String rawUri, Map<String, String> additionalHttpHeaders) throws Exception {
     rawUri = rawUri.trim();
     if (!rawUri.matches(
-      "wss?\\://((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])|(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9]))(\\:[0-9]+)?(/.*)?(\\?.*)?")) {
-      throw new Exception("Invalid scheme of " + rawUri);
+        "wss?\\://((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])|(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9]))(\\:[0-9]+)?(/.*)?(\\?.*)?")) {
+      throw new Exception("Invalid uri of " + rawUri);
     }
 
     this.rawUri = rawUri;
     this.additionalHttpHeaders = additionalHttpHeaders;
-    uri = UriKit.parseURI(rawUri);
-    int port = uri.getPort();
-    if (port == -1) {
-      if (uri.getScheme().equals("ws")) {
-        port = 80;
-        log.info("No port specified, use the default: {}", port);
-      } else {
-        port = 443;
-      }
-      try {
-        ReflectKit.setField(uri, "port", port);
-      } catch (Exception ex) {
-      }
-    }
-    if (uri.getScheme().equals("ws")) tioClient = new TioClient(clientGroupContext);
-    else tioClient = new TioClient(clientGroupContextUseSsl);
-    ws = new WebSocketImpl(this, additionalHttpHeaders);
+
+    construct();
   }
 
   /**
@@ -141,15 +113,17 @@ public class WsClient {
    * @throws Exception
    */
   public synchronized WebSocket connect() throws Exception {
-    if (connected) return ws;
     ws.connect();
-    connected = true;
     return ws;
   }
 
   public void close() {
     if (ws != null) {
       ws.close();
+      ws = null;
+      clientChannelContext = null;
+      clientGroupContext = null;
+      tioClient = null;
     }
   }
 
@@ -177,7 +151,29 @@ public class WsClient {
     return rawUri;
   }
 
-  public static int clientCount() {
-    return clientGroupContext.connecteds.size() + clientGroupContextUseSsl.connecteds.size();
+  void construct() throws Exception {
+    uri = UriKit.parseURI(rawUri);
+    int port = uri.getPort();
+    if (port == -1) {
+      if (uri.getScheme().equals("ws")) {
+        port = 80;
+        log.info("No port specified, use the default: {}", port);
+      } else {
+        port = 443;
+      }
+      try {
+        ReflectKit.setField(uri, "port", port);
+      } catch (Exception ex) {
+      }
+    }
+    clientGroupContext = new ClientGroupContext(tioClientHandler, aioListener, null);
+    clientGroupContext.setHeartbeatTimeout(0);
+    if (uri.getScheme().equals("ws")) {
+      tioClient = new TioClient(clientGroupContext);
+    } else {
+      clientGroupContext.useSsl();
+      tioClient = new TioClient(clientGroupContext);
+    }
+    ws = new WebSocketImpl(this, additionalHttpHeaders);
   }
 }
