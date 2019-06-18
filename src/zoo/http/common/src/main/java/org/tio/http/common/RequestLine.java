@@ -127,7 +127,7 @@ public class RequestLine {
 		this.initPath = initPath;
 	}
 
-	/** 
+	/**
 	 * @return
 	 * @author tanyaowu
 	 */
@@ -157,6 +157,7 @@ public class RequestLine {
 		if (StrUtil.isNotBlank(queryString)) {
 			sb.append("?");//.append(queryString);
 			String[] keyValues = queryString.split("&");
+			int i = 0;
 			for (String keyValue : keyValues) {
 				String[] keyValueArray = keyValue.split("=");
 				if (keyValueArray.length == 2) {
@@ -171,8 +172,10 @@ public class RequestLine {
 					} else {
 						sb.append(name).append("=").append(URLEncoder.encode(value));
 					}
-
+					if (i != keyValues.length - 1)
+					  sb.append("&");
 				}
+				i++;
 			}
 		}
 		sb.append(" ");
