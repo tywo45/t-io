@@ -88,8 +88,8 @@ public class TioWebSocketServerAutoConfiguration {
 
     @Bean
     @ConditionalOnProperty(value = "tio.websocket.cluster.enabled",havingValue = "true",matchIfMissing = true)
-    public RedisInitializer redisInitializer(){
-        return new RedisInitializer(redisConfig);
+    public RedisInitializer redisInitializer(ApplicationContext applicationContext) {
+        return new RedisInitializer(redisConfig, applicationContext);
     }
 
 
