@@ -88,6 +88,37 @@ public class TioWebSocketServerClusterProperties {
 
     @ConfigurationProperties("tio.websocket.cluster.redis")
     public static class RedisConfig {
+
+        public boolean useConfigFile(){
+            if (StrUtil.isBlank(configPath)){
+                return false;
+            }
+            return true;
+        }
+
+        public boolean isYAMLConfig() {
+            if (useConfigFile()) {
+                return configPath.toLowerCase().endsWith("yaml");
+            }
+            return false;
+        }
+
+        public boolean isJSONConfig() {
+            if (useConfigFile()) {
+                return configPath.toLowerCase().endsWith("json");
+            }
+            return false;
+        }
+
+        public String getConfigPath() {
+            return configPath;
+        }
+
+        public void setConfigPath(String configPath) {
+            this.configPath = configPath;
+        }
+
+        private String configPath;
         private String ip = "127.0.0.1";
 
         public String getIp() {
