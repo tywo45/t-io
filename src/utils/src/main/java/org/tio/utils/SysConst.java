@@ -7,7 +7,7 @@ package org.tio.utils;
 public interface SysConst {
 	String	TIO_URL_GITHUB		= "https://github.com/tywo45/t-io";
 	String	TIO_URL_SITE		= "https://www.t-io.org/";
-	String	TIO_CORE_VERSION	= "3.3.2.v20190601-RELEASE";
+	String	TIO_CORE_VERSION	= "3.3.3.v20190620-RELEASE";
 	/**
 	 * \r
 	 */
