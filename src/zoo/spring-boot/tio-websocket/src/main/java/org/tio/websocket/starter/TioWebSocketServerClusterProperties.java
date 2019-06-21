@@ -5,6 +5,10 @@ import org.tio.utils.hutool.StrUtil;
 
 import static org.tio.websocket.starter.TioWebSocketServerClusterProperties.PREFIX;
 
+import org.redisson.config.ClusterServersConfig;
+import org.redisson.config.SentinelServersConfig;
+import org.redisson.config.SingleServerConfig;
+
 /**
  * @author fanpan26
  * */
@@ -88,8 +92,42 @@ public class TioWebSocketServerClusterProperties {
 
     @ConfigurationProperties("tio.websocket.cluster.redis")
     public static class RedisConfig {
+    	
+    	/**
+    	 * single 单机 cluster 集群 sentinel 哨兵
+    	 */
+    	private String mode;
 
-        public boolean useConfigFile(){
+    	private ClusterServersConfig cluster;
+
+    	private SingleServerConfig single;
+
+    	private SentinelServersConfig sentinel;
+    	
+    	/**
+    	 * 根据beanName直接注入redissonClient，优先级大于配置参数
+    	 * @author kuangyoubo
+    	 * @date 2019-06-21 12:15
+    	 */
+    	private String clientBeanName;
+
+        public String getClientBeanName() {
+			return clientBeanName;
+		}
+
+		public void setClientBeanName(String clientBeanName) {
+			this.clientBeanName = clientBeanName;
+		}
+		
+		public boolean useInjectRedissonClient() {
+			if (StrUtil.isBlank(clientBeanName)){
+                return false;
+            }
+			return true;
+		}
+		//add end 20190621
+
+		public boolean useConfigFile(){
             if (StrUtil.isBlank(configPath)){
                 return false;
             }
