@@ -1,12 +1,13 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>tio-websocket-parent</artifactId>
+	<artifactId>tio-spring-boot-parent</artifactId>
 	<packaging>pom</packaging>
 	<name>${project.artifactId}</name>
 	<url>http://maven.apache.org</url>
 
-	<description>tio-zoo's parent</description>
+	<description>tio-spring-boot's parent</description>
 
 	<parent>
 		<groupId>org.t-io</groupId>
@@ -17,10 +18,9 @@
 
 
 	<modules>
-
-		<module>../common</module>
-		<module>../server</module>
-		<module>../client</module>
+		<module>../tio-core</module>
+		<module>../tio-websocket</module>
+		<module>../tio-http</module>
 	</modules>
 
 
@@ -34,19 +34,36 @@
 		</developer>
 	</developers>
 
-	
-
-
 	<repositories>
 
 
 	</repositories>
 	<pluginRepositories>
+
+
+
 	</pluginRepositories>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>2.1.5.RELEASE</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+
 
 	<!-- 插件配置 -->
 	<build>
 		<plugins>
+
+
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
