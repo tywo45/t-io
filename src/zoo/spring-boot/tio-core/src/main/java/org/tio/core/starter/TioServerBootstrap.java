@@ -5,7 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.cluster.TioClusterConfig;
 import org.tio.cluster.redisson.RedissonTioClusterTopic;
+import org.tio.common.starter.TioServerMsgHandlerNotFoundException;
 import org.tio.core.intf.GroupListener;
+import org.tio.core.starter.configuration.TioServerClusterProperties;
+import org.tio.core.starter.configuration.TioServerProperties;
+import org.tio.core.starter.configuration.TioServerSslProperties;
 import org.tio.core.stat.IpStatListener;
 import org.tio.server.ServerGroupContext;
 import org.tio.server.TioServer;
@@ -62,7 +66,7 @@ public final class TioServerBootstrap {
 
     private void afterSetProperties(){
         if (this.serverAioHandler == null) {
-            throw new TioMsgHandlerNotFoundException();
+            throw new TioServerMsgHandlerNotFoundException();
         }
         if (this.ipStatListener == null){
             logger.warn("no bean type of IpStatListener found");

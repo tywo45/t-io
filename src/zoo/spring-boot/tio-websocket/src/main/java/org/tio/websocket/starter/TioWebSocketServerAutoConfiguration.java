@@ -10,12 +10,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.tio.cluster.redisson.RedissonTioClusterTopic;
+import org.tio.common.starter.RedisInitializer;
 import org.tio.core.intf.GroupListener;
 import org.tio.core.stat.IpStatListener;
 import org.tio.server.ServerGroupContext;
 import org.tio.websocket.server.WsServerAioListener;
 import org.tio.websocket.server.handler.IWsMsgHandler;
-
+import org.tio.websocket.starter.configuration.TioWebSocketServerClusterProperties;
+import org.tio.websocket.starter.configuration.TioWebSocketServerProperties;
+import org.tio.websocket.starter.configuration.TioWebSocketServerRedisClusterProperties;
+import org.tio.websocket.starter.configuration.TioWebSocketServerSslProperties;
 
 
 /**
@@ -26,7 +30,7 @@ import org.tio.websocket.server.handler.IWsMsgHandler;
 @ConditionalOnBean(TioWebSocketServerMarkerConfiguration.Marker.class)
 @EnableConfigurationProperties({ TioWebSocketServerProperties.class,
         TioWebSocketServerClusterProperties.class,
-        TioWebSocketServerClusterProperties.RedisConfig.class,
+        TioWebSocketServerRedisClusterProperties.class,
         TioWebSocketServerSslProperties.class})
 public class TioWebSocketServerAutoConfiguration {
 
@@ -51,7 +55,7 @@ public class TioWebSocketServerAutoConfiguration {
     private TioWebSocketServerClusterProperties clusterProperties;
 
     @Autowired
-    private TioWebSocketServerClusterProperties.RedisConfig redisConfig;
+    private TioWebSocketServerRedisClusterProperties redisConfig;
 
     @Autowired
     private TioWebSocketServerProperties serverProperties;
@@ -86,11 +90,6 @@ public class TioWebSocketServerAutoConfiguration {
         return bootstrap.getServerGroupContext();
     }
 
-    /**
-     * 初始化RedisInitializer
-     * @param applicationContext
-     * @return
-     */
     @Bean(destroyMethod="shutdown")
     @ConditionalOnProperty(value = "tio.websocket.cluster.enabled",havingValue = "true",matchIfMissing = true)
     public RedisInitializer redisInitializer(ApplicationContext applicationContext) {
@@ -108,6 +107,7 @@ public class TioWebSocketServerAutoConfiguration {
     }
 
     @Bean(destroyMethod = "destroy")
+    @ConditionalOnProperty(value = "tio.websocket.server.use-scanner",havingValue = "true",matchIfMissing = true)
     public TioWebSocketClassScanner tioWebSocketClassScanner(ApplicationContext applicationContext) {
         return new TioWebSocketClassScanner(applicationContext);
     }
