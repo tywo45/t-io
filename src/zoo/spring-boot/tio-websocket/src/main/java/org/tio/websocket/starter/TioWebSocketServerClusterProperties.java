@@ -1,9 +1,13 @@
 package org.tio.websocket.starter;
 
+import static org.tio.websocket.starter.TioWebSocketServerClusterProperties.PREFIX;
+
+import org.redisson.config.ClusterServersConfig;
+import org.redisson.config.Config;
+import org.redisson.config.SentinelServersConfig;
+import org.springframework.beans.BeanUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.tio.utils.hutool.StrUtil;
-
-import static org.tio.websocket.starter.TioWebSocketServerClusterProperties.PREFIX;
 
 /**
  * @author fanpan26
@@ -88,8 +92,93 @@ public class TioWebSocketServerClusterProperties {
 
     @ConfigurationProperties("tio.websocket.cluster.redis")
     public static class RedisConfig {
+    	
+    	private final String SENTINEL = "sentinel";
+    	private final String CLUSTER = "cluster";
+    	
+    	/**
+    	 * single 单机 cluster 集群 sentinel 哨兵
+    	 * single 已经实现了，就不在这里实现
+    	 */
+    	private String mode;
 
-        public boolean useConfigFile(){
+    	private ClusterServersConfig cluster;
+
+    	private SentinelServersConfig sentinel;
+    	
+    	/**
+    	 * 根据beanName直接注入redissonClient，优先级大于配置文件 -》 参数配置
+    	 * @author kuangyoubo
+    	 * @date 2019-06-21 12:15
+    	 */
+    	private String clientBeanName;
+
+        public String getClientBeanName() {
+			return clientBeanName;
+		}
+
+		public void setClientBeanName(String clientBeanName) {
+			this.clientBeanName = clientBeanName;
+		}
+		
+		public boolean useInjectRedissonClient() {
+			if (StrUtil.isBlank(clientBeanName)){
+                return false;
+            }
+			return true;
+		}
+
+		public String getMode() {
+			return mode;
+		}
+
+		public void setMode(String mode) {
+			this.mode = mode;
+		}
+		
+		public boolean useConfigParameter() {
+			if (StrUtil.isBlank(this.mode)){
+                return false;
+            }
+			return true;
+		}
+
+		public Config getClusterOrSentinelConfig() {
+			Config config = new Config();
+			
+			if( CLUSTER.equals(mode) ) {
+				ClusterServersConfig clusterServersConfig = config.useClusterServers();
+				
+				BeanUtils.copyProperties(this.cluster, clusterServersConfig, ClusterServersConfig.class);
+				
+				this.cluster.getNodeAddresses().parallelStream().forEach( node -> {
+					clusterServersConfig.addNodeAddress( node.toString() );
+				});
+			}
+			else if( SENTINEL.equals(mode) ) {
+				SentinelServersConfig sentinelServersConfig = config.useSentinelServers();
+				
+				BeanUtils.copyProperties(this.sentinel, sentinelServersConfig, SentinelServersConfig.class);
+				
+				this.sentinel.getSentinelAddresses().parallelStream().forEach( node -> {
+					sentinelServersConfig.addSentinelAddress( node.toString() );
+				});
+				
+			}
+			
+			return config;
+		}
+
+		public void setCluster(ClusterServersConfig cluster) {
+			this.cluster = cluster;
+		}
+
+		public void setSentinel(SentinelServersConfig sentinel) {
+			this.sentinel = sentinel;
+		}
+		//add end 20190621
+		
+		public boolean useConfigFile(){
             if (StrUtil.isBlank(configPath)){
                 return false;
             }

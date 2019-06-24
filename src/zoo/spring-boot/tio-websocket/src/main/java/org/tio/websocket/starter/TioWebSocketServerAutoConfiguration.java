@@ -86,7 +86,12 @@ public class TioWebSocketServerAutoConfiguration {
         return bootstrap.getServerGroupContext();
     }
 
-    @Bean
+    /**
+     * 初始化RedisInitializer
+     * @param applicationContext
+     * @return
+     */
+    @Bean(destroyMethod="shutdown")
     @ConditionalOnProperty(value = "tio.websocket.cluster.enabled",havingValue = "true",matchIfMissing = true)
     public RedisInitializer redisInitializer(ApplicationContext applicationContext) {
         return new RedisInitializer(redisConfig, applicationContext);
