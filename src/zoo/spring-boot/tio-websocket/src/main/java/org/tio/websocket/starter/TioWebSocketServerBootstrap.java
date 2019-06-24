@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.cluster.TioClusterConfig;
 import org.tio.cluster.redisson.RedissonTioClusterTopic;
+import org.tio.common.starter.TioServerMsgHandlerNotFoundException;
 import org.tio.core.intf.GroupListener;
 import org.tio.core.stat.IpStatListener;
 import org.tio.server.ServerGroupContext;
@@ -13,6 +14,9 @@ import org.tio.websocket.server.WsServerAioListener;
 import org.tio.websocket.server.WsServerConfig;
 import org.tio.websocket.server.WsServerStarter;
 import org.tio.websocket.server.handler.IWsMsgHandler;
+import org.tio.websocket.starter.configuration.TioWebSocketServerClusterProperties;
+import org.tio.websocket.starter.configuration.TioWebSocketServerProperties;
+import org.tio.websocket.starter.configuration.TioWebSocketServerSslProperties;
 
 import java.io.IOException;
 
@@ -98,7 +102,7 @@ public final class TioWebSocketServerBootstrap {
 
     private void afterSetProperties(TioWebSocketClassScanner scanner){
         if (this.tioWebSocketMsgHandler == null) {
-            throw new TioWebSocketMsgHandlerNotFoundException();
+            throw new TioServerMsgHandlerNotFoundException("no class implements IWsMsgHandler found");
         }
         if (this.ipStatListener == null){
             logger.warn("no bean type of IpStatListener found");

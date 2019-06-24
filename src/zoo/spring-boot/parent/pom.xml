@@ -21,6 +21,7 @@
 		<module>../tio-core</module>
 		<module>../tio-websocket</module>
 		<module>../tio-http</module>
+		<module>../tio-common</module>
 	</modules>
 
 

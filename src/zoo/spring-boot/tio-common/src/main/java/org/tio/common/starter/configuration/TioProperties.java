@@ -1,13 +1,9 @@
-package org.tio.core.starter;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
+package org.tio.common.starter.configuration;
 
 /**
- * @author yangjian
- * */
-@ConfigurationProperties(prefix = "tio.core.server")
-public class TioServerProperties {
-
+ * @author fanpan26
+ */
+public class TioProperties {
     /**
      * 服务绑定的 IP 地址，默认不绑定
      */

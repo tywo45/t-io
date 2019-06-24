@@ -10,9 +10,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>tio-core-spring-boot-starter</artifactId>
+    <artifactId>tio-spring-boot-common</artifactId>
 
-    
 
     <dependencies>
         <dependency>
@@ -26,29 +25,9 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.t-io</groupId>
-            <artifactId>tio-core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson</artifactId>
             <scope>provided</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.t-io</groupId>
-            <artifactId>tio-spring-boot-common</artifactId>
-            <version>3.3.3.v20190620-RELEASE</version>
         </dependency>
     </dependencies>
 </project>

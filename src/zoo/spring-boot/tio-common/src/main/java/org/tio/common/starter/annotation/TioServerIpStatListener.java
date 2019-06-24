@@ -1,10 +1,9 @@
-package org.tio.core.starter.annotation;
+package org.tio.common.starter.annotation;
 
 import org.springframework.stereotype.Service;
 
 /**
- * Tio Server IP 统计监听器注解
- * @author yangjian
+ * @author fanpan26
  */
 @Service
 public @interface TioServerIpStatListener {

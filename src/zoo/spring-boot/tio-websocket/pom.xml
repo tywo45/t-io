@@ -43,5 +43,10 @@
 			<artifactId>testng</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.t-io</groupId>
+			<artifactId>tio-spring-boot-common</artifactId>
+			<version>3.3.3.v20190620-RELEASE</version>
+		</dependency>
 	</dependencies>
 </project>

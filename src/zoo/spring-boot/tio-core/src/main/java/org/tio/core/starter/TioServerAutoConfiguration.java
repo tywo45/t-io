@@ -5,11 +5,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.tio.cluster.redisson.RedissonTioClusterTopic;
+import org.tio.common.starter.RedisInitializer;
 import org.tio.core.intf.GroupListener;
+import org.tio.core.starter.configuration.TioServerClusterProperties;
+import org.tio.core.starter.configuration.TioServerProperties;
+import org.tio.core.starter.configuration.TioServerRedisClusterProperties;
+import org.tio.core.starter.configuration.TioServerSslProperties;
 import org.tio.core.stat.IpStatListener;
 import org.tio.server.ServerGroupContext;
 import org.tio.server.intf.ServerAioHandler;
@@ -26,7 +32,7 @@ import org.tio.server.intf.ServerAioListener;
 @EnableConfigurationProperties({
         TioServerProperties.class,
         TioServerClusterProperties.class,
-        TioServerClusterProperties.RedisConfig.class,
+        TioServerRedisClusterProperties.class,
         TioServerSslProperties.class})
 public class TioServerAutoConfiguration {
 
@@ -51,7 +57,7 @@ public class TioServerAutoConfiguration {
     private TioServerClusterProperties clusterProperties;
 
     @Autowired
-    private TioServerClusterProperties.RedisConfig redisConfig;
+    private TioServerRedisClusterProperties redisConfig;
 
     @Autowired
     private TioServerProperties serverProperties;
@@ -85,8 +91,8 @@ public class TioServerAutoConfiguration {
 
     @Bean
     @ConditionalOnProperty(value = "tio.core.cluster.enabled",havingValue = "true",matchIfMissing = true)
-    public RedisInitializer redisInitializer(){
-        return new RedisInitializer(redisConfig);
+    public RedisInitializer redisInitializer(ApplicationContext applicationContext){
+        return new RedisInitializer(redisConfig,applicationContext);
     }
 
 
