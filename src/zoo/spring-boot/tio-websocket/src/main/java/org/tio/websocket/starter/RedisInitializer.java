@@ -37,6 +37,12 @@ public final class RedisInitializer {
         return redissonClient;
     }
 
+    public void shutdown() {
+    	if( redisConfig.useInjectRedissonClient() && !redissonClient.isShutdown() ) {
+    		redissonClient.shutdown();
+    	}
+    }
+    
     private URL getFileUri(String fileName) {
         Map<String, Object> annotationMap = applicationContext.getBeansWithAnnotation(EnableTioWebSocketServer.class);
         Class applicationClazz = annotationMap.entrySet().iterator().next().getValue().getClass();
@@ -44,6 +50,10 @@ public final class RedisInitializer {
         return classLoader.getResource(fileName);
     }
 
+    /**
+	 * 优先级
+	 * 通过名字注入 > 配置文件 > 参数配置 > 默认
+	 */
     private void initRedis() {
     	
     	// add by kuangyoubo 20190621
@@ -62,9 +72,16 @@ public final class RedisInitializer {
     		}
     	}
     	
+    	/**
+    	 * 优先级
+    	 * 配置文件 > 参数配置 > 默认
+    	 */
         Config config = getConfigByFile();
-        if (config == null) {
+        if (config == null && !redisConfig.useConfigParameter() ) {
             config = getSingleServerConfig();
+        }
+        else if( redisConfig.useConfigParameter() ) {
+        	config = redisConfig.getClusterOrSentinelConfig();
         }
         redissonClient = Redisson.create(config);
     }
@@ -96,21 +113,4 @@ public final class RedisInitializer {
         return config;
     }
     
-    private Config getClusterServerConfig() {
-        Config config = new Config();
-        String address = redisConfig.toString();
-        ClusterServersConfig singleServerConfig = config.useClusterServers();
-        
-        /**        .setAddress(address)
-                .setConnectionPoolSize(redisConfig.getPoolSize())
-                .setConnectionMinimumIdleSize(redisConfig.getMinimumIdleSize());
-                **/
-        if (redisConfig.hasPassword()) {
-            singleServerConfig.setPassword(redisConfig.getPassword());
-        }
-        config.setCodec(new FstCodec());
-        //默认情况下，看门狗的检查锁的超时时间是30秒钟
-        config.setLockWatchdogTimeout(1000 * 30);
-        return config;
-    }
 }
