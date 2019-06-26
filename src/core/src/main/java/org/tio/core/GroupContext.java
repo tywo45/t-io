@@ -46,7 +46,7 @@ public abstract class GroupContext extends MapWithLockPropSupport {
 	/**
 	 * 默认的接收数据的buffer size
 	 */
-	public static final int						READ_BUFFER_SIZE	= Integer.getInteger("tio.default.read.buffer.size", 2048);
+	public static final int						READ_BUFFER_SIZE	= Integer.getInteger("tio.default.read.buffer.size", 20480);
 	private final static AtomicInteger			ID_ATOMIC			= new AtomicInteger();
 	private ByteOrder							byteOrder			= ByteOrder.BIG_ENDIAN;
 	public boolean								isShortConnection	= false;

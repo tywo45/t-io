@@ -102,6 +102,7 @@ public class WsServerStarter {
 		serverGroupContext = new ServerGroupContext("Tio Websocket Server", wsServerAioHandler, wsServerAioListener, tioExecutor, groupExecutor);
 		serverGroupContext.setHeartbeatTimeout(0);
 		serverGroupContext.setTioUuid(tioUuid);
+		serverGroupContext.setReadBufferSize(1024 * 30);
 		tioServer = new TioServer(serverGroupContext);
 	}
 
