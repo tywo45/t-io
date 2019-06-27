@@ -111,8 +111,12 @@ public class HttpRequestDecoder {
 		int headerLength = (buffer.position() - position);
 		int allNeedLength = headerLength + contentLength; //这个packet所需要的字节长度(含头部和体部)
 
-		if (readableLength < allNeedLength) {
-			channelContext.setReadBufferSize(allNeedLength - readableLength);
+		int notReceivedLength = allNeedLength - readableLength;   //尚未接收到的数据长度
+		if (notReceivedLength > 0) {
+			if (notReceivedLength > channelContext.getReadBufferSize()) {
+				channelContext.setReadBufferSize(notReceivedLength);
+			}
+			
 			channelContext.setPacketNeededLength(allNeedLength);
 			return null;
 		}
