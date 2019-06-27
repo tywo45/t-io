@@ -29,13 +29,14 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuf
 	 */
 	public ReadCompletionHandler(ChannelContext channelContext) {
 		this.channelContext = channelContext;
-		this.readByteBuffer = ByteBuffer.allocate(channelContext.groupContext.getReadBufferSize());
+		this.readByteBuffer = ByteBuffer.allocate(channelContext.getReadBufferSize());
 		this.readByteBuffer.order(channelContext.groupContext.getByteOrder());
 	}
 
 	@Override
 	public void completed(Integer result, ByteBuffer byteBuffer) {
 		if (result > 0) {
+//			log.error("读取数据:{}字节", result);
 			GroupContext groupContext = channelContext.groupContext;
 
 			if (groupContext.statOn) {
@@ -110,8 +111,14 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuf
 	}
 
 	private void read() {
-		readByteBuffer.position(0);
-		readByteBuffer.limit(readByteBuffer.capacity());
+		if (readByteBuffer.capacity() == channelContext.getReadBufferSize()) {
+			readByteBuffer.position(0);
+			readByteBuffer.limit(readByteBuffer.capacity());
+		} else {
+//			log.error("动态调整了readbuffersize, 原:{} / 新:{}", readByteBuffer.capacity(), channelContext.getReadBufferSize());
+			readByteBuffer = ByteBuffer.allocate(channelContext.getReadBufferSize());
+		}
+		
 		channelContext.asynchronousSocketChannel.read(readByteBuffer, readByteBuffer, this);
 	}
 

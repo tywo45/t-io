@@ -1,5 +1,7 @@
 package org.tio.utils;
 
+import java.nio.charset.Charset;
+
 /**
  * @author tanyaowu 
  * 2018年7月1日 下午10:51:59
@@ -55,4 +57,6 @@ public interface SysConst {
 	 */
 	String	CRLF				= "\r\n";
 	String	DEFAULT_ENCODING	= "utf-8";
+	
+	Charset DEFAULT_CHARSET = Charset.forName(DEFAULT_ENCODING);
 }

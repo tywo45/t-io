@@ -20,7 +20,7 @@ public class TioHtmlCompressor implements ResCompressor {
 	private static HtmlOptions	options	= new HtmlOptions();
 	static final String			commits	= "<!-- " + DOC + " -->\r\n";
 
-	public static TioHtmlCompressor ME = new TioHtmlCompressor();
+	public static TioHtmlCompressor me = new TioHtmlCompressor();
 
 	/**
 	 * @param compressor
@@ -55,7 +55,8 @@ public class TioHtmlCompressor implements ResCompressor {
 	}
 
 	HtmlCompressor compressor = null;
-
+	
+	@Override
 	public String compress(String filePath, String srcContent) {
 		try {
 			//			long start = System.currentTimeMillis();
@@ -76,7 +77,8 @@ public class TioHtmlCompressor implements ResCompressor {
 			//				return srcContent;
 			//			}
 
-			return commits + ret;
+//			return commits + ret;
+			return ret;
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 			return srcContent;
@@ -98,7 +100,7 @@ public class TioHtmlCompressor implements ResCompressor {
 		byte[] bytes = Files.readAllBytes(new File("E:\\\\svn\\\\nbyb\\\\html\\\\nbyb_bootstrap\\\\dist\\\\index.html").toPath());
 		String xx = new String(bytes, "utf-8");
 		//		String xx = FileUtil.readString(new File("E:\\svn\\nbyb\\html\\nbyb_bootstrap\\dist\\index.html"), "utf-8");
-		String compiled_code = TioHtmlCompressor.ME.compress("xx.html", xx);
+		String compiled_code = TioHtmlCompressor.me.compress("xx.html", xx);
 		System.out.println(compiled_code);
 		long end = System.currentTimeMillis();
 		long iv = end - start;

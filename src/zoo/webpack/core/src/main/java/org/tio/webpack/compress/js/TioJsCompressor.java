@@ -2,7 +2,6 @@ package org.tio.webpack.compress.js;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -11,6 +10,7 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tio.utils.SysConst;
 import org.tio.webpack.compress.ResCompressor;
 
 import com.google.javascript.jscomp.CommandLineRunner;
@@ -30,7 +30,7 @@ import com.google.javascript.jscomp.SourceFile;
 public class TioJsCompressor implements ResCompressor {
 	private static Logger log = LoggerFactory.getLogger(TioJsCompressor.class);
 
-	public static final TioJsCompressor ME = new TioJsCompressor();
+	public static final TioJsCompressor me = new TioJsCompressor();
 
 	/**
 	 * 
@@ -46,8 +46,9 @@ public class TioJsCompressor implements ResCompressor {
 
 	}
 
+	@Override
 	public String compress(String srcFilePath, String srcFileContent) {
-		return compress(srcFilePath, srcFileContent, LanguageMode.ECMASCRIPT5, CompilationLevel.SIMPLE_OPTIMIZATIONS);
+		return compress(srcFilePath, srcFileContent, LanguageMode.ECMASCRIPT_NEXT, CompilationLevel.SIMPLE_OPTIMIZATIONS);
 		//		return compress(srcFilePath, srcFileContent, CompilationLevel.WHITESPACE_ONLY);
 	}
 
@@ -76,7 +77,7 @@ public class TioJsCompressor implements ResCompressor {
 
 			options.setLanguageIn(languageMode);
 			options.setLanguageOut(LanguageMode.ECMASCRIPT5);
-			options.setOutputCharset(Charset.forName(CHARSET));
+			options.setOutputCharset(SysConst.DEFAULT_CHARSET);
 			List<SourceFile> list = null;
 
 			compilationLevel.setOptionsForCompilationLevel(options);
@@ -96,10 +97,10 @@ public class TioJsCompressor implements ResCompressor {
 			compiler.compile(externs, list, options);
 			String ret = compiler.toSource();
 			if (ret == null || ret.length() == 0) {
-				if (Objects.equals(languageMode, LanguageMode.ECMASCRIPT5)) {
-					log.warn("用{}语言模式压缩后的文件大小为0，换ECMASCRIPT_NEXT试试, {}", languageMode, srcFilePath);
-					return compress(srcFilePath, srcFileContent, LanguageMode.ECMASCRIPT_NEXT, CompilationLevel.SIMPLE_OPTIMIZATIONS);
-				}
+//				if (Objects.equals(languageMode, LanguageMode.ECMASCRIPT5)) {
+//					log.warn("用{}语言模式压缩后的文件大小为0，换ECMASCRIPT_NEXT试试, {}", languageMode, srcFilePath);
+//					return compress(srcFilePath, srcFileContent, LanguageMode.ECMASCRIPT_NEXT, CompilationLevel.SIMPLE_OPTIMIZATIONS);
+//				}
 
 				if (Objects.equals(compilationLevel, CompilationLevel.ADVANCED_OPTIMIZATIONS)) {
 					log.warn("用{}压缩后的文件大小为0，换SIMPLE_OPTIMIZATIONS试试, {}", compilationLevel, srcFilePath);
@@ -112,7 +113,7 @@ public class TioJsCompressor implements ResCompressor {
 					return compress(srcFilePath, srcFileContent, languageMode, CompilationLevel.BUNDLE);
 				}
 
-				log.error("用{}压缩后的文件大小为0，没救了就这样吧, {}", compilationLevel, srcFilePath);
+				log.error("用{}压缩后的文件大小为0，{}", compilationLevel, srcFilePath);
 				return srcFileContent;
 			}
 
@@ -124,7 +125,8 @@ public class TioJsCompressor implements ResCompressor {
 			//				return srcFileContent;
 			//			}
 
-			return commits + ret;
+//			return commits + ret;
+			return ret;
 		} catch (Exception e) {
 			log.error("压缩" + srcFilePath + "时产生异常", e);
 			return srcFileContent;
@@ -150,7 +152,7 @@ public class TioJsCompressor implements ResCompressor {
 			byte[] bytes = Files.readAllBytes(initFile.toPath());
 			String content = new String(bytes, "utf-8");
 			//			String content = FileUtil.readString(initFile, "utf-8");
-			String compiled_code = TioJsCompressor.ME.compress(initFile.getAbsolutePath(), content);
+			String compiled_code = TioJsCompressor.me.compress(initFile.getAbsolutePath(), content);
 			System.out.println(compiled_code);
 			Files.write(Paths.get(filePath), compiled_code.getBytes("utf-8"));
 			//			FileUtil.writeString(compiled_code, filePath, "utf-8");

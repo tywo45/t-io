@@ -1,19 +1,3 @@
-/**
- * Copyright (c) 2011-2019, James Zhan 詹波 (jfinal@126.com).
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.tio.utils.jfinal;
 
 import java.io.File;
@@ -21,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -28,7 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.tio.utils.SysConst;
 
 /**
- * Prop. Prop can load properties file from CLASSPATH or File object.
+ * 
+ * @author tanyaowu
  */
 public class Prop {
 	private static Logger log = LoggerFactory.getLogger(Prop.class);
@@ -36,27 +22,28 @@ public class Prop {
 	private Properties properties = null;
 
 	/**
-	 * Prop constructor.
-	 * @see #Prop(String, String)
+	 * 
+	 * @param fileName
 	 */
 	public Prop(String fileName) {
 		this(fileName, SysConst.DEFAULT_ENCODING);
 	}
 
 	/**
-	 * Prop constructor
-	 * <p>
-	 * Example:<br>
-	 * Prop prop = new Prop("my_config.txt", "UTF-8");<br>
-	 * String userName = prop.get("userName");<br><br>
 	 * 
-	 * prop = new Prop("com/jfinal/file_in_sub_path_of_classpath.txt", "UTF-8");<br>
-	 * String value = prop.get("key");
-	 * 
-	 * @param fileName the properties file's name in classpath or the sub directory of classpath
-	 * @param encoding the encoding
+	 * @param fileName
+	 * @param encoding
 	 */
 	public Prop(String fileName, String encoding) {
+		this(fileName, Charset.forName(encoding));
+	}
+
+	/**
+	 * 
+	 * @param fileName
+	 * @param charset
+	 */
+	public Prop(String fileName, Charset charset) {
 		InputStream inputStream = null;
 		try {
 			inputStream = getClassLoader().getResourceAsStream(fileName); // properties.load(Prop.class.getResourceAsStream(fileName));
@@ -64,7 +51,7 @@ public class Prop {
 				throw new IllegalArgumentException("Properties file not found in classpath: " + fileName);
 			}
 			properties = new Properties();
-			properties.load(new InputStreamReader(inputStream, encoding));
+			properties.load(new InputStreamReader(inputStream, charset));
 		} catch (IOException e) {
 			throw new RuntimeException("Error loading properties file.", e);
 		} finally {
@@ -91,16 +78,20 @@ public class Prop {
 	}
 
 	/**
-	 * Prop constructor
-	 * <p>
-	 * Example:<br>
-	 * Prop prop = new Prop(new File("/var/config/my_config.txt"), "UTF-8");<br>
-	 * String userName = prop.get("userName");
 	 * 
-	 * @param file the properties File object
-	 * @param encoding the encoding
+	 * @param file
+	 * @param encoding
 	 */
 	public Prop(File file, String encoding) {
+		this(file, Charset.forName(encoding));
+	}
+
+	/**
+	 * 
+	 * @param file
+	 * @param charset
+	 */
+	public Prop(File file, Charset charset) {
 		if (file == null) {
 			throw new IllegalArgumentException("File can not be null.");
 		}
@@ -112,7 +103,7 @@ public class Prop {
 		try {
 			inputStream = new FileInputStream(file);
 			properties = new Properties();
-			properties.load(new InputStreamReader(inputStream, encoding));
+			properties.load(new InputStreamReader(inputStream, charset));
 		} catch (IOException e) {
 			throw new RuntimeException("Error loading properties file.", e);
 		} finally {
@@ -125,6 +116,11 @@ public class Prop {
 		}
 	}
 
+	/**
+	 * 
+	 * @param prop
+	 * @return
+	 */
 	public Prop append(Prop prop) {
 		if (prop == null) {
 			throw new IllegalArgumentException("prop can not be null");
@@ -137,8 +133,12 @@ public class Prop {
 		return append(new Prop(fileName, encoding));
 	}
 
+	public Prop append(String fileName, Charset charset) {
+		return append(new Prop(fileName, charset));
+	}
+
 	public Prop append(String fileName) {
-		return append(fileName, SysConst.DEFAULT_ENCODING);
+		return append(fileName, SysConst.DEFAULT_CHARSET);
 	}
 
 	public Prop appendIfExists(String fileName, String encoding) {

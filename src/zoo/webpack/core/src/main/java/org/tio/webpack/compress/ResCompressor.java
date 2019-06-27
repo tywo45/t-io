@@ -15,7 +15,5 @@ public interface ResCompressor {
 	 */
 	public String compress(String filePath, String initStr);
 
-	String CHARSET = "utf-8";
-
-	String DOC = "\r\n1、全新编译压缩技术tio-webpack为本站提供压缩渲染" + "\r\n2、降低自建IM门槛，让工程师成为互联网架构师更容易 ： https://www.t-io.org" + "\r\n";
+	String DOC = "\r\n1、t-io提供压缩能力" + "\r\n2、不仅仅是百万级网络编程框架 ： https://www.t-io.org" + "\r\n";
 }

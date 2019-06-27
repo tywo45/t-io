@@ -72,6 +72,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	 * 该连接在哪些组中
 	 */
 	private SetWithLock<String>			groups						= null;
+	private Integer						readBufferSize				= null;  //个性化readBufferSize
 	public CloseMeta					closeMeta					= new CloseMeta();
 
 	/**
@@ -158,7 +159,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	public Object getAttribute() {
 		return getAttribute(DEFAULT_ATTUBITE_KEY);
 	}
-	
+
 	/**
 	 * 等价于：getAttribute(DEFAULT_ATTUBITE_KEY)<br>
 	 * 等价于：getAttribute()<br>
@@ -324,7 +325,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	public void setAttribute(Object value) {
 		setAttribute(DEFAULT_ATTUBITE_KEY, value);
 	}
-	
+
 	/**
 	 * 等价于：set(DEFAULT_ATTUBITE_KEY, value)<br>
 	 * 等价于：setAttribute(Object value)<br>
@@ -548,6 +549,17 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	 */
 	public void setHeartbeatTimeout(Long heartbeatTimeout) {
 		this.heartbeatTimeout = heartbeatTimeout;
+	}
+
+	public Integer getReadBufferSize() {
+		if (readBufferSize != null && readBufferSize > 0) {
+			return readBufferSize;
+		}
+		return this.groupContext.getReadBufferSize();
+	}
+
+	public void setReadBufferSize(Integer readBufferSize) {
+		this.readBufferSize = Math.min(readBufferSize, TcpConst.MAX_DATA_LENGTH);
 	}
 
 	/**

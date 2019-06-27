@@ -141,7 +141,7 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 						if (channelStat.decodeFailCount > 10) {
 							//							int capacity = lastByteBuffer.capacity();
 							int per = readableLength / channelStat.decodeFailCount;
-							if (per < Math.min(groupContext.getReadBufferSize() / 2, 256)) {
+							if (per < Math.min(channelContext.getReadBufferSize() / 2, 256)) {
 								String str = "连续解码" + channelStat.decodeFailCount + "次都不成功，并且平均每次接收到的数据为" + per + "字节，有慢攻击的嫌疑";
 								log.error(str);
 								throw new AioDecodeException(str);
