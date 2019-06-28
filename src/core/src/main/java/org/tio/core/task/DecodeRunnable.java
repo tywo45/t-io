@@ -25,7 +25,17 @@ import org.tio.utils.thread.pool.AbstractQueueRunnable;
  * 2012-08-09
  */
 public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
-	private static final Logger log = LoggerFactory.getLogger(DecodeRunnable.class);
+	private static final Logger	log				= LoggerFactory.getLogger(DecodeRunnable.class);
+	private ChannelContext		channelContext	= null;
+	private GroupContext		groupContext	= null;
+	/**
+	 * 上一次解码剩下的数据
+	 */
+	private ByteBuffer			lastByteBuffer	= null;
+	/**
+	 * 新收到的数据
+	 */
+	private ByteBuffer			newReceivedByteBuffer	= null;
 
 	/**
 	 *
@@ -45,20 +55,6 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 		}
 	}
 
-	private ChannelContext channelContext = null;
-
-	private GroupContext groupContext = null;
-
-	/**
-	 * 上一次解码剩下的数据
-	 */
-	private ByteBuffer lastByteBuffer = null;
-
-	/**
-	 * 新收到的数据
-	 */
-	private ByteBuffer newByteBuffer = null;
-
 	/**
 	 *
 	 */
@@ -74,12 +70,12 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 	public void clearMsgQueue() {
 		super.clearMsgQueue();
 		lastByteBuffer = null;
-		newByteBuffer = null;
+		newReceivedByteBuffer = null;
 	}
 
 	@Override
 	public void runTask() {
-		while ((newByteBuffer = msgQueue.poll()) != null) {
+		while ((newReceivedByteBuffer = msgQueue.poll()) != null) {
 			decode();
 		}
 	}
@@ -92,7 +88,7 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 	 *
 	 */
 	public void decode() {
-		ByteBuffer byteBuffer = newByteBuffer;
+		ByteBuffer byteBuffer = newReceivedByteBuffer;
 		if (lastByteBuffer != null) {
 			byteBuffer = ByteBufferUtils.composite(lastByteBuffer, byteBuffer);
 			lastByteBuffer = null;
@@ -121,7 +117,7 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 				if (packet == null)// 数据不够，解不了码
 				{
 					//					lastByteBuffer = ByteBufferUtils.copy(byteBuffer, initPosition, limit);
-					if (groupContext.useQueueDecode || (byteBuffer != newByteBuffer)) {
+					if (groupContext.useQueueDecode || (byteBuffer != newReceivedByteBuffer)) {
 						byteBuffer.position(initPosition);
 						byteBuffer.limit(limit);
 						lastByteBuffer = byteBuffer;
@@ -155,8 +151,8 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 					channelContext.stat.latestTimeOfReceivedPacket = SystemTimer.currTime;
 					channelContext.stat.decodeFailCount = 0;
 
-					int len = byteBuffer.position() - initPosition;
-					packet.setByteCount(len);
+					int packetSize = byteBuffer.position() - initPosition;
+					packet.setByteCount(packetSize);
 
 					if (groupContext.statOn) {
 						groupContext.groupStat.receivedPackets.incrementAndGet();
@@ -168,7 +164,7 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 							for (Long v : groupContext.ipStats.durationList) {
 								IpStat ipStat = groupContext.ipStats.get(v, channelContext.getClientNode().getIp());
 								ipStat.getReceivedPackets().incrementAndGet();
-								groupContext.getIpStatListener().onAfterDecoded(channelContext, packet, len, ipStat);
+								groupContext.getIpStatListener().onAfterDecoded(channelContext, packet, packetSize, ipStat);
 							}
 						} catch (Exception e1) {
 							log.error(packet.logstr(), e1);
@@ -177,7 +173,7 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 
 					if (groupContext.getAioListener() != null) {
 						try {
-							groupContext.getAioListener().onAfterDecoded(channelContext, packet, len);
+							groupContext.getAioListener().onAfterDecoded(channelContext, packet, packetSize);
 						} catch (Throwable e) {
 							log.error(e.toString(), e);
 						}
@@ -187,7 +183,7 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 						log.debug("{}, 解包获得一个packet:{}", channelContext, packet.logstr());
 					}
 
-					handler(packet, len);
+					handler(packet, packetSize);
 
 					if (byteBuffer.hasRemaining())//组包后，还剩有数据
 					{
@@ -231,10 +227,11 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 	}
 
 	/**
-	 * @param newByteBuffer the newByteBuffer to set
+	 * 
+	 * @param newReceivedByteBuffer
 	 */
-	public void setNewByteBuffer(ByteBuffer newByteBuffer) {
-		this.newByteBuffer = newByteBuffer;
+	public void setNewReceivedByteBuffer(ByteBuffer newReceivedByteBuffer) {
+		this.newReceivedByteBuffer = newReceivedByteBuffer;
 	}
 
 	@Override
