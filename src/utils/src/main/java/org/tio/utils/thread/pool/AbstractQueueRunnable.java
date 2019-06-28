@@ -51,13 +51,11 @@ public abstract class AbstractQueueRunnable<T> extends AbstractSynRunnable {
 		return msgQueue.size() > 0;
 	}
 
-	//	/**
-	//	 *
-	//	 */
-	//	@Override
-	//	public ConcurrentLinkedQueue<T> getMsgQueue()
-	//	{
-	//		return msgQueue;
-	//	}
-
+	/**
+	 * 获取消息队列
+	 * @return
+	 */
+	public ConcurrentLinkedQueue<T> getMsgQueue() {
+		return msgQueue;
+	}
 }
