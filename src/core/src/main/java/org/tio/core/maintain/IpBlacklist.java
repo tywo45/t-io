@@ -17,7 +17,7 @@ public class IpBlacklist {
 	private String id;
 
 	private final static String	CACHE_NAME				= "TIO_IP_BLACK_LIST";
-	private final static Long	TIME_TO_LIVE_SECONDS	= Time.MINUTE_1 * 120;
+	private final static Long	TIME_TO_LIVE_SECONDS	= Time.DAY_1 * 120;
 	private final static Long	TIME_TO_IDLE_SECONDS	= null;
 
 	private String			cacheName	= null;
