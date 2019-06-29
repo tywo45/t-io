@@ -15,74 +15,61 @@ import org.tio.utils.hutool.BetweenFormater.Level;
  */
 public class IpStat implements java.io.Serializable {
 
-	private static final long serialVersionUID = -6942731710053482089L;
-
-	private Date start = new Date();
-
+	private static final long	serialVersionUID	= -6942731710053482089L;
+	private Date				start				= new Date();
 	/**
 	 * 当前统计了多久，单位：毫秒
 	 */
-	private long duration;
-
+	private long				duration;
 	/**
 	 * 时长类型，单位：秒，譬如60，3600等
 	 */
-	private Long durationType;
-
+	private Long				durationType;
 	/**
 	 * 客户端ip
 	 */
-	private String ip;
+	private String				ip;
 
 	/**
 	 * 解码异常的次数
 	 */
-	private AtomicInteger decodeErrorCount = new AtomicInteger();
-
+	private AtomicInteger	decodeErrorCount	= new AtomicInteger();
 	/**
 	 * 收到该IP连接请求的次数
 	 */
-	private AtomicInteger requestCount = new AtomicInteger();
-
+	private AtomicInteger	requestCount		= new AtomicInteger();
 	/**
 	 * 本IP已发送的字节数
 	 */
-	private AtomicLong sentBytes = new AtomicLong();
-
+	private AtomicLong		sentBytes			= new AtomicLong();
 	/**
 	 * 本IP已发送的packet数
 	 */
-	private AtomicLong sentPackets = new AtomicLong();
-
+	private AtomicLong		sentPackets			= new AtomicLong();
 	/**
 	 * 本IP已处理的字节数
 	 */
-	private AtomicLong handledBytes = new AtomicLong();
-
+	private AtomicLong		handledBytes		= new AtomicLong();
 	/**
 	 * 本IP已处理的packet数
 	 */
-	private AtomicLong handledPackets = new AtomicLong();
-
+	private AtomicLong		handledPackets		= new AtomicLong();
 	/**
 	 * 处理消息包耗时，单位：毫秒
 	 */
-	private AtomicLong handledPacketCosts = new AtomicLong();
-
+	private AtomicLong		handledPacketCosts	= new AtomicLong();
 	/**
 	 * 本IP已接收的字节数
 	 */
-	private AtomicLong receivedBytes = new AtomicLong();
-
+	private AtomicLong		receivedBytes		= new AtomicLong();
 	/**
 	 * 本IP已接收了多少次TCP数据包
 	 */
-	private AtomicLong receivedTcps = new AtomicLong();
-
+	private AtomicLong		receivedTcps		= new AtomicLong();
 	/**
 	 * 本IP已接收的packet数
 	 */
-	private AtomicLong receivedPackets = new AtomicLong();
+	private AtomicLong		receivedPackets		= new AtomicLong();
 
 	public IpStat(String ip, Long durationType) {
 		this.ip = ip;
