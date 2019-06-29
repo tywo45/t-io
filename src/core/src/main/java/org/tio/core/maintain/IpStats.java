@@ -134,6 +134,19 @@ public class IpStats {
 	 * @author: tanyaowu
 	 */
 	public IpStat get(Long duration, ChannelContext channelContext, boolean forceCreate) {
+		return _get(duration, channelContext, forceCreate, true);
+	}
+	
+	/**
+	 * 
+	 * @param duration
+	 * @param channelContext
+	 * @param forceCreate
+	 * @param useProxyClient
+	 * @return
+	 * @author tanyaowu
+	 */
+	public IpStat _get(Long duration, ChannelContext channelContext, boolean forceCreate, boolean useProxyClient) {
 		if (channelContext == null) {
 			return null;
 		}
@@ -143,7 +156,7 @@ public class IpStats {
 		}
 
 		String ip = null;
-		if (channelContext.getProxyClientNode() != null) {
+		if (useProxyClient && channelContext.getProxyClientNode() != null) {
 			ip = channelContext.getProxyClientNode().getIp();
 		} else {
 			ip = channelContext.getClientNode().getIp();

@@ -67,7 +67,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	public AsynchronousSocketChannel	asynchronousSocketChannel;
 	private String						id							= null;
 	private Node						clientNode;
-	private Node						proxyClientNode				= null;    //一些连接是代理的，譬如web服务器放在nginx后面，此时需要知道最原始的ip
+	private Node						proxyClientNode				= null;											//一些连接是代理的，譬如web服务器放在nginx后面，此时需要知道最原始的ip
 	private Node						serverNode;
 	/**
 	 * 该连接在哪些组中
@@ -563,8 +563,6 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 		this.readBufferSize = Math.min(readBufferSize, TcpConst.MAX_DATA_LENGTH);
 	}
 
-	
-
 	/**
 	 * @return the proxyClientNode
 	 */
@@ -572,14 +570,54 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 		return proxyClientNode;
 	}
 
+	private void swithIpStat(IpStat oldIpStat, IpStat newIpStat, ChannelStat myStat) {
+		oldIpStat.getHandledBytes().addAndGet(-myStat.getHandledBytes().get());
+		oldIpStat.getHandledPacketCosts().addAndGet(-myStat.getHandledPacketCosts().get());
+		oldIpStat.getHandledPackets().addAndGet(-myStat.getHandledPackets().get());
+		oldIpStat.getReceivedBytes().addAndGet(-myStat.getReceivedBytes().get());
+		oldIpStat.getReceivedPackets().addAndGet(-myStat.getReceivedPackets().get());
+		oldIpStat.getReceivedTcps().addAndGet(-myStat.getReceivedTcps().get());
+		oldIpStat.getRequestCount().addAndGet(-1);
+		oldIpStat.getSentBytes().addAndGet(-myStat.getSentBytes().get());
+		oldIpStat.getSentPackets().addAndGet(-myStat.getSentPackets().get());
+		oldIpStat.getStart();
+
+		newIpStat.getHandledBytes().addAndGet(myStat.getHandledBytes().get());
+		newIpStat.getHandledPacketCosts().addAndGet(myStat.getHandledPacketCosts().get());
+		newIpStat.getHandledPackets().addAndGet(myStat.getHandledPackets().get());
+		newIpStat.getReceivedBytes().addAndGet(myStat.getReceivedBytes().get());
+		newIpStat.getReceivedPackets().addAndGet(myStat.getReceivedPackets().get());
+		newIpStat.getReceivedTcps().addAndGet(myStat.getReceivedTcps().get());
+		newIpStat.getRequestCount().addAndGet(1);
+		newIpStat.getSentBytes().addAndGet(myStat.getSentBytes().get());
+		newIpStat.getSentPackets().addAndGet(myStat.getSentPackets().get());
+		newIpStat.getStart();
+	}
+
 	/**
 	 * @param proxyClientNode the proxyClientNode to set
 	 */
 	public void setProxyClientNode(Node proxyClientNode) {
 		this.proxyClientNode = proxyClientNode;
+		if (proxyClientNode != null) {
+			//将性能数据进行转移
+			if (!Objects.equals(proxyClientNode.getIp(), clientNode.getIp())) {
+
+				if (groupContext.ipStats.durationList != null && groupContext.ipStats.durationList.size() > 0) {
+					try {
+						for (Long v : groupContext.ipStats.durationList) {
+							IpStat oldIpStat = (IpStat) groupContext.ipStats._get(v, this, true, false);
+							IpStat newIpStat = (IpStat) groupContext.ipStats.get(v, this);
+							ChannelStat myStat = this.stat;
+							swithIpStat(oldIpStat, newIpStat, myStat);
+						}
+					} catch (Exception e) {
+						log.error(e.toString(), e);
+					}
+				}
+			}
+		}
 	}
-
-
 
 	/**
 	 * @author tanyaowu
