@@ -67,12 +67,13 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	public AsynchronousSocketChannel	asynchronousSocketChannel;
 	private String						id							= null;
 	private Node						clientNode;
+	private Node						proxyClientNode				= null;    //一些连接是代理的，譬如web服务器放在nginx后面，此时需要知道最原始的ip
 	private Node						serverNode;
 	/**
 	 * 该连接在哪些组中
 	 */
 	private SetWithLock<String>			groups						= null;
-	private Integer						readBufferSize				= null;  //个性化readBufferSize
+	private Integer						readBufferSize				= null;											//个性化readBufferSize
 	public CloseMeta					closeMeta					= new CloseMeta();
 
 	/**
@@ -561,6 +562,24 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	public void setReadBufferSize(Integer readBufferSize) {
 		this.readBufferSize = Math.min(readBufferSize, TcpConst.MAX_DATA_LENGTH);
 	}
+
+	
+
+	/**
+	 * @return the proxyClientNode
+	 */
+	public Node getProxyClientNode() {
+		return proxyClientNode;
+	}
+
+	/**
+	 * @param proxyClientNode the proxyClientNode to set
+	 */
+	public void setProxyClientNode(Node proxyClientNode) {
+		this.proxyClientNode = proxyClientNode;
+	}
+
+
 
 	/**
 	 * @author tanyaowu

@@ -33,7 +33,7 @@ import org.tio.utils.page.PageUtils;
 public class Tio {
 	public static class IpBlacklist {
 		/**
-		 * 把ip添加到黑名单
+		 * 把ip添加到黑名单，此黑名单只针对groupContext有效，其它groupContext不会把这个ip视为黑名单
 		 * @param groupContext
 		 * @param ip
 		 * @author tanyaowu
@@ -43,12 +43,30 @@ public class Tio {
 		}
 
 		/**
-		 * 清空黑名单
+		 * 添加全局ip黑名单
+		 * @param ip
+		 * @return
+		 * @author tanyaowu
+		 */
+		public static boolean add(String ip) {
+			return org.tio.core.maintain.IpBlacklist.GLOBAL.add(ip);
+		}
+
+		/**
+		 * 清空黑名单，只针对groupContext有效
 		 * @param groupContext
 		 * @author tanyaowu
 		 */
 		public static void clear(GroupContext groupContext) {
 			groupContext.ipBlacklist.clear();
+		}
+
+		/**
+		 * 清空全局黑名单
+		 * @author tanyaowu
+		 */
+		public static void clear() {
+			org.tio.core.maintain.IpBlacklist.GLOBAL.clear();
 		}
 
 		/**
@@ -62,6 +80,15 @@ public class Tio {
 		}
 
 		/**
+		 * 获取全局黑名单
+		 * @return
+		 * @author tanyaowu
+		 */
+		public static Collection<String> getAll() {
+			return org.tio.core.maintain.IpBlacklist.GLOBAL.getAll();
+		}
+
+		/**
 		 * 是否在黑名单中
 		 * @param groupContext
 		 * @param ip
@@ -69,7 +96,7 @@ public class Tio {
 		 * @author tanyaowu
 		 */
 		public static boolean isInBlacklist(GroupContext groupContext, String ip) {
-			return groupContext.ipBlacklist.isInBlacklist(ip);
+			return groupContext.ipBlacklist.isInBlacklist(ip) || org.tio.core.maintain.IpBlacklist.GLOBAL.isInBlacklist(ip);
 		}
 
 		/**
@@ -80,6 +107,15 @@ public class Tio {
 		 */
 		public static void remove(GroupContext groupContext, String ip) {
 			groupContext.ipBlacklist.remove(ip);
+		}
+
+		/**
+		 * 删除全局黑名单
+		 * @param ip
+		 * @author tanyaowu
+		 */
+		public static void remove(String ip) {
+			org.tio.core.maintain.IpBlacklist.GLOBAL.remove(ip);
 		}
 	}
 
@@ -1381,7 +1417,7 @@ public class Tio {
 	public static void unbindToken(ChannelContext channelContext) {
 		channelContext.groupContext.tokens.unbind(channelContext);
 	}
-	
+
 	/**
 	 * 解除token
 	 * @param groupContext

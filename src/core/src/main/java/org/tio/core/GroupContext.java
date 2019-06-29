@@ -3,11 +3,14 @@ package org.tio.core;
 import java.nio.ByteOrder;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tio.client.ClientGroupContext;
 import org.tio.cluster.TioClusterConfig;
 import org.tio.cluster.TioClusterMessageListener;
 import org.tio.core.intf.AioHandler;
@@ -29,6 +32,7 @@ import org.tio.core.stat.DefaultIpStatListener;
 import org.tio.core.stat.GroupStat;
 import org.tio.core.stat.IpStatListener;
 import org.tio.core.task.CloseRunnable;
+import org.tio.server.ServerGroupContext;
 import org.tio.utils.SystemTimer;
 import org.tio.utils.Threads;
 import org.tio.utils.lock.MapWithLock;
@@ -42,66 +46,77 @@ import org.tio.utils.thread.pool.SynThreadPoolExecutor;
  * 2016年10月10日 下午5:25:43
  */
 public abstract class GroupContext extends MapWithLockPropSupport {
-	static Logger								log					= LoggerFactory.getLogger(GroupContext.class);
+	static Logger								log							= LoggerFactory.getLogger(GroupContext.class);
 	/**
 	 * 默认的接收数据的buffer size
 	 */
-	public static final int						READ_BUFFER_SIZE	= Integer.getInteger("tio.default.read.buffer.size", 20480);
-	private final static AtomicInteger			ID_ATOMIC			= new AtomicInteger();
-	private ByteOrder							byteOrder			= ByteOrder.BIG_ENDIAN;
-	public boolean								isShortConnection	= false;
-	public SslConfig							sslConfig			= null;
-	public boolean								debug				= false;
-	public GroupStat							groupStat			= null;
-	public boolean								statOn				= true;
-	public PacketConverter						packetConverter		= null;
+	public static final int						READ_BUFFER_SIZE			= Integer.getInteger("tio.default.read.buffer.size", 20480);
+	private final static AtomicInteger			ID_ATOMIC					= new AtomicInteger();
+	private ByteOrder							byteOrder					= ByteOrder.BIG_ENDIAN;
+	public boolean								isShortConnection			= false;
+	public SslConfig							sslConfig					= null;
+	public boolean								debug						= false;
+	public GroupStat							groupStat					= null;
+	public boolean								statOn						= true;
+	public PacketConverter						packetConverter				= null;
+	/**
+	 * 本jvm中所有的ServerGroupContext对象
+	 */
+	public static final Set<ServerGroupContext>	ALL_SERVER_GROUPCONTEXTS	= new HashSet<>();
+	/**
+	 * 本jvm中所有的ClientGroupContext对象
+	 */
+	public static final Set<ClientGroupContext>	ALL_CLIENT_GROUPCONTEXTS	= new HashSet<>();
+	/**
+	 * 本jvm中所有的GroupContext对象
+	 */
+	public static final Set<GroupContext>		ALL_GROUPCONTEXTS			= new HashSet<>();
 	/**
 	 * 启动时间
 	 */
-	public long									startTime			= SystemTimer.currTime;
+	public long									startTime					= SystemTimer.currTime;
 	/**
 	 * 是否用队列发送
 	 */
-	public boolean								useQueueSend		= true;
+	public boolean								useQueueSend				= true;
 	/**
 	 *  是否用队列解码（系统初始化时确定该值，中途不要变更此值，否则在切换的时候可能导致消息丢失）
 	 */
-	public boolean								useQueueDecode		= false;
+	public boolean								useQueueDecode				= false;
 	/**
 	 * 心跳超时时间(单位: 毫秒)，如果用户不希望框架层面做心跳相关工作，请把此值设为0或负数
 	 */
-	public long									heartbeatTimeout	= 1000 * 120;
+	public long									heartbeatTimeout			= 1000 * 120;
 	/**
 	 * 解码出现异常时，是否打印异常日志
 	 */
-	public boolean								logWhenDecodeError	= false;
-	public PacketHandlerMode					packetHandlerMode	= PacketHandlerMode.SINGLE_THREAD;							//.queue;
+	public boolean								logWhenDecodeError			= false;
+	public PacketHandlerMode					packetHandlerMode			= PacketHandlerMode.SINGLE_THREAD;									//.queue;
 	/**
 	 * 接收数据的buffer size
 	 */
-	private int									readBufferSize		= READ_BUFFER_SIZE;
-	private GroupListener						groupListener		= null;
-	private TioUuid								tioUuid				= new DefaultTioUuid();
-	public SynThreadPoolExecutor				tioExecutor			= null;
+	private int									readBufferSize				= READ_BUFFER_SIZE;
+	private GroupListener						groupListener				= null;
+	private TioUuid								tioUuid						= new DefaultTioUuid();
+	public SynThreadPoolExecutor				tioExecutor					= null;
 	public CloseRunnable						closeRunnable;
-	public ThreadPoolExecutor					groupExecutor		= null;
-
-	public ClientNodes					clientNodes	= new ClientNodes();
-	public SetWithLock<ChannelContext>	connections	= new SetWithLock<ChannelContext>(new HashSet<ChannelContext>());
-	public Groups						groups		= new Groups();
-	public Users						users		= new Users();
-	public Tokens						tokens		= new Tokens();
-	public Ids							ids			= new Ids();
-	public BsIds						bsIds		= new BsIds();
-	public Ips							ips			= new Ips();
-	public IpStats						ipStats		= null;
+	public ThreadPoolExecutor					groupExecutor				= null;
+	public ClientNodes							clientNodes					= new ClientNodes();
+	public SetWithLock<ChannelContext>			connections					= new SetWithLock<ChannelContext>(new HashSet<ChannelContext>());
+	public Groups								groups						= new Groups();
+	public Users								users						= new Users();
+	public Tokens								tokens						= new Tokens();
+	public Ids									ids							= new Ids();
+	public BsIds								bsIds						= new BsIds();
+	public Ips									ips							= new Ips();
+	public IpStats								ipStats						= null;
 
 	protected String		id;
 	/**
 	 * 解码异常多少次就把ip拉黑
 	 */
 	protected int			maxDecodeErrorCountForIp	= 10;
-	protected String		name						= "未命名GroupContext";
+	protected String		name						= "未命名";
 	private IpStatListener	ipStatListener				= DefaultIpStatListener.me;
 	private boolean			isStopped					= false;
 	/**
@@ -110,8 +125,6 @@ public abstract class GroupContext extends MapWithLockPropSupport {
 	public IpBlacklist		ipBlacklist					= null;						//new IpBlacklist();
 
 	public MapWithLock<Integer, Packet> waitingResps = new MapWithLock<Integer, Packet>(new HashMap<Integer, Packet>());
-
-
 
 	/**
 	 * 如果此值不为null，就表示要集群
@@ -130,6 +143,16 @@ public abstract class GroupContext extends MapWithLockPropSupport {
 	 */
 	public GroupContext(SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
 		super();
+		ALL_GROUPCONTEXTS.add(this);
+		if (this instanceof ServerGroupContext) {
+			ALL_SERVER_GROUPCONTEXTS.add((ServerGroupContext) this);
+		} else {
+			ALL_CLIENT_GROUPCONTEXTS.add((ClientGroupContext) this);
+		}
+
+		if (ALL_GROUPCONTEXTS.size() > 20) {
+			log.warn("已经产生{}个GroupContext对象，t-io作者怀疑你在误用t-io", ALL_GROUPCONTEXTS.size());
+		}
 		this.id = ID_ATOMIC.incrementAndGet() + "";
 
 		this.ipStats = new IpStats(this, null);
