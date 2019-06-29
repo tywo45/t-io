@@ -8,10 +8,8 @@ import org.tio.core.udp.intf.UdpHandler;
  * 2017年7月5日 下午3:53:04
  */
 public class UdpServerConf extends UdpConf {
-
-	private UdpHandler udpHandler;
-
-	private int readBufferSize = 1024 * 1024;
+	private UdpHandler	udpHandler;
+	private int			readBufferSize	= 1024 * 1024;
 
 	public UdpServerConf(int port, UdpHandler udpHandler, int timeout) {
 		super(timeout);

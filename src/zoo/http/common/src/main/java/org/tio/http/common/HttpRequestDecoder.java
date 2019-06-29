@@ -9,6 +9,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
+import org.tio.core.Node;
 import org.tio.core.Tio;
 import org.tio.core.exception.AioDecodeException;
 import org.tio.http.common.HttpConst.RequestBodyFormat;
@@ -82,10 +83,7 @@ public class HttpRequestDecoder {
 		}
 		// request line end
 
-		HttpRequest httpRequest = new HttpRequest(channelContext.getClientNode());
-		httpRequest.setRequestLine(firstLine);
-		httpRequest.setChannelContext(channelContext);
-		httpRequest.setHttpConfig(httpConfig);
+		
 
 		//		HttpRequestHandler httpRequestHandler = (HttpRequestHandler)channelContext.groupContext.getAttribute(GroupContextKey.HTTP_REQ_HANDLER);
 		//		if (httpRequestHandler != null) {
@@ -131,6 +129,11 @@ public class HttpRequestDecoder {
 
 		//		httpRequest.setHttpConfig((HttpConfig) channelContext.groupContext.getAttribute(GroupContextKey.HTTP_SERVER_CONFIG));
 
+		HttpRequest httpRequest = new HttpRequest(channelContext.getClientNode());
+		httpRequest.setRequestLine(firstLine);
+		httpRequest.setChannelContext(channelContext);
+		httpRequest.setHttpConfig(httpConfig);
+		
 		if (appendRequestHeaderString) {
 			httpRequest.setHeaderString(headerSb.toString());
 		} else {
@@ -138,7 +141,9 @@ public class HttpRequestDecoder {
 		}
 
 		httpRequest.setHeaders(headers);
-		if (Tio.IpBlacklist.isInBlacklist(channelContext.groupContext, httpRequest.getClientIp())) {
+		String clientIp = httpRequest.getClientIp();
+		channelContext.setProxyClientNode(new Node(clientIp, channelContext.getClientNode().getPort()));
+		if (Tio.IpBlacklist.isInBlacklist(channelContext.groupContext, clientIp)) {
 			throw new AioDecodeException("[" + httpRequest.getClientIp() + "] in black list");
 		}
 

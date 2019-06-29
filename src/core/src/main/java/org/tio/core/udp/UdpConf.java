@@ -8,11 +8,9 @@ import org.tio.core.Node;
  */
 public class UdpConf {
 
-	private int timeout = 5000;
-
-	private Node serverNode = null;
-
-	private String charset = "utf-8";
+	private int		timeout		= 5000;
+	private Node	serverNode	= null;
+	private String	charset		= "utf-8";
 
 	/**
 	 *

@@ -97,7 +97,7 @@ public class AcceptCompletionHandler implements CompletionHandler<AsynchronousSo
 			if (serverGroupContext.ipStats.durationList != null && serverGroupContext.ipStats.durationList.size() > 0) {
 				try {
 					for (Long v : serverGroupContext.ipStats.durationList) {
-						IpStat ipStat = (IpStat) serverGroupContext.ipStats.get(v, clientIp);
+						IpStat ipStat = (IpStat) serverGroupContext.ipStats.get(v, channelContext);
 						ipStat.getRequestCount().incrementAndGet();
 						serverGroupContext.getIpStatListener().onAfterConnected(channelContext, isConnected, isReconnect, ipStat);
 					}

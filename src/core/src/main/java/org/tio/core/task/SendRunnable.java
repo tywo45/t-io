@@ -29,11 +29,13 @@ import org.tio.utils.thread.pool.AbstractQueueRunnable;
  * 2017年4月4日 上午9:19:18
  */
 public class SendRunnable extends AbstractQueueRunnable<Packet> {
-
-	private static final Logger log = LoggerFactory.getLogger(SendRunnable.class);
-
+	private static final Logger				log									= LoggerFactory.getLogger(SendRunnable.class);
+	private ChannelContext					channelContext						= null;
+	private GroupContext					groupContext						= null;
+	private AioHandler						aioHandler							= null;
+	private boolean							isSsl								= false;
 	/** The msg queue. */
-	private ConcurrentLinkedQueue<Packet> forSendAfterSslHandshakeCompleted = null;//new ConcurrentLinkedQueue<>();
+	private ConcurrentLinkedQueue<Packet>	forSendAfterSslHandshakeCompleted	= null;											//new ConcurrentLinkedQueue<>();
 
 	public ConcurrentLinkedQueue<Packet> getForSendAfterSslHandshakeCompleted(boolean forceCreate) {
 		if (forSendAfterSslHandshakeCompleted == null && forceCreate) {
@@ -46,14 +48,6 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 
 		return forSendAfterSslHandshakeCompleted;
 	}
-
-	private ChannelContext channelContext = null;
-
-	private GroupContext groupContext = null;
-
-	private AioHandler aioHandler = null;
-
-	private boolean isSsl = false;
 
 	//SSL加密锁
 	//	private Object sslEncryptLock = new Object();

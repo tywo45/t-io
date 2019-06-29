@@ -81,7 +81,7 @@ public class HandlerRunnable extends AbstractQueueRunnable<Packet> {
 			if (groupContext.ipStats.durationList != null && groupContext.ipStats.durationList.size() > 0) {
 				try {
 					for (Long v : groupContext.ipStats.durationList) {
-						IpStat ipStat = (IpStat) groupContext.ipStats.get(v, channelContext.getClientNode().getIp());
+						IpStat ipStat = (IpStat) groupContext.ipStats.get(v, channelContext);
 						ipStat.getHandledPackets().incrementAndGet();
 						ipStat.getHandledBytes().addAndGet(packet.getByteCount());
 						ipStat.getHandledPacketCosts().addAndGet(iv);

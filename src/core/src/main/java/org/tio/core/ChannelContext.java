@@ -275,7 +275,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 				if (groupContext.ipStats.durationList != null && groupContext.ipStats.durationList.size() > 0) {
 					try {
 						for (Long v : groupContext.ipStats.durationList) {
-							IpStat ipStat = groupContext.ipStats.get(v, getClientNode().getIp());
+							IpStat ipStat = groupContext.ipStats.get(v, this);
 							ipStat.getSentPackets().incrementAndGet();
 							groupContext.getIpStatListener().onAfterSent(this, packet, isSentSuccess, ipStat);
 						}

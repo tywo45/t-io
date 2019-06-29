@@ -97,7 +97,7 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 
 			if (groupContext.ipStats.durationList != null && groupContext.ipStats.durationList.size() > 0) {
 				for (Long v : groupContext.ipStats.durationList) {
-					IpStat ipStat = (IpStat) channelContext.groupContext.ipStats.get(v, channelContext.getClientNode().getIp());
+					IpStat ipStat = (IpStat) channelContext.groupContext.ipStats.get(v, channelContext);
 					ipStat.getSentBytes().addAndGet(result);
 				}
 			}
@@ -109,7 +109,7 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 				if (isSentSuccess) {
 					if (groupContext.ipStats.durationList != null && groupContext.ipStats.durationList.size() > 0) {
 						for (Long v : groupContext.ipStats.durationList) {
-							IpStat ipStat = (IpStat) channelContext.groupContext.ipStats.get(v, channelContext.getClientNode().getIp());
+							IpStat ipStat = (IpStat) channelContext.groupContext.ipStats.get(v, channelContext);
 							ipStat.getSentPackets().incrementAndGet();
 						}
 					}

@@ -155,7 +155,7 @@ public class ConnectionCompletionHandler implements CompletionHandler<Void, Conn
 					if (groupContext.ipStats.durationList != null && groupContext.ipStats.durationList.size() > 0) {
 						try {
 							for (Long v : groupContext.ipStats.durationList) {
-								IpStat ipStat = groupContext.ipStats.get(v, channelContext.getClientNode().getIp());
+								IpStat ipStat = groupContext.ipStats.get(v, channelContext);
 								ipStat.getRequestCount().incrementAndGet();
 								groupContext.getIpStatListener().onAfterConnected(channelContext, isConnected, isReconnect, ipStat);
 							}

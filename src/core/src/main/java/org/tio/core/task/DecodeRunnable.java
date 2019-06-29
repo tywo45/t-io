@@ -25,13 +25,13 @@ import org.tio.utils.thread.pool.AbstractQueueRunnable;
  * 2012-08-09
  */
 public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
-	private static final Logger	log				= LoggerFactory.getLogger(DecodeRunnable.class);
-	private ChannelContext		channelContext	= null;
-	private GroupContext		groupContext	= null;
+	private static final Logger	log						= LoggerFactory.getLogger(DecodeRunnable.class);
+	private ChannelContext		channelContext			= null;
+	private GroupContext		groupContext			= null;
 	/**
 	 * 上一次解码剩下的数据
 	 */
-	private ByteBuffer			lastByteBuffer	= null;
+	private ByteBuffer			lastByteBuffer			= null;
 	/**
 	 * 新收到的数据
 	 */
@@ -162,7 +162,7 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 					if (groupContext.ipStats.durationList != null && groupContext.ipStats.durationList.size() > 0) {
 						try {
 							for (Long v : groupContext.ipStats.durationList) {
-								IpStat ipStat = groupContext.ipStats.get(v, channelContext.getClientNode().getIp());
+								IpStat ipStat = groupContext.ipStats.get(v, channelContext);
 								ipStat.getReceivedPackets().incrementAndGet();
 								groupContext.getIpStatListener().onAfterDecoded(channelContext, packet, packetSize, ipStat);
 							}
@@ -210,7 +210,7 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 					if (list != null && list.size() > 0) {
 						try {
 							for (Long v : list) {
-								IpStat ipStat = groupContext.ipStats.get(v, channelContext.getClientNode().getIp());
+								IpStat ipStat = groupContext.ipStats.get(v, channelContext);
 								ipStat.getDecodeErrorCount().incrementAndGet();
 								groupContext.getIpStatListener().onDecodeError(channelContext, ipStat);
 							}

@@ -52,7 +52,7 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuf
 			if (groupContext.ipStats.durationList != null && groupContext.ipStats.durationList.size() > 0) {
 				try {
 					for (Long v : groupContext.ipStats.durationList) {
-						IpStat ipStat = groupContext.ipStats.get(v, channelContext.getClientNode().getIp());
+						IpStat ipStat = groupContext.ipStats.get(v, channelContext);
 						ipStat.getReceivedBytes().addAndGet(result);
 						ipStat.getReceivedTcps().incrementAndGet();
 						groupContext.getIpStatListener().onAfterReceivedBytes(channelContext, result, ipStat);

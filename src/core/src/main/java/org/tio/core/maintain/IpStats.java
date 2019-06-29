@@ -10,11 +10,11 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
 import org.tio.core.cache.IpStatRemovalListener;
 import org.tio.core.stat.IpStat;
 import org.tio.utils.cache.caffeine.CaffeineCache;
-import org.tio.utils.hutool.StrUtil;
 
 /**
  * 使用方法（注意顺序）：<br>
@@ -117,24 +117,24 @@ public class IpStats {
 	/**
 	 * 根据ip获取IpStat，如果缓存中不存在，则创建
 	 * @param duration
-	 * @param ip
+	 * @param channelContext
 	 * @return
 	 * @author: tanyaowu
 	 */
-	public IpStat get(Long duration, String ip) {
-		return get(duration, ip, true);
+	public IpStat get(Long duration, ChannelContext channelContext) {
+		return get(duration, channelContext, true);
 	}
 
 	/**
 	 * 根据ip获取IpStat，如果缓存中不存在，则根据forceCreate的值决定是否创建
 	 * @param duration
-	 * @param ip
+	 * @param channelContext
 	 * @param forceCreate
 	 * @return
 	 * @author: tanyaowu
 	 */
-	public IpStat get(Long duration, String ip, boolean forceCreate) {
-		if (StrUtil.isBlank(ip)) {
+	public IpStat get(Long duration, ChannelContext channelContext, boolean forceCreate) {
+		if (channelContext == null) {
 			return null;
 		}
 		CaffeineCache caffeineCache = cacheMap.get(duration);
@@ -142,6 +142,12 @@ public class IpStats {
 			return null;
 		}
 
+		String ip = null;
+		if (channelContext.getProxyClientNode() != null) {
+			ip = channelContext.getProxyClientNode().getIp();
+		} else {
+			ip = channelContext.getClientNode().getIp();
+		}
 		IpStat ipStat = (IpStat) caffeineCache.get(ip);
 		if (ipStat == null && forceCreate) {
 			synchronized (this) {

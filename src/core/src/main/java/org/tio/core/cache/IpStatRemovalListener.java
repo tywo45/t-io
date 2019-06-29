@@ -16,11 +16,9 @@ import com.github.benmanes.caffeine.cache.RemovalListener;
 @SuppressWarnings("rawtypes")
 public class IpStatRemovalListener implements RemovalListener {
 	@SuppressWarnings("unused")
-	private static Logger log = LoggerFactory.getLogger(IpStatRemovalListener.class);
-
-	private IpStatListener ipStatListener;
-
-	private GroupContext groupContext = null;
+	private static Logger	log				= LoggerFactory.getLogger(IpStatRemovalListener.class);
+	private IpStatListener	ipStatListener;
+	private GroupContext	groupContext	= null;
 
 	/**
 	 * 
