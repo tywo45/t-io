@@ -5,6 +5,7 @@ import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ import org.tio.core.Tio;
 import org.tio.core.exception.AioDecodeException;
 import org.tio.http.common.HttpConst.RequestBodyFormat;
 import org.tio.http.common.utils.HttpParseUtils;
+import org.tio.http.common.utils.IpUtils;
 import org.tio.utils.SysConst;
 import org.tio.utils.hutool.StrUtil;
 
@@ -65,16 +67,16 @@ public class HttpRequestDecoder {
 		Map<String, String> headers = new HashMap<>();
 		int contentLength = 0;
 		byte[] bodyBytes = null;
-		StringBuilder headerSb = null;//new StringBuilder(512);
+//		StringBuilder headerSb = null;//new StringBuilder(512);
 		RequestLine firstLine = null;
-		boolean appendRequestHeaderString = httpConfig.isAppendRequestHeaderString();
-		;
+//		boolean appendRequestHeaderString = httpConfig.isAppendRequestHeaderString();
+
 		//		if (httpConfig != null) {
 		//			
 		//		}
-		if (appendRequestHeaderString) {
-			headerSb = new StringBuilder(512);
-		}
+//		if (appendRequestHeaderString) {
+//			headerSb = new StringBuilder(512);
+//		}
 
 		// request line start
 		firstLine = parseRequestLine(buffer, channelContext);
@@ -121,31 +123,39 @@ public class HttpRequestDecoder {
 		// request header end
 
 		// ----------------------------------------------- request body start
+		
+
+		//		httpRequest.setHttpConfig((HttpConfig) channelContext.groupContext.getAttribute(GroupContextKey.HTTP_SERVER_CONFIG));
+
+		String realIp = IpUtils.getRealIp(channelContext, httpConfig, headers);
+		if (Tio.IpBlacklist.isInBlacklist(channelContext.groupContext, realIp)) {
+			throw new AioDecodeException("[" + realIp + "] in black list");
+		}
 		if (httpConfig.checkHost) {
 			if (!headers.containsKey(HttpConst.RequestHeaderKey.Host)) {
 				throw new AioDecodeException("there is no host header");
 			}
 		}
-
-		//		httpRequest.setHttpConfig((HttpConfig) channelContext.groupContext.getAttribute(GroupContextKey.HTTP_SERVER_CONFIG));
-
-		HttpRequest httpRequest = new HttpRequest(channelContext.getClientNode());
+		
+		Node realNode = null;
+		if (Objects.equals(realIp, channelContext.getClientNode().getIp())) {
+			realNode = channelContext.getClientNode();
+		} else {
+			realNode = new Node(realIp, channelContext.getClientNode().getPort());  //realNode
+			channelContext.setProxyClientNode(realNode);
+		}
+		
+		HttpRequest httpRequest = new HttpRequest(realNode);
 		httpRequest.setRequestLine(firstLine);
 		httpRequest.setChannelContext(channelContext);
 		httpRequest.setHttpConfig(httpConfig);
-		
-		if (appendRequestHeaderString) {
-			httpRequest.setHeaderString(headerSb.toString());
-		} else {
-			httpRequest.setHeaderString("");
-		}
-
 		httpRequest.setHeaders(headers);
-		String clientIp = httpRequest.getClientIp();
-		channelContext.setProxyClientNode(new Node(clientIp, channelContext.getClientNode().getPort()));
-		if (Tio.IpBlacklist.isInBlacklist(channelContext.groupContext, clientIp)) {
-			throw new AioDecodeException("[" + httpRequest.getClientIp() + "] in black list");
-		}
+		
+//		if (appendRequestHeaderString) {
+//			httpRequest.setHeaderString(headerSb.toString());
+//		} else {
+//			httpRequest.setHeaderString("");
+//		}
 
 		httpRequest.setContentLength(contentLength);
 
@@ -182,10 +192,10 @@ public class HttpRequestDecoder {
 
 		//		StringBuilder logstr = new StringBuilder();
 		//		logstr.append("\r\n------------------ websocket header start ------------------------\r\n");
-		//		logstr.append(firstLine.getInitStr()).append("\r\n");
+		//		logstr.append(firstLine.getInitStr()).append(SysConst.CRLF);
 		//		Set<Entry<String, String>> entrySet = headers.entrySet();
 		//		for (Entry<String, String> entry : entrySet) {
-		//			logstr.append(StrUtil.leftPad(entry.getKey(), 30)).append(" : ").append(entry.getValue()).append("\r\n");
+		//			logstr.append(StrUtil.leftPad(entry.getKey(), 30)).append(" : ").append(entry.getValue()).append(SysConst.CRLF);
 		//		}
 		//		logstr.append("------------------ websocket header start ------------------------\r\n");
 		//		log.error(logstr.toString());

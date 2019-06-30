@@ -10,6 +10,7 @@ import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
 import org.tio.core.exception.AioDecodeException;
 import org.tio.core.intf.Packet;
+import org.tio.utils.SysConst;
 
 /**
  * 
@@ -79,7 +80,7 @@ public class HttpClientAioHandler implements ClientAioHandler {
 		if (c == HttpClientStarter.totalRequestCount) {
 			long endtime = System.currentTimeMillis();
 			long iv = endtime - HttpClientStarter.startTime;
-			System.out.printf("\r\n");
+			System.out.printf(SysConst.CRLF);
 			System.out.printf("%-30s%-20s\r\n", "request path", HttpClientStarter.requestPath);
 			System.out.printf("%-30s%-20s\r\n", "client count", HttpClientStarter.clientCount);
 			System.out.printf("%-30s%-20s\r\n", "complete requests", c);
@@ -87,7 +88,7 @@ public class HttpClientAioHandler implements ClientAioHandler {
 			System.out.printf("%-30s%-20s\r\n", "requests per second", (1000 * (c / iv)));
 			System.out.printf("%-30s%-20s\r\n", "transfer rate(KB/S)", ((1000 * (bs / iv)) / 1024));
 			System.out.printf("%-30s%-20s\r\n", "Bytes/Response", bs / c);
-			System.out.printf("\r\n");
+			System.out.printf(SysConst.CRLF);
 		}
 
 	}

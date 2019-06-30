@@ -1,14 +1,13 @@
 package org.tio.websocket.common;
 
+import java.nio.ByteBuffer;
+import java.util.Random;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
 import org.tio.core.utils.ByteBufferUtils;
-
-import java.nio.ByteBuffer;
-import java.util.BitSet;
-import java.util.Random;
 
 public class WsClientEncoder {
   private static Logger log = LoggerFactory.getLogger(WsClientEncoder.class);

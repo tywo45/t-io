@@ -14,7 +14,7 @@ import org.tio.core.Node;
 import org.tio.core.Tio;
 import org.tio.http.common.HttpConst.RequestBodyFormat;
 import org.tio.http.common.session.HttpSession;
-import org.tio.http.common.utils.IpUtils;
+import org.tio.utils.SysConst;
 import org.tio.utils.SystemTimer;
 import org.tio.utils.hutool.StrUtil;
 
@@ -49,7 +49,7 @@ public class HttpRequest extends HttpPacket {
 	public HttpConfig				httpConfig;
 	private String					domain				= null;
 	private String					host				= null;
-	private String					clientIp			= null;
+//	private String					clientIp			= null;
 	/**该HttpRequest对象的创建时间*/
 	private long					createTime			= SystemTimer.currTime;
 	private boolean					closed				= false;
@@ -177,10 +177,11 @@ public class HttpRequest extends HttpPacket {
 	 * @author tanyaowu
 	 */
 	public String getClientIp() {
-		if (clientIp == null) {
-			clientIp = IpUtils.getRealIp(this);
-		}
-		return clientIp;
+		return remote.getIp();
+//		if (clientIp == null) {
+//			clientIp = IpUtils.getRealIp(this);
+//		}
+//		return clientIp;
 	}
 
 	public void addHeader(String key, String value) {
@@ -499,7 +500,7 @@ public class HttpRequest extends HttpPacket {
 	 */
 	@Override
 	public String logstr() {
-		String str = "\r\n请求ID_" + getId() + "\r\n" + getHeaderString();
+		String str = "\r\n请求ID_" + getId() + SysConst.CRLF + getHeaderString();
 		if (null != getBodyString()) {
 			str += getBodyString();
 		}
@@ -651,10 +652,10 @@ public class HttpRequest extends HttpPacket {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(this.requestLine.toString()).append("\r\n");
+		sb.append(this.requestLine.toString()).append(SysConst.CRLF);
 
 		if (this.getHeaderString() != null) {
-			sb.append(this.getHeaderString()).append("\r\n");
+			sb.append(this.getHeaderString()).append(SysConst.CRLF);
 		}
 
 		if (this.getBodyString() != null) {

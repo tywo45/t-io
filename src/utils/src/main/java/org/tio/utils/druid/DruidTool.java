@@ -5,6 +5,7 @@ package org.tio.utils.druid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tio.utils.SysConst;
 
 import com.alibaba.druid.filter.config.ConfigTools;
 
@@ -34,7 +35,7 @@ public class DruidTool {
 		sb.append("user guide:\r\n");
 		sb.append(i++ + "、input 'exit' to exit the program.\r\n");
 		sb.append(i++ + "、input string and then press 'Enter' to get the decrypted string.\r\n");
-		sb.append("\r\n");
+		sb.append(SysConst.CRLF);
 		sb.append("please input string:\r\n");
 
 		System.out.println(sb);
@@ -42,7 +43,7 @@ public class DruidTool {
 		String s = sc.nextLine(); // 这个就是用户输入的数据
 		while (true) {
 			String str1 = ConfigTools.decrypt(s);
-			System.out.println("the decrypted value for [" + s + "] is: " + str1 + "\r\n");
+			System.out.println("the decrypted value for [" + s + "] is: " + str1 + SysConst.CRLF);
 			//			System.out.println(com.alibaba.druid.filter.config.ConfigTools.decrypt(str1));
 
 			if ("exit".equalsIgnoreCase(s)) {
@@ -68,7 +69,7 @@ public class DruidTool {
 		sb.append("user guide:\r\n");
 		sb.append(i++ + "、input 'exit' to exit the program.\r\n");
 		sb.append(i++ + "、input string and then press 'Enter' to get the encrypted password.\r\n");
-		sb.append("\r\n");
+		sb.append(SysConst.CRLF);
 		sb.append("please input string:\r\n");
 
 		System.out.println(sb);
@@ -76,7 +77,7 @@ public class DruidTool {
 		String s = sc.nextLine(); // 这个就是用户输入的数据
 		while (true) {
 			String str1 = ConfigTools.encrypt(s);
-			System.out.println("the encrypted value for [" + s + "] is: " + str1 + "\r\n");
+			System.out.println("the encrypted value for [" + s + "] is: " + str1 + SysConst.CRLF);
 			//			System.out.println(com.alibaba.druid.filter.config.ConfigTools.decrypt(str1));
 
 			if ("exit".equalsIgnoreCase(s)) {

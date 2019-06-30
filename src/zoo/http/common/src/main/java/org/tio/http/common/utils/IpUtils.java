@@ -4,11 +4,14 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tio.core.ChannelContext;
+import org.tio.http.common.HttpConfig;
 import org.tio.http.common.HttpRequest;
 import org.tio.utils.hutool.StrUtil;
 
@@ -56,7 +59,7 @@ public class IpUtils {
 	/**
 	 * 如果是被代理了，获取客户端ip时，依次从下面这些头部中获取
 	 */
-	private final static String[] HEADER_NAMES_FOR_REALIP = new String[] { "x-forwarded-for", "proxy-client-ip", "wl-proxy-client-ip" };
+	private final static String[] HEADER_NAMES_FOR_REALIP = new String[] { "x-forwarded-for", "proxy-client-ip", "wl-proxy-client-ip", "x-real-ip" };
 
 	/**
 	 * 
@@ -65,6 +68,8 @@ public class IpUtils {
 	 * @author tanyaowu
 	 */
 	public static String getRealIp(HttpRequest request) {
+//		return getRealIp(request.channelContext, request.httpConfig, request.getHeaders());
+		
 		if (request.httpConfig == null) {
 			return request.getRemote().getIp();
 		}
@@ -93,6 +98,49 @@ public class IpUtils {
 			return ip;
 		} else {
 			return request.getRemote().getIp();
+		}
+	}
+
+	/**
+	 * 获取真实ip
+	 * @param channelContext
+	 * @param httpConfig
+	 * @param httpHeaders
+	 * @return
+	 * @author tanyaowu
+	 */
+	public static String getRealIp(ChannelContext channelContext, HttpConfig httpConfig, Map<String, String> httpHeaders) {
+		if (httpConfig == null) {
+			return channelContext.getClientNode().getIp();
+		}
+
+		if (httpConfig.isProxied()) {
+			String headerName = null;
+			String ip = null;
+			for (String name : HEADER_NAMES_FOR_REALIP) {
+				headerName = name;
+				ip = httpHeaders.get(headerName);
+
+				if (StrUtil.isNotBlank(ip) && !"unknown".equalsIgnoreCase(ip)) {
+					break;
+				}
+			}
+
+			if (StrUtil.isBlank(ip) || "unknown".equalsIgnoreCase(ip)) {
+				headerName = null;
+				ip = channelContext.getClientNode().getIp();
+			}
+
+			if (ip.contains(",")) {
+				if (log.isInfoEnabled()) {
+					log.info("ip[{}], header name:{}", ip, headerName);
+
+				}
+				ip = ip.split(",")[0].trim();
+			}
+			return ip;
+		} else {
+			return channelContext.getClientNode().getIp();
 		}
 	}
 

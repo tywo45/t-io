@@ -1,5 +1,7 @@
 package org.tio.http.common;
 
+import org.tio.utils.SysConst;
+
 /**
  * 本类直接摘自baseio: https://gitee.com/generallycloud/baseio<br>
  * 谢谢作者整理<br>
@@ -185,7 +187,7 @@ public enum HttpResponseStatus {
 		this.description = description;
 		this.headerText = headerText;
 		this.headerBinary = headerText.getBytes();
-		this.responseLine = "HTTP/1.1 " + headerText + "\r\n";
+		this.responseLine = "HTTP/1.1 " + headerText + SysConst.CRLF;
 		this.responseLineBinary = responseLine.getBytes();
 	}
 

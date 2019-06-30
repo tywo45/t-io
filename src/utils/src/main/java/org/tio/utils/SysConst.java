@@ -11,6 +11,10 @@ public interface SysConst {
 	String	TIO_URL_SITE		= "https://www.t-io.org/";
 	String	TIO_CORE_VERSION	= "3.3.3.v20190620-RELEASE";
 	/**
+	 * 空串
+	 */
+	String	BLANK					= "";
+	/**
 	 * \r
 	 */
 	byte	CR					= 13;
@@ -57,6 +61,6 @@ public interface SysConst {
 	 */
 	String	CRLF				= "\r\n";
 	String	DEFAULT_ENCODING	= "utf-8";
-	
+
 	Charset DEFAULT_CHARSET = Charset.forName(DEFAULT_ENCODING);
 }

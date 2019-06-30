@@ -17,6 +17,7 @@ import org.tio.http.common.HttpConst;
 import org.tio.http.common.HttpPacket;
 import org.tio.http.common.HttpRequest;
 import org.tio.http.common.ResponseLine;
+import org.tio.utils.SysConst;
 
 /**
  *
@@ -145,7 +146,7 @@ public class ClientHttpResponse extends HttpPacket {
 		String str = null;
 		if (request != null) {
 			str = "\r\n响应: 请求ID_" + request.getId() + "  " + request.getRequestLine().getPathAndQuery();
-			str += "\r\n" + this.getHeaderString();
+			str += SysConst.CRLF + this.getHeaderString();
 		} else {
 			str = "\r\n响应\r\n" + responseLine.toString();
 		}

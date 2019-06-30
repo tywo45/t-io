@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.tio.core.intf.Packet;
+import org.tio.utils.SysConst;
 
 /**
  *
@@ -12,9 +13,10 @@ import org.tio.core.intf.Packet;
  *
  */
 public class HttpPacket extends Packet {
-	private static final long serialVersionUID = 3903186670675671956L;
-
-	private Map<String, Serializable> props = new HashMap<>();
+	private static final long			serialVersionUID	= 3903186670675671956L;
+	private Map<String, Serializable>	props				= new HashMap<>();
+	protected byte[]					body;
+	private String						headerString		= SysConst.BLANK;
 
 	/**
 	 * 获取属性
@@ -59,10 +61,6 @@ public class HttpPacket extends Packet {
 	public void setAttribute(String key, Serializable value) {
 		props.put(key, value);
 	}
-
-	protected byte[] body;
-
-	private String headerString;
 
 	public HttpPacket() {
 

@@ -148,12 +148,12 @@ public class TioServer {
 
 		}
 		//100
-		String printStr = "\r\n" + baseStr + "\r\n";
+		String printStr = SysConst.CRLF + baseStr + SysConst.CRLF;
 		//		printStr += "|--" + leftStr + " " + info + " " + rightStr + "--|\r\n";
 		for (String string : infoList) {
 			printStr += "| " + StrUtil.fillAfter(string, ' ', aaLen) + "|\r\n";
 		}
-		printStr += baseStr + "\r\n";
+		printStr += baseStr + SysConst.CRLF;
 		if (log.isInfoEnabled()) {
 			log.info(printStr);
 		} else {

@@ -17,6 +17,7 @@ import org.tio.core.maintain.IpBlacklist;
 import org.tio.core.ssl.SslConfig;
 import org.tio.server.intf.ServerAioHandler;
 import org.tio.server.intf.ServerAioListener;
+import org.tio.utils.SysConst;
 import org.tio.utils.SystemTimer;
 import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.json.Json;
@@ -159,7 +160,7 @@ public class ServerGroupContext extends GroupContext {
 							readLock.unlock();
 							if (debug) {
 								StringBuilder builder = new StringBuilder();
-								builder.append("\r\n").append(ServerGroupContext.this.getName());
+								builder.append(SysConst.CRLF).append(ServerGroupContext.this.getName());
 								builder.append("\r\n ├ 当前时间:").append(SystemTimer.currTime);
 								builder.append("\r\n ├ 连接统计");
 								builder.append("\r\n │ \t ├ 共接受过连接数  :").append(((ServerGroupStat) groupStat).accepted.get());

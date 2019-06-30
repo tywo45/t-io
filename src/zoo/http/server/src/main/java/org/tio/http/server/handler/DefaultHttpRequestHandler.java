@@ -50,6 +50,7 @@ import org.tio.http.server.util.ClassUtils;
 import org.tio.http.server.util.Resps;
 import org.tio.server.ServerChannelContext;
 import org.tio.utils.IoUtils;
+import org.tio.utils.SysConst;
 import org.tio.utils.SystemTimer;
 import org.tio.utils.cache.caffeine.CaffeineCache;
 import org.tio.utils.freemarker.FreemarkerUtils;
@@ -859,8 +860,8 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 
 	private void logError(HttpRequest request, RequestLine requestLine, Throwable e) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("\r\n").append("remote  :").append(request.getClientIp());
-		sb.append("\r\n").append("request :").append(requestLine.toString());
+		sb.append(SysConst.CRLF).append("remote  :").append(request.getClientIp());
+		sb.append(SysConst.CRLF).append("request :").append(requestLine.toString());
 		log.error(sb.toString(), e);
 
 	}
