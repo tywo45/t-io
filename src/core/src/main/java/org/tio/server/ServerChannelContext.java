@@ -36,6 +36,16 @@ public class ServerChannelContext extends ChannelContext {
 	}
 
 	/**
+	 * 创建一个虚拟ChannelContext，主要用来模拟一些操作，譬如压力测试，真实场景中用得少
+	 * @param groupContext
+	 * @param id ChannelContext id
+	 * @author tanyaowu
+	 */
+	public ServerChannelContext(GroupContext groupContext, String id) {
+		super(groupContext, id);
+	}
+
+	/**
 	 * @see org.tio.core.ChannelContext#createClientNode(java.nio.channels.AsynchronousSocketChannel)
 	 *
 	 * @param asynchronousSocketChannel

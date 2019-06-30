@@ -101,15 +101,28 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	}
 
 	/**
-	 * 创建一个虚拟ChannelContext，主要用来模拟一些操作，真实场景中用得少
+	 * 创建一个虚拟ChannelContext，主要用来模拟一些操作，譬如压力测试，真实场景中用得少
 	 * @param groupContext
 	 */
 	public ChannelContext(GroupContext groupContext) {
+		this(groupContext, groupContext.getTioUuid().uuid());
+	}
+	
+	/**
+	 * 创建一个虚拟ChannelContext，主要用来模拟一些操作，譬如压力测试，真实场景中用得少
+	 * @param groupContext
+	 * @param id ChannelContext id
+	 * @author tanyaowu
+	 */
+	public ChannelContext(GroupContext groupContext, String id) {
 		isVirtual = true;
 		this.groupContext = groupContext;
 		Node clientNode = new Node("127.0.0.1", 26254);
 		this.clientNode = clientNode;
-		this.id = groupContext.getTioUuid().uuid();
+		this.id = id;//groupContext.getTioUuid().uuid();
+		if (StrUtil.isBlank(id)) {
+			this.id = groupContext.getTioUuid().uuid();
+		}
 	}
 
 	private void assignAnUnknownClientNode() {
