@@ -130,7 +130,7 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuf
 	 */
 	@Override
 	public void failed(Throwable exc, ByteBuffer byteBuffer) {
-		Tio.close(channelContext, exc, "读数据时发生异常");
+		Tio.close(channelContext, exc, "读数据时发生异常: " + exc.getClass().getName());
 	}
 
 	/**
