@@ -1,0 +1,79 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>tio-http-zoo-parent</artifactId>
+	<packaging>pom</packaging>
+	<name>${project.artifactId}</name>
+	<url>http://maven.apache.org</url>
+
+	<description>tio-http's parent</description>
+	
+	<parent>
+		<groupId>org.t-io</groupId>
+		<artifactId>tio-zoo-parent</artifactId>
+		<version>3.3.3.v20190620-RELEASE</version>
+		<relativePath>../../../parent/pom.xml</relativePath>
+	</parent>
+
+
+	<modules>
+		<module>../http-api-tool</module>
+	</modules>
+
+
+
+	<developers>
+		<developer>
+			<id>tanyaowu</id>
+			<name>tanyaowu</name>
+			<email>tywo45@163.com</email>
+			<url>https://gitee.com/tywo45/t-io</url>
+		</developer>
+	</developers>
+
+	<repositories>
+
+
+	</repositories>
+	<pluginRepositories>
+
+
+
+	</pluginRepositories>
+
+	<dependencyManagement>
+		
+	</dependencyManagement>
+
+
+
+	<!-- 插件配置 -->
+	<build>
+		<plugins>
+			
+			
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<!-- 生成的jar中，不要包含pom.xml和pom.properties这两个文件 -->
+						<addMavenDescriptor>true</addMavenDescriptor>
+					</archive>
+
+					<!-- 过滤掉不希望包含在jar中的文件 -->
+					<excludes>
+						<exclude>**/*.properties</exclude>
+						<exclude>**/*.conf</exclude>
+						<exclude>**/*.xml</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+			
+			
+		</plugins>
+	</build>
+
+
+</project>

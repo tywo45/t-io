@@ -48,7 +48,8 @@
 		<maven.version>3.5.0</maven.version>
 
 		<mysql.driver.version>8.0.16</mysql.driver.version><!-- 5.1.46 -->
-		<druid.version>1.1.17</druid.version>
+		<druid.version>1.1.18</druid.version>
+		<HikariCP.version>3.3.1</HikariCP.version>
 		<jfinal.version>4.2</jfinal.version>
 		<logback.version>1.2.3</logback.version>
 		<slf4j.version>1.7.26</slf4j.version>
@@ -62,7 +63,7 @@
 		<commons-compress.version>1.18</commons-compress.version>
 		<fastjson.version>1.2.58</fastjson.version>
 		<testng.version>6.14.3</testng.version>
-		<hutool.version>4.5.15</hutool.version>
+		<hutool.version>4.5.16</hutool.version>
 		<protobuf-java.version>3.8.0</protobuf-java.version>
 		<commons-beanutils.version>1.9.3</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
@@ -291,6 +292,11 @@
 				<groupId>com.alibaba</groupId>
 				<artifactId>druid</artifactId>
 				<version>${druid.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.zaxxer</groupId>
+				<artifactId>HikariCP</artifactId>
+				<version>${HikariCP.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.ehcache</groupId>
@@ -523,13 +529,13 @@
 			<dependency>
 				<groupId>com.github.javen205</groupId>
 				<artifactId>IJPay</artifactId>
-				<version>1.2.0</version>
+				<version>1.2.2</version>
 			</dependency>
 
 			<dependency>
 				<groupId>io.github.classgraph</groupId>
 				<artifactId>classgraph</artifactId>
-				<version>4.8.39</version>
+				<version>4.8.43</version>
 			</dependency>
 			<dependency>
 				<groupId>com.thoughtworks.paranamer</groupId>
