@@ -125,11 +125,14 @@ public class WsServerAioHandler implements ServerAioHandler {
 				
 				HttpRequest handshakeRequest = wsSessionContext.getHandshakeRequest();
 				if (websocketPacket.getWsOpcode() != Opcode.BINARY) {
-					try {
-						String text = new String(websocketPacket.getBody(), handshakeRequest.getCharset());
-						websocketPacket.setWsBodyText(text);
-					} catch (UnsupportedEncodingException e) {
-						log.error(e.toString(), e);
+					byte[] bodyBs = websocketPacket.getBody();
+					if (bodyBs != null) {
+						try {
+							String text = new String(bodyBs, handshakeRequest.getCharset());
+							websocketPacket.setWsBodyText(text);
+						} catch (UnsupportedEncodingException e) {
+							log.error(e.toString(), e);
+						}
 					}
 				}
 			}
