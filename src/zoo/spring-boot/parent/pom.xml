@@ -12,7 +12,7 @@
 	<parent>
 		<groupId>org.t-io</groupId>
 		<artifactId>tio-zoo-parent</artifactId>
-		<version>3.3.3.v20190620-RELEASE</version>
+		<version>3.3.4.v20190705-RELEASE</version>
 		<relativePath>../../parent/pom.xml</relativePath>
 	</parent>
 

@@ -9,7 +9,7 @@ import java.nio.charset.Charset;
 public interface SysConst {
 	String	TIO_URL_GITHUB		= "https://github.com/tywo45/t-io";
 	String	TIO_URL_SITE		= "https://www.t-io.org/";
-	String	TIO_CORE_VERSION	= "3.3.3.v20190620-RELEASE";
+	String	TIO_CORE_VERSION	= "3.3.4.v20190705-RELEASE";
 	/**
 	 * 空串
 	 */
