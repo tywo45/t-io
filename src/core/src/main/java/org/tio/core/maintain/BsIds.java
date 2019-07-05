@@ -31,12 +31,10 @@ public class BsIds {
 	 * @author tanyaowu
 	 */
 	public void bind(ChannelContext channelContext, String bsId) {
+		if (channelContext.groupContext.isShortConnection) {
+			return;
+		}
 		try {
-			GroupContext groupContext = channelContext.groupContext;
-			if (groupContext.isShortConnection) {
-				return;
-			}
-
 			//先解绑，否则如果业务层绑定两个不同的bsid，就会导致资源释放不掉
 			unbind(channelContext);
 
@@ -84,15 +82,15 @@ public class BsIds {
 	 * @author tanyaowu
 	 */
 	public void unbind(ChannelContext channelContext) {
+		GroupContext groupContext = channelContext.groupContext;
+		if (groupContext.isShortConnection) {
+			return;
+		}
+		String bsId = channelContext.getBsId();
+		if (StrUtil.isBlank(bsId)) {
+			return;
+		}
 		try {
-			GroupContext groupContext = channelContext.groupContext;
-			if (groupContext.isShortConnection) {
-				return;
-			}
-			String bsId = channelContext.getBsId();
-			if (StrUtil.isBlank(bsId)) {
-				return;
-			}
 			map.remove(bsId);
 			channelContext.setBsId(null);
 		} catch (Exception e) {

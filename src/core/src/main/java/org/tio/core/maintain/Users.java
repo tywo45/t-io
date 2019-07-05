@@ -38,15 +38,15 @@ public class Users {
 	 * @author tanyaowu
 	 */
 	public void bind(String userid, ChannelContext channelContext) {
-		try {
-			GroupContext groupContext = channelContext.groupContext;
-			if (groupContext.isShortConnection) {
-				return;
-			}
+		if (channelContext.groupContext.isShortConnection) {
+			return;
+		}
 
-			if (StrUtil.isBlank(userid)) {
-				return;
-			}
+		if (StrUtil.isBlank(userid)) {
+			return;
+		}
+
+		try {
 			String key = userid;
 			Lock lock = mapWithLock.writeLock();
 			lock.lock();
@@ -109,24 +109,23 @@ public class Users {
 	 * @param channelContext the channel context
 	 */
 	public void unbind(ChannelContext channelContext) {
+		if (channelContext.groupContext.isShortConnection) {
+			return;
+		}
+
+		if (StrUtil.isBlank(channelContext.userid)) {
+			log.debug("{}, {}, 并没有绑定用户", channelContext.groupContext.getName(), channelContext.toString());
+			return;
+		}
+
 		try {
-			GroupContext groupContext = channelContext.groupContext;
-			if (groupContext.isShortConnection) {
-				return;
-			}
-
-			if (StrUtil.isBlank(channelContext.userid)) {
-				log.debug("{}, {}, 并没有绑定用户", groupContext.getName(), channelContext.toString());
-				return;
-			}
-
 			Lock lock = mapWithLock.writeLock();
 			lock.lock();
 			try {
 				Map<String, SetWithLock<ChannelContext>> m = mapWithLock.getObj();
 				SetWithLock<ChannelContext> setWithLock = m.get(channelContext.userid);
 				if (setWithLock == null) {
-					log.warn("{}, {}, userid:{}, 没有找到对应的SetWithLock", groupContext.getName(), channelContext.toString(), channelContext.userid);
+					log.warn("{}, {}, userid:{}, 没有找到对应的SetWithLock", channelContext.groupContext.getName(), channelContext.toString(), channelContext.userid);
 					return;
 				}
 				channelContext.setUserid(null);
@@ -153,15 +152,14 @@ public class Users {
 	 * @author tanyaowu
 	 */
 	public void unbind(GroupContext groupContext, String userid) {
+		if (groupContext.isShortConnection) {
+			return;
+		}
+		if (StrUtil.isBlank(userid)) {
+			return;
+		}
+
 		try {
-			if (groupContext.isShortConnection) {
-				return;
-			}
-
-			if (StrUtil.isBlank(userid)) {
-				return;
-			}
-
 			Lock lock = mapWithLock.writeLock();
 			lock.lock();
 			try {

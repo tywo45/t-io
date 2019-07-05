@@ -37,15 +37,14 @@ public class Ips {
 	 * @author tanyaowu
 	 */
 	public void bind(ChannelContext channelContext) {
-		try {
-			if (channelContext == null) {
-				return;
-			}
+		if (channelContext == null) {
+			return;
+		}
 
-			GroupContext groupContext = channelContext.groupContext;
-			if (groupContext.isShortConnection) {
-				return;
-			}
+		if (channelContext.groupContext.isShortConnection) {
+			return;
+		}
+		try {
 
 			String ip = channelContext.getClientNode().getIp();
 			if (ChannelContext.UNKNOWN_ADDRESS_IP.equals(ip)) {
@@ -109,16 +108,15 @@ public class Ips {
 	 * @author tanyaowu
 	 */
 	public void unbind(ChannelContext channelContext) {
+		if (channelContext == null) {
+			return;
+		}
+
+		if (channelContext.groupContext.isShortConnection) {
+			return;
+		}
+
 		try {
-			if (channelContext == null) {
-				return;
-			}
-
-			GroupContext groupContext = channelContext.groupContext;
-			if (groupContext.isShortConnection) {
-				return;
-			}
-
 			String ip = channelContext.getClientNode().getIp();
 			if (ChannelContext.UNKNOWN_ADDRESS_IP.equals(ip)) {
 				log.error("{} ip is not right", channelContext);
@@ -152,7 +150,7 @@ public class Ips {
 					lock1.unlock();
 				}
 			} else {
-				log.info("{}, ip【{}】 找不到对应的SetWithLock", groupContext.getName(), ip);
+				log.info("{}, ip【{}】 找不到对应的SetWithLock", channelContext.groupContext.getName(), ip);
 			}
 		} catch (Exception e) {
 			log.error(e.toString(), e);

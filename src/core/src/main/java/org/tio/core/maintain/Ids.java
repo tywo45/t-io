@@ -29,12 +29,10 @@ public class Ids {
 	 * @author tanyaowu
 	 */
 	public void bind(ChannelContext channelContext) {
+		if (channelContext.groupContext.isShortConnection) {
+			return;
+		}
 		try {
-			GroupContext groupContext = channelContext.groupContext;
-			if (groupContext.isShortConnection) {
-				return;
-			}
-
 			String key = channelContext.getId();
 			if (StrUtil.isBlank(key)) {
 				return;
@@ -76,12 +74,10 @@ public class Ids {
 	 * @author tanyaowu
 	 */
 	public void unbind(ChannelContext channelContext) {
+		if (channelContext.groupContext.isShortConnection) {
+			return;
+		}
 		try {
-			GroupContext groupContext = channelContext.groupContext;
-			if (groupContext.isShortConnection) {
-				return;
-			}
-
 			String key = channelContext.getId();
 			if (StrUtil.isBlank(key)) {
 				return;

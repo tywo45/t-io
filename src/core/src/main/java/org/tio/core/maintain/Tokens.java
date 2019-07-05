@@ -37,15 +37,15 @@ public class Tokens {
 	 * @author tanyaowu
 	 */
 	public void bind(String token, ChannelContext channelContext) {
-		try {
-			GroupContext groupContext = channelContext.groupContext;
-			if (groupContext.isShortConnection) {
-				return;
-			}
+		if (channelContext.groupContext.isShortConnection) {
+			return;
+		}
 
-			if (StrUtil.isBlank(token)) {
-				return;
-			}
+		if (StrUtil.isBlank(token)) {
+			return;
+		}
+
+		try {
 			String key = token;
 			Lock lock = mapWithLock.writeLock();
 			lock.lock();
@@ -111,15 +111,13 @@ public class Tokens {
 	 * @param channelContext the channel context
 	 */
 	public void unbind(ChannelContext channelContext) {
+		if (channelContext.groupContext.isShortConnection) {
+			return;
+		}
 		try {
-			GroupContext groupContext = channelContext.groupContext;
-			if (groupContext.isShortConnection) {
-				return;
-			}
-
 			String token = channelContext.getToken();
 			if (StrUtil.isBlank(token)) {
-				log.debug("{}, {}, 并没有绑定Token", groupContext.getName(), channelContext.toString());
+				log.debug("{}, {}, 并没有绑定Token", channelContext.groupContext.getName(), channelContext.toString());
 				return;
 			}
 
@@ -129,7 +127,7 @@ public class Tokens {
 				Map<String, SetWithLock<ChannelContext>> m = mapWithLock.getObj();
 				SetWithLock<ChannelContext> setWithLock = m.get(token);
 				if (setWithLock == null) {
-					log.warn("{}, {}, token:{}, 没有找到对应的SetWithLock", groupContext.getName(), channelContext.toString(), token);
+					log.warn("{}, {}, token:{}, 没有找到对应的SetWithLock", channelContext.groupContext.getName(), channelContext.toString(), token);
 					return;
 				}
 				channelContext.setToken(null);
@@ -155,15 +153,15 @@ public class Tokens {
 	 * @author tanyaowu
 	 */
 	public void unbind(GroupContext groupContext, String token) {
+		if (groupContext.isShortConnection) {
+			return;
+		}
+
+		if (StrUtil.isBlank(token)) {
+			return;
+		}
+
 		try {
-			if (groupContext.isShortConnection) {
-				return;
-			}
-
-			if (StrUtil.isBlank(token)) {
-				return;
-			}
-
 			Lock lock = mapWithLock.writeLock();
 			lock.lock();
 			try {
@@ -190,7 +188,6 @@ public class Tokens {
 				} finally {
 					writeLock.unlock();
 				}
-
 			} catch (Throwable e) {
 				throw e;
 			} finally {
