@@ -4,14 +4,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.tio.common.starter.configuration.TioProperties;
 import org.tio.websocket.starter.TioWebSocketClassScanner;
 
-import static org.tio.websocket.starter.configuration.TioWebSocketServerProperties.PREFIX;
-
 /**
  * @author fanpan26
  * */
-@ConfigurationProperties(PREFIX)
+@ConfigurationProperties("tio.websocket.server")
 public class TioWebSocketServerProperties extends TioProperties {
-    public static final String PREFIX = "tio.websocket.server";
 
     public boolean isUseScanner() {
         return useScanner;
