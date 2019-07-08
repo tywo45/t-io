@@ -186,6 +186,11 @@
 				<artifactId>tio-http-server</artifactId>
 				<version>${tio-http.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.t-io</groupId>
+				<artifactId>tio-http-client</artifactId>
+				<version>${tio-http.version}</version>
+			</dependency>
 
 			<dependency>
 				<groupId>org.t-io</groupId>
