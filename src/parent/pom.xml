@@ -108,7 +108,7 @@
 
 		<shardingsphere.version>3.1.0</shardingsphere.version>
 
-		<svnkit.version>1.9.3</svnkit.version>
+		<svnkit.version>1.10.1</svnkit.version>
 
 	</properties>
 
@@ -456,7 +456,7 @@
 			<dependency>
 				<groupId>nl.basjes.parse.useragent</groupId>
 				<artifactId>yauaa</artifactId>
-				<version>5.10</version>
+				<version>5.11</version>
 			</dependency>
 
 			<dependency>
