@@ -13,7 +13,7 @@ public interface SysConst {
 	/**
 	 * 空串
 	 */
-	String	BLANK					= "";
+	String	BLANK				= "";
 	/**
 	 * \r
 	 */
@@ -27,9 +27,17 @@ public interface SysConst {
 	 */
 	byte	EQ					= '=';
 	/**
+	 * =
+	 */
+	String	STR_EQ				= "=";
+	/**
 	 * &
 	 */
 	byte	AMP					= '&';
+	/**
+	 * &
+	 */
+	String	STR_AMP				= "&";
 	/**
 	 * :
 	 */
@@ -37,7 +45,7 @@ public interface SysConst {
 	/**
 	 * :
 	 */
-	String	COL_STR				= ":";
+	String	STR_COL				= ":";
 	/**
 	 * ;
 	 */

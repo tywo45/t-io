@@ -72,6 +72,10 @@ public class HttpConfig {
 	 */
 	public static final int					MAX_LENGTH_OF_POST_BODY		= 1024 * 1024 * 2;
 	/**
+	 * jsonp时，回调参数名
+	 */
+	public static final String				JSONP_PARAM_NAME			= "tio_http_jsonp";
+	/**
 	 * POST体的最大长度
 	 */
 	private int								maxLengthOfPostBody			= MAX_LENGTH_OF_POST_BODY;
@@ -163,6 +167,10 @@ public class HttpConfig {
 	private volatile Map<String, String>	domainPageMap				= null;										//new HashMap<>();
 	public boolean							checkHost					= true;
 	private String							name						= null;
+	/**
+	 * jsonp时，回调参数名
+	 */
+	private String							jsonpParamName				= JSONP_PARAM_NAME;
 
 	public Map<String, String> getDomainPageMap() {
 		return domainPageMap;
@@ -174,8 +182,11 @@ public class HttpConfig {
 	}
 
 	/**
-	 *
-	 * @author tanyaowu
+	 * 
+	 * @param bindPort
+	 * @param sessionTimeout session超时时间，单位：秒
+	 * @param contextPath
+	 * @param suffix
 	 */
 	public HttpConfig(Integer bindPort, Long sessionTimeout, String contextPath, String suffix) {
 		this.bindPort = bindPort;
@@ -734,5 +745,13 @@ public class HttpConfig {
 	 */
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getJsonpParamName() {
+		return jsonpParamName;
+	}
+
+	public void setJsonpParamName(String jsonpParamName) {
+		this.jsonpParamName = jsonpParamName;
 	}
 }

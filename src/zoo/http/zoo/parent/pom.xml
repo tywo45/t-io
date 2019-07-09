@@ -17,7 +17,7 @@
 
 
 	<modules>
-		<module>../http-api-tool</module>
+		<module>../http-apitool</module>
 	</modules>
 
 

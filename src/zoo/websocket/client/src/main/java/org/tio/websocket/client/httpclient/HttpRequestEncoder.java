@@ -54,7 +54,7 @@ public class HttpRequestEncoder {
     Set<Entry<String, String>> headersEntry = headers.entrySet();
     for (Entry<String, String> entry : headersEntry) {
       sb.append(entry.getKey())
-          .append(SysConst.COL_STR)
+          .append(SysConst.STR_COL)
           .append(entry.getValue())
           .append(SysConst.CRLF);
     }

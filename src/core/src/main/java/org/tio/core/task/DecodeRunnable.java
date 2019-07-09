@@ -45,6 +45,9 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 	 */
 	public void handler(Packet packet, int byteCount) {
 		switch (groupContext.packetHandlerMode) {
+		case SINGLE_THREAD:
+			channelContext.handlerRunnable.handler(packet);
+			break;
 		case QUEUE:
 			channelContext.handlerRunnable.addMsg(packet);
 			channelContext.handlerRunnable.execute();
@@ -101,7 +104,9 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 				int readableLength = limit - initPosition;
 				Packet packet = null;
 				if (channelContext.packetNeededLength != null) {
-					log.info("{}, 解码所需长度:{}", channelContext, channelContext.packetNeededLength);
+					if (log.isInfoEnabled()) {
+						log.info("{}, 解码所需长度:{}", channelContext, channelContext.packetNeededLength);
+					}
 					if (readableLength >= channelContext.packetNeededLength) {
 						packet = groupContext.getAioHandler().decode(byteBuffer, limit, initPosition, readableLength, channelContext);
 					}
@@ -127,10 +132,14 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 					ChannelStat channelStat = channelContext.stat;
 					channelStat.decodeFailCount++;
 					//					int len = byteBuffer.limit() - initPosition;
-					log.info("{} 本次解码失败, 已经连续{}次解码失败，参与解码的数据长度共{}字节", channelContext, channelStat.decodeFailCount, readableLength);
+					if (log.isInfoEnabled()) {
+						log.info("{} 本次解码失败, 已经连续{}次解码失败，参与解码的数据长度共{}字节", channelContext, channelStat.decodeFailCount, readableLength);
+					}
 					if (channelStat.decodeFailCount > 5) {
 						if (channelContext.packetNeededLength == null) {
-							log.info("{} 本次解码失败, 已经连续{}次解码失败，参与解码的数据长度共{}字节", channelContext, channelStat.decodeFailCount, readableLength);
+							if (log.isInfoEnabled()) {
+								log.info("{} 本次解码失败, 已经连续{}次解码失败，参与解码的数据长度共{}字节", channelContext, channelStat.decodeFailCount, readableLength);
+							}
 						}
 
 						//检查慢包攻击（只有自用版才有）
@@ -139,7 +148,6 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 							int per = readableLength / channelStat.decodeFailCount;
 							if (per < Math.min(channelContext.getReadBufferSize() / 2, 256)) {
 								String str = "连续解码" + channelStat.decodeFailCount + "次都不成功，并且平均每次接收到的数据为" + per + "字节，有慢攻击的嫌疑";
-								log.error(str);
 								throw new AioDecodeException(str);
 							}
 						}
@@ -194,7 +202,9 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 					} else//组包后，数据刚好用完
 					{
 						lastByteBuffer = null;
-						log.debug("{},组包后，数据刚好用完", channelContext);
+						if (log.isDebugEnabled()) {
+							log.debug("{},组包后，数据刚好用完", channelContext);
+						}
 						return;
 					}
 				}

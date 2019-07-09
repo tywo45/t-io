@@ -71,24 +71,35 @@ import freemarker.template.Configuration;
  *
  */
 public class DefaultHttpRequestHandler implements HttpRequestHandler {
-	private static Logger log = LoggerFactory.getLogger(DefaultHttpRequestHandler.class);
-
+	private static Logger								log								= LoggerFactory.getLogger(DefaultHttpRequestHandler.class);
 	/**
 	 * 静态资源的CacheName
 	 * key:   path 譬如"/index.html"
 	 * value: FileCache
 	 */
-	private static final String STATIC_RES_CONTENT_CACHENAME = "TIO_HTTP_STATIC_RES_CONTENT";
-
-	private static final String SESSIONRATELIMITER_CACHENAME = "TIO_HTTP_SESSIONRATELIMITER_CACHENAME";
-
+	private static final String							STATIC_RES_CONTENT_CACHENAME	= "TIO_HTTP_STATIC_RES_CONTENT";
+	private static final String							SESSIONRATELIMITER_CACHENAME	= "TIO_HTTP_SESSIONRATELIMITER_CACHENAME";
 	/**
 	 * 把cookie对象存到ChannelContext对象中
 	 * request.channelContext.setAttribute(SESSION_COOKIE_KEY, sessionCookie);
 	 */
-	private static final String SESSION_COOKIE_KEY = "TIO_HTTP_SESSION_COOKIE";
-
-	private static final Map<Class<?>, MethodAccess> CLASS_METHODACCESS_MAP = new HashMap<>();
+	private static final String							SESSION_COOKIE_KEY				= "TIO_HTTP_SESSION_COOKIE";
+	private static final Map<Class<?>, MethodAccess>	CLASS_METHODACCESS_MAP			= new HashMap<>();
+	protected HttpConfig								httpConfig;
+	protected Routes									routes							= null;
+	private HttpServerInterceptor						httpServerInterceptor;
+	private HttpSessionListener							httpSessionListener;
+	private ThrowableHandler							throwableHandler;
+	private SessionCookieDecorator						sessionCookieDecorator;
+	private IpPathAccessStats							ipPathAccessStats;
+	private TokenPathAccessStats						tokenPathAccessStats;
+	private CaffeineCache								staticResCache;
+	private CaffeineCache								sessionRateLimiterCache;
+	private static final String							SESSIONRATELIMITER_KEY_SPLIT	= "?";
+	private String										contextPath;
+	private int											contextPathLength				= 0;
+	private String										suffix;
+	private int											suffixLength					= 0;
 
 	private static MethodAccess getMethodAccess(Class<?> clazz) {
 		MethodAccess ret = CLASS_METHODACCESS_MAP.get(clazz);
@@ -103,35 +114,6 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 		}
 		return ret;
 	}
-
-	protected HttpConfig httpConfig;
-
-	protected Routes routes = null;
-
-	//	private LoadingCache<String, HttpSession> loadingCache = null;
-
-	private HttpServerInterceptor httpServerInterceptor;
-
-	private HttpSessionListener httpSessionListener;
-
-	private ThrowableHandler throwableHandler;
-
-	private SessionCookieDecorator sessionCookieDecorator;
-
-	private IpPathAccessStats ipPathAccessStats;
-
-	private TokenPathAccessStats tokenPathAccessStats;
-
-	private CaffeineCache staticResCache;
-
-	private CaffeineCache sessionRateLimiterCache;
-
-	private static final String SESSIONRATELIMITER_KEY_SPLIT = "?";
-
-	private String	contextPath;
-	private int		contextPathLength	= 0;
-	private String	suffix;
-	private int		suffixLength		= 0;
 
 	/**
 	 * 

@@ -362,8 +362,29 @@ public class HttpRequest extends HttpPacket {
 	public Map<String, Object[]> getParams() {
 		return params;
 	}
+	
+	/**
+	 * 把类型为数组的参数值转换成Object，相当于是取了数组的第一个值，便于业务开发（因为大部分参数值其实只有一个）
+	 * @return
+	 */
+	public Map<String, Object> getParam() {
+		Map<String, Object> params = new HashMap<>();
+		if (getParams() != null) {
+			for (String key : this.params.keySet()) {
+				Object[] param = this.params.get(key);
+				if (param != null && param.length >= 1) {
+					params.put(key, param[0]);
+				}
+			}
+		}
+		return params;
+	}
 
 	public Object getObject(String name) {
+		if (StrUtil.isBlank(name)) {
+			return null;
+		}
+		
 		Object[] values = params.get(name);
 		if (values != null && values.length > 0) {
 			Object obj = values[0];
@@ -379,12 +400,7 @@ public class HttpRequest extends HttpPacket {
 	 * @author: tanyaowu
 	 */
 	public String getParam(String name) {
-		Object[] values = params.get(name);
-		if (values != null && values.length > 0) {
-			Object obj = values[0];
-			return (String) obj;
-		}
-		return null;
+		return (String)getObject(name);
 	}
 
 	/**
