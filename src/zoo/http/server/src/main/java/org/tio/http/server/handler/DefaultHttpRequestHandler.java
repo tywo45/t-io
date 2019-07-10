@@ -28,7 +28,6 @@ import org.tio.http.common.handler.HttpRequestHandler;
 import org.tio.http.common.session.HttpSession;
 import org.tio.http.common.session.limiter.SessionRateLimiter;
 import org.tio.http.common.session.limiter.SessionRateVo;
-import org.tio.http.common.utils.HttpGzipUtils;
 import org.tio.http.common.view.freemarker.FreemarkerConfig;
 import org.tio.http.server.intf.CurrUseridGetter;
 import org.tio.http.server.intf.HttpServerInterceptor;
@@ -684,11 +683,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 							log.error(requestLine.toString(), e);
 						}
 					}
-					try {
-						HttpGzipUtils.gzip(request, response);
-					} catch (Exception e) {
-						log.error(e.toString(), e);
-					}
+
 					boolean f = statIpPath(request, response, path, iv);
 					if (!f) {
 						return null;

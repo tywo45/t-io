@@ -26,11 +26,11 @@ public class HttpGzipUtils {
 		if (response == null) {
 			return;
 		}
-
-		// 已经gzip过了，就不必再压缩了
-		if (response.isHasGzipped()) {
-			return;
-		}
+//
+//		// 已经gzip过了，就不必再压缩了
+//		if (response.isHasGzipped()) {
+//			return;
+//		}
 
 		if (request.getIsSupportGzip()) {
 			gzip(response);

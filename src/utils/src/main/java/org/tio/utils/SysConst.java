@@ -55,6 +55,14 @@ public interface SysConst {
 	 */
 	byte	SPACE				= ' ';
 	/**
+	 * 左括号
+	 */
+	byte	LEFT_BRACKET				= '(';
+	/**
+	 * 右括号
+	 */
+	byte	RIGHT_BRACKET				= ')';
+	/**
 	 * ?
 	 */
 	byte	ASTERISK			= '?';
@@ -64,6 +72,7 @@ public interface SysConst {
 	byte[]	SPACE_				= { SPACE };
 	byte[]	CR_					= { CR };
 	byte[]	LF_					= { LF };
+	byte[]	NULL			= { 'n', 'u', 'l', 'l' };
 	/**
 	 * \r\n
 	 */

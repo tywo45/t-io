@@ -149,7 +149,7 @@ public class HttpConfig {
 	private boolean							isProxied					= false;
 	/**
 	 * 示例：
-	 * 1、classpath中：page
+	 * 1、classpath中：classpath:page
 	 * 2、绝对路径：/page
 	 */
 	private String							pageRoot					= null;										//FileUtil.getAbsolutePath("page");//"/page";

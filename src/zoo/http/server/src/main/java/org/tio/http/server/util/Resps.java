@@ -455,12 +455,12 @@ public class Resps {
 	 */
 	public static HttpResponse string(HttpRequest request, String bodyString, String charset, String Content_Type) {
 		HttpResponse ret = new HttpResponse(request);
-
-		//处理jsonp
-		String jsonp = request.getParam(request.httpConfig.getJsonpParamName());
-		if (StrUtil.isNotBlank(jsonp)) {
-			bodyString = jsonp + "(" + bodyString + ")";
-		}
+//
+//		//处理jsonp
+//		String jsonp = request.getParam(request.httpConfig.getJsonpParamName());
+//		if (StrUtil.isNotBlank(jsonp)) {
+//			bodyString = jsonp + "(" + bodyString + ")";
+//		}
 
 		if (bodyString != null) {
 			if (charset == null) {

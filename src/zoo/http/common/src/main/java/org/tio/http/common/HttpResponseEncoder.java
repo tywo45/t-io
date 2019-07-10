@@ -11,7 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
 import org.tio.http.common.utils.HttpDateTimer;
+import org.tio.http.common.utils.HttpGzipUtils;
 import org.tio.utils.SysConst;
+import org.tio.utils.hutool.StrUtil;
 
 /**
  * http server中使用
@@ -41,8 +43,40 @@ public class HttpResponseEncoder {
 	 */
 	public static ByteBuffer encode(HttpResponse httpResponse, GroupContext groupContext, ChannelContext channelContext) throws UnsupportedEncodingException {
 		int bodyLength = 0;
-		byte[] body = httpResponse.getBody();
+		byte[] body = httpResponse.body;
+
+		// 处理jsonp
+		//bodyString = jsonp + "(" + bodyString + ")";
+		byte[] jsonpBytes = null;
+		HttpRequest httpRequest = httpResponse.getHttpRequest();
+		if (httpRequest != null) {
+			String jsonp = httpRequest.getParam(httpRequest.httpConfig.getJsonpParamName());
+			if (StrUtil.isNotBlank(jsonp)) {
+				jsonpBytes = jsonp.getBytes(httpRequest.getCharset());
+				if (body == null) {
+					body = org.tio.utils.SysConst.NULL;
+				}
+				byte[] bodyBs = new byte[jsonpBytes.length + 1 + body.length + 1];
+				System.arraycopy(jsonpBytes, 0, bodyBs, 0, jsonpBytes.length);
+				bodyBs[jsonpBytes.length] = SysConst.LEFT_BRACKET;
+				System.arraycopy(body, 0, bodyBs, jsonpBytes.length + 1, body.length);
+				bodyBs[bodyBs.length - 1] = SysConst.RIGHT_BRACKET;
+				body = bodyBs;
+				httpResponse.setBody(bodyBs);
+			}
+		}
+
+		
+
 		if (body != null) {
+			//处理gzip
+			try {
+				HttpGzipUtils.gzip(httpRequest, httpResponse);
+			} catch (Exception e) {
+				log.error(e.toString(), e);
+			}
+			
+			body = httpResponse.body;
 			bodyLength = body.length;
 		}
 
