@@ -171,6 +171,10 @@ public class HttpConfig {
 	 * jsonp时，回调参数名
 	 */
 	private String							jsonpParamName				= JSONP_PARAM_NAME;
+	/**
+	 * 是否监控文件变化
+	 */
+	public boolean							monitorFileChange			= false;
 
 	public Map<String, String> getDomainPageMap() {
 		return domainPageMap;
@@ -472,9 +476,27 @@ public class HttpConfig {
 				log.error(e.toString());
 			}
 		}
-		//		log.error(Json.toFormatedJson(staticPaths));
-		//		log.error(Json.toFormatedJson(staticPathsMap));
 		return staticPathsMap;
+	}
+
+	/**
+	 * 获取文件的URL访问路径
+	 * @param file
+	 * @return
+	 * @throws IOException
+	 */
+	public String getPath(File file) throws IOException {
+		String absPath = file.getCanonicalPath();
+		File pageRootFile = new File(pageRoot);
+		String pageRootAbs = pageRootFile.getCanonicalPath();
+
+		String path = absPath.substring(pageRootAbs.length());
+
+		path = path.replaceAll("\\\\", "/");
+		if (!(path.startsWith("/"))) {
+			path = "/" + path;
+		}
+		return path;
 	}
 
 	/**
@@ -493,7 +515,6 @@ public class HttpConfig {
 			this.pageInClasspath = true;
 		} else {
 			this.pageRoot = pageRoot;//fromPath(pageRoot);
-
 		}
 	}
 
@@ -753,5 +774,13 @@ public class HttpConfig {
 
 	public void setJsonpParamName(String jsonpParamName) {
 		this.jsonpParamName = jsonpParamName;
+	}
+
+	public boolean isMonitorFileChange() {
+		return monitorFileChange;
+	}
+
+	public void setMonitorFileChange(boolean monitorFileChange) {
+		this.monitorFileChange = monitorFileChange;
 	}
 }

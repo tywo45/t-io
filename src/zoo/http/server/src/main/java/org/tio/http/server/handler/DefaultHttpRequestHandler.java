@@ -2,6 +2,7 @@ package org.tio.http.server.handler;
 
 import java.beans.PropertyDescriptor;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Method;
@@ -11,7 +12,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.monitor.FileAlterationMonitor;
+import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.Tio;
@@ -92,7 +96,13 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	private SessionCookieDecorator						sessionCookieDecorator;
 	private IpPathAccessStats							ipPathAccessStats;
 	private TokenPathAccessStats						tokenPathAccessStats;
-	private CaffeineCache								staticResCache;
+	/**
+	 * 静态资源缓存
+	 */
+	CaffeineCache										staticResCache;
+	/**
+	 * 限流缓存
+	 */
 	private CaffeineCache								sessionRateLimiterCache;
 	private static final String							SESSIONRATELIMITER_KEY_SPLIT	= "?";
 	private String										contextPath;
@@ -118,8 +128,9 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	 * 
 	 * @param httpConfig
 	 * @param scanRootClasse
+	 * @throws Exception 
 	 */
-	public DefaultHttpRequestHandler(HttpConfig httpConfig, Class<?> scanRootClasse) {
+	public DefaultHttpRequestHandler(HttpConfig httpConfig, Class<?> scanRootClasse) throws Exception {
 		this(httpConfig, new Class<?>[] { scanRootClasse });
 	}
 
@@ -128,8 +139,9 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	 * @param httpConfig
 	 * @param scanRootClasse
 	 * @param controllerFactory
+	 * @throws Exception 
 	 */
-	public DefaultHttpRequestHandler(HttpConfig httpConfig, Class<?> scanRootClasse, ControllerFactory controllerFactory) {
+	public DefaultHttpRequestHandler(HttpConfig httpConfig, Class<?> scanRootClasse, ControllerFactory controllerFactory) throws Exception {
 		this(httpConfig, new Class<?>[] { scanRootClasse }, controllerFactory);
 	}
 
@@ -137,8 +149,9 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	 * 
 	 * @param httpConfig
 	 * @param scanRootClasses
+	 * @throws Exception 
 	 */
-	public DefaultHttpRequestHandler(HttpConfig httpConfig, Class<?>[] scanRootClasses) {
+	public DefaultHttpRequestHandler(HttpConfig httpConfig, Class<?>[] scanRootClasses) throws Exception {
 		this(httpConfig, scanRootClasses, null);
 	}
 
@@ -147,8 +160,9 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	 * @param httpConfig
 	 * @param scanRootClasses
 	 * @param controllerFactory
+	 * @throws Exception 
 	 */
-	public DefaultHttpRequestHandler(HttpConfig httpConfig, Class<?>[] scanRootClasses, ControllerFactory controllerFactory) {
+	public DefaultHttpRequestHandler(HttpConfig httpConfig, Class<?>[] scanRootClasses, ControllerFactory controllerFactory) throws Exception {
 		Routes routes = new Routes(scanRootClasses, controllerFactory);
 		init(httpConfig, routes);
 	}
@@ -157,8 +171,9 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	 * 
 	 * @param httpConfig
 	 * @param scanPackage
+	 * @throws Exception 
 	 */
-	public DefaultHttpRequestHandler(HttpConfig httpConfig, String scanPackage) {
+	public DefaultHttpRequestHandler(HttpConfig httpConfig, String scanPackage) throws Exception {
 		this(httpConfig, scanPackage, null);
 	}
 
@@ -167,8 +182,9 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	 * @param httpConfig
 	 * @param scanPackage
 	 * @param controllerFactory
+	 * @throws Exception 
 	 */
-	public DefaultHttpRequestHandler(HttpConfig httpConfig, String scanPackage, ControllerFactory controllerFactory) {
+	public DefaultHttpRequestHandler(HttpConfig httpConfig, String scanPackage, ControllerFactory controllerFactory) throws Exception {
 		this(httpConfig, new String[] { scanPackage }, controllerFactory);
 	}
 
@@ -176,8 +192,9 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	 * 
 	 * @param httpConfig
 	 * @param scanPackages
+	 * @throws Exception 
 	 */
-	public DefaultHttpRequestHandler(HttpConfig httpConfig, String[] scanPackages) {
+	public DefaultHttpRequestHandler(HttpConfig httpConfig, String[] scanPackages) throws Exception {
 		this(httpConfig, scanPackages, null);
 	}
 
@@ -186,8 +203,9 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	 * @param httpConfig
 	 * @param scanPackages
 	 * @param controllerFactory
+	 * @throws Exception 
 	 */
-	public DefaultHttpRequestHandler(HttpConfig httpConfig, String[] scanPackages, ControllerFactory controllerFactory) {
+	public DefaultHttpRequestHandler(HttpConfig httpConfig, String[] scanPackages, ControllerFactory controllerFactory) throws Exception {
 		Routes routes = new Routes(scanPackages, controllerFactory);
 		init(httpConfig, routes);
 	}
@@ -196,12 +214,13 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	 * 
 	 * @param httpConfig
 	 * @param routes
+	 * @throws Exception 
 	 */
-	public DefaultHttpRequestHandler(HttpConfig httpConfig, Routes routes) {
+	public DefaultHttpRequestHandler(HttpConfig httpConfig, Routes routes) throws Exception {
 		init(httpConfig, routes);
 	}
 
-	private void init(HttpConfig httpConfig, Routes routes) {
+	private void init(HttpConfig httpConfig, Routes routes) throws Exception {
 		if (httpConfig == null) {
 			throw new RuntimeException("httpConfig can not be null");
 		}
@@ -224,6 +243,8 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 		sessionRateLimiterCache = CaffeineCache.register(SESSIONRATELIMITER_CACHENAME, 60 * 1L, null);
 
 		this.routes = routes;
+
+		this.monitorFileChanged();
 	}
 
 	/**
@@ -572,8 +593,9 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 						//						}
 
 						HttpResource httpResource = httpConfig.getResource(request, path);//.getFile(request, path);
-
+						
 						if (httpResource != null) {
+							path = httpResource.getPath();
 							file = httpResource.getFile();
 							String template = httpResource.getPath(); // "/res/css/header-all.css"
 							InputStream inputStream = httpResource.getInputStream();
@@ -651,10 +673,11 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 									}
 
 									staticResCache.put(path, fileCache);
-									log.info("放入缓存:[{}], {}", path, response.getBody().length);
+									if (log.isInfoEnabled()) {
+										log.info("放入缓存:[{}], {}", path, response.getBody().length);
+									}
 								}
 							}
-
 							return response;
 						}
 					}
@@ -701,6 +724,30 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 					request.setForward(true);
 					return handler(request);
 				}
+			}
+		}
+	}
+
+	/**
+	 * 扫描文件变化
+	 * @throws Exception
+	 */
+	public void monitorFileChanged() throws Exception {
+		if (httpConfig.monitorFileChange) {
+			if (httpConfig.getPageRoot() != null) {
+				File directory = new File(httpConfig.getPageRoot());//需要扫描的文件夹路径
+				// 测试采用轮询间隔 5 秒
+				long interval = TimeUnit.SECONDS.toMillis(5);
+				FileAlterationObserver observer = new FileAlterationObserver(directory, new FileFilter() {
+					@Override
+					public boolean accept(File pathname) {
+						return true;
+					}
+				});
+				//设置文件变化监听器
+				observer.addListener(new FileChangeListener(this));
+				FileAlterationMonitor monitor = new FileAlterationMonitor(interval, observer);
+				monitor.start();
 			}
 		}
 	}
@@ -933,7 +980,10 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 
 			httpSession = (HttpSession) httpConfig.getSessionStore().get(sessionId);
 			if (httpSession == null) {
-				log.info("{} session【{}】超时", request.channelContext, sessionId);
+				if (log.isInfoEnabled()) {
+					log.info("{} session【{}】超时", request.channelContext, sessionId);
+				}
+				
 				httpSession = createSession(request);
 			}
 		}

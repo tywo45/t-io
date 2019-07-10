@@ -123,7 +123,7 @@ public class Resps {
 		if (httpResource == null) {
 			return null;
 		} else {
-			String path1 = httpResource.getPath();
+			path = httpResource.getPath();
 			File file = httpResource.getFile();
 			if (file != null) {
 				return file(request, file);
@@ -131,7 +131,7 @@ public class Resps {
 
 			InputStream inputStream = httpResource.getInputStream();
 			byte[] bs = IoUtils.toByteArray(inputStream);
-			return Resps.bytes(request, bs, FileUtil.extName(path1));
+			return Resps.bytes(request, bs, FileUtil.extName(path));
 		}
 	}
 
@@ -165,6 +165,7 @@ public class Resps {
 		String file404 = httpConfig.getPage404();
 		HttpResource httpResource = request.httpConfig.getResource(request, file404);
 		if (httpResource != null) {
+			file404 = httpResource.getPath();
 			HttpResponse ret = Resps.forward(request, file404 + "?tio_initpath=" + URLEncoder.encode(requestLine.getPathAndQuery(), httpConfig.getCharset()));
 			return ret;
 		}
@@ -225,7 +226,9 @@ public class Resps {
 	public static HttpResponse resp500(HttpRequest request, RequestLine requestLine, HttpConfig httpConfig, Throwable throwable) throws Exception {
 		String file500 = httpConfig.getPage500();
 		HttpResource httpResource = request.httpConfig.getResource(request, file500);
+		
 		if (httpResource != null) {
+			file500 = httpResource.getPath();
 			HttpResponse ret = Resps.forward(request, file500 + "?tio_initpath=" + requestLine.getPathAndQuery());
 			return ret;
 		}
