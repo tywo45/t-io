@@ -214,10 +214,6 @@ public class HttpRequestDecoder {
 
 		String[] keyvalues = queryString.split(SysConst.STR_AMP);
 		for (String keyvalue : keyvalues) {
-			
-			if (keyvalue.startsWith("param_value")) {
-				System.out.println(3);
-			}
 			String[] keyvalueArr = keyvalue.split(SysConst.STR_EQ);
 			String value1 = null;
 			if (keyvalueArr.length == 2) {
