@@ -295,7 +295,7 @@ public class HttpConfig {
 			}
 
 			String complatePath = pageRoot + path;
-			if (isPageInClasspath()) {
+			if (pageInClasspath) {
 				URL url = this.getClass().getClassLoader().getResource(complatePath);
 				if (url != null) {
 					String protocol = url.getProtocol();
@@ -437,7 +437,9 @@ public class HttpConfig {
 			return staticPathsMap;
 		}
 
-		log.info("一共{}个文件", files.size());
+		if (log.isInfoEnabled()) {
+			log.info("一共{}个文件", files.size());
+		}
 
 		File pageRootFile = new File(pageRoot);
 		String pageRootAbs;
