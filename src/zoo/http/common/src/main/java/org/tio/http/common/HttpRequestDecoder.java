@@ -205,25 +205,38 @@ public class HttpRequestDecoder {
 	 * @param charset
 	 * @param channelContext
 	 * @author tanyaowu
+	 * @throws AioDecodeException 
 	 */
-	public static void decodeParams(Map<String, Object[]> params, String queryString, String charset, ChannelContext channelContext) {
+	public static void decodeParams(Map<String, Object[]> params, String queryString, String charset, ChannelContext channelContext) throws AioDecodeException {
 		if (StrUtil.isBlank(queryString)) {
 			return;
 		}
 
 		String[] keyvalues = queryString.split(SysConst.STR_AMP);
 		for (String keyvalue : keyvalues) {
-			String[] keyvalueArr = keyvalue.split(SysConst.STR_EQ);
-			if (keyvalueArr.length != 2) {
-				continue;
+			
+			if (keyvalue.startsWith("param_value")) {
+				System.out.println(3);
 			}
+			String[] keyvalueArr = keyvalue.split(SysConst.STR_EQ);
+			String value1 = null;
+			if (keyvalueArr.length == 2) {
+				value1 = keyvalueArr[1];
+			} else if (keyvalueArr.length > 2){
+				throw new AioDecodeException("含有多个" + SysConst.STR_EQ);
+			}
+			
 
 			String key = keyvalueArr[0];
-			String value = null;
-			try {
-				value = URLDecoder.decode(keyvalueArr[1], charset);
-			} catch (UnsupportedEncodingException e) {
-				log.error(channelContext.toString(), e);
+			String value;
+			if (StrUtil.isBlank(value1)) {
+				value = null;
+			} else {
+				try {
+					value = URLDecoder.decode(value1, charset);
+				} catch (UnsupportedEncodingException e) {
+					throw new AioDecodeException(e);
+				}
 			}
 
 			Object[] existValue = params.get(key);
@@ -786,8 +799,9 @@ public class HttpRequestDecoder {
 	 * 解析URLENCODED格式的消息体
 	 * 形如： 【Content-Type : application/x-www-form-urlencoded; charset=UTF-8】
 	 * @author tanyaowu
+	 * @throws AioDecodeException 
 	 */
-	private static void parseUrlencoded(HttpRequest httpRequest, RequestLine firstLine, byte[] bodyBytes, String bodyString, ChannelContext channelContext) {
+	private static void parseUrlencoded(HttpRequest httpRequest, RequestLine firstLine, byte[] bodyBytes, String bodyString, ChannelContext channelContext) throws AioDecodeException {
 		decodeParams(httpRequest.getParams(), bodyString, httpRequest.getCharset(), channelContext);
 	}
 
