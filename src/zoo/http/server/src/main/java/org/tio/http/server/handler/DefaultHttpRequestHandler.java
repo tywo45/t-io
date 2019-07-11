@@ -467,48 +467,56 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 										paramValues[i] = paramType.newInstance();//BeanUtil.mapToBean(params, paramType, true);
 										Set<Entry<String, Object[]>> set = params.entrySet();
 										label2: for (Entry<String, Object[]> entry : set) {
-											String fieldName = entry.getKey();
-											Object[] fieldValue = entry.getValue();
+											try {
+												String fieldName = entry.getKey();
+												Object[] fieldValue = entry.getValue();
 
-											PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(paramType, fieldName, false);
-											if (propertyDescriptor == null) {
-												continue label2;
-											} else {
-												Method writeMethod = propertyDescriptor.getWriteMethod();
-												if (writeMethod == null) {
+												PropertyDescriptor propertyDescriptor = BeanUtil.getPropertyDescriptor(paramType, fieldName, false);
+												if (propertyDescriptor == null) {
 													continue label2;
-												}
-												writeMethod = ClassUtil.setAccessible(writeMethod);
-												Class<?>[] clazzes = writeMethod.getParameterTypes();
-												if (clazzes == null || clazzes.length != 1) {
-													log.info("方法的参数长度不为1，{}.{}", paramType.getName(), writeMethod.getName());
-													continue label2;
-												}
-												Class<?> clazz = clazzes[0];
+												} else {
+													Method writeMethod = propertyDescriptor.getWriteMethod();
+													if (writeMethod == null) {
+														continue label2;
+													}
+													writeMethod = ClassUtil.setAccessible(writeMethod);
+													Class<?>[] clazzes = writeMethod.getParameterTypes();
+													if (clazzes == null || clazzes.length != 1) {
+														log.info("方法的参数长度不为1，{}.{}", paramType.getName(), writeMethod.getName());
+														continue label2;
+													}
+													Class<?> clazz = clazzes[0];
 
-												if (ClassUtils.isSimpleTypeOrArray(clazz)) {
-													if (fieldValue != null && fieldValue.length > 0) {
-														if (clazz.isArray()) {
-															Object theValue = null;//Convert.convert(clazz, fieldValue);
-															if (fieldValue.getClass() == String[].class) {
-																theValue = StrUtil.convert(clazz, (String[]) fieldValue);
+													if (ClassUtils.isSimpleTypeOrArray(clazz)) {
+														if (fieldValue != null && fieldValue.length > 0) {
+															if (clazz.isArray()) {
+																Object theValue = null;//Convert.convert(clazz, fieldValue);
+																if (fieldValue.getClass() == String[].class) {
+																	theValue = StrUtil.convert(clazz, (String[]) fieldValue);
+																} else {
+																	theValue = fieldValue;
+																}
+
+																getMethodAccess(paramType).invoke(paramValues[i], writeMethod.getName(), theValue);
 															} else {
-																theValue = fieldValue;
-															}
+																Object theValue = null;//Convert.convert(clazz, fieldValue[0]);
+																if (fieldValue[0] == null) {
+																	theValue = fieldValue[0];
+																} else {
+																	if (fieldValue[0].getClass() == String.class) {
+																		theValue = StrUtil.convert(clazz, (String) fieldValue[0]);
+																	} else {
+																		theValue = fieldValue[0];
+																	}
+																}
 
-															getMethodAccess(paramType).invoke(paramValues[i], writeMethod.getName(), theValue);
-														} else {
-															Object theValue = null;//Convert.convert(clazz, fieldValue[0]);
-															if (fieldValue[0].getClass() == String.class) {
-																theValue = StrUtil.convert(clazz, (String) fieldValue[0]);
-															} else {
-																theValue = fieldValue[0];
+																getMethodAccess(paramType).invoke(paramValues[i], writeMethod.getName(), theValue);
 															}
-
-															getMethodAccess(paramType).invoke(paramValues[i], writeMethod.getName(), theValue);
 														}
 													}
 												}
+											} catch (Throwable e) {
+												log.error(e.toString(), e);
 											}
 										}
 									}
@@ -597,7 +605,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 						//						}
 
 						HttpResource httpResource = httpConfig.getResource(request, path);//.getFile(request, path);
-						
+
 						if (httpResource != null) {
 							path = httpResource.getPath();
 							file = httpResource.getFile();
@@ -987,7 +995,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 				if (log.isInfoEnabled()) {
 					log.info("{} session【{}】超时", request.channelContext, sessionId);
 				}
-				
+
 				httpSession = createSession(request);
 			}
 		}
