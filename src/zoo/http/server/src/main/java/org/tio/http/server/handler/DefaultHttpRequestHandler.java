@@ -452,10 +452,14 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 												}
 											} else {
 												//												paramValues[i] = Convert.convert(paramType, value[0]);
-												if (value[0].getClass() == String.class) {
-													paramValues[i] = StrUtil.convert(paramType, (String) value[0]);
+												if (value[0] == null) {
+													paramValues[i] = null;
 												} else {
-													paramValues[i] = value[0];
+													if (value[0].getClass() == String.class) {
+														paramValues[i] = StrUtil.convert(paramType, (String) value[0]);
+													} else {
+														paramValues[i] = value[0];
+													}
 												}
 											}
 										}
