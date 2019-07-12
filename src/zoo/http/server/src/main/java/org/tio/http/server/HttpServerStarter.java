@@ -46,7 +46,7 @@ public class HttpServerStarter {
 	private HttpServerAioListener	httpServerAioListener	= null;
 	private ServerGroupContext		serverGroupContext		= null;
 	private TioServer				tioServer				= null;
-	private HttpRequestHandler		httpRequestHandler;
+	private HttpRequestHandler		httpRequestHandler		= null;
 	/**
 	 * 预访问路径的后缀
 	 */
@@ -242,7 +242,6 @@ public class HttpServerStarter {
 	}
 
 	/**
-	 * 
 	 * @param preAccess
 	 * @throws IOException
 	 * @author tanyaowu
@@ -400,6 +399,10 @@ public class HttpServerStarter {
 
 	public void stop() throws IOException {
 		tioServer.stop();
+	}
+
+	public TioServer getTioServer() {
+		return tioServer;
 	}
 
 }

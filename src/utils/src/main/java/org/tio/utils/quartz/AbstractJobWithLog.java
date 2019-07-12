@@ -9,7 +9,7 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.utils.SystemTimer;
-import org.tio.utils.date.DateUtils;
+import org.tio.utils.hutool.DateUtil;
 
 /**
  * @author tanyaowu 
@@ -53,7 +53,7 @@ public abstract class AbstractJobWithLog implements Job {
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		getAndAddRunCount(this.getClass());
 		log.info("第{}次执行定时任务[{}]， 本次id:{}, 本次执行时间:{}, 上次执行时间:{}, 下次执行时间:{}", runCount, this.getClass().getName(), context.getFireInstanceId(),
-		        DateUtils.formatDateTime(context.getFireTime()), DateUtils.formatDateTime(context.getPreviousFireTime()), DateUtils.formatDateTime(context.getNextFireTime()));
+				DateUtil.formatDateTime(context.getFireTime()), DateUtil.formatDateTime(context.getPreviousFireTime()), DateUtil.formatDateTime(context.getNextFireTime()));
 		long start = SystemTimer.currTime;
 		try {
 			run(context);
@@ -64,7 +64,7 @@ public abstract class AbstractJobWithLog implements Job {
 		}
 		long end = SystemTimer.currTime;
 		long iv = end - start;
-		log.info("第{}次执行定时任务[{}]完毕， 本次id:{}, 本次执行时间:{}, 耗时:{}ms", runCount, this.getClass().getName(), context.getFireInstanceId(), DateUtils.formatDateTime(context.getFireTime()),
+		log.info("第{}次执行定时任务[{}]完毕， 本次id:{}, 本次执行时间:{}, 耗时:{}ms", runCount, this.getClass().getName(), context.getFireInstanceId(), DateUtil.formatDateTime(context.getFireTime()),
 		        iv);
 	}
 

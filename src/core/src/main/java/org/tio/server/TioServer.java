@@ -1,12 +1,16 @@
 package org.tio.server;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
+import java.net.URL;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -15,8 +19,9 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.Node;
+import org.tio.utils.IoUtils;
 import org.tio.utils.SysConst;
-import org.tio.utils.date.DateUtils;
+import org.tio.utils.hutool.DateUtil;
 import org.tio.utils.hutool.StrUtil;
 
 /**
@@ -24,17 +29,13 @@ import org.tio.utils.hutool.StrUtil;
  *
  */
 public class TioServer {
-	private static Logger log = LoggerFactory.getLogger(TioServer.class);
-
-	private ServerGroupContext serverGroupContext;
-
-	private AsynchronousServerSocketChannel serverSocketChannel;
-
-	private AsynchronousChannelGroup channelGroup = null;
-
-	private Node serverNode;
-
-	private boolean isWaitingStop = false;
+	private static Logger					log					= LoggerFactory.getLogger(TioServer.class);
+	private ServerGroupContext				serverGroupContext;
+	private AsynchronousServerSocketChannel	serverSocketChannel;
+	private AsynchronousChannelGroup		channelGroup		= null;
+	private Node							serverNode;
+	private boolean							isWaitingStop		= false;
+	private boolean							checkLastVersion	= true;
 
 	/**
 	 *
@@ -123,14 +124,15 @@ public class TioServer {
 		int xxLen = 18;
 		int aaLen = baseLen - 3;
 		List<String> infoList = new ArrayList<>();
-		infoList.add(StrUtil.fillAfter("Tio on github", ' ', xxLen) + "| " + SysConst.TIO_URL_GITHUB);
-		infoList.add(StrUtil.fillAfter("Tio site address", ' ', xxLen) + "| " + SysConst.TIO_URL_SITE);
-		infoList.add(StrUtil.fillAfter("Tio version", ' ', xxLen) + "| " + SysConst.TIO_CORE_VERSION);
+		infoList.add(StrUtil.fillAfter("t-io site", ' ', xxLen) + "| " + SysConst.TIO_URL_SITE);
+		infoList.add(StrUtil.fillAfter("t-io on gitee", ' ', xxLen) + "| " + SysConst.TIO_URL_GITEE);
+		infoList.add(StrUtil.fillAfter("t-io on github", ' ', xxLen) + "| " + SysConst.TIO_URL_GITHUB);
+		infoList.add(StrUtil.fillAfter("t-io version", ' ', xxLen) + "| " + SysConst.TIO_CORE_VERSION);
 
 		infoList.add(StrUtil.fillAfter("-", '-', aaLen));
 
 		infoList.add(StrUtil.fillAfter("GroupContext name", ' ', xxLen) + "| " + serverGroupContext.getName());
-		infoList.add(StrUtil.fillAfter("Started at", ' ', xxLen) + "| " + DateUtils.formatDateTime(new Date()));
+		infoList.add(StrUtil.fillAfter("Started at", ' ', xxLen) + "| " + DateUtil.formatDateTime(new Date()));
 		infoList.add(StrUtil.fillAfter("Listen on", ' ', xxLen) + "| " + this.serverNode);
 		infoList.add(StrUtil.fillAfter("Main Class", ' ', xxLen) + "| " + se.getClassName());
 
@@ -140,10 +142,9 @@ public class TioServer {
 			String pid = runtimeName.split("@")[0];
 			long startTime = runtimeMxBean.getStartTime();
 			long startCost = System.currentTimeMillis() - startTime;
-			infoList.add(StrUtil.fillAfter("Jvm start time", ' ', xxLen) + "| " + startCost + " ms");
-			infoList.add(StrUtil.fillAfter("Tio start time", ' ', xxLen) + "| " + (System.currentTimeMillis() - start) + " ms");
+			infoList.add(StrUtil.fillAfter("Jvm start time", ' ', xxLen) + "| " + startCost + "ms");
+			infoList.add(StrUtil.fillAfter("Tio start time", ' ', xxLen) + "| " + (System.currentTimeMillis() - start) + "ms");
 			infoList.add(StrUtil.fillAfter("Pid", ' ', xxLen) + "| " + pid);
-
 		} catch (Exception e) {
 
 		}
@@ -159,6 +160,8 @@ public class TioServer {
 		} else {
 			System.out.println(printStr);
 		}
+
+		checkLastVersion();
 	}
 
 	/**
@@ -203,5 +206,71 @@ public class TioServer {
 
 		log.info(this.serverNode + " stopped");
 		return ret;
+	}
+
+	private void checkLastVersion() {
+		if (checkLastVersion) {
+			serverGroupContext.groupExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						URL url = new URL(SysConst.CHECK_LASTVERSION_URL_1);
+						HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+						connection.setRequestMethod("GET");
+						connection.setConnectTimeout(10 * 1000);
+						connection.connect();
+						int responseCode = connection.getResponseCode();
+						if (responseCode == HttpURLConnection.HTTP_OK) {
+							InputStream inputStream = connection.getInputStream();
+							String result = IoUtils.streamToString(inputStream);
+
+							connection.disconnect();
+
+							url = new URL(SysConst.CHECK_LASTVERSION_URL_2 + result);
+							connection = (HttpURLConnection) url.openConnection();
+							connection.setRequestMethod("GET");
+							connection.setConnectTimeout(10 * 1000);
+							connection.connect();
+							responseCode = connection.getResponseCode();
+							if (responseCode == HttpURLConnection.HTTP_OK) {
+								inputStream = connection.getInputStream();
+								result = IoUtils.streamToString(inputStream);
+
+								if (SysConst.TIO_CORE_VERSION.equals(result)) {
+									log.info("The version you are using is the latest");
+								} else {
+									log.info("t-io latest version:{}，your version:{}", result, SysConst.TIO_CORE_VERSION);
+									//3.3.5.v20190712-RELEASE
+									String myVersionDateStr = SysConst.TIO_CORE_VERSION.substring(SysConst.TIO_CORE_VERSION.length() - 16, SysConst.TIO_CORE_VERSION.length() - 8);
+									String latestVersionDateStr = result.substring(result.length() - 16, result.length() - 8);
+
+									SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+
+									Date myVersionDate = format.parse(myVersionDateStr);
+									Date latestVersionDate = format.parse(latestVersionDateStr);
+									Integer days = DateUtil.daysBetween(myVersionDate, latestVersionDate);
+
+									log.info("You haven't upgraded in {} days", days);
+								}
+							}
+
+							connection.disconnect();
+
+						}
+					} catch (Exception e) {
+						log.error("", e);
+						//
+					}
+				}
+			});
+		}
+	}
+
+	public boolean isCheckLastVersion() {
+		return checkLastVersion;
+	}
+
+	public void setCheckLastVersion(boolean checkLastVersion) {
+		this.checkLastVersion = checkLastVersion;
 	}
 }

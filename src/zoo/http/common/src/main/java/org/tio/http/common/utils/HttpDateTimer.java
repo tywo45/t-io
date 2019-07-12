@@ -3,7 +3,7 @@ package org.tio.http.common.utils;
 import org.tio.http.common.HeaderValue;
 import org.tio.utils.SystemTimer;
 import org.tio.utils.SystemTimer.TimerListener;
-import org.tio.utils.date.DateUtils;
+import org.tio.utils.hutool.DateUtil;
 
 /**
  * 
@@ -16,13 +16,13 @@ public class HttpDateTimer {
 		SystemTimer.addTimerListener(new TimerListener() {
 			@Override
 			public void onChange(long currTime) {
-				httpDateString = DateUtils.httpDate(currTime);
+				httpDateString = DateUtil.httpDate(currTime);
 				httpDateValue = HeaderValue.from(httpDateString);
 			}
 		});
 	}
 
-	private static volatile String httpDateString = DateUtils.httpDate();
+	private static volatile String httpDateString = DateUtil.httpDate();
 
 	public static volatile HeaderValue httpDateValue = HeaderValue.from(httpDateString);
 

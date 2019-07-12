@@ -15,7 +15,7 @@ import org.tio.core.Node;
 import org.tio.core.Tio;
 import org.tio.http.common.HttpConst;
 import org.tio.utils.Threads;
-import org.tio.utils.date.DateUtils;
+import org.tio.utils.hutool.DateUtil;
 import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.thread.pool.SynThreadPoolExecutor;
 
@@ -175,7 +175,7 @@ public class HttpClientStarter {
 		receivedBytes = new AtomicLong();
 		receivedStageBytes = new AtomicLong();
 
-		System.out.println("start time:" + startTime + "(" + DateUtils.formatDateTime(new Date(startTime)) + ")");
+		System.out.println("start time:" + startTime + "(" + DateUtil.formatDateTime(new Date(startTime)) + ")");
 		ClientHttpRequest clientHttpRequest = ClientHttpRequest.get(requestPath, queryString);
 		for (int i = 0; i < clientCount; i++) {
 			for (int j = 0; j < requestCount; j++) {
@@ -280,7 +280,7 @@ public class HttpClientStarter {
 		receivedCount = new AtomicLong();
 		receivedStageCount = new AtomicLong();
 
-		System.out.println("start time:" + startTime + "(" + DateUtils.formatDateTime(new Date(startTime)) + ")");
+		System.out.println("start time:" + startTime + "(" + DateUtil.formatDateTime(new Date(startTime)) + ")");
 		ClientHttpRequest clientHttpRequest = ClientHttpRequest.get(path, queryString);
 		for (int i = 0; i < clientCount; i++) {
 			for (int j = 0; j < requestCount; j++) {
