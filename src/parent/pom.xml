@@ -56,7 +56,7 @@
 		<log4j.version>1.2.17</log4j.version>
 		<jdk.version>1.8</jdk.version>
 		<junit.version>4.12</junit.version>
-		<commons-collections4.version>4.3</commons-collections4.version>
+		<commons-collections4.version>4.4</commons-collections4.version>
 		<commons-io.version>2.6</commons-io.version>
 		<commons-lang3.version>3.9</commons-lang3.version>
 		<commons-codec.version>1.12</commons-codec.version>
@@ -64,7 +64,7 @@
 		<fastjson.version>1.2.58</fastjson.version>
 		<testng.version>6.14.3</testng.version>
 		<hutool.version>4.5.16</hutool.version>
-		<protobuf-java.version>3.8.0</protobuf-java.version>
+		<protobuf-java.version>3.9.0</protobuf-java.version>
 		<commons-beanutils.version>1.9.3</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
 		<protostuff.version>1.6.0</protostuff.version>
@@ -312,7 +312,7 @@
 			<dependency>
 				<groupId>com.squareup.okhttp3</groupId>
 				<artifactId>okhttp</artifactId>
-				<version>4.0.0</version>
+				<version>4.0.1</version>
 			</dependency>
 
 
