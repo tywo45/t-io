@@ -109,6 +109,10 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	private int											contextPathLength				= 0;
 	private String										suffix;
 	private int											suffixLength					= 0;
+	/**
+	 * 赋值兼容处理
+	 */
+	private boolean										compatibilityAssignment			= true;
 
 	private static MethodAccess getMethodAccess(Class<?> clazz) {
 		MethodAccess ret = CLASS_METHODACCESS_MAP.get(clazz);
@@ -426,32 +430,37 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 					//赋值这段代码待重构，先用上
 					Object[] paramValues = new Object[parameterTypes.length];
 					int i = 0;
-					for (Class<?> paramType : parameterTypes) {
+					label_3: for (Class<?> paramType : parameterTypes) {
 						try {
 							if (paramType == HttpRequest.class) {
 								paramValues[i] = request;
-							} else if (paramType == HttpSession.class) {
-								paramValues[i] = request.getHttpSession();
-							} else if (paramType == HttpConfig.class) {
-								paramValues[i] = httpConfig;
-							} else if (paramType == ServerChannelContext.class) { //paramType.isAssignableFrom(ServerChannelContext.class)
-								paramValues[i] = request.channelContext;
+								continue label_3;
 							} else {
+								if (compatibilityAssignment) {
+									if (paramType == HttpSession.class) {
+										paramValues[i] = request.getHttpSession();
+										continue label_3;
+									} else if (paramType == HttpConfig.class) {
+										paramValues[i] = httpConfig;
+										continue label_3;
+									} else if (paramType == ServerChannelContext.class) { //paramType.isAssignableFrom(ServerChannelContext.class)
+										paramValues[i] = request.channelContext;
+										continue label_3;
+									}
+								}
+
 								Map<String, Object[]> params = request.getParams();
 								if (params != null) {
 									if (ClassUtils.isSimpleTypeOrArray(paramType)) {
-										//										paramValues[i] = Ognl.getValue(paramnames[i], (Object) params, paramType);
 										Object[] value = params.get(paramnames[i]);
 										if (value != null && value.length > 0) {
 											if (paramType.isArray()) {
-												//												paramValues[i] = Convert.convert(paramType, value);
 												if (value.getClass() == String[].class) {
 													paramValues[i] = StrUtil.convert(paramType, (String[]) value);
 												} else {
 													paramValues[i] = value;
 												}
 											} else {
-												//												paramValues[i] = Convert.convert(paramType, value[0]);
 												if (value[0] == null) {
 													paramValues[i] = null;
 												} else {
@@ -521,7 +530,9 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 										}
 									}
 								}
+
 							}
+
 						} catch (Throwable e) {
 							log.error(request.toString(), e);
 						} finally {
@@ -1109,5 +1120,13 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 
 	public void setTokenPathAccessStats(TokenPathAccessStats tokenPathAccessStats) {
 		this.tokenPathAccessStats = tokenPathAccessStats;
+	}
+
+	public boolean isCompatibilityAssignment() {
+		return compatibilityAssignment;
+	}
+
+	public void setCompatibilityAssignment(boolean compatibilityAssignment) {
+		this.compatibilityAssignment = compatibilityAssignment;
 	}
 }
