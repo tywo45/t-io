@@ -21,17 +21,11 @@ import org.tio.utils.hutool.StrUtil;
  * 2017年8月4日 上午9:41:12
  */
 public class HttpResponseEncoder {
-
-	@SuppressWarnings("unused")
-	private static Logger log = LoggerFactory.getLogger(HttpResponseEncoder.class);
-
-	public static final int MAX_HEADER_LENGTH = 20480;
-
-	public static final int HEADER_SERVER_LENGTH = HeaderName.Server.bytes.length + HeaderValue.Server.TIO.bytes.length + 3;
-
-	public static final int HEADER_DATE_LENGTH_1 = HeaderName.Date.bytes.length + 3;
-
-	public static final int HEADER_FIXED_LENGTH = HEADER_SERVER_LENGTH + HEADER_DATE_LENGTH_1;
+	private static Logger	log						= LoggerFactory.getLogger(HttpResponseEncoder.class);
+	public static final int	MAX_HEADER_LENGTH		= 20480;
+	public static final int	HEADER_SERVER_LENGTH	= HeaderName.Server.bytes.length + HeaderValue.Server.TIO.bytes.length + 3;
+	public static final int	HEADER_DATE_LENGTH_1	= HeaderName.Date.bytes.length + 3;
+	public static final int	HEADER_FIXED_LENGTH		= HEADER_SERVER_LENGTH + HEADER_DATE_LENGTH_1;
 
 	/**
 	 *
@@ -66,8 +60,6 @@ public class HttpResponseEncoder {
 			}
 		}
 
-		
-
 		if (body != null) {
 			//处理gzip
 			try {
@@ -75,7 +67,7 @@ public class HttpResponseEncoder {
 			} catch (Exception e) {
 				log.error(e.toString(), e);
 			}
-			
+
 			body = httpResponse.body;
 			bodyLength = body.length;
 		}

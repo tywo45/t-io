@@ -26,16 +26,22 @@ public class HttpGzipUtils {
 		if (response == null) {
 			return;
 		}
-//
-//		// 已经gzip过了，就不必再压缩了
-//		if (response.isHasGzipped()) {
-//			return;
-//		}
 
-		if (request.getIsSupportGzip()) {
+		//
+		//		// 已经gzip过了，就不必再压缩了
+		//		if (response.isHasGzipped()) {
+		//			return;
+		//		}
+
+		if (request != null && request.getIsSupportGzip()) {
 			gzip(response);
 		} else {
-			log.warn("{}, 不支持gzip, {}", request.getClientIp(), request.getHeader(HttpConst.RequestHeaderKey.User_Agent));
+			if (request != null) {
+				log.warn("{}, 不支持gzip, {}", request.getClientIp(), request.getHeader(HttpConst.RequestHeaderKey.User_Agent));
+			} else {
+				log.info("request对象为空");
+			}
+
 		}
 	}
 
