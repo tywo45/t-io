@@ -35,6 +35,6 @@ public class SnowflakeSessionIdGenerator implements ISessionIdGenerator {
 	 */
 	@Override
 	public String sessionId(HttpConfig httpConfig, HttpRequest request) {
-		return snowflake.nextId() + "";
+		return String.valueOf(snowflake.nextId());
 	}
 }
