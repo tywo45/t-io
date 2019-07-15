@@ -53,7 +53,7 @@ public class HttpRequestDecoder {
 	 * @param position
 	 * @param readableLength
 	 * @param channelContext
-	 * @param httpConfig 可能为null
+	 * @param httpConfig
 	 * @return
 	 * @throws AioDecodeException
 	 * @author tanyaowu
