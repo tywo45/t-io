@@ -47,8 +47,8 @@
 		<maven.test.skip>true</maven.test.skip>
 		<maven.version>3.5.0</maven.version>
 
-		<mysql.driver.version>8.0.16</mysql.driver.version><!-- 5.1.46 -->
-		<druid.version>1.1.18</druid.version>
+		<mysql.driver.version>8.0.17</mysql.driver.version><!-- 5.1.46 -->
+		<druid.version>1.1.19</druid.version>
 		<HikariCP.version>3.3.1</HikariCP.version>
 		<jfinal.version>4.2</jfinal.version>
 		<logback.version>1.2.3</logback.version>
@@ -76,7 +76,7 @@
 		<zxing.version>3.4.0</zxing.version>
 		<httpcore.version>4.4.11</httpcore.version>
 		<httpclient.version>4.5.9</httpclient.version>
-		<closure.version>v20190618</closure.version>
+		<closure.version>v20190709</closure.version>
 		<freemarker.version>2.3.28</freemarker.version>
 		<UserAgentUtils.version>1.21</UserAgentUtils.version>
 		<scribejava-apis.version>6.6.3</scribejava-apis.version>
@@ -534,7 +534,7 @@
 			<dependency>
 				<groupId>com.github.javen205</groupId>
 				<artifactId>IJPay</artifactId>
-				<version>1.2.2</version>
+				<version>2.0.0</version>
 			</dependency>
 
 			<dependency>
