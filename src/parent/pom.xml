@@ -105,6 +105,8 @@
 		<opencv.version>4.0.1-${javacpp.version}</opencv.version>
 		<netty.version>4.1.36.Final</netty.version>
 
+		<IJPay.version>2.0.0</IJPay.version>
+
 
 		<shardingsphere.version>3.1.0</shardingsphere.version>
 
@@ -533,8 +535,8 @@
 
 			<dependency>
 				<groupId>com.github.javen205</groupId>
-				<artifactId>IJPay</artifactId>
-				<version>2.0.0</version>
+				<artifactId>IJPay-All</artifactId>
+				<version>${IJPay.version}</version>
 			</dependency>
 
 			<dependency>
