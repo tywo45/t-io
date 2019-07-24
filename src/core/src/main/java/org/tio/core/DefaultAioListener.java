@@ -67,4 +67,9 @@ public class DefaultAioListener implements ClientAioListener, ServerAioListener 
 	public void onAfterReceivedBytes(ChannelContext channelContext, int receivedBytes) throws Exception {
 
 	}
+
+	@Override
+	public boolean onHeartbeatTimeout(ChannelContext channelContext, Long interval) {
+		return false;
+	}
 }

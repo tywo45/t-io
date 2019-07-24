@@ -49,4 +49,9 @@ public class WsServerAioListener implements ServerAioListener {
 
 	}
 
+	@Override
+	public boolean onHeartbeatTimeout(ChannelContext channelContext, Long interval) {
+		return false;
+	}
+
 }

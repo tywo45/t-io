@@ -9,6 +9,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
+import org.tio.core.ChannelContext.CloseReasonCode;
 import org.tio.core.GroupContext;
 import org.tio.core.Tio;
 import org.tio.core.intf.AioHandler;
@@ -30,14 +31,14 @@ import org.tio.utils.thread.pool.SynThreadPoolExecutor;
  * 2016年10月10日 下午5:51:56
  */
 public class ServerGroupContext extends GroupContext {
-	static Logger							log						= LoggerFactory.getLogger(ServerGroupContext.class);
-	private AcceptCompletionHandler			acceptCompletionHandler	= null;
-	private ServerAioHandler				serverAioHandler		= null;
-	private ServerAioListener				serverAioListener		= null;
-	private Thread							checkHeartbeatThread	= null;
-	private boolean							needCheckHeartbeat		= true;
-//	private static Set<ServerGroupContext>	SHARED_SET				= null;
-	private boolean							isShared				= false;
+	static Logger					log						= LoggerFactory.getLogger(ServerGroupContext.class);
+	private AcceptCompletionHandler	acceptCompletionHandler	= null;
+	private ServerAioHandler		serverAioHandler		= null;
+	private ServerAioListener		serverAioListener		= null;
+	private Thread					checkHeartbeatThread	= null;
+	private boolean					needCheckHeartbeat		= true;
+	//	private static Set<ServerGroupContext>	SHARED_SET				= null;
+	private boolean isShared = false;
 
 	/**
 	 * 
@@ -149,8 +150,11 @@ public class ServerGroupContext extends GroupContext {
 							}
 
 							if (needRemove) {
-								log.info("{}, {} ms没有收发消息", channelContext, interval);
-								Tio.remove(channelContext, interval + " ms没有收发消息");
+								if (!serverAioListener.onHeartbeatTimeout(channelContext, interval)) {
+									log.info("{}, {} ms没有收发消息", channelContext, interval);
+									channelContext.setCloseReasonCode(CloseReasonCode.HEARTBEAT_TIMEOUT);
+									Tio.remove(channelContext, interval + " ms没有收发消息");
+								}
 							}
 						}
 					} catch (Throwable e) {
@@ -321,8 +325,7 @@ public class ServerGroupContext extends GroupContext {
 			this.bsIds = groupContext.bsIds;
 			this.ipBlacklist = groupContext.ipBlacklist;
 			this.ips = groupContext.ips;
-			
-			
+
 			if (!groupContext.isShared && !this.isShared) {
 				this.needCheckHeartbeat = false;
 			}
@@ -332,29 +335,29 @@ public class ServerGroupContext extends GroupContext {
 			if (!groupContext.isShared && this.isShared) {
 				groupContext.needCheckHeartbeat = false;
 			}
-			
+
 			//下面这两行代码要放到前面if的后面
 			groupContext.isShared = true;
 			this.isShared = true;
 
-//			if (SHARED_SET == null) {
-//				SHARED_SET = new HashSet<>();
-//			}
-//
-//			SHARED_SET.add(this);
-//			SHARED_SET.add(groupContext);
-//
-//			boolean need = true;
-//			for (ServerGroupContext gc : SHARED_SET) {
-//				if (!need) {
-//					gc.needCheckHeartbeat = false;
-//					continue;
-//				}
-//
-//				if (gc.needCheckHeartbeat) {
-//					need = false;
-//				}
-//			}
+			//			if (SHARED_SET == null) {
+			//				SHARED_SET = new HashSet<>();
+			//			}
+			//
+			//			SHARED_SET.add(this);
+			//			SHARED_SET.add(groupContext);
+			//
+			//			boolean need = true;
+			//			for (ServerGroupContext gc : SHARED_SET) {
+			//				if (!need) {
+			//					gc.needCheckHeartbeat = false;
+			//					continue;
+			//				}
+			//
+			//				if (gc.needCheckHeartbeat) {
+			//					need = false;
+			//				}
+			//			}
 		}
 	}
 

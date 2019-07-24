@@ -7,6 +7,7 @@ import java.util.concurrent.Semaphore;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tio.core.ChannelContext.CloseReasonCode;
 import org.tio.core.WriteCompletionHandler.WriteCompletionVo;
 import org.tio.core.intf.Packet;
 import org.tio.core.intf.Packet.Meta;
@@ -123,7 +124,7 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 			}
 
 			if (!isSentSuccess) {
-				Tio.close(channelContext, throwable, "写数据返回:" + result);
+				Tio.close(channelContext, throwable, "写数据返回:" + result, CloseReasonCode.WRITE_COUNT_IS_NEGATIVE);
 			}
 		} catch (Throwable e) {
 			log.error(e.toString(), e);

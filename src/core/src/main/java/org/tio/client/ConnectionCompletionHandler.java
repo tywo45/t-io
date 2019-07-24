@@ -7,6 +7,7 @@ import java.nio.channels.CompletionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.client.intf.ClientAioListener;
+import org.tio.core.ChannelContext.CloseReasonCode;
 import org.tio.core.GroupContext;
 import org.tio.core.Node;
 import org.tio.core.ReadCompletionHandler;
@@ -121,7 +122,7 @@ public class ConnectionCompletionHandler implements CompletionHandler<Void, Conn
 				}
 				boolean f = ReconnConf.put(channelContext);
 				if (!f) {
-					Tio.close(channelContext, null, "不需要重连，关闭该连接", true, false);
+					Tio.close(channelContext, null, "不需要重连，关闭该连接", true, false, CloseReasonCode.CLIENT_CONNECTION_FAIL);
 				}
 			}
 		} catch (Throwable e) {
@@ -134,7 +135,6 @@ public class ConnectionCompletionHandler implements CompletionHandler<Void, Conn
 			try {
 				if (channelContext != null) {
 					channelContext.setReconnect(isReconnect);
-
 					if (SslUtils.isSsl(channelContext.groupContext)) {
 						if (isConnected) {
 							//						channelContext.sslFacadeContext.beginHandshake();
@@ -142,6 +142,9 @@ public class ConnectionCompletionHandler implements CompletionHandler<Void, Conn
 							sslFacadeContext.beginHandshake();
 						} else {
 							if (clientAioListener != null) {
+								if (isConnected) {
+									channelContext.setCloseReasonCode(CloseReasonCode.INIT_STATUS);
+								}
 								clientAioListener.onAfterConnected(channelContext, isConnected, isReconnect);
 							}
 						}

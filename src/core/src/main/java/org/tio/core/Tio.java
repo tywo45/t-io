@@ -15,6 +15,7 @@ import org.tio.client.ClientGroupContext;
 import org.tio.client.ReconnConf;
 import org.tio.cluster.TioClusterConfig;
 import org.tio.cluster.TioClusterVo;
+import org.tio.core.ChannelContext.CloseReasonCode;
 import org.tio.core.intf.Packet;
 import org.tio.core.intf.Packet.Meta;
 import org.tio.server.ServerGroupContext;
@@ -315,6 +316,16 @@ public class Tio {
 	}
 
 	/**
+	 * 
+	 * @param channelContext
+	 * @param remark
+	 * @param closeReasonCode
+	 */
+	public static void close(ChannelContext channelContext, String remark, CloseReasonCode closeReasonCode) {
+		close(channelContext, null, remark, closeReasonCode);
+	}
+
+	/**
 	 * 关闭连接
 	 * @param channelContext
 	 * @param throwable
@@ -325,8 +336,20 @@ public class Tio {
 		close(channelContext, throwable, remark, false);
 	}
 
+	public static void close(ChannelContext channelContext, Throwable throwable, String remark, CloseReasonCode closeReasonCode) {
+		close(channelContext, throwable, remark, false, closeReasonCode);
+	}
+
 	public static void close(ChannelContext channelContext, Throwable throwable, String remark, boolean isNeedRemove) {
 		close(channelContext, throwable, remark, isNeedRemove, true);
+	}
+
+	public static void close(ChannelContext channelContext, Throwable throwable, String remark, boolean isNeedRemove, CloseReasonCode closeReasonCode) {
+		close(channelContext, throwable, remark, isNeedRemove, true, closeReasonCode);
+	}
+
+	public static void close(ChannelContext channelContext, Throwable throwable, String remark, boolean isNeedRemove, boolean needCloseLock) {
+		close(channelContext, throwable, remark, isNeedRemove, needCloseLock, null);
 	}
 
 	/**
@@ -337,7 +360,7 @@ public class Tio {
 	 * @param isNeedRemove
 	 * @param needCloseLock
 	 */
-	public static void close(ChannelContext channelContext, Throwable throwable, String remark, boolean isNeedRemove, boolean needCloseLock) {
+	public static void close(ChannelContext channelContext, Throwable throwable, String remark, boolean isNeedRemove, boolean needCloseLock, CloseReasonCode closeReasonCode) {
 		if (channelContext == null) {
 			return;
 		}
@@ -358,6 +381,14 @@ public class Tio {
 			writeLock.unlock();
 		} else {
 			channelContext.isWaitingClose = true;
+		}
+
+		if (closeReasonCode == null) {
+			if (channelContext.getCloseReasonCode() == CloseReasonCode.INIT_STATUS) {
+				channelContext.setCloseReasonCode(CloseReasonCode.NO_CODE);
+			}
+		} else {
+			channelContext.setCloseReasonCode(closeReasonCode);
 		}
 
 		if (channelContext.asynchronousSocketChannel != null) {
@@ -418,12 +449,23 @@ public class Tio {
 	 * @return
 	 */
 	public static void closeGroup(GroupContext groupContext, String group, String remark) {
+		closeGroup(groupContext, group, remark, null);
+	}
+	
+	/**
+	 * 关闭某群所有连接
+	 * @param groupContext
+	 * @param group
+	 * @param remark
+	 * @param closeReasonCode
+	 */
+	public static void closeGroup(GroupContext groupContext, String group, String remark, CloseReasonCode closeReasonCode) {
 		SetWithLock<ChannelContext> setWithLock = Tio.getChannelContextsByGroup(groupContext, group);
 		setWithLock.handle(new ReadLockHandler<Set<ChannelContext>>() {
 			@Override
 			public void handler(Set<ChannelContext> set) {
 				for (ChannelContext channelContext : set) {
-					Tio.close(channelContext, remark);
+					Tio.close(channelContext, remark, closeReasonCode);
 				}
 			}
 		});
@@ -703,48 +745,89 @@ public class Tio {
 	}
 
 	/**
-	 * 和close方法一样，只不过不再进行重连等维护性的操作
+	 * 
 	 * @param channelContext
 	 * @param remark
-	 * @author tanyaowu
 	 */
 	public static void remove(ChannelContext channelContext, String remark) {
-		remove(channelContext, null, remark);
+		remove(channelContext, remark, null);
 	}
 
 	/**
-	 * 和close方法一样，只不过不再进行重连等维护性的操作
+	 * 和close方法对应，只不过不再进行重连等维护性的操作
+	 * @param channelContext
+	 * @param remark
+	 * @param closeReasonCode
+	 */
+	public static void remove(ChannelContext channelContext, String remark, CloseReasonCode closeReasonCode) {
+		remove(channelContext, null, remark, closeReasonCode);
+	}
+
+	/**
+	 * 和close方法对应，只不过不再进行重连等维护性的操作
 	 * @param channelContext
 	 * @param throwable
 	 * @param remark
-	 * @author tanyaowu
 	 */
 	public static void remove(ChannelContext channelContext, Throwable throwable, String remark) {
-		close(channelContext, throwable, remark, true);
+		remove(channelContext, throwable, remark, (CloseReasonCode) null);
 	}
 
 	/**
-	 * 和close方法一样，只不过不再进行重连等维护性的操作
+	 * 和close方法对应，只不过不再进行重连等维护性的操作
+	 * @param channelContext
+	 * @param throwable
+	 * @param remark
+	 * @param closeReasonCode
+	 */
+	public static void remove(ChannelContext channelContext, Throwable throwable, String remark, CloseReasonCode closeReasonCode) {
+		close(channelContext, throwable, remark, true, closeReasonCode);
+	}
+
+	/**
+	 * 和close方法对应，只不过不再进行重连等维护性的操作
 	 * @param groupContext
 	 * @param clientIp
 	 * @param clientPort
 	 * @param throwable
 	 * @param remark
-	 * @author tanyaowu
 	 */
 	public static void remove(GroupContext groupContext, String clientIp, Integer clientPort, Throwable throwable, String remark) {
+		remove(groupContext, clientIp, clientPort, throwable, remark, (CloseReasonCode) null);
+	}
+
+	/**
+	 * 删除clientip和clientPort为指定值的连接
+	 * @param groupContext
+	 * @param clientIp
+	 * @param clientPort
+	 * @param throwable
+	 * @param remark
+	 * @param closeReasonCode
+	 */
+	public static void remove(GroupContext groupContext, String clientIp, Integer clientPort, Throwable throwable, String remark, CloseReasonCode closeReasonCode) {
 		ChannelContext channelContext = groupContext.clientNodes.find(clientIp, clientPort);
-		remove(channelContext, throwable, remark);
+		remove(channelContext, throwable, remark, closeReasonCode);
 	}
 
 	/**
 	 * 删除clientip为指定值的所有连接
-	 * @param groupContext
+	 * @param serverGroupContext
 	 * @param ip
 	 * @param remark
-	 * @author: tanyaowu
 	 */
 	public static void remove(ServerGroupContext serverGroupContext, String ip, String remark) {
+		remove(serverGroupContext, ip, remark, (CloseReasonCode) null);
+	}
+
+	/**
+	 *  删除clientip为指定值的所有连接
+	 * @param serverGroupContext
+	 * @param ip
+	 * @param remark
+	 * @param closeReasonCode
+	 */
+	public static void remove(ServerGroupContext serverGroupContext, String ip, String remark, CloseReasonCode closeReasonCode) {
 		SetWithLock<ChannelContext> setWithLock = serverGroupContext.ips.clients(serverGroupContext, ip);
 		if (setWithLock == null) {
 			return;
@@ -754,7 +837,7 @@ public class Tio {
 			@Override
 			public void handler(Set<ChannelContext> set) {
 				for (ChannelContext channelContext : set) {
-					Tio.remove(channelContext, remark);
+					Tio.remove(channelContext, remark, closeReasonCode);
 				}
 			}
 		});

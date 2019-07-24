@@ -8,6 +8,7 @@ import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
+import org.tio.core.ChannelContext.CloseReasonCode;
 import org.tio.core.GroupContext;
 import org.tio.core.Tio;
 import org.tio.core.exception.AioDecodeException;
@@ -230,7 +231,7 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 					}
 				}
 
-				Tio.close(channelContext, e, "解码异常:" + e.getMessage());
+				Tio.close(channelContext, e, "解码异常:" + e.getMessage(), CloseReasonCode.DECODE_ERROR);
 				return;
 			}
 		}
