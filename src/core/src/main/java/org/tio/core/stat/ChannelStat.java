@@ -1,5 +1,6 @@
 package org.tio.core.stat;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.tio.utils.SystemTimer;
@@ -82,7 +83,7 @@ public class ChannelStat implements java.io.Serializable {
 	/**
 	 * 心跳超时次数
 	 */
-	public int					heartbeatTimeoutCount		= 0;
+	public AtomicInteger		heartbeatTimeoutCount		= new AtomicInteger();
 
 	/**
 	 * 平均每次TCP接收到的字节数，这个可以用来监控慢攻击，配置PacketsPerTcpReceive定位慢攻击
