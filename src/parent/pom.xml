@@ -59,7 +59,7 @@
 		<commons-collections4.version>4.4</commons-collections4.version>
 		<commons-io.version>2.6</commons-io.version>
 		<commons-lang3.version>3.9</commons-lang3.version>
-		<commons-codec.version>1.12</commons-codec.version>
+		<commons-codec.version>1.13</commons-codec.version>
 		<commons-compress.version>1.18</commons-compress.version>
 		<fastjson.version>1.2.58</fastjson.version>
 		<testng.version>6.14.3</testng.version>
@@ -79,7 +79,7 @@
 		<closure.version>v20190709</closure.version>
 		<freemarker.version>2.3.28</freemarker.version>
 		<UserAgentUtils.version>1.21</UserAgentUtils.version>
-		<scribejava-apis.version>6.6.3</scribejava-apis.version>
+		<scribejava-apis.version>6.7.0</scribejava-apis.version>
 		<oltu.oauth2.version>1.0.2</oltu.oauth2.version>
 
 
@@ -794,18 +794,11 @@
 				<version>1.1.2</version>
 			</dependency>
 
-
-
-
 			<dependency>
 				<groupId>io.reactivex.rxjava2</groupId>
 				<artifactId>rxjava</artifactId>
 				<version>2.2.10</version>
 			</dependency>
-
-
-
-
 
 			<dependency>
 				<groupId>org.bytedeco</groupId>
@@ -850,8 +843,6 @@
 				<classifier>${javacpp.platform.linux-x86_64}</classifier>
 			</dependency>
 
-
-
 			<dependency>
 				<groupId>io.shardingsphere</groupId>
 				<artifactId>sharding-jdbc</artifactId>
@@ -871,7 +862,11 @@
 				<version>${svnkit.version}</version>
 			</dependency>
 
-
+			<dependency>
+				<groupId>net.coobird</groupId>
+				<artifactId>thumbnailator</artifactId>
+				<version>0.4.8</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
