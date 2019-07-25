@@ -75,7 +75,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	private SetWithLock<String>			groups						= null;
 	private Integer						readBufferSize				= null;											//个性化readBufferSize
 	public CloseMeta					closeMeta					= new CloseMeta();
-	private CloseReasonCode				closeReasonCode				= CloseReasonCode.INIT_STATUS;					//连接关闭的原因码               
+	private CloseCode					closeCode					= CloseCode.INIT_STATUS;						//连接关闭的原因码               
 
 	/**
 	 *
@@ -95,7 +95,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 				}
 			} catch (Exception e) {
 				log.error("在开始SSL握手时发生了异常", e);
-				Tio.close(this, "在开始SSL握手时发生了异常" + e.getMessage(), CloseReasonCode.SSL_ERROR_ON_HANDSHAKE);
+				Tio.close(this, "在开始SSL握手时发生了异常" + e.getMessage(), CloseCode.SSL_ERROR_ON_HANDSHAKE);
 				return;
 			}
 		}
@@ -169,21 +169,21 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 
 	/**
 	 * 等价于：getAttribute(DEFAULT_ATTUBITE_KEY)
-	 * @deprecated 不建议用不带参数的
+	 * @deprecated 不建议用不带参数的，建议使用get("name1")
 	 * @return
 	 */
 	public Object getAttribute() {
-		return getAttribute(DEFAULT_ATTUBITE_KEY);
+		return get();
 	}
 
 	/**
 	 * 等价于：getAttribute(DEFAULT_ATTUBITE_KEY)<br>
 	 * 等价于：getAttribute()<br>
-	 * @deprecated 不建议用不带参数的
+	 * @deprecated 不建议用不带参数的，建议使用get("name1")
 	 * @return
 	 */
 	public Object get() {
-		return getAttribute();
+		return get(DEFAULT_ATTUBITE_KEY);
 	}
 
 	/**
@@ -336,22 +336,22 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	/**
 	 * 等价于：setAttribute(DEFAULT_ATTUBITE_KEY, value)<br>
 	 * 仅仅是为了内部方便，不建议大家使用<br>
-	 * @deprecated 不建议各位同学使用这个方法，建议使用setAttribute("name1", object1)
+	 * @deprecated 不建议各位同学使用这个方法，建议使用set("name1", object1)
 	 * @param value
 	 * @author tanyaowu
 	 */
 	public void setAttribute(Object value) {
-		setAttribute(DEFAULT_ATTUBITE_KEY, value);
+		set(value);
 	}
 
 	/**
 	 * 等价于：set(DEFAULT_ATTUBITE_KEY, value)<br>
 	 * 等价于：setAttribute(Object value)<br>
-	 * @deprecated 不建议各位同学使用这个方法，建议使用setAttribute("name1", object1)
+	 * @deprecated 不建议各位同学使用这个方法，建议使用set("name1", object1)
 	 * @param value
 	 */
 	public void set(Object value) {
-		setAttribute(value);
+		set(DEFAULT_ATTUBITE_KEY, value);
 	}
 
 	/**
@@ -637,12 +637,12 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 		}
 	}
 
-	public CloseReasonCode getCloseReasonCode() {
-		return closeReasonCode;
+	public CloseCode getCloseCode() {
+		return closeCode;
 	}
 
-	public void setCloseReasonCode(CloseReasonCode closeReasonCode) {
-		this.closeReasonCode = closeReasonCode;
+	public void setCloseCode(CloseCode closeCode) {
+		this.closeCode = closeCode;
 	}
 
 	/**
@@ -679,10 +679,10 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	}
 
 	/**
-	 * 关闭连接的原因码
+	 * 连接关闭码
 	 * @author tanyaowu
 	 */
-	public static enum CloseReasonCode {
+	public static enum CloseCode {
 		/**
 		 * 没有提供原因码
 		 */
@@ -727,8 +727,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 		 * 连接失败
 		 */
 		CLIENT_CONNECTION_FAIL((byte) 80),
-		
-		
+
 		/**
 		 * SSL握手时发生异常
 		 */
@@ -745,7 +744,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 		 * SSL解密时发生异常
 		 */
 		SSL_DECRYPT_ERROR((byte) 53),
-		
+
 		/**
 		 * 供用户使用
 		 */
@@ -799,9 +798,9 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 		 */
 		OTHER_ERROR((byte) 200),;
 
-		public static CloseReasonCode from(Byte value) {
-			CloseReasonCode[] values = CloseReasonCode.values();
-			for (CloseReasonCode v : values) {
+		public static CloseCode from(Byte value) {
+			CloseCode[] values = CloseCode.values();
+			for (CloseCode v : values) {
 				if (Objects.equals(v.value, value)) {
 					return v;
 				}
@@ -811,7 +810,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 
 		Byte value;
 
-		private CloseReasonCode(Byte value) {
+		private CloseCode(Byte value) {
 			this.value = value;
 		}
 

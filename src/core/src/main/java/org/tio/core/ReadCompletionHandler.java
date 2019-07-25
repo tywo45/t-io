@@ -5,7 +5,7 @@ import java.nio.channels.CompletionHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.core.ChannelContext.CloseReasonCode;
+import org.tio.core.ChannelContext.CloseCode;
 import org.tio.core.stat.IpStat;
 import org.tio.core.utils.ByteBufferUtils;
 import org.tio.core.utils.TioUtils;
@@ -88,7 +88,7 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuf
 					channelContext.sslFacadeContext.getSslFacade().decrypt(copiedByteBuffer);
 				} catch (Exception e) {
 					log.error(channelContext + ", " + e.toString() + copiedByteBuffer, e);
-					Tio.close(channelContext, e, e.toString(), CloseReasonCode.SSL_DECRYPT_ERROR);
+					Tio.close(channelContext, e, e.toString(), CloseCode.SSL_DECRYPT_ERROR);
 				}
 			}
 
@@ -98,14 +98,14 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuf
 
 		} else if (result == 0) {
 			log.error("{}, 读到的数据长度为0", channelContext);
-			Tio.close(channelContext, null, "读到的数据长度为0", CloseReasonCode.READ_COUNT_IS_ZERO);
+			Tio.close(channelContext, null, "读到的数据长度为0", CloseCode.READ_COUNT_IS_ZERO);
 			return;
 		} else if (result < 0) {
 			if (result == -1) {
-				Tio.close(channelContext, null, "对方关闭了连接", CloseReasonCode.CLOSED_BY_PEER);
+				Tio.close(channelContext, null, "对方关闭了连接", CloseCode.CLOSED_BY_PEER);
 				return;
 			} else {
-				Tio.close(channelContext, null, "读数据时返回" + result, CloseReasonCode.READ_COUNT_IS_NEGATIVE);
+				Tio.close(channelContext, null, "读数据时返回" + result, CloseCode.READ_COUNT_IS_NEGATIVE);
 				return;
 			}
 		}
@@ -131,7 +131,7 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuf
 	 */
 	@Override
 	public void failed(Throwable exc, ByteBuffer byteBuffer) {
-		Tio.close(channelContext, exc, "读数据时发生异常: " + exc.getClass().getName(), CloseReasonCode.READ_ERROR);
+		Tio.close(channelContext, exc, "读数据时发生异常: " + exc.getClass().getName(), CloseCode.READ_ERROR);
 	}
 
 	/**

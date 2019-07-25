@@ -39,7 +39,7 @@ public class MapWithLockPropSupport implements IPropSupport {
 	 */
 	@Override
 	public Object getAttribute(String key) {
-		return props.getObj().get(key);
+		return get(key);
 	}
 	
 	/**
@@ -48,7 +48,7 @@ public class MapWithLockPropSupport implements IPropSupport {
 	 * @return
 	 */
 	public Object get(String key) {
-		return getAttribute(key);
+		return props.getObj().get(key);
 	}
 
 	//	private void initProps() {
@@ -67,7 +67,7 @@ public class MapWithLockPropSupport implements IPropSupport {
 	 */
 	@Override
 	public void removeAttribute(String key) {
-		props.remove(key);
+		remove(key);
 	}
 	
 	/**
@@ -75,7 +75,7 @@ public class MapWithLockPropSupport implements IPropSupport {
 	 * @param key
 	 */
 	public void remove(String key) {
-		removeAttribute(key);
+		props.remove(key);
 	}
 
 	/**
@@ -86,7 +86,7 @@ public class MapWithLockPropSupport implements IPropSupport {
 	 */
 	@Override
 	public void setAttribute(String key, Object value) {
-		props.put(key, value);
+		set(key, value);
 	}
 	
 	/**
@@ -95,6 +95,6 @@ public class MapWithLockPropSupport implements IPropSupport {
 	 * @param value
 	 */
 	public void set(String key, Object value) {
-		setAttribute(key, value);
+		props.put(key, value);
 	}
 }

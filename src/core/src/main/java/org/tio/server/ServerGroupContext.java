@@ -9,7 +9,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.ChannelContext.CloseReasonCode;
+import org.tio.core.ChannelContext.CloseCode;
 import org.tio.core.GroupContext;
 import org.tio.core.Tio;
 import org.tio.core.intf.AioHandler;
@@ -150,9 +150,10 @@ public class ServerGroupContext extends GroupContext {
 							}
 
 							if (needRemove) {
-								if (!serverAioListener.onHeartbeatTimeout(channelContext, interval)) {
+								channelContext.stat.heartbeatTimeoutCount++;
+								if (!serverAioListener.onHeartbeatTimeout(channelContext, interval, channelContext.stat.heartbeatTimeoutCount)) {
 									log.info("{}, {} ms没有收发消息", channelContext, interval);
-									channelContext.setCloseReasonCode(CloseReasonCode.HEARTBEAT_TIMEOUT);
+									channelContext.setCloseCode(CloseCode.HEARTBEAT_TIMEOUT);
 									Tio.remove(channelContext, interval + " ms没有收发消息");
 								}
 							}

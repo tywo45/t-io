@@ -12,7 +12,7 @@ import javax.net.ssl.SSLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.ChannelContext.CloseReasonCode;
+import org.tio.core.ChannelContext.CloseCode;
 import org.tio.core.GroupContext;
 import org.tio.core.TcpConst;
 import org.tio.core.Tio;
@@ -216,7 +216,7 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 				allByteBuffer = sslVo.getByteBuffer();
 			} catch (SSLException e) {
 				log.error(channelContext.toString() + ", 进行SSL加密时发生了异常", e);
-				Tio.close(channelContext, "进行SSL加密时发生了异常", CloseReasonCode.SSL_ENCRYPTION_ERROR);
+				Tio.close(channelContext, "进行SSL加密时发生了异常", CloseCode.SSL_ENCRYPTION_ERROR);
 				return;
 			}
 		}
@@ -244,7 +244,7 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 					byteBuffer = sslVo.getByteBuffer();
 				} catch (SSLException e) {
 					log.error(channelContext.toString() + ", 进行SSL加密时发生了异常", e);
-					Tio.close(channelContext, "进行SSL加密时发生了异常", CloseReasonCode.SSL_ENCRYPTION_ERROR);
+					Tio.close(channelContext, "进行SSL加密时发生了异常", CloseCode.SSL_ENCRYPTION_ERROR);
 					return false;
 				}
 			}

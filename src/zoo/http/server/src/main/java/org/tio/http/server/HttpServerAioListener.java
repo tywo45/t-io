@@ -78,7 +78,7 @@ public class HttpServerAioListener implements ServerAioListener {
 	}
 
 	@Override
-	public boolean onHeartbeatTimeout(ChannelContext channelContext, Long interval) {
+	public boolean onHeartbeatTimeout(ChannelContext channelContext, Long interval, int heartbeatTimeoutCount) {
 		return false;
 	}
 }
