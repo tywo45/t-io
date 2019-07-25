@@ -143,7 +143,7 @@ public class ConnectionCompletionHandler implements CompletionHandler<Void, Conn
 						} else {
 							if (clientAioListener != null) {
 								if (isConnected) {
-									channelContext.stat.heartbeatTimeoutCount = 0;
+									channelContext.stat.heartbeatTimeoutCount.set(0);
 									channelContext.setCloseCode(CloseCode.INIT_STATUS);
 								}
 								clientAioListener.onAfterConnected(channelContext, isConnected, isReconnect);
