@@ -118,6 +118,7 @@ public final class TioServerBootstrap {
         serverGroupContext = new ServerGroupContext(GROUP_CONTEXT_NAME, serverAioHandler, serverAioListener);
         if (ipStatListener != null) {
             serverGroupContext.setIpStatListener(ipStatListener);
+            serverGroupContext.ipStats.addDurations(serverProperties.getIpStatDurations());
         }
         if(serverAioListener != null) {
             serverGroupContext.setServerAioListener(serverAioListener);
