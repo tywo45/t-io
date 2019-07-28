@@ -161,6 +161,8 @@ public final class TioWebSocketServerBootstrap {
         serverGroupContext.setName(GROUP_CONTEXT_NAME);
         if (ipStatListener != null) {
             serverGroupContext.setIpStatListener(ipStatListener);
+            // fixed bug for IpStatListener not work
+            serverGroupContext.ipStats.addDurations(serverProperties.getIpStatDurations());
         }
         if(serverAioListener != null) {
             serverGroupContext.setServerAioListener(this.serverAioListener);
