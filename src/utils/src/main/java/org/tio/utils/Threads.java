@@ -16,23 +16,15 @@ import org.tio.utils.thread.pool.SynThreadPoolExecutor;
  * 2017年7月7日 上午11:12:03
  */
 public class Threads {
-
-	public static int AVAILABLE_PROCESSORS = Runtime.getRuntime().availableProcessors();
-
-	public static int CORE_POOL_SIZE = AVAILABLE_PROCESSORS * 1;
-
-	public static final int MAX_POOL_SIZE_FOR_TIO = Math.max(CORE_POOL_SIZE * 3, 64);
-
-	public static final int MAX_POOL_SIZE_FOR_GROUP = Math.max(CORE_POOL_SIZE * 16, 256);
-
-	public static final long KEEP_ALIVE_TIME = 0L;//360000L;
-
+	public static final int					AVAILABLE_PROCESSORS	= Runtime.getRuntime().availableProcessors();
+	public static final int					CORE_POOL_SIZE			= AVAILABLE_PROCESSORS * 1;
+	public static final int					MAX_POOL_SIZE_FOR_TIO	= Math.max(CORE_POOL_SIZE * 3, 64);
+	public static final int					MAX_POOL_SIZE_FOR_GROUP	= Math.max(CORE_POOL_SIZE * 16, 256);
+	public static final long				KEEP_ALIVE_TIME			= 0L;											//360000L;
 	@SuppressWarnings("unused")
-	private static final int QUEUE_CAPACITY = 1000000;
-
-	private static ThreadPoolExecutor groupExecutor = null;
-
-	private static SynThreadPoolExecutor tioExecutor = null;
+	private static final int				QUEUE_CAPACITY			= 1000000;
+	private static ThreadPoolExecutor		groupExecutor			= null;
+	private static SynThreadPoolExecutor	tioExecutor				= null;
 
 	/**
 	 * 
