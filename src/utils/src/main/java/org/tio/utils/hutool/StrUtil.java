@@ -14,6 +14,27 @@ public class StrUtil {
 	public static final int		INDEX_NOT_FOUND	= -1;
 	public static final String	EMPTY			= "";
 
+	private static int		cacheSize	= 2048;
+	private static String[]	caches		= new String[cacheSize];
+	static {
+		for (int i = 0; i < cacheSize; i++) {
+			caches[i] = String.valueOf(i);
+		}
+	}
+
+	/**
+	 * 用缓存将int转成str
+	 * @param data
+	 * @return
+	 */
+	public static String int2Str(int data) {
+		if (data < cacheSize) {
+			return caches[data];
+		} else {
+			return String.valueOf(data);
+		}
+	}
+
 	/**
 	 * 去除字符串两边空白符，传入null也返回null
 	 * 
