@@ -120,7 +120,7 @@ public class GuavaRedisCache extends AbsCache {
 
 	/**
 	 * @param guavaCache
-	 * @param redisCache
+	 * @param distCache
 	 * @author tanyaowu
 	 */
 	public GuavaRedisCache(String cacheName, GuavaCache guavaCache, RedisCache redisCache) {

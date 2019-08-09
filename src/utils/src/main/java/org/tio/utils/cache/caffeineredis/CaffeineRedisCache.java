@@ -17,21 +17,22 @@ import org.tio.utils.cache.caffeine.CaffeineCache;
 import org.tio.utils.cache.redis.RedisCache;
 import org.tio.utils.cache.redis.RedisExpireUpdateTask;
 import org.tio.utils.hutool.StrUtil;
+import org.tio.utils.lock.LockUtils;
+import org.tio.utils.lock.ReadWriteLockHandler;
+import org.tio.utils.lock.ReadWriteLockHandler.ReadWriteRet;
 
 /**
  * @author tanyaowu
  * 2017年8月12日 下午9:13:54
  */
 public class CaffeineRedisCache extends AbsCache {
-
-	public static final String CACHE_CHANGE_TOPIC = "TIO_CACHE_CHANGE_TOPIC_CAFFEINE";
-
-	private static Logger							log	= LoggerFactory.getLogger(CaffeineRedisCache.class);
-	public static Map<String, CaffeineRedisCache>	map	= new HashMap<>();
-
-	public static RTopic topic;
-
-	private static boolean inited = false;
+	public static final String						CACHE_CHANGE_TOPIC	= "TIO_CACHE_CHANGE_TOPIC_CAFFEINE";
+	private static Logger							log					= LoggerFactory.getLogger(CaffeineRedisCache.class);
+	public static Map<String, CaffeineRedisCache>	map					= new HashMap<>();
+	public static RTopic							topic;
+	private static boolean							inited				= false;
+	CaffeineCache									localCache			= null;
+	RedisCache										distCache			= null;
 
 	public static CaffeineRedisCache getCache(String cacheName, boolean skipNull) {
 		CaffeineRedisCache caffeineRedisCache = map.get(cacheName);
@@ -73,9 +74,9 @@ public class CaffeineRedisCache extends AbsCache {
 							CacheChangeType type = cacheChangedVo.getType();
 							if (type == CacheChangeType.PUT || type == CacheChangeType.UPDATE || type == CacheChangeType.REMOVE) {
 								String key = cacheChangedVo.getKey();
-								caffeineRedisCache.caffeineCache.remove(key);
+								caffeineRedisCache.localCache.remove(key);
 							} else if (type == CacheChangeType.CLEAR) {
-								caffeineRedisCache.caffeineCache.clear();
+								caffeineRedisCache.localCache.clear();
 							}
 						}
 					});
@@ -118,19 +119,15 @@ public class CaffeineRedisCache extends AbsCache {
 		return caffeineRedisCache;
 	}
 
-	CaffeineCache caffeineCache;
-
-	RedisCache redisCache;
-
 	/**
-	 * @param caffeineCache
-	 * @param redisCache
+	 * @param localCache
+	 * @param distCache
 	 * @author tanyaowu
 	 */
 	public CaffeineRedisCache(String cacheName, CaffeineCache caffeineCache, RedisCache redisCache) {
 		super(cacheName);
-		this.caffeineCache = caffeineCache;
-		this.redisCache = redisCache;
+		this.localCache = caffeineCache;
+		this.distCache = redisCache;
 	}
 
 	/**
@@ -139,8 +136,8 @@ public class CaffeineRedisCache extends AbsCache {
 	 */
 	@Override
 	public void clear() {
-		caffeineCache.clear();
-		redisCache.clear();
+		localCache.clear();
+		distCache.clear();
 
 		CacheChangedVo cacheChangedVo = new CacheChangedVo(cacheName, CacheChangeType.CLEAR);
 		topic.publish(cacheChangedVo);
@@ -157,14 +154,59 @@ public class CaffeineRedisCache extends AbsCache {
 			return null;
 		}
 
-		Serializable ret = caffeineCache.get(key);
+		Serializable ret = localCache.get(key);
 		if (ret == null) {
-			ret = redisCache.get(key);
-			if (ret != null) {
-				caffeineCache.put(key, ret);
+			ReadWriteRet readWriteRet = null;
+			try {
+				readWriteRet = LockUtils.runReadOrWrite("_tio_cr_" + key, this, new ReadWriteLockHandler() {
+					@Override
+					public Object read() {
+						return null;
+					}
+
+					@Override
+					public Object write() {
+						Serializable ret = distCache.get(key);
+						if (ret != null) {
+							localCache.put(key, ret);
+						}
+						return ret;
+					}
+					
+				});
+			} catch (Exception e) {
+				log.error(e.toString(), e);
 			}
+			ret = (Serializable) readWriteRet.writeRet;
+//			///////////////////////////////////
+//			
+//			ReentrantReadWriteLock rWriteLock = LockUtils.getReentrantReadWriteLock("_tio_cr_" + key, this);
+//			WriteLock writeLock = rWriteLock.writeLock();
+//			boolean tryWrite = writeLock.tryLock();
+//			if (tryWrite) {
+//				try {
+//					ret = distCache.get(key);
+//					if (ret != null) {
+//						localCache.put(key, ret);
+//					} 
+//				} finally {
+//					writeLock.unlock();
+//				}
+//			} else {
+//				ReadLock readLock = rWriteLock.readLock();
+//				boolean tryRead = false;
+//				try {
+//					tryRead = readLock.tryLock(120, TimeUnit.SECONDS);
+//					if (tryRead) {
+//						//获取read锁，仅仅是为了等待写锁的完成，所以获取后，立即释放
+//						readLock.unlock();
+//					}
+//				} catch (InterruptedException e) {
+//					log.error(e.toString(), e);
+//				}
+//			}
 		} else {//在本地就取到数据了，那么需要在redis那定时更新一下过期时间
-			Long timeToIdleSeconds = redisCache.getTimeToIdleSeconds();
+			Long timeToIdleSeconds = distCache.getTimeToIdleSeconds();
 			if (timeToIdleSeconds != null) {
 				RedisExpireUpdateTask.add(cacheName, key, timeToIdleSeconds);
 			}
@@ -178,7 +220,7 @@ public class CaffeineRedisCache extends AbsCache {
 	 */
 	@Override
 	public Iterable<String> keys() {
-		return redisCache.keys();
+		return distCache.keys();
 	}
 
 	/**
@@ -188,8 +230,8 @@ public class CaffeineRedisCache extends AbsCache {
 	 */
 	@Override
 	public void put(String key, Serializable value) {
-		caffeineCache.put(key, value);
-		redisCache.put(key, value);
+		localCache.put(key, value);
+		distCache.put(key, value);
 
 		CacheChangedVo cacheChangedVo = new CacheChangedVo(cacheName, key, CacheChangeType.PUT);
 		topic.publish(cacheChangedVo);
@@ -197,8 +239,8 @@ public class CaffeineRedisCache extends AbsCache {
 
 	@Override
 	public void putTemporary(String key, Serializable value) {
-		caffeineCache.putTemporary(key, value);
-		redisCache.putTemporary(key, value);
+		localCache.putTemporary(key, value);
+		distCache.putTemporary(key, value);
 
 		//
 		//		CacheChangedVo cacheChangedVo = new CacheChangedVo(cacheName, key, CacheChangeType.PUT);
@@ -215,8 +257,8 @@ public class CaffeineRedisCache extends AbsCache {
 			return;
 		}
 
-		caffeineCache.remove(key);
-		redisCache.remove(key);
+		localCache.remove(key);
+		distCache.remove(key);
 
 		CacheChangedVo cacheChangedVo = new CacheChangedVo(cacheName, key, CacheChangeType.REMOVE);
 		topic.publish(cacheChangedVo);
@@ -230,7 +272,7 @@ public class CaffeineRedisCache extends AbsCache {
 
 	@Override
 	public long ttl(String key) {
-		return redisCache.ttl(key);
+		return distCache.ttl(key);
 	}
 
 }

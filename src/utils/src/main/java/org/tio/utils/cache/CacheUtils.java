@@ -1,8 +1,14 @@
 package org.tio.utils.cache;
 
 import java.io.Serializable;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import org.redisson.api.RedissonClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tio.utils.cache.caffeine.CaffeineCache;
 import org.tio.utils.cache.caffeineredis.CaffeineRedisCache;
 import org.tio.utils.lock.LockUtils;
@@ -13,12 +19,10 @@ import org.tio.utils.lock.LockUtils;
  *
  */
 public abstract class CacheUtils {
-
-	private static final String PREFIX_TIMETOLIVESECONDS = CacheUtils.class.getName() + "_live";
-
-	private static final String PREFIX_TIMETOIDLESECONDS = CacheUtils.class.getName() + "_idle";
-
-	private static final Object LOCK_FOR_GETCACHE = new Object();
+	private static Logger		log							= LoggerFactory.getLogger(CacheUtils.class);
+	private static final String	PREFIX_TIMETOLIVESECONDS	= CacheUtils.class.getName() + "_live";
+	private static final String	PREFIX_TIMETOIDLESECONDS	= CacheUtils.class.getName() + "_idle";
+	private static final Object	LOCK_FOR_GETCACHE			= new Object();
 
 	private CacheUtils() {
 	}
@@ -75,6 +79,18 @@ public abstract class CacheUtils {
 		return get(cache, cacheKey, false, firsthandCreater);
 	}
 
+	@SuppressWarnings("unchecked")
+	private static <T extends Serializable> T getFromCacheOnly(ICache cache, String cacheKey) {
+		Serializable ret = cache.get(cacheKey);
+		if (ret != null) {
+			if (ret instanceof NullClass) {
+				return null;
+			}
+			return (T) ret;
+		}
+		return null;
+	}
+
 	/**
 	 * 根据cacheKey从缓存中获取对象，如果缓存中没有该key对象，则用firsthandCreater获取对象，并将对象用cacheKey存于cache中
 	 * @param cache
@@ -84,42 +100,77 @@ public abstract class CacheUtils {
 	 * @return
 	 * @author tanyaowu
 	 */
-	@SuppressWarnings("unchecked")
 	public static <T extends Serializable> T get(ICache cache, String cacheKey, boolean putTempToCacheIfNull, FirsthandCreater<T> firsthandCreater) {
-		Serializable ret = cache.get(cacheKey);
+		return get(cache, cacheKey, putTempToCacheIfNull, firsthandCreater, 60L);
+	}
+
+	/**
+	 * 
+	 * @param <T>
+	 * @param cache
+	 * @param cacheKey
+	 * @param putTempToCacheIfNull
+	 * @param firsthandCreater
+	 * @param readTimeoutWithSeconds 获取读锁的超时时间
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T extends Serializable> T get(ICache cache, String cacheKey, boolean putTempToCacheIfNull, FirsthandCreater<T> firsthandCreater, Long readTimeoutWithSeconds) {
+		Serializable ret = getFromCacheOnly(cache, cacheKey);
 		if (ret != null) {
-			if (ret instanceof NullClass) {
-				return null;
-			}
 			return (T) ret;
 		}
 
 		String lockKey = cache.getCacheName() + cacheKey;
-		Object lock = LockUtils.getLockObj(lockKey, cache);
-
-		synchronized (lock) {
-			ret = cache.get(cacheKey);
-			if (ret != null) {
-				if (ret instanceof NullClass) {
-					return null;
-				}
-				return (T) ret;
-			}
-
+		ReentrantReadWriteLock rwLock = LockUtils.getReentrantReadWriteLock(lockKey, cache);
+		WriteLock writeLock = rwLock.writeLock();
+		boolean tryWrite = writeLock.tryLock();
+		if (tryWrite) {
 			try {
-				ret = firsthandCreater.create();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+				ret = getFromCacheOnly(cache, cacheKey);
+				if (ret != null) {
+					return (T) ret;
+				}
+
+				try {
+					ret = firsthandCreater.create();
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+				if (ret == null) {
+					if (putTempToCacheIfNull) {
+						cache.putTemporary(cacheKey, NULL_OBJ);
+					}
+				} else {
+					cache.put(cacheKey, ret);
+				}
+			} finally {
+				writeLock.unlock();
 			}
-			if (ret == null) {
-				if (putTempToCacheIfNull) {
-					cache.putTemporary(cacheKey, NULL_OBJ);
+		} else {
+			ReadLock readLock = rwLock.readLock();
+			boolean tryRead = false;
+			try {
+				if (readTimeoutWithSeconds == null || readTimeoutWithSeconds <= 0) {
+					readTimeoutWithSeconds = 60L;
+				}
+				tryRead = readLock.tryLock(readTimeoutWithSeconds, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				log.error(e.toString(), e);
+			}
+			if (tryRead) {
+				try {
+					ret = getFromCacheOnly(cache, cacheKey);
+					if (ret != null) {
+						return (T) ret;
+					}
+				} finally {
+					readLock.unlock();
 				}
 			} else {
-				cache.put(cacheKey, ret);
+				return null;
 			}
 		}
-
 		return (T) ret;
 	}
 

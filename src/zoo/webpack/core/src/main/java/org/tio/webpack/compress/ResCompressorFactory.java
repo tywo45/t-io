@@ -19,14 +19,6 @@ public class ResCompressorFactory {
 	}
 
 	/**
-	 * @param args
-	 * @author tanyaowu
-	 */
-	public static void main(String[] args) {
-
-	}
-
-	/**
 	 * 
 	 * @param extension
 	 * @return
@@ -34,7 +26,6 @@ public class ResCompressorFactory {
 	 */
 	public static ResCompressor get(String extension) {
 		if ("js".equalsIgnoreCase(extension)) {
-			//			return YuiJsCompressor.ME;
 			return TioJsCompressor.me;
 		} else if ("css".equalsIgnoreCase(extension)) {
 			return TioCssCompressor.me;

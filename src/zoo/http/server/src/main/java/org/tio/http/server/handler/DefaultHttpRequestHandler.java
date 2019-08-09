@@ -63,6 +63,9 @@ import org.tio.utils.hutool.ClassUtil;
 import org.tio.utils.hutool.FileUtil;
 import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.hutool.Validator;
+import org.tio.utils.lock.LockUtils;
+import org.tio.utils.lock.ReadWriteLockHandler;
+import org.tio.utils.lock.ReadWriteLockHandler.ReadWriteRet;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
 
@@ -114,16 +117,23 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	 */
 	private boolean										compatibilityAssignment			= true;
 
-	private static MethodAccess getMethodAccess(Class<?> clazz) {
+	private static MethodAccess getMethodAccess(Class<?> clazz) throws Exception {
 		MethodAccess ret = CLASS_METHODACCESS_MAP.get(clazz);
 		if (ret == null) {
-			synchronized (CLASS_METHODACCESS_MAP) {
-				ret = CLASS_METHODACCESS_MAP.get(clazz);
-				if (ret == null) {
-					ret = MethodAccess.get(clazz);
-					CLASS_METHODACCESS_MAP.put(clazz, ret);
+			ReadWriteRet rwRet = LockUtils.runReadOrWrite("_tio_http_h_ma_" + clazz.getName(), clazz, new ReadWriteLockHandler() {
+				@Override
+				public Object read() {
+					return null;
 				}
-			}
+
+				@Override
+				public Object write() {
+					MethodAccess ret = MethodAccess.get(clazz);
+					CLASS_METHODACCESS_MAP.put(clazz, ret);
+					return ret;
+				}
+			});
+			ret = (MethodAccess) rwRet.writeRet;
 		}
 		return ret;
 	}
