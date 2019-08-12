@@ -169,7 +169,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 
 	/**
 	 * 等价于：getAttribute(DEFAULT_ATTUBITE_KEY)
-	 * @deprecated 不建议用不带参数的，建议使用get("name1")
+	 * @deprecated 建议使用get()
 	 * @return
 	 */
 	public Object getAttribute() {
@@ -179,7 +179,6 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	/**
 	 * 等价于：getAttribute(DEFAULT_ATTUBITE_KEY)<br>
 	 * 等价于：getAttribute()<br>
-	 * @deprecated 不建议用不带参数的，建议使用get("name1")
 	 * @return
 	 */
 	public Object get() {
