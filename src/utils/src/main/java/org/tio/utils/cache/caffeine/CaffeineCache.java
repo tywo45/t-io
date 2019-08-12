@@ -98,7 +98,7 @@ public class CaffeineCache extends AbsCache {
 	}
 
 	@Override
-	public Serializable get(String key) {
+	public Serializable _get(String key) {
 		if (StrUtil.isBlank(key)) {
 			return null;
 		}
@@ -157,12 +157,6 @@ public class CaffeineCache extends AbsCache {
 	 */
 	public long size() {
 		return loadingCache.estimatedSize();//.size();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T get(String key, Class<T> clazz) {
-		return (T) get(key);
 	}
 
 	@Override

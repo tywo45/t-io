@@ -100,7 +100,7 @@ public class RedisCache extends AbsCache {
 	}
 
 	@Override
-	public Serializable get(String key) {
+	public Serializable _get(String key) {
 		if (StrUtil.isBlank(key)) {
 			return null;
 		}
@@ -182,12 +182,6 @@ public class RedisCache extends AbsCache {
 		}
 		RBucket<Serializable> bucket = getBucket(key);
 		bucket.delete();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T get(String key, Class<T> clazz) {
-		return (T) get(key);
 	}
 
 	@Override

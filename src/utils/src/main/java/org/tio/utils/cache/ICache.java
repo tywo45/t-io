@@ -7,6 +7,18 @@ import java.io.Serializable;
  * 2017年8月10日 上午11:38:26
  */
 public interface ICache {
+	/**
+	 * 有时候需要放一个空对象到缓存中
+	 * @author tanyaowu
+	 */
+	public static class NullClass implements Serializable {
+		private static final long serialVersionUID = -2298613658358477523L;
+	}
+	
+	/**
+	 * 用于临时存放于缓存中的对象，防止缓存null攻击
+	 */
+	public static final NullClass NULL_OBJ = new NullClass();
 
 	/**
 	 * 在本地最大的过期时间，这样可以防止内存爆掉，单位：秒

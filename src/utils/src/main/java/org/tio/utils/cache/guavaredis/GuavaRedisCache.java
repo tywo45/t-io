@@ -148,7 +148,7 @@ public class GuavaRedisCache extends AbsCache {
 	 * @author tanyaowu
 	 */
 	@Override
-	public Serializable get(String key) {
+	public Serializable _get(String key) {
 		if (StrUtil.isBlank(key)) {
 			return null;
 		}
@@ -216,12 +216,6 @@ public class GuavaRedisCache extends AbsCache {
 
 		CacheChangedVo cacheChangedVo = new CacheChangedVo(cacheName, key, CacheChangeType.REMOVE);
 		topic.publish(cacheChangedVo);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T get(String key, Class<T> clazz) {
-		return (T) get(key);
 	}
 
 	@Override
