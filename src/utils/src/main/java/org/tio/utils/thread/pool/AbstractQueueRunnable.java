@@ -48,7 +48,7 @@ public abstract class AbstractQueueRunnable<T> extends AbstractSynRunnable {
 
 	@Override
 	public boolean isNeededExecute() {
-		return msgQueue.size() > 0;
+		return  !this.isCanceled() && msgQueue.size() > 0;
 	}
 
 	/**

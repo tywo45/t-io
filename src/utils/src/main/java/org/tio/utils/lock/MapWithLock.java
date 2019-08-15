@@ -20,6 +20,10 @@ public class MapWithLock<K, V> extends ObjWithLock<Map<K, V>> {
 	public MapWithLock() {
 		this(new HashMap<>());
 	}
+	
+	public MapWithLock(int initCapacity) {
+		this(new HashMap<>(initCapacity));
+	}
 
 	/**
 	 * @param cacheMap

@@ -368,6 +368,11 @@ public class Tio {
 			log.debug("{} 正在等待被关闭", channelContext);
 			return;
 		}
+		
+		//先立即取消各项任务，这样可防止有新的任务被提交进来
+		channelContext.decodeRunnable.setCanceled(true);
+		channelContext.handlerRunnable.setCanceled(true);
+		channelContext.sendRunnable.setCanceled(true);
 
 		WriteLock writeLock = null;
 		if (needCloseLock) {

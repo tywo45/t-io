@@ -78,9 +78,10 @@ public class CloseRunnable extends AbstractQueueRunnable<ChannelContext> {
 					}
 
 					//必须先取消任务再清空队列
+					channelContext.decodeRunnable.setCanceled(true);
 					channelContext.handlerRunnable.setCanceled(true);
 					channelContext.sendRunnable.setCanceled(true);
-
+					
 					channelContext.decodeRunnable.clearMsgQueue();
 					channelContext.handlerRunnable.clearMsgQueue();
 					channelContext.sendRunnable.clearMsgQueue();
