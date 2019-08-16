@@ -22,9 +22,9 @@ public class CacheVo implements Serializable {
 
 	private byte[] compressedBytes;
 
-	private String initStr;
+//	private String initStr;
 
-	private String compressedStr;
+//	private String compressedStr;
 
 	public String getPath() {
 		return path;
@@ -50,32 +50,32 @@ public class CacheVo implements Serializable {
 		this.compressedBytes = compressedBytes;
 	}
 
-	/**
-	 * @return the initStr
-	 */
-	public String getInitStr() {
-		return initStr;
-	}
+//	/**
+//	 * @return the initStr
+//	 */
+//	public String getInitStr() {
+//		return initStr;
+//	}
+//
+//	/**
+//	 * @param initStr the initStr to set
+//	 */
+//	public void setInitStr(String initStr) {
+//		this.initStr = initStr;
+//	}
 
-	/**
-	 * @param initStr the initStr to set
-	 */
-	public void setInitStr(String initStr) {
-		this.initStr = initStr;
-	}
-
-	/**
-	 * @return the compressedStr
-	 */
-	public String getCompressedStr() {
-		return compressedStr;
-	}
-
-	/**
-	 * @param compressedStr the compressedStr to set
-	 */
-	public void setCompressedStr(String compressedStr) {
-		this.compressedStr = compressedStr;
-	}
+//	/**
+//	 * @return the compressedStr
+//	 */
+//	public String getCompressedStr() {
+//		return compressedStr;
+//	}
+//
+//	/**
+//	 * @param compressedStr the compressedStr to set
+//	 */
+//	public void setCompressedStr(String compressedStr) {
+//		this.compressedStr = compressedStr;
+//	}
 
 }

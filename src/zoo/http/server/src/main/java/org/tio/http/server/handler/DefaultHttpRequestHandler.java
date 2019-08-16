@@ -603,30 +603,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 				} else {
 					String pageRoot = httpConfig.getPageRoot(request);
 					if (pageRoot != null) {
-						//						if (StrUtil.endWith(path, "/")) {
-						//							path = path + "index.html";
-						//						}
-						////						else {
-						////							path = path + "/index.html";
-						////						}
-						//						
-						//						String complatePath = pageRoot + path;
-						//						if (httpConfig.isPageInClasspath()) {
-						//							URL url = this.getClass().getClassLoader().getResource(complatePath);
-						//							if (url != null) {
-						//								file = new File(url.toURI());
-						//							}
-						//						} else {
-						////							String root = FileUtil.getAbsolutePath(pageRoot);
-						//							file = new File(complatePath);
-						////							if (!file.exists() || file.isDirectory()) {
-						////								
-						////								file = new File(pageRoot, path);
-						////							}
-						//						}
-
 						HttpResource httpResource = httpConfig.getResource(request, path);//.getFile(request, path);
-
 						if (httpResource != null) {
 							path = httpResource.getPath();
 							file = httpResource.getFile();
@@ -638,7 +615,6 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 							//项目中需要，时间支持一下freemarker模板，后面要做模板支持抽象设计
 							FreemarkerConfig freemarkerConfig = httpConfig.getFreemarkerConfig();
 							if (freemarkerConfig != null) {
-
 								if (ArrayUtil.contains(freemarkerConfig.getSuffixes(), extension)) {
 									Configuration configuration = freemarkerConfig.getConfiguration(request);
 									if (configuration != null) {
@@ -686,10 +662,6 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 									if (contentEncoding != null) {
 										headers.put(HeaderName.Content_Encoding, contentEncoding);
 									}
-									//									if (StrUtil.isNotBlank(lastModified)) {
-									//										headers.put(HttpConst.ResponseHeaderKey.Last_Modified, lastModified);
-									//									}
-									//									headers.put(HttpConst.ResponseHeaderKey.tio_from_cache, "true");
 
 									HttpResponse responseInCache = new HttpResponse(request);
 									responseInCache.addHeaders(headers);
