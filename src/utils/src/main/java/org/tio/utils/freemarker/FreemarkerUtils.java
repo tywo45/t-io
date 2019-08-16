@@ -132,7 +132,7 @@ public class FreemarkerUtils {
 	 */
 	public static void generateStringByPath(Writer writer, String template, Configuration configuration, Object model)
 	        throws TemplateNotFoundException, MalformedTemplateNameException, ParseException, IOException, TemplateException {
-		Template tpl = configuration.getTemplate(template);
+		Template tpl = configuration.getTemplate(template, null, null, null, true, true);
 		tpl.process(model, writer);
 	}
 
