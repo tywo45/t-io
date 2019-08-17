@@ -67,6 +67,8 @@ public class QuartzUtils {
 	public static void start(String file1) {
 		if (StrUtil.isBlank(file1)) {
 			file = DEFAULT_FILE;
+		} else {
+			file = file1;
 		}
 		initJobClasses();
 		if (JOB_CLASSES.size() <= 0) {
