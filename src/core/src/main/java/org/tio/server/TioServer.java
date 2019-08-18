@@ -258,8 +258,7 @@ public class TioServer {
 
 						}
 					} catch (Exception e) {
-						log.error("", e);
-						//
+//						log.error("", e);
 					}
 				}
 			});
