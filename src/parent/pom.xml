@@ -77,7 +77,7 @@
 		<httpcore.version>4.4.11</httpcore.version>
 		<httpclient.version>4.5.9</httpclient.version>
 		<closure.version>v20190729</closure.version>
-		<freemarker.version>2.3.28</freemarker.version>
+		<freemarker.version>2.3.29</freemarker.version>
 		<UserAgentUtils.version>1.21</UserAgentUtils.version>
 		<scribejava-apis.version>6.8.0</scribejava-apis.version>
 		<oltu.oauth2.version>1.0.2</oltu.oauth2.version>
