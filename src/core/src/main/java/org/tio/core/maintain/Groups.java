@@ -66,6 +66,7 @@ public class Groups {
 			SetWithLock<ChannelContext> channelContexts = null;
 			Lock lock1 = groupmap.writeLock();
 			lock1.lock();
+			boolean locked1 = true;
 			try {
 				Map<String, SetWithLock<ChannelContext>> map = groupmap.getObj();
 				channelContexts = map.get(groupid);
@@ -73,6 +74,8 @@ public class Groups {
 					channelContexts = new SetWithLock<>(MaintainUtils.createSet(channelContextComparator));
 					map.put(groupid, channelContexts);
 				}
+				lock1.unlock();
+				locked1 = false;
 
 				SetWithLock<String> set = channelContext.getGroups();
 				if (set == null) {
@@ -95,7 +98,9 @@ public class Groups {
 			} catch (Throwable e) {
 				log.error(e.toString(), e);
 			} finally {
-				lock1.unlock();
+				if (locked1) {
+					lock1.unlock();
+				}
 			}
 		} catch (Exception e) {
 			log.error(e.toString(), e);
