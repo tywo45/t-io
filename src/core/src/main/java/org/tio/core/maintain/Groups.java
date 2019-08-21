@@ -14,7 +14,9 @@ import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
 import org.tio.core.intf.GroupListener;
 import org.tio.utils.hutool.StrUtil;
+import org.tio.utils.lock.LockUtils;
 import org.tio.utils.lock.MapWithLock;
+import org.tio.utils.lock.ReadWriteLockHandler;
 import org.tio.utils.lock.SetWithLock;
 
 /**
@@ -64,18 +66,24 @@ public class Groups {
 		}
 		try {
 			SetWithLock<ChannelContext> channelContexts = null;
-			Lock lock1 = groupmap.writeLock();
-			lock1.lock();
-			boolean locked1 = true;
 			try {
 				Map<String, SetWithLock<ChannelContext>> map = groupmap.getObj();
 				channelContexts = map.get(groupid);
 				if (channelContexts == null) {
-					channelContexts = new SetWithLock<>(MaintainUtils.createSet(channelContextComparator));
-					map.put(groupid, channelContexts);
+					LockUtils.runReadOrWrite("_tio_groups_bind__" + groupid, this, new ReadWriteLockHandler() {
+						@Override
+						public Object read() {
+							return null;
+						}
+
+						@Override
+						public Object write() {
+							map.put(groupid, new SetWithLock<>(MaintainUtils.createSet(channelContextComparator)));
+							return null;
+						}
+					});
+					channelContexts = map.get(groupid);
 				}
-				lock1.unlock();
-				locked1 = false;
 
 				SetWithLock<String> set = channelContext.getGroups();
 				if (set == null) {
@@ -97,10 +105,6 @@ public class Groups {
 				}
 			} catch (Throwable e) {
 				log.error(e.toString(), e);
-			} finally {
-				if (locked1) {
-					lock1.unlock();
-				}
 			}
 		} catch (Exception e) {
 			log.error(e.toString(), e);

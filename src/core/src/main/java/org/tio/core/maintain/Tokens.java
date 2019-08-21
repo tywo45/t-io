@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
 import org.tio.utils.hutool.StrUtil;
+import org.tio.utils.lock.LockUtils;
 import org.tio.utils.lock.MapWithLock;
+import org.tio.utils.lock.ReadWriteLockHandler;
 import org.tio.utils.lock.SetWithLock;
 
 /**
@@ -47,14 +49,33 @@ public class Tokens {
 
 		try {
 			String key = token;
-			Lock lock = mapWithLock.writeLock();
-			lock.lock();
+//			Lock lock = mapWithLock.writeLock();
+//			lock.lock();
 			try {
 				Map<String, SetWithLock<ChannelContext>> map = mapWithLock.getObj();
 				SetWithLock<ChannelContext> setWithLock = map.get(key);
 				if (setWithLock == null) {
-					setWithLock = new SetWithLock<>(new HashSet<>());
-					map.put(key, setWithLock);
+//					setWithLock = new SetWithLock<>(new HashSet<>());
+//					map.put(key, setWithLock);
+					
+					
+					
+					
+					LockUtils.runReadOrWrite("_tio_tokens_bind__" + key, this, new ReadWriteLockHandler() {
+						@Override
+						public Object read() {
+							return null;
+						}
+
+						@Override
+						public Object write() {
+							map.put(key, new SetWithLock<>(new HashSet<>()));
+							return null;
+						}
+					});
+					setWithLock = map.get(key);
+					
+					
 				}
 				setWithLock.add(channelContext);
 
@@ -64,7 +85,7 @@ public class Tokens {
 			} catch (Throwable e) {
 				throw e;
 			} finally {
-				lock.unlock();
+//				lock.unlock();
 			}
 		} catch (Throwable e) {
 			log.error(e.toString(), e);
@@ -121,8 +142,6 @@ public class Tokens {
 				return;
 			}
 
-			Lock lock = mapWithLock.writeLock();
-			lock.lock();
 			try {
 				Map<String, SetWithLock<ChannelContext>> m = mapWithLock.getObj();
 				SetWithLock<ChannelContext> setWithLock = m.get(token);
@@ -134,12 +153,23 @@ public class Tokens {
 				setWithLock.remove(channelContext);
 
 				if (setWithLock.getObj().size() == 0) {
-					m.remove(token);
+//					m.remove(token);
+					
+					LockUtils.runReadOrWrite("_tio_tokens_unbind_1__" + token, this, new ReadWriteLockHandler() {
+						@Override
+						public Object read() {
+							return null;
+						}
+
+						@Override
+						public Object write() {
+							m.remove(token);
+							return null;
+						}
+					});
 				}
 			} catch (Throwable e) {
 				throw e;
-			} finally {
-				lock.unlock();
 			}
 		} catch (Throwable e) {
 			log.error(e.toString(), e);
@@ -162,8 +192,6 @@ public class Tokens {
 		}
 
 		try {
-			Lock lock = mapWithLock.writeLock();
-			lock.lock();
 			try {
 				Map<String, SetWithLock<ChannelContext>> m = mapWithLock.getObj();
 				SetWithLock<ChannelContext> setWithLock = m.get(token);
@@ -181,8 +209,20 @@ public class Tokens {
 						}
 						set.clear();
 					}
+					
+					LockUtils.runReadOrWrite("_tio_tokens_unbind_2__" + token, this, new ReadWriteLockHandler() {
+						@Override
+						public Object read() {
+							return null;
+						}
 
-					m.remove(token);
+						@Override
+						public Object write() {
+							m.remove(token);
+							return null;
+						}
+					});
+					
 				} catch (Throwable e) {
 					log.error(e.getMessage(), e);
 				} finally {
@@ -190,8 +230,6 @@ public class Tokens {
 				}
 			} catch (Throwable e) {
 				throw e;
-			} finally {
-				lock.unlock();
 			}
 		} catch (Throwable e) {
 			log.error(e.toString(), e);

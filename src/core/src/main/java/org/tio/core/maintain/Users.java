@@ -12,8 +12,10 @@ import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
 import org.tio.utils.hutool.StrUtil;
+import org.tio.utils.lock.LockUtils;
 import org.tio.utils.lock.MapWithLock;
 import org.tio.utils.lock.ObjWithLock;
+import org.tio.utils.lock.ReadWriteLockHandler;
 import org.tio.utils.lock.SetWithLock;
 
 /**
@@ -48,21 +50,44 @@ public class Users {
 
 		try {
 			String key = userid;
-			Lock lock = mapWithLock.writeLock();
-			lock.lock();
+			
 			try {
 				Map<String, SetWithLock<ChannelContext>> map = mapWithLock.getObj();
 				SetWithLock<ChannelContext> setWithLock = map.get(key);
 				if (setWithLock == null) {
-					setWithLock = new SetWithLock<>(new HashSet<ChannelContext>());
-					map.put(key, setWithLock);
+//					Lock lock = mapWithLock.writeLock();
+//					lock.lock();
+//					try {
+//						setWithLock = map.get(key);
+//						if (setWithLock == null) {
+//							setWithLock = new SetWithLock<>(new HashSet<ChannelContext>());
+//							map.put(key, setWithLock);
+//						} 
+//					} finally {
+//						lock.unlock();
+//					}
+					
+					LockUtils.runReadOrWrite("_tio_users_bind__" + key, this, new ReadWriteLockHandler() {
+						@Override
+						public Object read() {
+							return null;
+						}
+
+						@Override
+						public Object write() {
+							map.put(key, new SetWithLock<>(new HashSet<ChannelContext>()));
+							return null;
+						}
+					});
+					setWithLock = map.get(key);
+					
 				}
 				setWithLock.add(channelContext);
 				channelContext.setUserid(userid);
 			} catch (Throwable e) {
 				throw e;
 			} finally {
-				lock.unlock();
+//				lock.unlock();
 			}
 		} catch (Throwable e) {
 			log.error(e.toString(), e);

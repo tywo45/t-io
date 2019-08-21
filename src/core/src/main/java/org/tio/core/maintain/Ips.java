@@ -10,7 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.GroupContext;
 import org.tio.utils.hutool.StrUtil;
+import org.tio.utils.lock.LockUtils;
 import org.tio.utils.lock.MapWithLock;
+import org.tio.utils.lock.ReadWriteLockHandler;
 import org.tio.utils.lock.SetWithLock;
 
 /**
@@ -55,21 +57,27 @@ public class Ips {
 				return;
 			}
 
-			SetWithLock<ChannelContext> channelContexts = null;//ipmap.getObj().get(ip);
-			Lock lock1 = ipmap.writeLock();
-			lock1.lock();
 			try {
 				Map<String, SetWithLock<ChannelContext>> map = ipmap.getObj();
-				channelContexts = map.get(ip);
+				SetWithLock<ChannelContext> channelContexts = map.get(ip);
 				if (channelContexts == null) {
-					channelContexts = new SetWithLock<>(new HashSet<ChannelContext>());
-					map.put(ip, channelContexts);
+					LockUtils.runReadOrWrite("_tio_ips__" + ip, this, new ReadWriteLockHandler() {
+						@Override
+						public Object read() {
+							return null;
+						}
+
+						@Override
+						public Object write() {
+							map.put(ip, new SetWithLock<>(new HashSet<ChannelContext>()));
+							return null;
+						}
+					});
+					channelContexts = map.get(ip);
 				}
 				channelContexts.add(channelContext);
 			} catch (Throwable e) {
 				log.error(e.toString(), e);
-			} finally {
-				lock1.unlock();
 			}
 		} catch (Exception e) {
 			log.error(e.toString(), e);
