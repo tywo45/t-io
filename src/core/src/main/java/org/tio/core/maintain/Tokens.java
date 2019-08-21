@@ -30,6 +30,10 @@ public class Tokens {
 	 * value: SetWithLock<ChannelContext>
 	 */
 	private MapWithLock<String, SetWithLock<ChannelContext>> mapWithLock = new MapWithLock<>(new HashMap<String, SetWithLock<ChannelContext>>());
+	
+	private final Object synLockObj1 = new Object();
+	private final Object synLockObj2 = new Object(); 
+	private final Object synLockObj3 = new Object(); 
 
 	/**
 	 * 绑定token.
@@ -61,7 +65,7 @@ public class Tokens {
 					
 					
 					
-					LockUtils.runReadOrWrite("_tio_tokens_bind__" + key, this, new ReadWriteLockHandler() {
+					LockUtils.runReadOrWrite("_tio_tokens_bind__" + key, synLockObj1, new ReadWriteLockHandler() {
 						@Override
 						public Object read() {
 							return null;
@@ -155,7 +159,7 @@ public class Tokens {
 				if (setWithLock.getObj().size() == 0) {
 //					m.remove(token);
 					
-					LockUtils.runReadOrWrite("_tio_tokens_unbind_1__" + token, this, new ReadWriteLockHandler() {
+					LockUtils.runReadOrWrite("_tio_tokens_unbind_1__" + token, synLockObj2, new ReadWriteLockHandler() {
 						@Override
 						public Object read() {
 							return null;
@@ -210,7 +214,7 @@ public class Tokens {
 						set.clear();
 					}
 					
-					LockUtils.runReadOrWrite("_tio_tokens_unbind_2__" + token, this, new ReadWriteLockHandler() {
+					LockUtils.runReadOrWrite("_tio_tokens_unbind_2__" + token, synLockObj3, new ReadWriteLockHandler() {
 						@Override
 						public Object read() {
 							return null;
