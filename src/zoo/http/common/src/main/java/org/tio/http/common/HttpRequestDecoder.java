@@ -85,7 +85,7 @@ public class HttpRequestDecoder {
 		}
 		// request line end
 
-		//		HttpRequestHandler httpRequestHandler = (HttpRequestHandler)channelContext.groupContext.getAttribute(GroupContextKey.HTTP_REQ_HANDLER);
+		//		HttpRequestHandler httpRequestHandler = (HttpRequestHandler)channelContext.tioConfig.getAttribute(TioConfigKey.HTTP_REQ_HANDLER);
 		//		if (httpRequestHandler != null) {
 		//			httpRequest.setHttpConfig(httpRequestHandler.getHttpConfig(httpRequest));
 		//		}
@@ -122,10 +122,10 @@ public class HttpRequestDecoder {
 
 		// ----------------------------------------------- request body start
 
-		//		httpRequest.setHttpConfig((HttpConfig) channelContext.groupContext.getAttribute(GroupContextKey.HTTP_SERVER_CONFIG));
+		//		httpRequest.setHttpConfig((HttpConfig) channelContext.tioConfig.getAttribute(TioConfigKey.HTTP_SERVER_CONFIG));
 
 		String realIp = IpUtils.getRealIp(channelContext, httpConfig, headers);
-		if (Tio.IpBlacklist.isInBlacklist(channelContext.groupContext, realIp)) {
+		if (Tio.IpBlacklist.isInBlacklist(channelContext.tioConfig, realIp)) {
 			throw new AioDecodeException("[" + realIp + "] in black list");
 		}
 		if (httpConfig.checkHost) {

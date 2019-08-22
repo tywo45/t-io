@@ -11,7 +11,7 @@ import org.tio.core.starter.configuration.TioServerClusterProperties;
 import org.tio.core.starter.configuration.TioServerProperties;
 import org.tio.core.starter.configuration.TioServerSslProperties;
 import org.tio.core.stat.IpStatListener;
-import org.tio.server.ServerGroupContext;
+import org.tio.server.ServerTioConfig;
 import org.tio.server.TioServer;
 import org.tio.server.intf.ServerAioHandler;
 import org.tio.server.intf.ServerAioListener;
@@ -34,7 +34,7 @@ public final class TioServerBootstrap {
     private RedissonTioClusterTopic redissonTioClusterTopic;
     private TioClusterConfig clusterConfig;
     private TioServer tioServer;
-    private ServerGroupContext serverGroupContext;
+    private ServerTioConfig serverTioConfig;
     private ServerAioHandler serverAioHandler;
     private IpStatListener ipStatListener;
     private GroupListener groupListener;
@@ -77,15 +77,15 @@ public final class TioServerBootstrap {
     }
 
 
-    public ServerGroupContext getServerGroupContext() {
-        return serverGroupContext;
+    public ServerTioConfig getServerTioConfig() {
+        return serverTioConfig;
     }
 
     public void contextInitialized() {
         logger.info("initialize tio websocket server");
         try {
             initTioServerConfig();
-            initTioServerGroupContext();
+            initTioServerTioConfig();
             initTioServer();
             start();
         }
@@ -110,34 +110,34 @@ public final class TioServerBootstrap {
 
     private void initTioServer()
     {
-        this.tioServer = new TioServer(serverGroupContext);
+        this.tioServer = new TioServer(serverTioConfig);
     }
 
-    private void initTioServerGroupContext()
+    private void initTioServerTioConfig()
     {
-        serverGroupContext = new ServerGroupContext(GROUP_CONTEXT_NAME, serverAioHandler, serverAioListener);
+        serverTioConfig = new ServerTioConfig(GROUP_CONTEXT_NAME, serverAioHandler, serverAioListener);
         if (ipStatListener != null) {
-            serverGroupContext.setIpStatListener(ipStatListener);
+            serverTioConfig.setIpStatListener(ipStatListener);
             // fixed bug for IpStatListener not work
-            serverGroupContext.ipStats.addDurations(serverProperties.getIpStatDurations());
+            serverTioConfig.ipStats.addDurations(serverProperties.getIpStatDurations());
         }
         if(serverAioListener != null) {
-            serverGroupContext.setServerAioListener(serverAioListener);
+            serverTioConfig.setServerAioListener(serverAioListener);
         }
         if (groupListener != null) {
-            serverGroupContext.setGroupListener(groupListener);
+            serverTioConfig.setGroupListener(groupListener);
         }
         if (serverProperties.getHeartbeatTimeout() > 0) {
-            serverGroupContext.setHeartbeatTimeout(serverProperties.getHeartbeatTimeout());
+            serverTioConfig.setHeartbeatTimeout(serverProperties.getHeartbeatTimeout());
         }
         //cluster config
         if (clusterConfig != null) {
-            serverGroupContext.setTioClusterConfig(clusterConfig);
+            serverTioConfig.setTioClusterConfig(clusterConfig);
         }
         //ssl config
         if (serverSslProperties.isEnabled()){
             try {
-                serverGroupContext.useSsl(serverSslProperties.getKeyStore(), serverSslProperties.getTrustStore(), serverSslProperties.getPassword());
+                serverTioConfig.useSsl(serverSslProperties.getKeyStore(), serverSslProperties.getTrustStore(), serverSslProperties.getPassword());
             }catch (Exception e){
                 //catch and log
                 logger.error("init ssl config error",e);

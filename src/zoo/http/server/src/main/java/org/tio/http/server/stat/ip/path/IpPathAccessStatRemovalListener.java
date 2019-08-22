@@ -2,7 +2,7 @@ package org.tio.http.server.stat.ip.path;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.RemovalListener;
@@ -18,14 +18,14 @@ public class IpPathAccessStatRemovalListener implements RemovalListener {
 
 	private IpPathAccessStatListener ipPathAccessStatListener;
 
-	private GroupContext groupContext = null;
+	private TioConfig tioConfig = null;
 
 	/**
 	 * 
 	 * @author: tanyaowu
 	 */
-	public IpPathAccessStatRemovalListener(GroupContext groupContext, IpPathAccessStatListener ipPathAccessStatListener) {
-		this.groupContext = groupContext;
+	public IpPathAccessStatRemovalListener(TioConfig tioConfig, IpPathAccessStatListener ipPathAccessStatListener) {
+		this.tioConfig = tioConfig;
 		this.ipPathAccessStatListener = ipPathAccessStatListener;
 	}
 
@@ -35,7 +35,7 @@ public class IpPathAccessStatRemovalListener implements RemovalListener {
 	//		IpAccessStat ipAccessStat = (IpAccessStat) notification.getValue();
 	//
 	//		if (ipPathAccessStatListener != null) {
-	//			ipPathAccessStatListener.onExpired(groupContext, ip, ipAccessStat);
+	//			ipPathAccessStatListener.onExpired(tioConfig, ip, ipAccessStat);
 	//		}
 	//
 	//		//		log.info("ip数据统计[{}]\r\n{}", ip, Json.toFormatedJson(ipAccesspathStat));
@@ -47,7 +47,7 @@ public class IpPathAccessStatRemovalListener implements RemovalListener {
 		IpAccessStat ipAccessStat = (IpAccessStat) value;
 
 		if (ipPathAccessStatListener != null) {
-			ipPathAccessStatListener.onExpired(groupContext, ip, ipAccessStat);
+			ipPathAccessStatListener.onExpired(tioConfig, ip, ipAccessStat);
 		}
 
 	}

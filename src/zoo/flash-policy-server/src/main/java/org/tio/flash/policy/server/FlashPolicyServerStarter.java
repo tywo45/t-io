@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.Tio;
-import org.tio.server.ServerGroupContext;
+import org.tio.server.ServerTioConfig;
 import org.tio.server.TioServer;
 import org.tio.server.intf.ServerAioHandler;
 import org.tio.server.intf.ServerAioListener;
@@ -32,7 +32,7 @@ public class FlashPolicyServerStarter {
 	public static ServerAioListener aioListener = null;
 
 	//一组连接共用的上下文对象
-	public static ServerGroupContext serverGroupContext = null;
+	public static ServerTioConfig serverTioConfig = null;
 
 	//tioServer对象
 	public static TioServer tioServer = null;
@@ -52,9 +52,9 @@ public class FlashPolicyServerStarter {
 			port = Const.PORT;
 		}
 		aioHandler = new FlashPolicyServerAioHandler();
-		serverGroupContext = new ServerGroupContext("tio flash policy server", aioHandler, aioListener, tioExecutor, groupExecutor);
-		serverGroupContext.setHeartbeatTimeout(Const.HEARTBEAT_TIMEOUT);
-		tioServer = new TioServer(serverGroupContext);
+		serverTioConfig = new ServerTioConfig("tio flash policy server", aioHandler, aioListener, tioExecutor, groupExecutor);
+		serverTioConfig.setHeartbeatTimeout(Const.HEARTBEAT_TIMEOUT);
+		tioServer = new TioServer(serverTioConfig);
 
 		try {
 			tioServer.start(ip, port);
@@ -96,7 +96,7 @@ public class FlashPolicyServerStarter {
 					log.error(e1.toString(), e1);
 				}
 
-				SetWithLock<ChannelContext> setWithLock = serverGroupContext.connections;
+				SetWithLock<ChannelContext> setWithLock = serverTioConfig.connections;
 				Set<ChannelContext> set = null;
 				ReadLock readLock = setWithLock.readLock();
 				readLock.lock();

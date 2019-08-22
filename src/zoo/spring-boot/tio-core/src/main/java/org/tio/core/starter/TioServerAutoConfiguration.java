@@ -17,7 +17,7 @@ import org.tio.core.starter.configuration.TioServerProperties;
 import org.tio.core.starter.configuration.TioServerRedisClusterProperties;
 import org.tio.core.starter.configuration.TioServerSslProperties;
 import org.tio.core.stat.IpStatListener;
-import org.tio.server.ServerGroupContext;
+import org.tio.server.ServerTioConfig;
 import org.tio.server.intf.ServerAioHandler;
 import org.tio.server.intf.ServerAioListener;
 
@@ -85,8 +85,8 @@ public class TioServerAutoConfiguration {
     }
 
     @Bean
-    public ServerGroupContext serverGroupContext(TioServerBootstrap bootstrap){
-        return bootstrap.getServerGroupContext();
+    public ServerTioConfig serverTioConfig(TioServerBootstrap bootstrap){
+        return bootstrap.getServerTioConfig();
     }
 
     @Bean

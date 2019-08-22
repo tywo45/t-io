@@ -5,7 +5,7 @@ import java.net.InetSocketAddress;
 import java.nio.channels.AsynchronousSocketChannel;
 
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.core.Node;
 
 /**
@@ -16,33 +16,33 @@ import org.tio.core.Node;
 public class ServerChannelContext extends ChannelContext {
 
 	/**
-	 * @param groupContext
+	 * @param tioConfig
 	 * @param asynchronousSocketChannel
 	 *
 	 * @author tanyaowu
 	 * 2016年12月6日 下午12:17:59
 	 *
 	 */
-	public ServerChannelContext(GroupContext groupContext, AsynchronousSocketChannel asynchronousSocketChannel) {
-		super(groupContext, asynchronousSocketChannel);
+	public ServerChannelContext(TioConfig tioConfig, AsynchronousSocketChannel asynchronousSocketChannel) {
+		super(tioConfig, asynchronousSocketChannel);
 	}
 
 	/**
 	 * 创建一个虚拟ChannelContext，主要用来模拟一些操作，真实场景中用得少
-	 * @param groupContext
+	 * @param tioConfig
 	 */
-	public ServerChannelContext(GroupContext groupContext) {
-		super(groupContext);
+	public ServerChannelContext(TioConfig tioConfig) {
+		super(tioConfig);
 	}
 
 	/**
 	 * 创建一个虚拟ChannelContext，主要用来模拟一些操作，譬如压力测试，真实场景中用得少
-	 * @param groupContext
+	 * @param tioConfig
 	 * @param id ChannelContext id
 	 * @author tanyaowu
 	 */
-	public ServerChannelContext(GroupContext groupContext, String id) {
-		super(groupContext, id);
+	public ServerChannelContext(TioConfig tioConfig, String id) {
+		super(tioConfig, id);
 	}
 
 	/**

@@ -58,7 +58,7 @@ public class TioKit {
         packet.setMeta(meta);
       }
 
-      if (channelContext.groupContext.useQueueSend) {
+      if (channelContext.tioConfig.useQueueSend) {
         isAdded = channelContext.sendRunnable.addMsg(packet);
       } else {
         isAdded = channelContext.sendRunnable.sendPacket(packet);
@@ -70,7 +70,7 @@ public class TioKit {
         }
         return false;
       }
-      if (channelContext.groupContext.useQueueSend) {
+      if (channelContext.tioConfig.useQueueSend) {
         channelContext.sendRunnable.execute();
       }
 

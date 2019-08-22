@@ -2,6 +2,7 @@ package org.tio.core;
 
 import java.io.IOException;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,19 +35,19 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	public boolean						isReconnect					= false;
 	/**
 	 * 解码出现异常时，是否打印异常日志
-	 * 此值默认与org.tio.core.GroupContext.logWhenDecodeError保持一致
+	 * 此值默认与org.tio.core.TioConfig.logWhenDecodeError保持一致
 	 */
 	public boolean						logWhenDecodeError			= false;
 	/**
-	 * 此值不设时，心跳时间取org.tio.core.GroupContext.heartbeatTimeout
-	 * 当然这个值如果小于org.tio.core.GroupContext.heartbeatTimeout，定时检查的时间间隔还是以org.tio.core.GroupContext.heartbeatTimeout为准，只是在判断时用此值
+	 * 此值不设时，心跳时间取org.tio.core.TioConfig.heartbeatTimeout
+	 * 当然这个值如果小于org.tio.core.TioConfig.heartbeatTimeout，定时检查的时间间隔还是以org.tio.core.TioConfig.heartbeatTimeout为准，只是在判断时用此值
 	 */
 	public Long							heartbeatTimeout			= null;
 	/**
 	 * 一个packet所需要的字节数（用于应用告诉框架，下一次解码所需要的字节长度，省去冗余解码带来的性能损耗）
 	 */
 	public Integer						packetNeededLength			= null;
-	public GroupContext					groupContext				= null;
+	public TioConfig					tioConfig				= null;
 	public DecodeRunnable				decodeRunnable				= null;
 	public HandlerRunnable				handlerRunnable				= null;
 	public SendRunnable					sendRunnable				= null;
@@ -79,18 +80,18 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 
 	/**
 	 *
-	 * @param groupContext
+	 * @param tioConfig
 	 * @param asynchronousSocketChannel
 	 * @author tanyaowu
 	 */
-	public ChannelContext(GroupContext groupContext, AsynchronousSocketChannel asynchronousSocketChannel) {
+	public ChannelContext(TioConfig tioConfig, AsynchronousSocketChannel asynchronousSocketChannel) {
 		super();
-		init(groupContext, asynchronousSocketChannel);
+		init(tioConfig, asynchronousSocketChannel);
 
-		if (groupContext.sslConfig != null) {
+		if (tioConfig.sslConfig != null) {
 			try {
 				SslFacadeContext sslFacadeContext = new SslFacadeContext(this);
-				if (groupContext.isServer()) {
+				if (tioConfig.isServer()) {
 					sslFacadeContext.beginHandshake();
 				}
 			} catch (Exception e) {
@@ -103,27 +104,29 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 
 	/**
 	 * 创建一个虚拟ChannelContext，主要用来模拟一些操作，譬如压力测试，真实场景中用得少
-	 * @param groupContext
+	 * @param tioConfig
 	 */
-	public ChannelContext(GroupContext groupContext) {
-		this(groupContext, groupContext.getTioUuid().uuid());
+	public ChannelContext(TioConfig tioConfig) {
+		this(tioConfig, tioConfig.getTioUuid().uuid());
 	}
 
 	/**
 	 * 创建一个虚拟ChannelContext，主要用来模拟一些操作，譬如压力测试，真实场景中用得少
-	 * @param groupContext
+	 * @param tioConfig
 	 * @param id ChannelContext id
 	 * @author tanyaowu
 	 */
-	public ChannelContext(GroupContext groupContext, String id) {
+	public ChannelContext(TioConfig tioConfig, String id) {
 		isVirtual = true;
-		this.groupContext = groupContext;
+		this.tioConfig = tioConfig;
 		Node clientNode = new Node("127.0.0.1", 26254);
 		this.clientNode = clientNode;
-		this.id = id;//groupContext.getTioUuid().uuid();
+		this.id = id;//tioConfig.getTioUuid().uuid();
 		if (StrUtil.isBlank(id)) {
-			this.id = groupContext.getTioUuid().uuid();
+			this.id = tioConfig.getTioUuid().uuid();
 		}
+		
+		initOther();
 	}
 
 	private void assignAnUnknownClientNode() {
@@ -242,14 +245,23 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 		}
 	}
 
-	public void init(GroupContext groupContext, AsynchronousSocketChannel asynchronousSocketChannel) {
-		id = groupContext.getTioUuid().uuid();
-		this.setGroupContext(groupContext);
-		groupContext.ids.bind(this);
+	public void init(TioConfig tioConfig, AsynchronousSocketChannel asynchronousSocketChannel) {
+		id = tioConfig.getTioUuid().uuid();
+		this.setTioConfig(tioConfig);
+		tioConfig.ids.bind(this);
 		this.setAsynchronousSocketChannel(asynchronousSocketChannel);
 		this.readCompletionHandler = new ReadCompletionHandler(this);
 		this.writeCompletionHandler = new WriteCompletionHandler(this);
-		this.logWhenDecodeError = groupContext.logWhenDecodeError;
+		this.logWhenDecodeError = tioConfig.logWhenDecodeError;
+		
+		initOther();
+	}
+	
+	void initOther() {
+		if (!tioConfig.isShortConnection) {
+			//在长连接中，绑定群组几乎是必须要干的事，所以直接在初始化时给它赋值，省得在后面做同步处理
+			groups = new SetWithLock<String>(new HashSet<>());
+		}
 	}
 
 	/**
@@ -274,25 +286,25 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 
 			//非SSL or SSL已经握手
 			if (this.sslFacadeContext == null || this.sslFacadeContext.isHandshakeCompleted()) {
-				if (groupContext.getAioListener() != null) {
+				if (tioConfig.getAioListener() != null) {
 					try {
-						groupContext.getAioListener().onAfterSent(this, packet, isSentSuccess);
+						tioConfig.getAioListener().onAfterSent(this, packet, isSentSuccess);
 					} catch (Exception e) {
 						log.error(e.toString(), e);
 					}
 				}
 
-				if (groupContext.statOn) {
-					groupContext.groupStat.sentPackets.incrementAndGet();
+				if (tioConfig.statOn) {
+					tioConfig.groupStat.sentPackets.incrementAndGet();
 					stat.sentPackets.incrementAndGet();
 				}
 
-				if (groupContext.ipStats.durationList != null && groupContext.ipStats.durationList.size() > 0) {
+				if (tioConfig.ipStats.durationList != null && tioConfig.ipStats.durationList.size() > 0) {
 					try {
-						for (Long v : groupContext.ipStats.durationList) {
-							IpStat ipStat = groupContext.ipStats.get(v, this);
+						for (Long v : tioConfig.ipStats.durationList) {
+							IpStat ipStat = tioConfig.ipStats.get(v, this);
 							ipStat.getSentPackets().incrementAndGet();
-							groupContext.getIpStatListener().onAfterSent(this, packet, isSentSuccess, ipStat);
+							tioConfig.getIpStatListener().onAfterSent(this, packet, isSentSuccess, ipStat);
 						}
 					} catch (Exception e) {
 						log.error(e.toString(), e);
@@ -357,19 +369,19 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	 * @param remoteNode the remoteNode to set
 	 */
 	public void setClientNode(Node clientNode) {
-		if (!this.groupContext.isShortConnection) {
+		if (!this.tioConfig.isShortConnection) {
 			if (this.clientNode != null) {
-				groupContext.clientNodes.remove(this);
+				tioConfig.clientNodes.remove(this);
 			}
 		}
 
 		this.clientNode = clientNode;
-		if (this.groupContext.isShortConnection) {
+		if (this.tioConfig.isShortConnection) {
 			return;
 		}
 
 		if (this.clientNode != null && !Objects.equals(UNKNOWN_ADDRESS_IP, this.clientNode.getIp())) {
-			groupContext.clientNodes.put(this);
+			tioConfig.clientNodes.put(this);
 			//			clientNodeTraceFilename = StrUtil.replaceAll(clientNode.toString(), ":", "_");
 		}
 	}
@@ -389,21 +401,17 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	}
 
 	/**
-	 * @param groupContext the groupContext to set
+	 * @param tioConfig the tioConfig to set
 	 */
-	public void setGroupContext(GroupContext groupContext) {
-		this.groupContext = groupContext;
+	public void setTioConfig(TioConfig tioConfig) {
+		this.tioConfig = tioConfig;
 
-		if (groupContext != null) {
-			decodeRunnable = new DecodeRunnable(this, groupContext.tioExecutor);
-			handlerRunnable = new HandlerRunnable(this, groupContext.tioExecutor);
-			sendRunnable = new SendRunnable(this, groupContext.tioExecutor);
-			groupContext.connections.add(this);
+		if (tioConfig != null) {
+			decodeRunnable = new DecodeRunnable(this, tioConfig.tioExecutor);
+			handlerRunnable = new HandlerRunnable(this, tioConfig.tioExecutor);
+			sendRunnable = new SendRunnable(this, tioConfig.tioExecutor);
+			tioConfig.connections.add(this);
 		}
-	}
-
-	public void setGroups(SetWithLock<String> groups) {
-		this.groups = groups;
 	}
 
 	public void setPacketNeededLength(Integer packetNeededLength) {
@@ -526,7 +534,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	//	 */
 	//	public void traceClient(ChannelAction channelAction, Packet packet, Map<String, Object> extmsg) {
 	//		if (isTraceClient) {
-	//			this.groupContext.clientTraceHandler.traceChannel(this, channelAction, packet, extmsg);
+	//			this.tioConfig.clientTraceHandler.traceChannel(this, channelAction, packet, extmsg);
 	//		}
 	//	}
 
@@ -544,8 +552,8 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 		this.bsId = bsId;
 	}
 
-	public GroupContext getGroupContext() {
-		return groupContext;
+	public TioConfig getTioConfig() {
+		return tioConfig;
 	}
 
 	/**
@@ -573,7 +581,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 		if (readBufferSize != null && readBufferSize > 0) {
 			return readBufferSize;
 		}
-		return this.groupContext.getReadBufferSize();
+		return this.tioConfig.getReadBufferSize();
 	}
 
 	public void setReadBufferSize(Integer readBufferSize) {
@@ -620,11 +628,11 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 			//将性能数据进行转移
 			if (!Objects.equals(proxyClientNode.getIp(), clientNode.getIp())) {
 
-				if (groupContext.ipStats.durationList != null && groupContext.ipStats.durationList.size() > 0) {
+				if (tioConfig.ipStats.durationList != null && tioConfig.ipStats.durationList.size() > 0) {
 					try {
-						for (Long v : groupContext.ipStats.durationList) {
-							IpStat oldIpStat = (IpStat) groupContext.ipStats._get(v, this, true, false);
-							IpStat newIpStat = (IpStat) groupContext.ipStats.get(v, this);
+						for (Long v : tioConfig.ipStats.durationList) {
+							IpStat oldIpStat = (IpStat) tioConfig.ipStats._get(v, this, true, false);
+							IpStat newIpStat = (IpStat) tioConfig.ipStats.get(v, this);
 							ChannelStat myStat = this.stat;
 							swithIpStat(oldIpStat, newIpStat, myStat);
 						}

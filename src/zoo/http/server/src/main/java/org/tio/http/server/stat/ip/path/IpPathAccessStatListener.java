@@ -1,18 +1,18 @@
 package org.tio.http.server.stat.ip.path;
 
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.http.common.HttpRequest;
 
 public interface IpPathAccessStatListener {
 
 	/**
 	 * 
-	 * @param groupContext
+	 * @param tioConfig
 	 * @param ip
 	 * @param ipAccessStat
 	 * @author tanyaowu
 	 */
-	public void onExpired(GroupContext groupContext, String ip, IpAccessStat ipAccessStat);
+	public void onExpired(TioConfig tioConfig, String ip, IpAccessStat ipAccessStat);
 
 	/**
 	 * 

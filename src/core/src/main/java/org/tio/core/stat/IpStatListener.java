@@ -1,7 +1,7 @@
 package org.tio.core.stat;
 
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.core.intf.Packet;
 
 /**
@@ -11,10 +11,10 @@ import org.tio.core.intf.Packet;
 public interface IpStatListener {
 	/**
 	 * 统计时间段到期后，用户可以在这个方法中实现把相关数据入库或是打日志等
-	 * @param groupContext
+	 * @param tioConfig
 	 * @param ipStat
 	 */
-	public void onExpired(GroupContext groupContext, IpStat ipStat);
+	public void onExpired(TioConfig tioConfig, IpStat ipStat);
 
 	/**
 	 * 建链后触发本方法，注：建链不一定成功，需要关注参数isConnected

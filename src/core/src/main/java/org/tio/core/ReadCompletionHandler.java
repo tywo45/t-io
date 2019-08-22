@@ -31,18 +31,18 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuf
 	public ReadCompletionHandler(ChannelContext channelContext) {
 		this.channelContext = channelContext;
 		this.readByteBuffer = ByteBuffer.allocate(channelContext.getReadBufferSize());
-		this.readByteBuffer.order(channelContext.groupContext.getByteOrder());
+		this.readByteBuffer.order(channelContext.tioConfig.getByteOrder());
 	}
 
 	@Override
 	public void completed(Integer result, ByteBuffer byteBuffer) {
 		if (result > 0) {
 //			log.error("读取数据:{}字节", result);
-			GroupContext groupContext = channelContext.groupContext;
+			TioConfig tioConfig = channelContext.tioConfig;
 
-			if (groupContext.statOn) {
-				groupContext.groupStat.receivedBytes.addAndGet(result);
-				groupContext.groupStat.receivedTcps.incrementAndGet();
+			if (tioConfig.statOn) {
+				tioConfig.groupStat.receivedBytes.addAndGet(result);
+				tioConfig.groupStat.receivedTcps.incrementAndGet();
 
 				channelContext.stat.receivedBytes.addAndGet(result);
 				channelContext.stat.receivedTcps.incrementAndGet();
@@ -50,22 +50,22 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuf
 
 			channelContext.stat.latestTimeOfReceivedByte = SystemTimer.currTime;
 
-			if (groupContext.ipStats.durationList != null && groupContext.ipStats.durationList.size() > 0) {
+			if (tioConfig.ipStats.durationList != null && tioConfig.ipStats.durationList.size() > 0) {
 				try {
-					for (Long v : groupContext.ipStats.durationList) {
-						IpStat ipStat = groupContext.ipStats.get(v, channelContext);
+					for (Long v : tioConfig.ipStats.durationList) {
+						IpStat ipStat = tioConfig.ipStats.get(v, channelContext);
 						ipStat.getReceivedBytes().addAndGet(result);
 						ipStat.getReceivedTcps().incrementAndGet();
-						groupContext.getIpStatListener().onAfterReceivedBytes(channelContext, result, ipStat);
+						tioConfig.getIpStatListener().onAfterReceivedBytes(channelContext, result, ipStat);
 					}
 				} catch (Exception e1) {
 					log.error(channelContext.toString(), e1);
 				}
 			}
 
-			if (groupContext.getAioListener() != null) {
+			if (tioConfig.getAioListener() != null) {
 				try {
-					groupContext.getAioListener().onAfterReceivedBytes(channelContext, result);
+					tioConfig.getAioListener().onAfterReceivedBytes(channelContext, result);
 				} catch (Exception e) {
 					log.error("", e);
 				}
@@ -73,7 +73,7 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuf
 
 			readByteBuffer.flip();
 			if (channelContext.sslFacadeContext == null) {
-				if (groupContext.useQueueDecode) {
+				if (tioConfig.useQueueDecode) {
 					channelContext.decodeRunnable.addMsg(ByteBufferUtils.copy(readByteBuffer));
 					channelContext.decodeRunnable.execute();
 				} else {

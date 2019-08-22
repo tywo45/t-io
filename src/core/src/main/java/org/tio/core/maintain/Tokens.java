@@ -10,7 +10,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.lock.LockUtils;
 import org.tio.utils.lock.MapWithLock;
@@ -30,10 +30,8 @@ public class Tokens {
 	 * value: SetWithLock<ChannelContext>
 	 */
 	private MapWithLock<String, SetWithLock<ChannelContext>> mapWithLock = new MapWithLock<>(new HashMap<String, SetWithLock<ChannelContext>>());
-	
+
 	private final Object synLockObj1 = new Object();
-	private final Object synLockObj2 = new Object(); 
-	private final Object synLockObj3 = new Object(); 
 
 	/**
 	 * 绑定token.
@@ -43,7 +41,7 @@ public class Tokens {
 	 * @author tanyaowu
 	 */
 	public void bind(String token, ChannelContext channelContext) {
-		if (channelContext.groupContext.isShortConnection) {
+		if (channelContext.tioConfig.isShortConnection) {
 			return;
 		}
 
@@ -52,48 +50,33 @@ public class Tokens {
 		}
 
 		try {
-			String key = token;
-//			Lock lock = mapWithLock.writeLock();
-//			lock.lock();
-			try {
-				Map<String, SetWithLock<ChannelContext>> map = mapWithLock.getObj();
-				SetWithLock<ChannelContext> setWithLock = map.get(key);
-				if (setWithLock == null) {
-//					setWithLock = new SetWithLock<>(new HashSet<>());
-//					map.put(key, setWithLock);
-					
-					
-					
-					
-					LockUtils.runReadOrWrite("_tio_tokens_bind__" + key, synLockObj1, new ReadWriteLockHandler() {
-						@Override
-						public Object read() {
-							return null;
-						}
+			SetWithLock<ChannelContext> setWithLock = mapWithLock.get(token);
+			if (setWithLock == null) {
+				LockUtils.runReadOrWrite("_tio_tokens_bind__" + token, synLockObj1, new ReadWriteLockHandler() {
+					@Override
+					public Object read() {
+						return null;
+					}
 
-						@Override
-						public Object write() {
-							map.put(key, new SetWithLock<>(new HashSet<>()));
-							return null;
-						}
-					});
-					setWithLock = map.get(key);
-					
-					
-				}
+					@Override
+					public Object write() {
+						SetWithLock<ChannelContext> setWithLock = new SetWithLock<>(new HashSet<>());
+						setWithLock.add(channelContext);
+						mapWithLock.put(token, setWithLock);
+						return null;
+					}
+				});
+				setWithLock = mapWithLock.get(token);
+			} else {
 				setWithLock.add(channelContext);
-
-				//			cacheMap.put(key, channelContext);
-
-				channelContext.setToken(token);
-			} catch (Throwable e) {
-				throw e;
-			} finally {
-//				lock.unlock();
 			}
+			channelContext.setToken(token);
 		} catch (Throwable e) {
-			log.error(e.toString(), e);
+			log.error("", e);
+		} finally {
+			//			lock.unlock();
 		}
+
 	}
 
 	/**
@@ -102,8 +85,8 @@ public class Tokens {
 	 * @param token the token
 	 * @return the channel context
 	 */
-	public SetWithLock<ChannelContext> find(GroupContext groupContext, String token) {
-		if (groupContext.isShortConnection) {
+	public SetWithLock<ChannelContext> find(TioConfig tioConfig, String token) {
+		if (tioConfig.isShortConnection) {
 			return null;
 		}
 
@@ -136,41 +119,27 @@ public class Tokens {
 	 * @param channelContext the channel context
 	 */
 	public void unbind(ChannelContext channelContext) {
-		if (channelContext.groupContext.isShortConnection) {
+		if (channelContext.tioConfig.isShortConnection) {
 			return;
 		}
 		try {
 			String token = channelContext.getToken();
 			if (StrUtil.isBlank(token)) {
-				log.debug("{}, {}, 并没有绑定Token", channelContext.groupContext.getName(), channelContext.toString());
+				log.debug("{}, {}, 并没有绑定Token", channelContext.tioConfig.getName(), channelContext.toString());
 				return;
 			}
 
 			try {
-				Map<String, SetWithLock<ChannelContext>> m = mapWithLock.getObj();
-				SetWithLock<ChannelContext> setWithLock = m.get(token);
+				SetWithLock<ChannelContext> setWithLock = mapWithLock.get(token);
 				if (setWithLock == null) {
-					log.warn("{}, {}, token:{}, 没有找到对应的SetWithLock", channelContext.groupContext.getName(), channelContext.toString(), token);
+					log.warn("{}, {}, token:{}, 没有找到对应的SetWithLock", channelContext.tioConfig.getName(), channelContext.toString(), token);
 					return;
 				}
 				channelContext.setToken(null);
 				setWithLock.remove(channelContext);
 
-				if (setWithLock.getObj().size() == 0) {
-//					m.remove(token);
-					
-					LockUtils.runReadOrWrite("_tio_tokens_unbind_1__" + token, synLockObj2, new ReadWriteLockHandler() {
-						@Override
-						public Object read() {
-							return null;
-						}
-
-						@Override
-						public Object write() {
-							m.remove(token);
-							return null;
-						}
-					});
+				if (setWithLock.size() == 0) {
+					mapWithLock.remove(token);
 				}
 			} catch (Throwable e) {
 				throw e;
@@ -181,62 +150,44 @@ public class Tokens {
 	}
 
 	/**
-	 * 解除groupContext范围内所有ChannelContext的 token绑定
+	 * 解除tioConfig范围内所有ChannelContext的 token绑定
 	 *
 	 * @param token the token
 	 * @author tanyaowu
 	 */
-	public void unbind(GroupContext groupContext, String token) {
-		if (groupContext.isShortConnection) {
+	public void unbind(TioConfig tioConfig, String token) {
+		if (tioConfig.isShortConnection) {
 			return;
 		}
-
 		if (StrUtil.isBlank(token)) {
 			return;
 		}
 
 		try {
+			SetWithLock<ChannelContext> setWithLock = mapWithLock.get(token);
+			if (setWithLock == null) {
+				return;
+			}
+
+			WriteLock writeLock = setWithLock.writeLock();
+			writeLock.lock();
 			try {
-				Map<String, SetWithLock<ChannelContext>> m = mapWithLock.getObj();
-				SetWithLock<ChannelContext> setWithLock = m.get(token);
-				if (setWithLock == null) {
-					return;
-				}
-
-				WriteLock writeLock = setWithLock.writeLock();
-				writeLock.lock();
-				try {
-					Set<ChannelContext> set = setWithLock.getObj();
-					if (set.size() > 0) {
-						for (ChannelContext channelContext : set) {
-							channelContext.setToken(null);
-						}
-						set.clear();
+				Set<ChannelContext> set = setWithLock.getObj();
+				if (set.size() > 0) {
+					for (ChannelContext channelContext : set) {
+						channelContext.setToken(null);
 					}
-					
-					LockUtils.runReadOrWrite("_tio_tokens_unbind_2__" + token, synLockObj3, new ReadWriteLockHandler() {
-						@Override
-						public Object read() {
-							return null;
-						}
-
-						@Override
-						public Object write() {
-							m.remove(token);
-							return null;
-						}
-					});
-					
-				} catch (Throwable e) {
-					log.error(e.getMessage(), e);
-				} finally {
-					writeLock.unlock();
+					set.clear();
 				}
+
+				mapWithLock.remove(token);
 			} catch (Throwable e) {
-				throw e;
+				log.error(e.getMessage(), e);
+			} finally {
+				writeLock.unlock();
 			}
 		} catch (Throwable e) {
-			log.error(e.toString(), e);
+			throw e;
 		}
 	}
 }

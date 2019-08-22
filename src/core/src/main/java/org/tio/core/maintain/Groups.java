@@ -2,16 +2,13 @@ package org.tio.core.maintain;
 
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.core.intf.GroupListener;
 import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.lock.LockUtils;
@@ -30,16 +27,15 @@ public class Groups {
 	 * 对ChannelContext进行排序的比较器
 	 * 该对象必须在服务启动前进行设置，并且不要再去修改，否则会导致有的排序了，有的没有排序
 	 */
-	private Comparator<ChannelContext> channelContextComparator = null;
-
+	private Comparator<ChannelContext>							channelContextComparator	= null;
 	/** The log. */
-	private static Logger log = LoggerFactory.getLogger(Groups.class);
-
+	private static Logger										log							= LoggerFactory.getLogger(Groups.class);
 	/** 一个组有哪些客户端<br>
 	 * key: groupid<br>
 	 * value: SetWithLock<ChannelContext><br>
 	 */
-	private MapWithLock<String, SetWithLock<ChannelContext>> groupmap = new MapWithLock<>(new HashMap<String, SetWithLock<ChannelContext>>());
+	private MapWithLock<String, SetWithLock<ChannelContext>>	groupmap					= new MapWithLock<>(new HashMap<String, SetWithLock<ChannelContext>>());
+	private String												rwKey						= "_tio_groups_bind__";
 
 	/**
 	 * 和组绑定
@@ -57,57 +53,49 @@ public class Groups {
 	 * @param callbackListener 是否回调GroupListener
 	 */
 	public void bind(String groupid, ChannelContext channelContext, boolean callbackListener) {
-		if (channelContext.groupContext.isShortConnection) {
+		if (channelContext.tioConfig.isShortConnection) {
 			return;
 		}
 
 		if (StrUtil.isBlank(groupid)) {
 			return;
 		}
-		try {
-			SetWithLock<ChannelContext> channelContexts = null;
+		
+		SetWithLock<ChannelContext> channelSet = groupmap.get(groupid);
+		if (channelSet == null) {
 			try {
-				Map<String, SetWithLock<ChannelContext>> map = groupmap.getObj();
-				channelContexts = map.get(groupid);
-				if (channelContexts == null) {
-					LockUtils.runReadOrWrite("_tio_groups_bind__" + groupid, this, new ReadWriteLockHandler() {
-						@Override
-						public Object read() {
-							return null;
-						}
-
-						@Override
-						public Object write() {
-							map.put(groupid, new SetWithLock<>(MaintainUtils.createSet(channelContextComparator)));
-							return null;
-						}
-					});
-					channelContexts = map.get(groupid);
-				}
-
-				SetWithLock<String> set = channelContext.getGroups();
-				if (set == null) {
-					set = new SetWithLock<String>(new HashSet<>());
-					channelContext.setGroups(set);
-				}
-				set.add(groupid);
-				channelContexts.add(channelContext);
-
-				if (callbackListener) {
-					GroupListener groupListener = channelContext.groupContext.getGroupListener();
-					if (groupListener != null) {
-						try {
-							groupListener.onAfterBind(channelContext, groupid);
-						} catch (Throwable e) {
-							log.error(e.toString(), e);
-						}
+				LockUtils.runReadOrWrite(rwKey + groupid, this, new ReadWriteLockHandler() {
+					@Override
+					public Object read() {
+						return null;
 					}
-				}
-			} catch (Throwable e) {
+
+					@Override
+					public Object write() {
+						SetWithLock<ChannelContext> channelSet = new SetWithLock<>(MaintainUtils.createSet(channelContextComparator));
+						channelSet.add(channelContext);
+						groupmap.put(groupid, channelSet);
+						return null;
+					}
+				});
+			} catch (Exception e) {
 				log.error(e.toString(), e);
 			}
-		} catch (Exception e) {
-			log.error(e.toString(), e);
+		} else {
+			channelSet.add(channelContext);
+		}
+
+		channelContext.getGroups().add(groupid);
+
+		if (callbackListener) {
+			GroupListener groupListener = channelContext.tioConfig.getGroupListener();
+			if (groupListener != null) {
+				try {
+					groupListener.onAfterBind(channelContext, groupid);
+				} catch (Throwable e) {
+					log.error(e.toString(), e);
+				}
+			}
 		}
 	}
 
@@ -117,8 +105,8 @@ public class Groups {
 	 * @return
 	 * @author tanyaowu
 	 */
-	public SetWithLock<ChannelContext> clients(GroupContext groupContext, String groupid) {
-		if (groupContext.isShortConnection) {
+	public SetWithLock<ChannelContext> clients(TioConfig tioConfig, String groupid) {
+		if (tioConfig.isShortConnection) {
 			return null;
 		}
 
@@ -142,8 +130,8 @@ public class Groups {
 	 * @author tanyaowu
 	 */
 	public SetWithLock<String> groups(ChannelContext channelContext) {
-		GroupContext groupContext = channelContext.groupContext;
-		if (groupContext.isShortConnection) {
+		TioConfig tioConfig = channelContext.tioConfig;
+		if (tioConfig.isShortConnection) {
 			return null;
 		}
 
@@ -165,34 +153,33 @@ public class Groups {
 	 * @param callbackListener 是否回调GroupListener
 	 */
 	public void unbind(ChannelContext channelContext, boolean callbackListener) {
-		if (channelContext.groupContext.isShortConnection) {
+		if (channelContext.tioConfig.isShortConnection) {
 			return;
 		}
 
 		try {
 			SetWithLock<String> setWithLock = channelContext.getGroups();
-			if (setWithLock != null) {
-				WriteLock writeLock = setWithLock.writeLock();
-				writeLock.lock();
-				try {
-					Set<String> groups = setWithLock.getObj();
-					if (groups != null && groups.size() > 0) {
-						for (String groupid : groups) {
-							try {
-								unbind(groupid, channelContext, false, callbackListener);
-							} catch (Exception e) {
-								log.error(e.toString(), e);
-							}
+			WriteLock writeLock = setWithLock.writeLock();
+			writeLock.lock();
+			try {
+				Set<String> groups = setWithLock.getObj();
+				if (groups != null && groups.size() > 0) {
+					for (String groupid : groups) {
+						try {
+							unbind(groupid, channelContext, false, callbackListener);
+						} catch (Exception e) {
+							log.error(e.toString(), e);
 						}
-						groups.clear();
-						channelContext.setGroups(null);
 					}
-				} catch (Exception e) {
-					log.error(e.toString(), e);
-				} finally {
-					writeLock.unlock();
+					groups.clear();
+					channelContext.getGroups().clear();
 				}
+			} catch (Exception e) {
+				log.error(e.toString(), e);
+			} finally {
+				writeLock.unlock();
 			}
+		
 		} catch (Throwable e) {
 			log.error(e.toString(), e);
 		}
@@ -225,7 +212,7 @@ public class Groups {
 	 * @param callbackListener 是否回调GroupListener
 	 */
 	public void unbind(String groupid, ChannelContext channelContext, boolean deleteFromChannelContext, boolean callbackListener) {
-		if (channelContext.groupContext.isShortConnection) {
+		if (channelContext.tioConfig.isShortConnection) {
 			return;
 		}
 
@@ -234,22 +221,19 @@ public class Groups {
 		}
 
 		try {
-			SetWithLock<ChannelContext> setWithLock = groupmap.getObj().get(groupid);
-			if (setWithLock != null) {
-				boolean ss = setWithLock.remove(channelContext);
+			SetWithLock<ChannelContext> channelSet = groupmap.get(groupid);
+			if (channelSet != null) {
+				boolean ss = channelSet.remove(channelContext);
 				if (!ss) {
-					log.error("{}, 移除失败, cid:{}", channelContext, channelContext.getId());
+					log.warn("{}, 移除失败,group:{} cid:{}", channelContext, groupid, channelContext.getId());
 				}
 
 				if (deleteFromChannelContext) {
-					SetWithLock<String> setInChannelContext = channelContext.getGroups();
-					if (setInChannelContext != null) {
-						setInChannelContext.remove(groupid);
-					}
+					channelContext.getGroups().remove(groupid);
 				}
 
 				if (callbackListener) {
-					GroupListener groupListener = channelContext.groupContext.getGroupListener();
+					GroupListener groupListener = channelContext.tioConfig.getGroupListener();
 					if (groupListener != null) {
 						try {
 							groupListener.onAfterUnbind(channelContext, groupid);
@@ -260,18 +244,8 @@ public class Groups {
 				}
 
 				//如果该群组没有任何连接，就把这个群组从map中删除，以释放空间
-				if (setWithLock.getObj().size() == 0) {
-					Lock lock2 = groupmap.writeLock();
-					lock2.lock();
-					try {
-						if (setWithLock.getObj().size() == 0) {
-							groupmap.getObj().remove(groupid);
-						}
-					} catch (Throwable e) {
-						log.error(e.toString(), e);
-					} finally {
-						lock2.unlock();
-					}
+				if (channelSet.getObj().size() == 0) {
+					groupmap.remove(groupid);
 				}
 			}
 		} catch (Exception e) {

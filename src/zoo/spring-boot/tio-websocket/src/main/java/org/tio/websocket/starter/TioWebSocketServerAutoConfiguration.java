@@ -13,7 +13,7 @@ import org.tio.cluster.redisson.RedissonTioClusterTopic;
 import org.tio.common.starter.RedisInitializer;
 import org.tio.core.intf.GroupListener;
 import org.tio.core.stat.IpStatListener;
-import org.tio.server.ServerGroupContext;
+import org.tio.server.ServerTioConfig;
 import org.tio.websocket.server.WsServerAioListener;
 import org.tio.websocket.server.handler.IWsMsgHandler;
 import org.tio.websocket.starter.configuration.TioWebSocketServerClusterProperties;
@@ -86,8 +86,8 @@ public class TioWebSocketServerAutoConfiguration {
     }
 
     @Bean
-    public ServerGroupContext serverGroupContext(TioWebSocketServerBootstrap bootstrap){
-        return bootstrap.getServerGroupContext();
+    public ServerTioConfig serverTioConfig(TioWebSocketServerBootstrap bootstrap){
+        return bootstrap.getServerTioConfig();
     }
 
     @Bean(destroyMethod="shutdown")

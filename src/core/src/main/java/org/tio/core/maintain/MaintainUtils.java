@@ -8,9 +8,9 @@ import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.client.ClientGroupContext;
+import org.tio.client.ClientTioConfig;
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.utils.hutool.FileUtil;
 
 /**
@@ -32,16 +32,16 @@ public class MaintainUtils {
 	 *
 	 */
 	public static void remove(ChannelContext channelContext) {
-		GroupContext groupContext = channelContext.groupContext;
-		if (!groupContext.isServer()) {
-			ClientGroupContext clientGroupContext = (ClientGroupContext) groupContext;
-			clientGroupContext.closeds.remove(channelContext);
-			clientGroupContext.connecteds.remove(channelContext);
+		TioConfig tioConfig = channelContext.tioConfig;
+		if (!tioConfig.isServer()) {
+			ClientTioConfig clientTioConfig = (ClientTioConfig) tioConfig;
+			clientTioConfig.closeds.remove(channelContext);
+			clientTioConfig.connecteds.remove(channelContext);
 		}
 
-		groupContext.connections.remove(channelContext);
-		groupContext.ips.unbind(channelContext);
-		groupContext.ids.unbind(channelContext);
+		tioConfig.connections.remove(channelContext);
+		tioConfig.ips.unbind(channelContext);
+		tioConfig.ids.unbind(channelContext);
 
 		close(channelContext);
 	}
@@ -52,18 +52,18 @@ public class MaintainUtils {
 	 * @author tanyaowu
 	 */
 	public static void close(ChannelContext channelContext) {
-		GroupContext groupContext = channelContext.groupContext;
-		groupContext.users.unbind(channelContext);
-		groupContext.tokens.unbind(channelContext);
-		groupContext.groups.unbind(channelContext);
+		TioConfig tioConfig = channelContext.tioConfig;
+		tioConfig.users.unbind(channelContext);
+		tioConfig.tokens.unbind(channelContext);
+		tioConfig.groups.unbind(channelContext);
 
-		groupContext.bsIds.unbind(channelContext);
+		tioConfig.bsIds.unbind(channelContext);
 		deleteTempDir(channelContext);
 	}
 
 	/**
 	 * 
-	 * @param groupContext
+	 * @param tioConfig
 	 * @return
 	 */
 	public static Set<ChannelContext> createSet(Comparator<ChannelContext> comparator) {
@@ -92,7 +92,7 @@ public class MaintainUtils {
 	 * @author tanyaowu
 	 */
 	public static File tempDir(ChannelContext channelContext, boolean forceCreate) {
-		File dirFile = new File(TEMP_DIR + channelContext.groupContext.getId() + "/" + channelContext.getId());
+		File dirFile = new File(TEMP_DIR + channelContext.tioConfig.getId() + "/" + channelContext.getId());
 		if (!dirFile.exists()) {
 			if (forceCreate) {
 				dirFile.mkdirs();

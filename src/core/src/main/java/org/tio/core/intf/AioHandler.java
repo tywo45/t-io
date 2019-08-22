@@ -3,7 +3,7 @@ package org.tio.core.intf;
 import java.nio.ByteBuffer;
 
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.core.exception.AioDecodeException;
 
 /**
@@ -29,12 +29,12 @@ public interface AioHandler {
 	/**
 	 * 编码
 	 * @param packet
-	 * @param groupContext
+	 * @param tioConfig
 	 * @param channelContext
 	 * @return
 	 * @author: tanyaowu
 	 */
-	ByteBuffer encode(Packet packet, GroupContext groupContext, ChannelContext channelContext);
+	ByteBuffer encode(Packet packet, TioConfig tioConfig, ChannelContext channelContext);
 
 	/**
 	 * 处理消息包

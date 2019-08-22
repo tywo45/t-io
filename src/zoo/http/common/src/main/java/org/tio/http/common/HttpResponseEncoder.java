@@ -9,7 +9,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.http.common.utils.HttpDateTimer;
 import org.tio.http.common.utils.HttpGzipUtils;
 import org.tio.utils.SysConst;
@@ -30,12 +30,12 @@ public class HttpResponseEncoder {
 	/**
 	 *
 	 * @param httpResponse
-	 * @param groupContext
+	 * @param tioConfig
 	 * @param channelContext
 	 * @return
 	 * @author tanyaowu
 	 */
-	public static ByteBuffer encode(HttpResponse httpResponse, GroupContext groupContext, ChannelContext channelContext) throws UnsupportedEncodingException {
+	public static ByteBuffer encode(HttpResponse httpResponse, TioConfig tioConfig, ChannelContext channelContext) throws UnsupportedEncodingException {
 		int bodyLength = 0;
 		byte[] body = httpResponse.body;
 

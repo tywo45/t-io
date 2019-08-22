@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.ChannelContext.CloseCode;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.core.Tio;
 import org.tio.core.intf.AioHandler;
 import org.tio.core.intf.AioListener;
@@ -30,14 +30,14 @@ import org.tio.utils.thread.pool.SynThreadPoolExecutor;
  * @author tanyaowu 
  * 2016年10月10日 下午5:51:56
  */
-public class ServerGroupContext extends GroupContext {
-	static Logger					log						= LoggerFactory.getLogger(ServerGroupContext.class);
+public class ServerTioConfig extends TioConfig {
+	static Logger					log						= LoggerFactory.getLogger(ServerTioConfig.class);
 	private AcceptCompletionHandler	acceptCompletionHandler	= null;
 	private ServerAioHandler		serverAioHandler		= null;
 	private ServerAioListener		serverAioListener		= null;
 	private Thread					checkHeartbeatThread	= null;
 	private boolean					needCheckHeartbeat		= true;
-	//	private static Set<ServerGroupContext>	SHARED_SET				= null;
+	//	private static Set<ServerTioConfig>	SHARED_SET				= null;
 	private boolean isShared = false;
 
 	/**
@@ -46,7 +46,7 @@ public class ServerGroupContext extends GroupContext {
 	 * @param serverAioListener
 	 * @author: tanyaowu
 	 */
-	public ServerGroupContext(ServerAioHandler serverAioHandler, ServerAioListener serverAioListener) {
+	public ServerTioConfig(ServerAioHandler serverAioHandler, ServerAioListener serverAioListener) {
 		this(null, serverAioHandler, serverAioListener);
 	}
 
@@ -57,7 +57,7 @@ public class ServerGroupContext extends GroupContext {
 	 * @param serverAioListener
 	 * @author: tanyaowu
 	 */
-	public ServerGroupContext(String name, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener) {
+	public ServerTioConfig(String name, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener) {
 		this(name, serverAioHandler, serverAioListener, null, null);
 	}
 
@@ -69,7 +69,7 @@ public class ServerGroupContext extends GroupContext {
 	 * @param groupExecutor
 	 * @author: tanyaowu
 	 */
-	public ServerGroupContext(ServerAioHandler serverAioHandler, ServerAioListener serverAioListener, SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
+	public ServerTioConfig(ServerAioHandler serverAioHandler, ServerAioListener serverAioListener, SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
 		this(null, serverAioHandler, serverAioListener, tioExecutor, groupExecutor);
 	}
 
@@ -82,7 +82,7 @@ public class ServerGroupContext extends GroupContext {
 	 * @param groupExecutor
 	 * @author: tanyaowu
 	 */
-	public ServerGroupContext(String name, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener, SynThreadPoolExecutor tioExecutor,
+	public ServerTioConfig(String name, ServerAioHandler serverAioHandler, ServerAioListener serverAioListener, SynThreadPoolExecutor tioExecutor,
 	        ThreadPoolExecutor groupExecutor) {
 		super(tioExecutor, groupExecutor);
 		this.ipBlacklist = new IpBlacklist(id, this);
@@ -117,7 +117,7 @@ public class ServerGroupContext extends GroupContext {
 				while (needCheckHeartbeat && !isStopped()) {
 					//					long sleeptime = heartbeatTimeout;
 					if (heartbeatTimeout <= 0) {
-						log.info("{}, 用户取消了框架层面的心跳检测，如果业务需要，请用户自己去完成心跳检测", ServerGroupContext.this.name);
+						log.info("{}, 用户取消了框架层面的心跳检测，如果业务需要，请用户自己去完成心跳检测", ServerTioConfig.this.name);
 						break;
 					}
 					try {
@@ -126,7 +126,7 @@ public class ServerGroupContext extends GroupContext {
 						log.error(e1.toString(), e1);
 					}
 					long start = SystemTimer.currTime;
-					SetWithLock<ChannelContext> setWithLock = ServerGroupContext.this.connections;
+					SetWithLock<ChannelContext> setWithLock = ServerTioConfig.this.connections;
 					Set<ChannelContext> set = null;
 					long start1 = 0;
 					int count = 0;
@@ -164,13 +164,13 @@ public class ServerGroupContext extends GroupContext {
 							readLock.unlock();
 							if (debug) {
 								StringBuilder builder = new StringBuilder();
-								builder.append(SysConst.CRLF).append(ServerGroupContext.this.getName());
+								builder.append(SysConst.CRLF).append(ServerTioConfig.this.getName());
 								builder.append("\r\n ├ 当前时间:").append(SystemTimer.currTime);
 								builder.append("\r\n ├ 连接统计");
 								builder.append("\r\n │ \t ├ 共接受过连接数  :").append(((ServerGroupStat) groupStat).accepted.get());
 								builder.append("\r\n │ \t ├ 当前连接数            :").append(set.size());
 								//								builder.append("\r\n │ \t ├ 当前群组数            :").append(groups);
-								builder.append("\r\n │ \t ├ 异IP连接数           :").append(ServerGroupContext.this.ips.getIpmap().getObj().size());
+								builder.append("\r\n │ \t ├ 异IP连接数           :").append(ServerTioConfig.this.ips.getIpmap().getObj().size());
 								builder.append("\r\n │ \t └ 关闭过的连接数  :").append(groupStat.closed.get());
 
 								builder.append("\r\n ├ 消息统计");
@@ -180,30 +180,30 @@ public class ServerGroupContext extends GroupContext {
 								builder.append("\r\n │ \t ├ 平均每次TCP包接收的字节数  :").append(groupStat.getBytesPerTcpReceive());
 								builder.append("\r\n │ \t └ 平均每次TCP包接收的业务包  :").append(groupStat.getPacketsPerTcpReceive());
 								builder.append("\r\n └ IP统计时段 ");
-								if (ServerGroupContext.this.ipStats.durationList != null && ServerGroupContext.this.ipStats.durationList.size() > 0) {
-									builder.append("\r\n   \t └ ").append(Json.toJson(ServerGroupContext.this.ipStats.durationList));
+								if (ServerTioConfig.this.ipStats.durationList != null && ServerTioConfig.this.ipStats.durationList.size() > 0) {
+									builder.append("\r\n   \t └ ").append(Json.toJson(ServerTioConfig.this.ipStats.durationList));
 								} else {
 									builder.append("\r\n   \t └ ").append("没有设置ip统计时间");
 								}
 
 								builder.append("\r\n ├ 节点统计");
-								builder.append("\r\n │ \t ├ clientNodes :").append(ServerGroupContext.this.clientNodes.getObjWithLock().getObj().size());
-								builder.append("\r\n │ \t ├ 所有连接               :").append(ServerGroupContext.this.connections.getObj().size());
-								builder.append("\r\n │ \t ├ 绑定user数         :").append(ServerGroupContext.this.users.getMap().getObj().size());
-								builder.append("\r\n │ \t ├ 绑定token数       :").append(ServerGroupContext.this.tokens.getMap().getObj().size());
-								builder.append("\r\n │ \t └ 等待同步消息响应 :").append(ServerGroupContext.this.waitingResps.getObj().size());
+								builder.append("\r\n │ \t ├ clientNodes :").append(ServerTioConfig.this.clientNodes.getObjWithLock().getObj().size());
+								builder.append("\r\n │ \t ├ 所有连接               :").append(ServerTioConfig.this.connections.getObj().size());
+								builder.append("\r\n │ \t ├ 绑定user数         :").append(ServerTioConfig.this.users.getMap().getObj().size());
+								builder.append("\r\n │ \t ├ 绑定token数       :").append(ServerTioConfig.this.tokens.getMap().getObj().size());
+								builder.append("\r\n │ \t └ 等待同步消息响应 :").append(ServerTioConfig.this.waitingResps.getObj().size());
 
 								builder.append("\r\n ├ 群组");
-								builder.append("\r\n │ \t └ groupmap:").append(ServerGroupContext.this.groups.getGroupmap().getObj().size());
+								builder.append("\r\n │ \t └ groupmap:").append(ServerTioConfig.this.groups.getGroupmap().getObj().size());
 								builder.append("\r\n └ 拉黑IP ");
-								builder.append("\r\n   \t └ ").append(Json.toJson(ServerGroupContext.this.ipBlacklist.getAll()));
+								builder.append("\r\n   \t └ ").append(Json.toJson(ServerTioConfig.this.ipBlacklist.getAll()));
 
 								log.warn(builder.toString());
 
 								long end = SystemTimer.currTime;
 								long iv1 = start1 - start;
 								long iv = end - start1;
-								log.warn("{}, 检查心跳, 共{}个连接, 取锁耗时{}ms, 循环耗时{}ms, 心跳超时时间:{}ms", ServerGroupContext.this.name, count, iv1, iv, heartbeatTimeout);
+								log.warn("{}, 检查心跳, 共{}个连接, 取锁耗时{}ms, 循环耗时{}ms, 心跳超时时间:{}ms", ServerTioConfig.this.name, count, iv1, iv, heartbeatTimeout);
 							}
 						} catch (Throwable e) {
 							log.error("", e);
@@ -254,7 +254,7 @@ public class ServerGroupContext extends GroupContext {
 	}
 
 	/**
-	 * @see org.tio.core.GroupContext#getAioHandler()
+	 * @see org.tio.core.TioConfig#getAioHandler()
 	 *
 	 * @return
 	 * @author tanyaowu
@@ -267,7 +267,7 @@ public class ServerGroupContext extends GroupContext {
 	}
 
 	/**
-	 * @see org.tio.core.GroupContext#getAioListener()
+	 * @see org.tio.core.TioConfig#getAioListener()
 	 *
 	 * @return
 	 * @author tanyaowu
@@ -308,36 +308,36 @@ public class ServerGroupContext extends GroupContext {
 
 	@Override
 	public String toString() {
-		return "ServerGroupContext [name=" + name + "]";
+		return "ServerTioConfig [name=" + name + "]";
 	}
 
-	public void share(ServerGroupContext groupContext) {
-		synchronized (ServerGroupContext.class) {
-			if (groupContext == this) {
+	public void share(ServerTioConfig tioConfig) {
+		synchronized (ServerTioConfig.class) {
+			if (tioConfig == this) {
 				return;
 			}
-			this.clientNodes = groupContext.clientNodes;
-			this.connections = groupContext.connections;
-			this.groups = groupContext.groups;
-			this.users = groupContext.users;
-			this.tokens = groupContext.tokens;
-			this.ids = groupContext.ids;
-			this.bsIds = groupContext.bsIds;
-			this.ipBlacklist = groupContext.ipBlacklist;
-			this.ips = groupContext.ips;
+			this.clientNodes = tioConfig.clientNodes;
+			this.connections = tioConfig.connections;
+			this.groups = tioConfig.groups;
+			this.users = tioConfig.users;
+			this.tokens = tioConfig.tokens;
+			this.ids = tioConfig.ids;
+			this.bsIds = tioConfig.bsIds;
+			this.ipBlacklist = tioConfig.ipBlacklist;
+			this.ips = tioConfig.ips;
 
-			if (!groupContext.isShared && !this.isShared) {
+			if (!tioConfig.isShared && !this.isShared) {
 				this.needCheckHeartbeat = false;
 			}
-			if (groupContext.isShared && !this.isShared) {
+			if (tioConfig.isShared && !this.isShared) {
 				this.needCheckHeartbeat = false;
 			}
-			if (!groupContext.isShared && this.isShared) {
-				groupContext.needCheckHeartbeat = false;
+			if (!tioConfig.isShared && this.isShared) {
+				tioConfig.needCheckHeartbeat = false;
 			}
 
 			//下面这两行代码要放到前面if的后面
-			groupContext.isShared = true;
+			tioConfig.isShared = true;
 			this.isShared = true;
 
 			//			if (SHARED_SET == null) {
@@ -345,10 +345,10 @@ public class ServerGroupContext extends GroupContext {
 			//			}
 			//
 			//			SHARED_SET.add(this);
-			//			SHARED_SET.add(groupContext);
+			//			SHARED_SET.add(tioConfig);
 			//
 			//			boolean need = true;
-			//			for (ServerGroupContext gc : SHARED_SET) {
+			//			for (ServerTioConfig gc : SHARED_SET) {
 			//				if (!need) {
 			//					gc.needCheckHeartbeat = false;
 			//					continue;

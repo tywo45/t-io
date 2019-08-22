@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.client.ClientGroupContext;
+import org.tio.client.ClientTioConfig;
 import org.tio.cluster.TioClusterConfig;
 import org.tio.cluster.TioClusterMessageListener;
 import org.tio.core.intf.AioHandler;
@@ -31,7 +31,7 @@ import org.tio.core.stat.DefaultIpStatListener;
 import org.tio.core.stat.GroupStat;
 import org.tio.core.stat.IpStatListener;
 import org.tio.core.task.CloseRunnable;
-import org.tio.server.ServerGroupContext;
+import org.tio.server.ServerTioConfig;
 import org.tio.utils.SystemTimer;
 import org.tio.utils.Threads;
 import org.tio.utils.lock.MapWithLock;
@@ -44,8 +44,8 @@ import org.tio.utils.thread.pool.SynThreadPoolExecutor;
  * @author tanyaowu 
  * 2016年10月10日 下午5:25:43
  */
-public abstract class GroupContext extends MapWithLockPropSupport {
-	static Logger								log							= LoggerFactory.getLogger(GroupContext.class);
+public abstract class TioConfig extends MapWithLockPropSupport {
+	static Logger								log							= LoggerFactory.getLogger(TioConfig.class);
 	/**
 	 * 默认的接收数据的buffer size
 	 */
@@ -59,17 +59,17 @@ public abstract class GroupContext extends MapWithLockPropSupport {
 	public boolean								statOn						= true;
 	public PacketConverter						packetConverter				= null;
 	/**
-	 * 本jvm中所有的ServerGroupContext对象
+	 * 本jvm中所有的ServerTioConfig对象
 	 */
-	public static final Set<ServerGroupContext>	ALL_SERVER_GROUPCONTEXTS	= new HashSet<>();
+	public static final Set<ServerTioConfig>	ALL_SERVER_GROUPCONTEXTS	= new HashSet<>();
 	/**
-	 * 本jvm中所有的ClientGroupContext对象
+	 * 本jvm中所有的ClientTioConfig对象
 	 */
-	public static final Set<ClientGroupContext>	ALL_CLIENT_GROUPCONTEXTS	= new HashSet<>();
+	public static final Set<ClientTioConfig>	ALL_CLIENT_GROUPCONTEXTS	= new HashSet<>();
 	/**
-	 * 本jvm中所有的GroupContext对象
+	 * 本jvm中所有的TioConfig对象
 	 */
-	public static final Set<GroupContext>		ALL_GROUPCONTEXTS			= new HashSet<>();
+	public static final Set<TioConfig>		ALL_GROUPCONTEXTS			= new HashSet<>();
 	/**
 	 * 启动时间
 	 */
@@ -130,7 +130,7 @@ public abstract class GroupContext extends MapWithLockPropSupport {
 	 */
 	private TioClusterConfig tioClusterConfig = null;
 
-	public GroupContext() {
+	public TioConfig() {
 		this(null, null);
 	}
 
@@ -140,17 +140,17 @@ public abstract class GroupContext extends MapWithLockPropSupport {
 	 * @param groupExecutor
 	 * @author: tanyaowu
 	 */
-	public GroupContext(SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
+	public TioConfig(SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
 		super();
 		ALL_GROUPCONTEXTS.add(this);
-		if (this instanceof ServerGroupContext) {
-			ALL_SERVER_GROUPCONTEXTS.add((ServerGroupContext) this);
+		if (this instanceof ServerTioConfig) {
+			ALL_SERVER_GROUPCONTEXTS.add((ServerTioConfig) this);
 		} else {
-			ALL_CLIENT_GROUPCONTEXTS.add((ClientGroupContext) this);
+			ALL_CLIENT_GROUPCONTEXTS.add((ClientTioConfig) this);
 		}
 
 		if (ALL_GROUPCONTEXTS.size() > 20) {
-			log.warn("已经产生{}个GroupContext对象，t-io作者怀疑你在误用t-io", ALL_GROUPCONTEXTS.size());
+			log.warn("已经产生{}个TioConfig对象，t-io作者怀疑你在误用t-io", ALL_GROUPCONTEXTS.size());
 		}
 		this.id = ID_ATOMIC.incrementAndGet() + "";
 
@@ -176,7 +176,7 @@ public abstract class GroupContext extends MapWithLockPropSupport {
 	//	 * @param groupExecutor
 	//	 * @author: tanyaowu
 	//	 */
-	//	public GroupContext(TioClusterConfig tioClusterConfig, SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
+	//	public TioConfig(TioClusterConfig tioClusterConfig, SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
 	//		this(tioExecutor, groupExecutor);
 	//		this.setTioClusterConfig(tioClusterConfig);
 	//	}

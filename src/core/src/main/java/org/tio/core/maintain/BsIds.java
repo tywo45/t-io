@@ -5,7 +5,7 @@ import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.lock.MapWithLock;
 
@@ -31,7 +31,7 @@ public class BsIds {
 	 * @author tanyaowu
 	 */
 	public void bind(ChannelContext channelContext, String bsId) {
-		if (channelContext.groupContext.isShortConnection) {
+		if (channelContext.tioConfig.isShortConnection) {
 			return;
 		}
 		try {
@@ -50,13 +50,13 @@ public class BsIds {
 
 	/**
 	 * 
-	 * @param groupContext
+	 * @param tioConfig
 	 * @param bsId
 	 * @return
 	 * @author tanyaowu
 	 */
-	public ChannelContext find(GroupContext groupContext, String bsId) {
-		if (groupContext.isShortConnection) {
+	public ChannelContext find(TioConfig tioConfig, String bsId) {
+		if (tioConfig.isShortConnection) {
 			return null;
 		}
 
@@ -82,8 +82,8 @@ public class BsIds {
 	 * @author tanyaowu
 	 */
 	public void unbind(ChannelContext channelContext) {
-		GroupContext groupContext = channelContext.groupContext;
-		if (groupContext.isShortConnection) {
+		TioConfig tioConfig = channelContext.tioConfig;
+		if (tioConfig.isShortConnection) {
 			return;
 		}
 		String bsId = channelContext.getBsId();

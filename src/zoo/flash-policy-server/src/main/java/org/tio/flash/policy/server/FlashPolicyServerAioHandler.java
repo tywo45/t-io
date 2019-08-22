@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.core.Tio;
 import org.tio.core.exception.AioDecodeException;
 import org.tio.core.exception.LengthOverflowException;
@@ -76,13 +76,13 @@ public class FlashPolicyServerAioHandler implements ServerAioHandler {
 	/**
 	 * 
 	 * @param packet
-	 * @param groupContext
+	 * @param tioConfig
 	 * @param channelContext
 	 * @return
 	 * @author tanyaowu
 	 */
 	@Override
-	public ByteBuffer encode(Packet packet, GroupContext groupContext, ChannelContext channelContext) {
+	public ByteBuffer encode(Packet packet, TioConfig tioConfig, ChannelContext channelContext) {
 		ByteBuffer ret = ByteBuffer.wrap(RESPONSE_BYTES);
 		//		ret.position(ret.limit());
 		return ret;

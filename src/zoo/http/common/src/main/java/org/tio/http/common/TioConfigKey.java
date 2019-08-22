@@ -4,7 +4,7 @@ package org.tio.http.common;
  * @author tanyaowu
  * 2017年8月18日 下午5:43:54
  */
-public interface GroupContextKey {
+public interface TioConfigKey {
 	/**
 	 * 存放HttpConfig
 	 */

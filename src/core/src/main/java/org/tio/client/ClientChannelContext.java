@@ -6,7 +6,7 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.core.Node;
 
 /**
@@ -28,22 +28,22 @@ public class ClientChannelContext extends ChannelContext {
 	private AtomicInteger reconnCount = new AtomicInteger();
 
 	/**
-	 * @param groupContext
+	 * @param tioConfig
 	 * @param asynchronousSocketChannel
 	 *
 	 * @author tanyaowu
 	 *
 	 */
-	public ClientChannelContext(GroupContext groupContext, AsynchronousSocketChannel asynchronousSocketChannel) {
-		super(groupContext, asynchronousSocketChannel);
+	public ClientChannelContext(TioConfig tioConfig, AsynchronousSocketChannel asynchronousSocketChannel) {
+		super(tioConfig, asynchronousSocketChannel);
 	}
 
 	/**
 	 * 创建一个虚拟ChannelContext，主要用来模拟一些操作，真实场景中用得少
-	 * @param groupContext
+	 * @param tioConfig
 	 */
-	public ClientChannelContext(GroupContext groupContext) {
-		super(groupContext);
+	public ClientChannelContext(TioConfig tioConfig) {
+		super(tioConfig);
 	}
 
 	/**

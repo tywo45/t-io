@@ -5,7 +5,7 @@ import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.client.ClientChannelContext;
-import org.tio.client.ClientGroupContext;
+import org.tio.client.ClientTioConfig;
 import org.tio.client.ReconnConf;
 import org.tio.core.ChannelContext;
 import org.tio.core.maintain.MaintainUtils;
@@ -56,9 +56,9 @@ public class CloseRunnable extends AbstractQueueRunnable<ChannelContext> {
 				//				}
 
 				channelContext.stat.timeClosed = SystemTimer.currTime;
-				if (channelContext.groupContext.getAioListener() != null) {
+				if (channelContext.tioConfig.getAioListener() != null) {
 					try {
-						channelContext.groupContext.getAioListener().onBeforeClose(channelContext, throwable, remark, isNeedRemove);
+						channelContext.tioConfig.getAioListener().onBeforeClose(channelContext, throwable, remark, isNeedRemove);
 					} catch (Throwable e) {
 						log.error(e.toString(), e);
 					}
@@ -68,12 +68,12 @@ public class CloseRunnable extends AbstractQueueRunnable<ChannelContext> {
 					//					channelContext.traceClient(ChannelAction.UNCONNECT, null, null);
 
 					if (channelContext.isClosed && !isNeedRemove) {
-						log.info("{}, {}已经关闭，备注:{}，异常:{}", channelContext.groupContext, channelContext, remark, throwable == null ? "无" : throwable.toString());
+						log.info("{}, {}已经关闭，备注:{}，异常:{}", channelContext.tioConfig, channelContext, remark, throwable == null ? "无" : throwable.toString());
 						return;
 					}
 
 					if (channelContext.isRemoved) {
-						log.info("{}, {}已经删除，备注:{}，异常:{}", channelContext.groupContext, channelContext, remark, throwable == null ? "无" : throwable.toString());
+						log.info("{}, {}已经删除，备注:{}，异常:{}", channelContext.tioConfig, channelContext, remark, throwable == null ? "无" : throwable.toString());
 						return;
 					}
 
@@ -86,21 +86,21 @@ public class CloseRunnable extends AbstractQueueRunnable<ChannelContext> {
 					channelContext.handlerRunnable.clearMsgQueue();
 					channelContext.sendRunnable.clearMsgQueue();
 
-					log.info("{}, {} 准备关闭连接, isNeedRemove:{}, {}", channelContext.groupContext, channelContext, isNeedRemove, remark);
+					log.info("{}, {} 准备关闭连接, isNeedRemove:{}, {}", channelContext.tioConfig, channelContext, isNeedRemove, remark);
 
 					try {
 						if (isNeedRemove) {
 							MaintainUtils.remove(channelContext);
 						} else {
-							ClientGroupContext clientGroupContext = (ClientGroupContext) channelContext.groupContext;
-							clientGroupContext.closeds.add(channelContext);
-							clientGroupContext.connecteds.remove(channelContext);
+							ClientTioConfig clientTioConfig = (ClientTioConfig) channelContext.tioConfig;
+							clientTioConfig.closeds.add(channelContext);
+							clientTioConfig.connecteds.remove(channelContext);
 							MaintainUtils.close(channelContext);
 						}
 
 						channelContext.setRemoved(isNeedRemove);
-						if (channelContext.groupContext.statOn) {
-							channelContext.groupContext.groupStat.closed.incrementAndGet();
+						if (channelContext.tioConfig.statOn) {
+							channelContext.tioConfig.groupStat.closed.incrementAndGet();
 						}
 						channelContext.stat.timeClosed = SystemTimer.currTime;
 						channelContext.setClosed(true);

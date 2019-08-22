@@ -40,8 +40,8 @@ public class SslFacadeContext {
 		this.isHandshakeCompleted = false;
 
 		sslContext = SSLContext.getInstance("TLS");
-		sslContext.init(channelContext.groupContext.sslConfig.getKeyManagerFactory().getKeyManagers(),
-		        channelContext.groupContext.sslConfig.getTrustManagerFactory().getTrustManagers(), null);
+		sslContext.init(channelContext.tioConfig.sslConfig.getKeyManagerFactory().getKeyManagers(),
+		        channelContext.tioConfig.sslConfig.getTrustManagerFactory().getTrustManagers(), null);
 
 		DefaultTaskHandler taskHandler = new DefaultTaskHandler();
 

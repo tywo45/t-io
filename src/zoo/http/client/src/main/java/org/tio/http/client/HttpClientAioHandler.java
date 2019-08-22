@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.client.intf.ClientAioHandler;
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.core.exception.AioDecodeException;
 import org.tio.core.intf.Packet;
 import org.tio.utils.SysConst;
@@ -38,11 +38,11 @@ public class HttpClientAioHandler implements ClientAioHandler {
 	}
 
 	@Override
-	public ByteBuffer encode(Packet packet, GroupContext groupContext, ChannelContext channelContext) {
+	public ByteBuffer encode(Packet packet, TioConfig tioConfig, ChannelContext channelContext) {
 		ClientHttpRequest request = (ClientHttpRequest) packet;
 		ByteBuffer byteBuffer;
 		try {
-			byteBuffer = HttpRequestEncoder.encode(request, groupContext, channelContext);
+			byteBuffer = HttpRequestEncoder.encode(request, tioConfig, channelContext);
 			return byteBuffer;
 		} catch (UnsupportedEncodingException e) {
 			log.error(e.toString(), e);

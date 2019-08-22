@@ -6,7 +6,7 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.core.utils.ByteBufferUtils;
 
 public class WsClientEncoder {
@@ -35,7 +35,7 @@ public class WsClientEncoder {
      +---------------------------------------------------------------+
   */
   public static ByteBuffer encode(
-      WsPacket packet, GroupContext groupContext, ChannelContext channelContext) {
+      WsPacket packet, TioConfig tioConfig, ChannelContext channelContext) {
     byte[] wsBody = packet.getBody(); // 就是ws的body，不包括ws的头
     byte[][] wsBodies = packet.getBodys();
     int wsBodyLength = 0;

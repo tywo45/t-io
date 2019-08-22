@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.client.intf.ClientAioHandler;
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.core.exception.AioDecodeException;
 import org.tio.core.intf.Packet;
 import org.tio.http.common.HttpRequest;
@@ -91,18 +91,18 @@ public class WsClientAioHander implements ClientAioHandler {
   }
 
   @Override
-  public ByteBuffer encode(Packet packet, GroupContext groupContext, ChannelContext ctx) {
+  public ByteBuffer encode(Packet packet, TioConfig tioConfig, ChannelContext ctx) {
     WsSessionContext session = (WsSessionContext) ctx.get();
     if (!session.isHandshaked() && packet instanceof HttpRequest) {
       try {
-        return HttpRequestEncoder.encode((HttpRequest) packet, groupContext, ctx);
+        return HttpRequestEncoder.encode((HttpRequest) packet, tioConfig, ctx);
       } catch (UnsupportedEncodingException e) {
         log.error(e.toString());
         return null;
       }
     }
     try {
-      return WsClientEncoder.encode((WsPacket) packet, groupContext, ctx);
+      return WsClientEncoder.encode((WsPacket) packet, tioConfig, ctx);
     } catch (Exception e) {
       log.error(e.toString());
       return null;

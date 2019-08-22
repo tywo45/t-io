@@ -11,15 +11,15 @@ import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.core.cache.IpStatRemovalListener;
 import org.tio.core.stat.IpStat;
 import org.tio.utils.cache.caffeine.CaffeineCache;
 
 /**
  * 使用方法（注意顺序）：<br>
- *	1、serverGroupContext.setIpStatListener(ShowcaseIpStatListener.me);
-	2、serverGroupContext.ipStats.addDuration(Time.MINUTE_1 * 5);
+ *	1、serverTioConfig.setIpStatListener(ShowcaseIpStatListener.me);
+	2、serverTioConfig.ipStats.addDuration(Time.MINUTE_1 * 5);
  * @author tanyaowu
  * 2017年4月15日 下午12:13:19
  */
@@ -29,8 +29,8 @@ public class IpStats {
 
 	private final static String CACHE_NAME = "TIO_IP_STAT";
 
-	private String			groupContextId;
-	private GroupContext	groupContext;
+	private String			tioConfigId;
+	private TioConfig	tioConfig;
 
 	/**
 	 * key: 时长，单位：秒
@@ -39,9 +39,9 @@ public class IpStats {
 
 	public List<Long> durationList = null;//new ArrayList<>();
 
-	public IpStats(GroupContext groupContext, Long[] durations) {
-		this.groupContext = groupContext;
-		this.groupContextId = groupContext.getId();
+	public IpStats(TioConfig tioConfig, Long[] durations) {
+		this.tioConfig = tioConfig;
+		this.tioConfigId = tioConfig.getId();
 		if (durations != null) {
 			addDurations(durations);
 		}
@@ -58,7 +58,7 @@ public class IpStats {
 				durationList = new ArrayList<>();
 			}
 			@SuppressWarnings("unchecked")
-			CaffeineCache caffeineCache = CaffeineCache.register(getCacheName(duration), duration, null, new IpStatRemovalListener(groupContext, groupContext.getIpStatListener()));
+			CaffeineCache caffeineCache = CaffeineCache.register(getCacheName(duration), duration, null, new IpStatRemovalListener(tioConfig, tioConfig.getIpStatListener()));
 			cacheMap.put(duration, caffeineCache);
 			durationList.add(duration);
 		}
@@ -98,7 +98,7 @@ public class IpStats {
 	 * @author: tanyaowu
 	 */
 	public String getCacheName(Long duration) {
-		String cacheName = CACHE_NAME + "_" + this.groupContextId + "_";
+		String cacheName = CACHE_NAME + "_" + this.tioConfigId + "_";
 		return cacheName + duration;
 	}
 

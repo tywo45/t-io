@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.tio.client.intf.ClientAioHandler;
 import org.tio.client.intf.ClientAioListener;
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.core.intf.AioHandler;
 import org.tio.core.intf.AioListener;
 import org.tio.core.ssl.SslConfig;
@@ -20,8 +20,8 @@ import org.tio.utils.thread.pool.SynThreadPoolExecutor;
  * @author tanyaowu
  * 2017年4月1日 上午9:31:31
  */
-public class ClientGroupContext extends GroupContext {
-	static Logger log = LoggerFactory.getLogger(ClientGroupContext.class);
+public class ClientTioConfig extends TioConfig {
+	static Logger log = LoggerFactory.getLogger(ClientTioConfig.class);
 
 	private ClientAioHandler clientAioHandler = null;
 
@@ -40,7 +40,7 @@ public class ClientGroupContext extends GroupContext {
 	 * @param aioListener
 	 * @author tanyaowu
 	 */
-	public ClientGroupContext(ClientAioHandler aioHandler, ClientAioListener aioListener) {
+	public ClientTioConfig(ClientAioHandler aioHandler, ClientAioListener aioListener) {
 		this(aioHandler, aioListener, null);
 	}
 
@@ -50,7 +50,7 @@ public class ClientGroupContext extends GroupContext {
 	 * @param aioListener
 	 * @param reconnConf 不用框架自动重连，就传null
 	 */
-	public ClientGroupContext(ClientAioHandler aioHandler, ClientAioListener aioListener, ReconnConf reconnConf) {
+	public ClientTioConfig(ClientAioHandler aioHandler, ClientAioListener aioListener, ReconnConf reconnConf) {
 		this(aioHandler, aioListener, reconnConf, null, null);
 	}
 
@@ -62,7 +62,7 @@ public class ClientGroupContext extends GroupContext {
 	 * @param tioExecutor
 	 * @param groupExecutor
 	 */
-	public ClientGroupContext(ClientAioHandler aioHandler, ClientAioListener aioListener, ReconnConf reconnConf, SynThreadPoolExecutor tioExecutor,
+	public ClientTioConfig(ClientAioHandler aioHandler, ClientAioListener aioListener, ReconnConf reconnConf, SynThreadPoolExecutor tioExecutor,
 	        ThreadPoolExecutor groupExecutor) {
 		super(tioExecutor, groupExecutor);
 		this.groupStat = new ClientGroupStat();
@@ -83,7 +83,7 @@ public class ClientGroupContext extends GroupContext {
 	}
 
 	/**
-	 * @see org.tio.core.GroupContext#getAioHandler()
+	 * @see org.tio.core.TioConfig#getAioHandler()
 	 *
 	 * @return
 	 * @author tanyaowu
@@ -96,7 +96,7 @@ public class ClientGroupContext extends GroupContext {
 	}
 
 	/**
-	 * @see org.tio.core.GroupContext#getAioListener()
+	 * @see org.tio.core.TioConfig#getAioListener()
 	 *
 	 * @return
 	 * @author tanyaowu
@@ -180,6 +180,6 @@ public class ClientGroupContext extends GroupContext {
 
 	@Override
 	public String toString() {
-		return "ClientGroupContext [name=" + name + "]";
+		return "ClientTioConfig [name=" + name + "]";
 	}
 }

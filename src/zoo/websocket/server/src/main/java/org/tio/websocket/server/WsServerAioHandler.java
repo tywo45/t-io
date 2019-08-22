@@ -10,7 +10,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.core.Tio;
 import org.tio.core.exception.AioDecodeException;
 import org.tio.core.intf.Packet;
@@ -142,7 +142,7 @@ public class WsServerAioHandler implements ServerAioHandler {
 	}
 
 	@Override
-	public ByteBuffer encode(Packet packet, GroupContext groupContext, ChannelContext channelContext) {
+	public ByteBuffer encode(Packet packet, TioConfig tioConfig, ChannelContext channelContext) {
 		WsResponse wsResponse = (WsResponse) packet;
 
 		// 握手包
@@ -150,14 +150,14 @@ public class WsServerAioHandler implements ServerAioHandler {
 			WsSessionContext imSessionContext = (WsSessionContext) channelContext.get();
 			HttpResponse handshakeResponse = imSessionContext.getHandshakeResponse();
 			try {
-				return HttpResponseEncoder.encode(handshakeResponse, groupContext, channelContext);
+				return HttpResponseEncoder.encode(handshakeResponse, tioConfig, channelContext);
 			} catch (UnsupportedEncodingException e) {
 				log.error(e.toString(), e);
 				return null;
 			}
 		}
 
-		ByteBuffer byteBuffer = WsServerEncoder.encode(wsResponse, groupContext, channelContext);
+		ByteBuffer byteBuffer = WsServerEncoder.encode(wsResponse, tioConfig, channelContext);
 		return byteBuffer;
 	}
 

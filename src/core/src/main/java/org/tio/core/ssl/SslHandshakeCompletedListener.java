@@ -32,9 +32,9 @@ public class SslHandshakeCompletedListener implements IHandshakeCompletedListene
 		log.info("{}, 完成SSL握手", channelContext);
 		channelContext.sslFacadeContext.setHandshakeCompleted(true);
 
-		if (channelContext.groupContext.getAioListener() != null) {
+		if (channelContext.tioConfig.getAioListener() != null) {
 			try {
-				channelContext.groupContext.getAioListener().onAfterConnected(channelContext, true, channelContext.isReconnect);
+				channelContext.tioConfig.getAioListener().onAfterConnected(channelContext, true, channelContext.isReconnect);
 			} catch (Exception e) {
 				log.error(e.toString(), e);
 			}
@@ -49,7 +49,7 @@ public class SslHandshakeCompletedListener implements IHandshakeCompletedListene
 		while (true) {
 			Packet packet = forSendAfterSslHandshakeCompleted.poll();
 			if (packet != null) {
-				if (channelContext.groupContext.useQueueSend) {
+				if (channelContext.tioConfig.useQueueSend) {
 					channelContext.sendRunnable.addMsg(packet);
 				} else {
 					channelContext.sendRunnable.sendPacket(packet);
@@ -59,7 +59,7 @@ public class SslHandshakeCompletedListener implements IHandshakeCompletedListene
 				break;
 			}
 		}
-		if (channelContext.groupContext.useQueueSend) {
+		if (channelContext.tioConfig.useQueueSend) {
 			channelContext.sendRunnable.execute();
 		}
 	}

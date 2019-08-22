@@ -30,7 +30,7 @@ import org.tio.utils.hutool.StrUtil;
  */
 public class TioServer {
 	private static Logger					log					= LoggerFactory.getLogger(TioServer.class);
-	private ServerGroupContext				serverGroupContext;
+	private ServerTioConfig				serverTioConfig;
 	private AsynchronousServerSocketChannel	serverSocketChannel;
 	private AsynchronousChannelGroup		channelGroup		= null;
 	private Node							serverNode;
@@ -39,22 +39,22 @@ public class TioServer {
 
 	/**
 	 *
-	 * @param serverGroupContext
+	 * @param serverTioConfig
 	 *
 	 * @author tanyaowu
 	 * 2017年1月2日 下午5:53:06
 	 *
 	 */
-	public TioServer(ServerGroupContext serverGroupContext) {
+	public TioServer(ServerTioConfig serverTioConfig) {
 		super();
-		this.serverGroupContext = serverGroupContext;
+		this.serverTioConfig = serverTioConfig;
 	}
 
 	/**
-	 * @return the serverGroupContext
+	 * @return the serverTioConfig
 	 */
-	public ServerGroupContext getServerGroupContext() {
-		return serverGroupContext;
+	public ServerTioConfig getServerTioConfig() {
+		return serverTioConfig;
 	}
 
 	/**
@@ -79,10 +79,10 @@ public class TioServer {
 	}
 
 	/**
-	 * @param serverGroupContext the serverGroupContext to set
+	 * @param serverTioConfig the serverTioConfig to set
 	 */
-	public void setServerGroupContext(ServerGroupContext serverGroupContext) {
-		this.serverGroupContext = serverGroupContext;
+	public void setServerTioConfig(ServerTioConfig serverTioConfig) {
+		this.serverTioConfig = serverTioConfig;
 	}
 
 	/**
@@ -95,7 +95,7 @@ public class TioServer {
 	public void start(String serverIp, int serverPort) throws IOException {
 		long start = System.currentTimeMillis();
 		this.serverNode = new Node(serverIp, serverPort);
-		channelGroup = AsynchronousChannelGroup.withThreadPool(serverGroupContext.groupExecutor);
+		channelGroup = AsynchronousChannelGroup.withThreadPool(serverTioConfig.groupExecutor);
 		serverSocketChannel = AsynchronousServerSocketChannel.open(channelGroup);
 
 		serverSocketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
@@ -111,10 +111,10 @@ public class TioServer {
 
 		serverSocketChannel.bind(listenAddress, 0);
 
-		AcceptCompletionHandler acceptCompletionHandler = serverGroupContext.getAcceptCompletionHandler();
+		AcceptCompletionHandler acceptCompletionHandler = serverTioConfig.getAcceptCompletionHandler();
 		serverSocketChannel.accept(this, acceptCompletionHandler);
 
-		serverGroupContext.startTime = System.currentTimeMillis();
+		serverTioConfig.startTime = System.currentTimeMillis();
 
 		//下面这段代码有点无聊，写得随意，纯粹是为了打印好看些
 		String baseStr = "|----------------------------------------------------------------------------------------|";
@@ -131,7 +131,7 @@ public class TioServer {
 
 		infoList.add(StrUtil.fillAfter("-", '-', aaLen));
 
-		infoList.add(StrUtil.fillAfter("GroupContext name", ' ', xxLen) + "| " + serverGroupContext.getName());
+		infoList.add(StrUtil.fillAfter("TioConfig name", ' ', xxLen) + "| " + serverTioConfig.getName());
 		infoList.add(StrUtil.fillAfter("Started at", ' ', xxLen) + "| " + DateUtil.formatDateTime(new Date()));
 		infoList.add(StrUtil.fillAfter("Listen on", ' ', xxLen) + "| " + this.serverNode);
 		infoList.add(StrUtil.fillAfter("Main Class", ' ', xxLen) + "| " + se.getClassName());
@@ -186,20 +186,20 @@ public class TioServer {
 		}
 
 		try {
-			serverGroupContext.groupExecutor.shutdown();
+			serverTioConfig.groupExecutor.shutdown();
 		} catch (Exception e1) {
 			log.error(e1.toString(), e1);
 		}
 		try {
-			serverGroupContext.tioExecutor.shutdown();
+			serverTioConfig.tioExecutor.shutdown();
 		} catch (Exception e1) {
 			log.error(e1.toString(), e1);
 		}
 
-		serverGroupContext.setStopped(true);
+		serverTioConfig.setStopped(true);
 		try {
-			ret = ret && serverGroupContext.groupExecutor.awaitTermination(6000, TimeUnit.SECONDS);
-			ret = ret && serverGroupContext.tioExecutor.awaitTermination(6000, TimeUnit.SECONDS);
+			ret = ret && serverTioConfig.groupExecutor.awaitTermination(6000, TimeUnit.SECONDS);
+			ret = ret && serverTioConfig.tioExecutor.awaitTermination(6000, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			log.error(e.getLocalizedMessage(), e);
 		}
@@ -210,7 +210,7 @@ public class TioServer {
 
 	private void checkLastVersion() {
 		if (checkLastVersion) {
-			serverGroupContext.groupExecutor.execute(new Runnable() {
+			serverTioConfig.groupExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
 					try {
@@ -240,7 +240,7 @@ public class TioServer {
 									log.info("The version you are using is the latest");
 								} else {
 									log.info("t-io latest version:{}，your version:{}", result, SysConst.TIO_CORE_VERSION);
-									//3.3.8.v20190820-RELEASE
+									//3.5.0.v20190822-RELEASE
 									String myVersionDateStr = SysConst.TIO_CORE_VERSION.substring(SysConst.TIO_CORE_VERSION.length() - 16, SysConst.TIO_CORE_VERSION.length() - 8);
 									String latestVersionDateStr = result.substring(result.length() - 16, result.length() - 8);
 

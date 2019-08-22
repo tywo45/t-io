@@ -3,7 +3,7 @@ package org.tio.websocket.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.client.ClientChannelContext;
-import org.tio.client.ClientGroupContext;
+import org.tio.client.ClientTioConfig;
 import org.tio.client.TioClient;
 import org.tio.client.intf.ClientAioHandler;
 import org.tio.client.intf.ClientAioListener;
@@ -87,7 +87,7 @@ public class WsClient {
   ClientChannelContext clientChannelContext;
   Map<String, String> additionalHttpHeaders;
   WebSocketImpl ws;
-  ClientGroupContext clientGroupContext;
+  ClientTioConfig clientTioConfig;
 
   WsClient(String rawUri) throws Exception {
     this(rawUri, null);
@@ -122,7 +122,7 @@ public class WsClient {
       ws.close();
       ws = null;
       clientChannelContext = null;
-      clientGroupContext = null;
+      clientTioConfig = null;
       tioClient = null;
     }
   }
@@ -166,13 +166,13 @@ public class WsClient {
       } catch (Exception ex) {
       }
     }
-    clientGroupContext = new ClientGroupContext(tioClientHandler, aioListener, null);
-    clientGroupContext.setHeartbeatTimeout(0);
+    clientTioConfig = new ClientTioConfig(tioClientHandler, aioListener, null);
+    clientTioConfig.setHeartbeatTimeout(0);
     if (uri.getScheme().equals("ws")) {
-      tioClient = new TioClient(clientGroupContext);
+      tioClient = new TioClient(clientTioConfig);
     } else {
-      clientGroupContext.useSsl();
-      tioClient = new TioClient(clientGroupContext);
+      clientTioConfig.useSsl();
+      tioClient = new TioClient(clientTioConfig);
     }
     ws = new WebSocketImpl(this, additionalHttpHeaders);
   }

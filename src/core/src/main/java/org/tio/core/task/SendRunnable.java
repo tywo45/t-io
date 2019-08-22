@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.ChannelContext.CloseCode;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.core.TcpConst;
 import org.tio.core.Tio;
 import org.tio.core.WriteCompletionHandler.WriteCompletionVo;
@@ -32,7 +32,7 @@ import org.tio.utils.thread.pool.AbstractQueueRunnable;
 public class SendRunnable extends AbstractQueueRunnable<Packet> {
 	private static final Logger				log									= LoggerFactory.getLogger(SendRunnable.class);
 	private ChannelContext					channelContext						= null;
-	private GroupContext					groupContext						= null;
+	private TioConfig					tioConfig						= null;
 	private AioHandler						aioHandler							= null;
 	private boolean							isSsl								= false;
 	/** The msg queue. */
@@ -62,9 +62,9 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 	public SendRunnable(ChannelContext channelContext, Executor executor) {
 		super(executor);
 		this.channelContext = channelContext;
-		this.groupContext = channelContext.groupContext;
-		this.aioHandler = groupContext.getAioHandler();
-		this.isSsl = SslUtils.isSsl(groupContext);
+		this.tioConfig = channelContext.tioConfig;
+		this.aioHandler = tioConfig.getAioHandler();
+		this.isSsl = SslUtils.isSsl(tioConfig);
 	}
 
 	@Override
@@ -74,8 +74,8 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 			return false;
 		}
 
-		if (groupContext.packetConverter != null) {
-			Packet packet1 = groupContext.packetConverter.convert(packet, channelContext);
+		if (tioConfig.packetConverter != null) {
+			Packet packet1 = tioConfig.packetConverter.convert(packet, channelContext);
 			if (packet1 == null) {
 				log.info("convert后为null，表示不需要发送", channelContext, packet.logstr());
 				return true;
@@ -83,7 +83,7 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 			packet = packet1;
 		}
 
-		if (channelContext.sslFacadeContext != null && !channelContext.sslFacadeContext.isHandshakeCompleted() && SslUtils.needSslEncrypt(packet, groupContext)) {
+		if (channelContext.sslFacadeContext != null && !channelContext.sslFacadeContext.isHandshakeCompleted() && SslUtils.needSslEncrypt(packet, tioConfig)) {
 			return this.getForSendAfterSslHandshakeCompleted(true).add(packet);
 		} else {
 			return msgQueue.add(packet);
@@ -112,7 +112,7 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 			if (byteBuffer != null) {
 				//			byteBuffer = byteBuffer.duplicate();
 			} else {
-				byteBuffer = aioHandler.encode(packet, groupContext, channelContext);
+				byteBuffer = aioHandler.encode(packet, tioConfig, channelContext);
 			}
 
 			if (!byteBuffer.hasRemaining()) {

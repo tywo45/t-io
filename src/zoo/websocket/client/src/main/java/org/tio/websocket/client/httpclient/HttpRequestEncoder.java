@@ -3,7 +3,7 @@ package org.tio.websocket.client.httpclient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.http.common.HttpConst;
 import org.tio.http.common.HttpRequest;
 import org.tio.http.common.RequestLine;
@@ -27,13 +27,13 @@ public class HttpRequestEncoder {
 
   /**
    * @param httpRequest
-   * @param groupContext
+   * @param tioConfig
    * @param channelContext
    * @return
    * @author tanyaowu
    */
   public static ByteBuffer encode(
-      HttpRequest httpRequest, GroupContext groupContext, ChannelContext channelContext)
+      HttpRequest httpRequest, TioConfig tioConfig, ChannelContext channelContext)
       throws UnsupportedEncodingException {
     int bodyLength = 0;
     byte[] body = httpRequest.getBody();

@@ -93,7 +93,7 @@ public class ClientNodes {
 	 * @author tanyaowu
 	 */
 	public void put(ChannelContext channelContext) {
-		if (channelContext.groupContext.isShortConnection) {
+		if (channelContext.tioConfig.isShortConnection) {
 			return;
 		}
 		try {
@@ -110,7 +110,7 @@ public class ClientNodes {
 	 * @author tanyaowu
 	 */
 	public void remove(ChannelContext channelContext) {
-		if (channelContext.groupContext.isShortConnection) {
+		if (channelContext.tioConfig.isShortConnection) {
 			return;
 		}
 		try {

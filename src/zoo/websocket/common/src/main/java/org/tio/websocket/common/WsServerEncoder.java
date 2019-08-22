@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.core.utils.ByteBufferUtils;
 
 /**
@@ -34,7 +34,7 @@ public class WsServerEncoder {
 		}
 	}
 
-	public static ByteBuffer encode(WsResponse wsResponse, GroupContext groupContext, ChannelContext channelContext) {
+	public static ByteBuffer encode(WsResponse wsResponse, TioConfig tioConfig, ChannelContext channelContext) {
 		byte[] wsBody = wsResponse.getBody();//就是ws的body，不包括ws的头
 		byte[][] wsBodies = wsResponse.getBodys();
 		int wsBodyLength = 0;
