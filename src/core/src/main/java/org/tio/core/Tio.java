@@ -483,6 +483,16 @@ public class Tio {
 	 * @author tanyaowu
 	 */
 	public static SetWithLock<ChannelContext> getAllChannelContexts(TioConfig tioConfig) {
+		return getAll(tioConfig);
+	}
+	
+	/**
+	 * 获取所有连接，包括当前处于断开状态的
+	 * @param tioConfig
+	 * @return
+	 * @author tanyaowu
+	 */
+	public static SetWithLock<ChannelContext> getAll(TioConfig tioConfig) {
 		return tioConfig.connections;
 	}
 

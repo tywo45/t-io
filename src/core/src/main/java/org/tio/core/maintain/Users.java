@@ -14,7 +14,6 @@ import org.tio.core.TioConfig;
 import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.lock.LockUtils;
 import org.tio.utils.lock.MapWithLock;
-import org.tio.utils.lock.ObjWithLock;
 import org.tio.utils.lock.ReadWriteLockHandler;
 import org.tio.utils.lock.SetWithLock;
 
@@ -96,7 +95,7 @@ public class Users {
 	/**
 	 * @return the mapWithLock
 	 */
-	public ObjWithLock<Map<String, SetWithLock<ChannelContext>>> getMap() {
+	public MapWithLock<String, SetWithLock<ChannelContext>> getMap() {
 		return mapWithLock;
 	}
 
