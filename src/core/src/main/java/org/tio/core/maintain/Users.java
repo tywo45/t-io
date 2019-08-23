@@ -109,23 +109,26 @@ public class Users {
 			return;
 		}
 
-		if (StrUtil.isBlank(channelContext.userid)) {
+		String userid = channelContext.userid;
+		if (StrUtil.isBlank(userid)) {
 			log.debug("{}, {}, 并没有绑定用户", channelContext.tioConfig.getName(), channelContext.toString());
 			return;
 		}
 
 		try {
-			SetWithLock<ChannelContext> setWithLock = mapWithLock.get(channelContext.userid);
+			SetWithLock<ChannelContext> setWithLock = mapWithLock.get(userid);
 			if (setWithLock == null) {
-				log.warn("{}, {}, userid:{}, 没有找到对应的SetWithLock", channelContext.tioConfig.getName(), channelContext.toString(), channelContext.userid);
+				log.warn("{}, {}, userid:{}, 没有找到对应的SetWithLock", channelContext.tioConfig.getName(), channelContext.toString(), userid);
 				return;
 			}
-			channelContext.setUserid(null);
+			
 			setWithLock.remove(channelContext);
 
 			if (setWithLock.size() == 0) {
-				mapWithLock.remove(channelContext.userid);
+				mapWithLock.remove(userid);
 			}
+			
+			channelContext.setUserid(null);
 		} catch (Throwable e) {
 			log.error(e.toString(), e);
 		}
