@@ -2,7 +2,6 @@ package org.tio.core.starter.configuration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.tio.common.starter.configuration.TioClusterProperties;
-import org.tio.utils.hutool.StrUtil;
 
 /**
  * Tio 集群配置

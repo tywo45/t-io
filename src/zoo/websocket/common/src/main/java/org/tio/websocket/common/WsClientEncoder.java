@@ -10,7 +10,8 @@ import org.tio.core.TioConfig;
 import org.tio.core.utils.ByteBufferUtils;
 
 public class WsClientEncoder {
-  private static Logger log = LoggerFactory.getLogger(WsClientEncoder.class);
+  @SuppressWarnings("unused")
+private static Logger log = LoggerFactory.getLogger(WsClientEncoder.class);
 
   private static final Random reuseableRandom = new Random();
 

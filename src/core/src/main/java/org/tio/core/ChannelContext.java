@@ -47,7 +47,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 	 * 一个packet所需要的字节数（用于应用告诉框架，下一次解码所需要的字节长度，省去冗余解码带来的性能损耗）
 	 */
 	public Integer						packetNeededLength			= null;
-	public TioConfig					tioConfig				= null;
+	public TioConfig					tioConfig					= null;
 	public DecodeRunnable				decodeRunnable				= null;
 	public HandlerRunnable				handlerRunnable				= null;
 	public SendRunnable					sendRunnable				= null;
@@ -125,7 +125,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 		if (StrUtil.isBlank(id)) {
 			this.id = tioConfig.getTioUuid().uuid();
 		}
-		
+
 		initOther();
 	}
 
@@ -253,10 +253,10 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 		this.readCompletionHandler = new ReadCompletionHandler(this);
 		this.writeCompletionHandler = new WriteCompletionHandler(this);
 		this.logWhenDecodeError = tioConfig.logWhenDecodeError;
-		
+
 		initOther();
 	}
-	
+
 	void initOther() {
 		if (!tioConfig.isShortConnection) {
 			//在长连接中，绑定群组几乎是必须要干的事，所以直接在初始化时给它赋值，省得在后面做同步处理

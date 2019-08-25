@@ -4,7 +4,9 @@ package org.tio.common.starter;
  * @author fanpan26
  */
 public class TioServerMsgHandlerNotFoundException extends RuntimeException {
-    public TioServerMsgHandlerNotFoundException() {
+    private static final long serialVersionUID = -7400409984244123169L;
+
+	public TioServerMsgHandlerNotFoundException() {
         super();
     }
 

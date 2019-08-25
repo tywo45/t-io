@@ -475,16 +475,6 @@ public class Tio {
 			}
 		});
 	}
-
-	/**
-	 * 获取所有连接，包括当前处于断开状态的
-	 * @param tioConfig
-	 * @return
-	 * @author tanyaowu
-	 */
-	public static SetWithLock<ChannelContext> getAllChannelContexts(TioConfig tioConfig) {
-		return getAll(tioConfig);
-	}
 	
 	/**
 	 * 获取所有连接，包括当前处于断开状态的
@@ -495,15 +485,40 @@ public class Tio {
 	public static SetWithLock<ChannelContext> getAll(TioConfig tioConfig) {
 		return tioConfig.connections;
 	}
-
+	
 	/**
+	 * 获取所有连接，包括当前处于断开状态的
+	 * @param tioConfig
+	 * @return
+	 * @author tanyaowu
+	 * @deprecated 用getAll(TioConfig tioConfig)
+	 */
+	public static SetWithLock<ChannelContext> getAllChannelContexts(TioConfig tioConfig) {
+		return getAll(tioConfig);
+	}
+
+	
+	/**
+	 * 此API仅供 tio client使用
 	 * 获取所有处于正常连接状态的连接
 	 * @param clientTioConfig
 	 * @return
 	 * @author tanyaowu
 	 */
-	public static SetWithLock<ChannelContext> getAllConnectedsChannelContexts(ClientTioConfig clientTioConfig) {
+	public static SetWithLock<ChannelContext> getConnecteds(ClientTioConfig clientTioConfig) {
 		return clientTioConfig.connecteds;
+	}
+	
+	/**
+	 * 此API仅供 tio client使用
+	 * 获取所有处于正常连接状态的连接
+	 * @param clientTioConfig
+	 * @return
+	 * @author tanyaowu
+	 * @deprecated 用getAllConnecteds(ClientTioConfig clientTioConfig)
+	 */
+	public static SetWithLock<ChannelContext> getAllConnectedsChannelContexts(ClientTioConfig clientTioConfig) {
+		return getConnecteds(clientTioConfig);
 	}
 
 	/**
@@ -513,8 +528,20 @@ public class Tio {
 	 * @return
 	 * @author tanyaowu
 	 */
-	public static ChannelContext getChannelContextByBsId(TioConfig tioConfig, String bsId) {
+	public static ChannelContext getByBsId(TioConfig tioConfig, String bsId) {
 		return tioConfig.bsIds.find(tioConfig, bsId);
+	}
+	
+	/**
+	 * 根据业务id找ChannelContext
+	 * @param tioConfig
+	 * @param bsId
+	 * @return
+	 * @author tanyaowu
+	 * @deprecated 用getByBsId(TioConfig tioConfig, String bsId)
+	 */
+	public static ChannelContext getChannelContextByBsId(TioConfig tioConfig, String bsId) {
+		return getByBsId(tioConfig, bsId);
 	}
 
 	/**
@@ -525,20 +552,43 @@ public class Tio {
 	 * @return
 	 * @author tanyaowu
 	 */
-	public static ChannelContext getChannelContextByClientNode(TioConfig tioConfig, String clientIp, Integer clientPort) {
+	public static ChannelContext getByClientNode(TioConfig tioConfig, String clientIp, Integer clientPort) {
 		return tioConfig.clientNodes.find(clientIp, clientPort);
 	}
-
 	/**
-	 * 根据id获取ChannelContext
+	 * 根据clientip和clientport获取ChannelContext
+	 * @param tioConfig
+	 * @param clientIp
+	 * @param clientPort
+	 * @return
+	 * @author tanyaowu
+	 * @deprecated getByClientNode(tioConfig, clientIp, clientPort)
+	 */
+	public static ChannelContext getChannelContextByClientNode(TioConfig tioConfig, String clientIp, Integer clientPort) {
+		return  getByClientNode(tioConfig, clientIp, clientPort);
+	}
+	
+	/**
+	 * 根据ChannelContext.id获取ChannelContext
 	 * @param channelContextId
 	 * @return
 	 * @author tanyaowu
 	 */
-	public static ChannelContext getChannelContextById(TioConfig tioConfig, String channelContextId) {
+	public static ChannelContext getByChannelContextId(TioConfig tioConfig, String channelContextId) {
 		return tioConfig.ids.find(tioConfig, channelContextId);
 	}
 
+	/**
+	 * 根据ChannelContext.id获取ChannelContext
+	 * @param channelContextId
+	 * @return
+	 * @author tanyaowu
+	 * @deprecated 用getByChannelContextId(tioConfig, channelContextId)
+	 */
+	public static ChannelContext getChannelContextById(TioConfig tioConfig, String channelContextId) {
+		return getByChannelContextId(tioConfig, channelContextId);
+	}
+	
 	/**
 	 * 获取一个组的所有客户端
 	 * @param tioConfig
@@ -546,8 +596,20 @@ public class Tio {
 	 * @return
 	 * @author tanyaowu
 	 */
-	public static SetWithLock<ChannelContext> getChannelContextsByGroup(TioConfig tioConfig, String group) {
+	public static SetWithLock<ChannelContext> getByGroup(TioConfig tioConfig, String group) {
 		return tioConfig.groups.clients(tioConfig, group);
+	}
+	
+	/**
+	 * 获取一个组的所有客户端
+	 * @param tioConfig
+	 * @param group
+	 * @return
+	 * @author tanyaowu
+	 * @deprecated 用getByGroup(tioConfig, group)
+	 */
+	public static SetWithLock<ChannelContext> getChannelContextsByGroup(TioConfig tioConfig, String group) {
+		return getByGroup(tioConfig, group);
 	}
 
 	/**
@@ -557,8 +619,20 @@ public class Tio {
 	 * @return
 	 * @author tanyaowu
 	 */
-	public static SetWithLock<ChannelContext> getChannelContextsByToken(TioConfig tioConfig, String token) {
+	public static SetWithLock<ChannelContext> getByToken(TioConfig tioConfig, String token) {
 		return tioConfig.tokens.find(tioConfig, token);
+	}
+	
+	/**
+	 * 根据token获取SetWithLock<ChannelContext>
+	 * @param tioConfig
+	 * @param token
+	 * @return
+	 * @author tanyaowu
+	 * @deprecated 用getByToken(tioConfig, token)
+	 */
+	public static SetWithLock<ChannelContext> getChannelContextsByToken(TioConfig tioConfig, String token) {
+		return getByToken(tioConfig, token);
 	}
 
 	/**
@@ -568,8 +642,20 @@ public class Tio {
 	 * @return
 	 * @author tanyaowu
 	 */
-	public static SetWithLock<ChannelContext> getChannelContextsByUserid(TioConfig tioConfig, String userid) {
+	public static SetWithLock<ChannelContext> getByUserid(TioConfig tioConfig, String userid) {
 		return tioConfig.users.find(tioConfig, userid);
+	}
+	
+	/**
+	 * 根据userid获取SetWithLock<ChannelContext>
+	 * @param tioConfig
+	 * @param userid
+	 * @return
+	 * @author tanyaowu
+	 * @deprecated 用getByUserid(tioConfig, userid)
+	 */
+	public static SetWithLock<ChannelContext> getChannelContextsByUserid(TioConfig tioConfig, String userid) {
+		return getByUserid(tioConfig, userid);
 	}
 
 	/**
