@@ -123,15 +123,8 @@
 		</developer>
 	</developers>
 
-	<repositories>
 
 
-	</repositories>
-	<pluginRepositories>
-
-
-
-	</pluginRepositories>
 
 	<dependencyManagement>
 		<dependencies>
@@ -1185,5 +1178,20 @@
 			</distributionManagement>
 		</profile>
 	</profiles>
+	
+	
+	<repositories>
+	   <repository>
+		  <id>nexux</id>
+		  <name>maven-public</name>
+			<url>http://repo.maven.apache.org/maven2</url>
+	   </repository>
+	</repositories>
+	
+	<pluginRepositories>
+
+
+
+	</pluginRepositories>
 
 </project>
