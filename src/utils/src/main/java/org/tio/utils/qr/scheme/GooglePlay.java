@@ -8,8 +8,8 @@ package org.tio.utils.qr.scheme;
  */
 public class GooglePlay extends Schema {
 
-	public static final String GPLAY = "{{{market://details?id=%s}}}";
-	private String appPackage;
+	public static final String	GPLAY	= "{{{market://details?id=%s}}}";
+	private String				appPackage;
 
 	/**
 	 * Default constructor to construct the GooglePlay obeject.

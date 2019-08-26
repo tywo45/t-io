@@ -30,7 +30,7 @@ public class GuavaUtils {
 	 * @return
 	 */
 	public static <K, V> LoadingCache<K, V> createLoadingCache(Integer concurrencyLevel, Long timeToLiveSeconds, Long timeToIdleSeconds, Integer initialCapacity,
-			Integer maximumSize, boolean recordStats) {
+	        Integer maximumSize, boolean recordStats) {
 		return createLoadingCache(concurrencyLevel, timeToLiveSeconds, timeToIdleSeconds, initialCapacity, maximumSize, recordStats, null);
 	}
 
@@ -46,7 +46,7 @@ public class GuavaUtils {
 	 * @return
 	 */
 	public static <K, V> LoadingCache<K, V> createLoadingCache(Integer concurrencyLevel, Long timeToLiveSeconds, Long timeToIdleSeconds, Integer initialCapacity,
-			Integer maximumSize, boolean recordStats, RemovalListener<K, V> removalListener) {
+	        Integer maximumSize, boolean recordStats, RemovalListener<K, V> removalListener) {
 
 		if (removalListener == null) {
 			removalListener = new RemovalListener<K, V>() {

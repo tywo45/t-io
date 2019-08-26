@@ -13,7 +13,7 @@ import com.jfinal.plugin.activerecord.Record;
  * 2017年8月20日 上午8:49:05
  */
 public class JfinalRecordSerializer implements ObjectSerializer {
-	public static final JfinalRecordSerializer INSTANCE = new JfinalRecordSerializer();
+	public static final JfinalRecordSerializer me = new JfinalRecordSerializer();
 
 	/**
 	 *

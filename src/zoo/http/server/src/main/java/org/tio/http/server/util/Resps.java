@@ -94,7 +94,7 @@ public class Resps {
 		if (fileOnServer == null || !fileOnServer.exists()) {
 			return request.httpConfig.getHttpRequestHandler().resp404(request, request.getRequestLine());
 		}
-		
+
 		Date lastModified = new Date(fileOnServer.lastModified());
 		HttpResponse ret = try304(request, lastModified.getTime());
 		if (ret != null) {
@@ -105,10 +105,11 @@ public class Resps {
 		String filename = fileOnServer.getName();
 		String extension = FileUtil.extName(filename);
 		ret = bytes(request, bodyBytes, extension);
+		//		ret.addHeader(HeaderName.Content_Disposition, HeaderValue.from("attachment;filename=" + fileOnServer.getName()));
 		ret.setLastModified(HeaderValue.from(lastModified.getTime() + ""));
 		return ret;
 	}
-	
+
 	/**
 	 * 
 	 * @param request
@@ -122,7 +123,7 @@ public class Resps {
 		if (httpResource == null) {
 			return null;
 		} else {
-			String path1 = httpResource.getPath();
+			path = httpResource.getPath();
 			File file = httpResource.getFile();
 			if (file != null) {
 				return file(request, file);
@@ -130,7 +131,7 @@ public class Resps {
 
 			InputStream inputStream = httpResource.getInputStream();
 			byte[] bs = IoUtils.toByteArray(inputStream);
-			return Resps.bytes(request, bs, FileUtil.extName(path1));
+			return Resps.bytes(request, bs, FileUtil.extName(path));
 		}
 	}
 
@@ -143,13 +144,13 @@ public class Resps {
 	 * @throws IOException
 	 * @author: tanyaowu
 	 */
-//	public static HttpResponse file(HttpRequest request, String path, HttpConfig httpConfig) throws Exception {
-//		File file = httpConfig.getFile(request, path);//(pageRoot + path);
-//		if (!file.exists()) {
-//			return resp404(request, request.getRequestLine(), httpConfig);
-//		}
-//		return file(request, file);
-//	}
+	//	public static HttpResponse file(HttpRequest request, String path, HttpConfig httpConfig) throws Exception {
+	//		File file = httpConfig.getFile(request, path);//(pageRoot + path);
+	//		if (!file.exists()) {
+	//			return resp404(request, request.getRequestLine(), httpConfig);
+	//		}
+	//		return file(request, file);
+	//	}
 
 	/**
 	 * 
@@ -164,22 +165,22 @@ public class Resps {
 		String file404 = httpConfig.getPage404();
 		HttpResource httpResource = request.httpConfig.getResource(request, file404);
 		if (httpResource != null) {
+			file404 = httpResource.getPath();
 			HttpResponse ret = Resps.forward(request, file404 + "?tio_initpath=" + URLEncoder.encode(requestLine.getPathAndQuery(), httpConfig.getCharset()));
 			return ret;
 		}
-		
 
-//		File file = httpConfig.getFile(request, file404);// new File(pageRoot + file404);
-//		if (file.exists()) {
-//			HttpResponse ret = Resps.redirect(request, file404 + "?tio_initpath=" + requestLine.getPathAndQuery());
-//			return ret;
-//		}
+		//		File file = httpConfig.getFile(request, file404);// new File(pageRoot + file404);
+		//		if (file.exists()) {
+		//			HttpResponse ret = Resps.redirect(request, file404 + "?tio_initpath=" + requestLine.getPathAndQuery());
+		//			return ret;
+		//		}
 
 		HttpResponse ret = Resps.html(request, "404");
 		ret.setStatus(HttpResponseStatus.C404);
 		return ret;
 	}
-	
+
 	/**
 	 * 
 	 * @param request
@@ -225,7 +226,9 @@ public class Resps {
 	public static HttpResponse resp500(HttpRequest request, RequestLine requestLine, HttpConfig httpConfig, Throwable throwable) throws Exception {
 		String file500 = httpConfig.getPage500();
 		HttpResource httpResource = request.httpConfig.getResource(request, file500);
+		
 		if (httpResource != null) {
+			file500 = httpResource.getPath();
 			HttpResponse ret = Resps.forward(request, file500 + "?tio_initpath=" + requestLine.getPathAndQuery());
 			return ret;
 		}
@@ -233,7 +236,7 @@ public class Resps {
 		ret.setStatus(HttpResponseStatus.C500);
 		return ret;
 	}
-	
+
 	/**
 	 * 
 	 * @param request
@@ -256,7 +259,7 @@ public class Resps {
 	public static HttpResponse bytesWithContentType(HttpRequest request, byte[] bodyBytes, String contentType) {
 		HttpResponse ret = new HttpResponse(request);
 		ret.setBody(bodyBytes);
-		
+
 		if (StrUtil.isBlank(contentType)) {
 			ret.addHeader(HeaderName.Content_Type, HeaderValue.Content_Type.DEFAULT_TYPE);
 		} else {
@@ -290,7 +293,7 @@ public class Resps {
 	public static HttpResponse html(HttpRequest request, String bodyString) {
 		return html(request, bodyString, request.httpConfig.getCharset());
 	}
-	
+
 	/**
 	 * 
 	 * @param request
@@ -414,7 +417,7 @@ public class Resps {
 		ret.addHeader(HeaderName.Location, HeaderValue.from(path));
 		return ret;
 	}
-	
+
 	/**
 	 * 用页面重定向
 	 * @param request
@@ -427,9 +430,9 @@ public class Resps {
 		sb.append("<script>");
 		sb.append("window.location.href='").append(path).append("'");
 		sb.append("</script>");
-		
+
 		return Resps.html(request, sb.toString());
-		
+
 	}
 
 	/**
@@ -455,6 +458,13 @@ public class Resps {
 	 */
 	public static HttpResponse string(HttpRequest request, String bodyString, String charset, String Content_Type) {
 		HttpResponse ret = new HttpResponse(request);
+//
+//		//处理jsonp
+//		String jsonp = request.getParam(request.httpConfig.getJsonpParamName());
+//		if (StrUtil.isNotBlank(jsonp)) {
+//			bodyString = jsonp + "(" + bodyString + ")";
+//		}
+
 		if (bodyString != null) {
 			if (charset == null) {
 				ret.setBody(bodyString.getBytes());

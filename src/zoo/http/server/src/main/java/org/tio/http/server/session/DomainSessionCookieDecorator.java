@@ -20,7 +20,7 @@ public class DomainSessionCookieDecorator implements SessionCookieDecorator {
 	 * 形如:".baidu.com"
 	 */
 	private String domain;
-	
+
 	private DomainMappingSessionCookieDecorator domainMappingSessionCookieDecorator;
 
 	/**
@@ -30,14 +30,12 @@ public class DomainSessionCookieDecorator implements SessionCookieDecorator {
 	 */
 	public DomainSessionCookieDecorator(String domain) {
 		this.domain = domain;
-		
+
 		Map<String, String> domainMap = new HashMap<>();
 		domainMap.put("(.)*(" + domain + "){1}", domain);
 
 		domainMappingSessionCookieDecorator = new DomainMappingSessionCookieDecorator(domainMap);
 	}
-
-
 
 	/** 
 	 * @param sessionCookie

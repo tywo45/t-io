@@ -5,14 +5,17 @@ import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
+import org.tio.core.Node;
 import org.tio.core.Tio;
 import org.tio.core.exception.AioDecodeException;
 import org.tio.http.common.HttpConst.RequestBodyFormat;
 import org.tio.http.common.utils.HttpParseUtils;
+import org.tio.http.common.utils.IpUtils;
 import org.tio.utils.SysConst;
 import org.tio.utils.hutool.StrUtil;
 
@@ -50,13 +53,13 @@ public class HttpRequestDecoder {
 	 * @param position
 	 * @param readableLength
 	 * @param channelContext
-	 * @param httpConfig 可能为null
+	 * @param httpConfig
 	 * @return
 	 * @throws AioDecodeException
 	 * @author tanyaowu
 	 */
 	public static HttpRequest decode(ByteBuffer buffer, int limit, int position, int readableLength, ChannelContext channelContext, HttpConfig httpConfig)
-			throws AioDecodeException {
+	        throws AioDecodeException {
 		//		int initPosition = position;
 		//		int count = 0;
 		//		Step step = Step.firstline;
@@ -64,15 +67,16 @@ public class HttpRequestDecoder {
 		Map<String, String> headers = new HashMap<>();
 		int contentLength = 0;
 		byte[] bodyBytes = null;
-		StringBuilder headerSb = null;//new StringBuilder(512);
+		//		StringBuilder headerSb = null;//new StringBuilder(512);
 		RequestLine firstLine = null;
-		boolean appendRequestHeaderString = httpConfig.isAppendRequestHeaderString();;
-//		if (httpConfig != null) {
-//			
-//		}
-		if (appendRequestHeaderString) {
-			headerSb = new StringBuilder(512);
-		}
+		//		boolean appendRequestHeaderString = httpConfig.isAppendRequestHeaderString();
+
+		//		if (httpConfig != null) {
+		//			
+		//		}
+		//		if (appendRequestHeaderString) {
+		//			headerSb = new StringBuilder(512);
+		//		}
 
 		// request line start
 		firstLine = parseRequestLine(buffer, channelContext);
@@ -80,17 +84,11 @@ public class HttpRequestDecoder {
 			return null;
 		}
 		// request line end
-		
-		HttpRequest httpRequest = new HttpRequest(channelContext.getClientNode());
-		httpRequest.setRequestLine(firstLine);
-		httpRequest.setChannelContext(channelContext);
-		httpRequest.setHttpConfig(httpConfig);
-		
-//		HttpRequestHandler httpRequestHandler = (HttpRequestHandler)channelContext.groupContext.getAttribute(GroupContextKey.HTTP_REQ_HANDLER);
-//		if (httpRequestHandler != null) {
-//			httpRequest.setHttpConfig(httpRequestHandler.getHttpConfig(httpRequest));
-//		}
-		
+
+		//		HttpRequestHandler httpRequestHandler = (HttpRequestHandler)channelContext.tioConfig.getAttribute(TioConfigKey.HTTP_REQ_HANDLER);
+		//		if (httpRequestHandler != null) {
+		//			httpRequest.setHttpConfig(httpRequestHandler.getHttpConfig(httpRequest));
+		//		}
 
 		// request header start
 		boolean headerCompleted = parseHeaderLine(buffer, headers, 0, httpConfig);
@@ -111,41 +109,50 @@ public class HttpRequestDecoder {
 		int headerLength = (buffer.position() - position);
 		int allNeedLength = headerLength + contentLength; //这个packet所需要的字节长度(含头部和体部)
 
-		if (readableLength < allNeedLength) {
+		int notReceivedLength = allNeedLength - readableLength; //尚未接收到的数据长度
+		if (notReceivedLength > 0) {
+			if (notReceivedLength > channelContext.getReadBufferSize()) {
+				channelContext.setReadBufferSize(notReceivedLength);
+			}
+
 			channelContext.setPacketNeededLength(allNeedLength);
 			return null;
 		}
 		// request header end
-		
-		
-		
 
 		// ----------------------------------------------- request body start
+
+		//		httpRequest.setHttpConfig((HttpConfig) channelContext.tioConfig.getAttribute(TioConfigKey.HTTP_SERVER_CONFIG));
+
+		String realIp = IpUtils.getRealIp(channelContext, httpConfig, headers);
+		if (Tio.IpBlacklist.isInBlacklist(channelContext.tioConfig, realIp)) {
+			throw new AioDecodeException("[" + realIp + "] in black list");
+		}
 		if (httpConfig.checkHost) {
 			if (!headers.containsKey(HttpConst.RequestHeaderKey.Host)) {
 				throw new AioDecodeException("there is no host header");
 			}
 		}
 
-		
-		
-//		httpRequest.setHttpConfig((HttpConfig) channelContext.groupContext.getAttribute(GroupContextKey.HTTP_SERVER_CONFIG));
-		
-		
-
-
-		if (appendRequestHeaderString) {
-			httpRequest.setHeaderString(headerSb.toString());
+		Node realNode = null;
+		if (Objects.equals(realIp, channelContext.getClientNode().getIp())) {
+			realNode = channelContext.getClientNode();
 		} else {
-			httpRequest.setHeaderString("");
+			realNode = new Node(realIp, channelContext.getClientNode().getPort()); //realNode
+			channelContext.setProxyClientNode(realNode);
 		}
 
+		HttpRequest httpRequest = new HttpRequest(realNode);
+		httpRequest.setRequestLine(firstLine);
+		httpRequest.setChannelContext(channelContext);
+		httpRequest.setHttpConfig(httpConfig);
 		httpRequest.setHeaders(headers);
-		if (Tio.IpBlacklist.isInBlacklist(channelContext.groupContext, httpRequest.getClientIp())) {
-			throw new AioDecodeException("[" + httpRequest.getClientIp() + "] in black list");
-		}
-		
 		httpRequest.setContentLength(contentLength);
+		//		if (appendRequestHeaderString) {
+		//			httpRequest.setHeaderString(headerSb.toString());
+		//		} else {
+		//			httpRequest.setHeaderString("");
+		//		}
 
 		String connection = headers.get(HttpConst.RequestHeaderKey.Connection);
 		if (connection != null) {
@@ -156,16 +163,16 @@ public class HttpRequestDecoder {
 			decodeParams(httpRequest.getParams(), firstLine.queryString, httpRequest.getCharset(), channelContext);
 		}
 
-		if (contentLength == 0) {
-			//			if (StrUtil.isNotBlank(firstLine.getQuery())) {
-			//				decodeParams(httpRequest.getParams(), firstLine.getQuery(), httpRequest.getCharset(), channelContext);
-			//			}
-		} else {
+		if (contentLength > 0) {
 			bodyBytes = new byte[contentLength];
 			buffer.get(bodyBytes);
 			httpRequest.setBody(bodyBytes);
 			//解析消息体
 			parseBody(httpRequest, firstLine, bodyBytes, channelContext, httpConfig);
+		} else {
+			//			if (StrUtil.isNotBlank(firstLine.getQuery())) {
+			//				decodeParams(httpRequest.getParams(), firstLine.getQuery(), httpRequest.getCharset(), channelContext);
+			//			}
 		}
 		// ----------------------------------------------- request body end
 
@@ -180,17 +187,15 @@ public class HttpRequestDecoder {
 
 		//		StringBuilder logstr = new StringBuilder();
 		//		logstr.append("\r\n------------------ websocket header start ------------------------\r\n");
-		//		logstr.append(firstLine.getInitStr()).append("\r\n");
+		//		logstr.append(firstLine.getInitStr()).append(SysConst.CRLF);
 		//		Set<Entry<String, String>> entrySet = headers.entrySet();
 		//		for (Entry<String, String> entry : entrySet) {
-		//			logstr.append(StrUtil.leftPad(entry.getKey(), 30)).append(" : ").append(entry.getValue()).append("\r\n");
+		//			logstr.append(StrUtil.leftPad(entry.getKey(), 30)).append(" : ").append(entry.getValue()).append(SysConst.CRLF);
 		//		}
 		//		logstr.append("------------------ websocket header start ------------------------\r\n");
 		//		log.error(logstr.toString());
 
-		
 		return httpRequest;
-
 	}
 
 	/**
@@ -200,25 +205,34 @@ public class HttpRequestDecoder {
 	 * @param charset
 	 * @param channelContext
 	 * @author tanyaowu
+	 * @throws AioDecodeException 
 	 */
-	public static void decodeParams(Map<String, Object[]> params, String queryString, String charset, ChannelContext channelContext) {
+	public static void decodeParams(Map<String, Object[]> params, String queryString, String charset, ChannelContext channelContext) throws AioDecodeException {
 		if (StrUtil.isBlank(queryString)) {
 			return;
 		}
 
-		String[] keyvalues = queryString.split("&");
+		String[] keyvalues = queryString.split(SysConst.STR_AMP);
 		for (String keyvalue : keyvalues) {
-			String[] keyvalueArr = keyvalue.split("=");
-			if (keyvalueArr.length != 2) {
-				continue;
+			String[] keyvalueArr = keyvalue.split(SysConst.STR_EQ);
+			String value1 = null;
+			if (keyvalueArr.length == 2) {
+				value1 = keyvalueArr[1];
+			} else if (keyvalueArr.length > 2){
+				throw new AioDecodeException("含有多个" + SysConst.STR_EQ);
 			}
+			
 
 			String key = keyvalueArr[0];
-			String value = null;
-			try {
-				value = URLDecoder.decode(keyvalueArr[1], charset);
-			} catch (UnsupportedEncodingException e) {
-				log.error(channelContext.toString(), e);
+			String value;
+			if (StrUtil.isBlank(value1)) {
+				value = null;
+			} else {
+				try {
+					value = URLDecoder.decode(value1, charset);
+				} catch (UnsupportedEncodingException e) {
+					throw new AioDecodeException(e);
+				}
 			}
 
 			Object[] existValue = params.get(key);
@@ -246,7 +260,7 @@ public class HttpRequestDecoder {
 	 * @author tanyaowu
 	 */
 	private static void parseBody(HttpRequest httpRequest, RequestLine firstLine, byte[] bodyBytes, ChannelContext channelContext, HttpConfig httpConfig)
-			throws AioDecodeException {
+	        throws AioDecodeException {
 		parseBodyFormat(httpRequest, httpRequest.getHeaders());
 		RequestBodyFormat bodyFormat = httpRequest.getBodyFormat();
 
@@ -309,7 +323,9 @@ public class HttpRequestDecoder {
 			//【multipart/form-data; boundary=----WebKitFormBoundaryuwYcfA2AIgxqIxA0】
 			String contentType = httpRequest.getHeader(HttpConst.RequestHeaderKey.Content_Type);
 			String initboundary = HttpParseUtils.getSubAttribute(contentType, "boundary");//.getPerprotyEqualValue(httpRequest.getHeaders(), HttpConst.RequestHeaderKey.Content_Type, "boundary");
-			log.debug("{}, initboundary:{}", channelContext, initboundary);
+			if (log.isDebugEnabled()) {
+				log.debug("{}, initboundary:{}", channelContext, initboundary);
+			}
 			HttpMultiBodyDecoder.decode(httpRequest, firstLine, bodyBytes, initboundary, channelContext, httpConfig);
 			break;
 
@@ -450,24 +466,23 @@ public class HttpRequestDecoder {
 			}
 		}
 
-		int lineLength = buffer.position() - initPosition;  //这一行(header line)的字节数
-//		log.error("lineLength:{}, headerLength:{}, headers:\r\n{}", lineLength, hasReceivedHeaderLength, Json.toFormatedJson(headers));
+		int lineLength = buffer.position() - initPosition; //这一行(header line)的字节数
+		//		log.error("lineLength:{}, headerLength:{}, headers:\r\n{}", lineLength, hasReceivedHeaderLength, Json.toFormatedJson(headers));
 		if (lineLength > MAX_LENGTH_OF_HEADERLINE) {
-//			log.error("header line is too long, max length of header line is " + MAX_LENGTH_OF_HEADERLINE);
+			//			log.error("header line is too long, max length of header line is " + MAX_LENGTH_OF_HEADERLINE);
 			throw new AioDecodeException("header line is too long, max length of header line is " + MAX_LENGTH_OF_HEADERLINE);
 		}
-		
+
 		if (needIteration) {
-			int headerLength = lineLength + hasReceivedHeaderLength;  //header占用的字节数
-//			log.error("allHeaderLength:{}", allHeaderLength);
+			int headerLength = lineLength + hasReceivedHeaderLength; //header占用的字节数
+			//			log.error("allHeaderLength:{}", allHeaderLength);
 			if (headerLength > MAX_LENGTH_OF_HEADER) {
-//				log.error("header is too long, max length of header is " + MAX_LENGTH_OF_HEADER);
+				//				log.error("header is too long, max length of header is " + MAX_LENGTH_OF_HEADER);
 				throw new AioDecodeException("header is too long, max length of header is " + MAX_LENGTH_OF_HEADER);
 			}
 			return parseHeaderLine(buffer, headers, headerLength, httpConfig);
 		}
 
-		
 		return false;
 	}
 
@@ -780,8 +795,9 @@ public class HttpRequestDecoder {
 	 * 解析URLENCODED格式的消息体
 	 * 形如： 【Content-Type : application/x-www-form-urlencoded; charset=UTF-8】
 	 * @author tanyaowu
+	 * @throws AioDecodeException 
 	 */
-	private static void parseUrlencoded(HttpRequest httpRequest, RequestLine firstLine, byte[] bodyBytes, String bodyString, ChannelContext channelContext) {
+	private static void parseUrlencoded(HttpRequest httpRequest, RequestLine firstLine, byte[] bodyBytes, String bodyString, ChannelContext channelContext) throws AioDecodeException {
 		decodeParams(httpRequest.getParams(), bodyString, httpRequest.getCharset(), channelContext);
 	}
 

@@ -26,8 +26,8 @@ public class GuavaRedisCache extends AbsCache {
 
 	public static final String CACHE_CHANGE_TOPIC = "TIO_CACHE_CHANGE_TOPIC_GUAVA";
 
-	private static Logger log = LoggerFactory.getLogger(GuavaRedisCache.class);
-	public static Map<String, GuavaRedisCache> map = new HashMap<>();
+	private static Logger						log	= LoggerFactory.getLogger(GuavaRedisCache.class);
+	public static Map<String, GuavaRedisCache>	map	= new HashMap<>();
 
 	static RTopic topic;
 
@@ -103,10 +103,10 @@ public class GuavaRedisCache extends AbsCache {
 					GuavaCache guavaCache = GuavaCache.register(cacheName, timeToLiveSecondsForGuava, timeToIdleSecondsForGuava);
 
 					guavaRedisCache = new GuavaRedisCache(cacheName, guavaCache, redisCache);
-					
+
 					guavaRedisCache.setTimeToIdleSeconds(timeToIdleSeconds);
 					guavaRedisCache.setTimeToLiveSeconds(timeToLiveSeconds);
-					
+
 					map.put(cacheName, guavaRedisCache);
 				}
 			}
@@ -118,10 +118,9 @@ public class GuavaRedisCache extends AbsCache {
 
 	RedisCache redisCache;
 
-
 	/**
 	 * @param guavaCache
-	 * @param redisCache
+	 * @param distCache
 	 * @author tanyaowu
 	 */
 	public GuavaRedisCache(String cacheName, GuavaCache guavaCache, RedisCache redisCache) {
@@ -149,7 +148,7 @@ public class GuavaRedisCache extends AbsCache {
 	 * @author tanyaowu
 	 */
 	@Override
-	public Serializable get(String key) {
+	public Serializable _get(String key) {
 		if (StrUtil.isBlank(key)) {
 			return null;
 		}
@@ -217,12 +216,6 @@ public class GuavaRedisCache extends AbsCache {
 
 		CacheChangedVo cacheChangedVo = new CacheChangedVo(cacheName, key, CacheChangeType.REMOVE);
 		topic.publish(cacheChangedVo);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T get(String key, Class<T> clazz) {
-		return (T) get(key);
 	}
 
 	@Override

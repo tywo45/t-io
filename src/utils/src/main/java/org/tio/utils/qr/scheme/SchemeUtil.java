@@ -8,9 +8,9 @@ import java.util.Map;
  */
 public class SchemeUtil {
 
-	public static final String LINE_FEED = "\n";
-	public static final String DEFAULT_PARAM_SEPARATOR = "\r?\n";
-	public static final String DEFAULT_KEY_VALUE_SEPARATOR = ":";
+	public static final String	LINE_FEED					= "\n";
+	public static final String	DEFAULT_PARAM_SEPARATOR		= "\r?\n";
+	public static final String	DEFAULT_KEY_VALUE_SEPARATOR	= ":";
 
 	/**
 	 * Parses the given string into a key/value map. Uses a colon as key/value
@@ -22,10 +22,8 @@ public class SchemeUtil {
 	 *            the string that splits the parameters
 	 * @return the parsed key/value map
 	 */
-	public static Map<String, String> getParameters(final String qrCode,
-			final String paramSeparator) {
-		return getParameters(qrCode, paramSeparator,
-				DEFAULT_KEY_VALUE_SEPARATOR);
+	public static Map<String, String> getParameters(final String qrCode, final String paramSeparator) {
+		return getParameters(qrCode, paramSeparator, DEFAULT_KEY_VALUE_SEPARATOR);
 	}
 
 	/**
@@ -51,8 +49,7 @@ public class SchemeUtil {
 	 *            the string that splits the key/value pairs
 	 * @return the parsed key/value map
 	 */
-	public static Map<String, String> getParameters(final String qrCode,
-			final String paramSeparator, final String keyValueSeparator) {
+	public static Map<String, String> getParameters(final String qrCode, final String paramSeparator, final String keyValueSeparator) {
 		Map<String, String> result = new LinkedHashMap<String, String>();
 		String[] parts = qrCode.split(paramSeparator);
 		for (int i = 0; i < parts.length; i++) {

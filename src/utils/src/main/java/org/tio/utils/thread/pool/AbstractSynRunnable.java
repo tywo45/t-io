@@ -10,9 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
  * @author tanyaowu
- *
  */
 public abstract class AbstractSynRunnable implements Runnable {
 
@@ -25,12 +23,12 @@ public abstract class AbstractSynRunnable implements Runnable {
 	 * 提交成功次数
 	 */
 	public AtomicInteger executeCount = new AtomicInteger();
-	
+
 	/**
 	 * 避免重复提交次数
 	 */
 	public AtomicInteger avoidRepeatExecuteCount = new AtomicInteger();
-	
+
 	/**
 	 * 被循环执行的次数
 	 */
@@ -74,29 +72,24 @@ public abstract class AbstractSynRunnable implements Runnable {
 	@Override
 	public final void run() {
 		Lock writeLock = runningLock().writeLock();
-		//		boolean trylock = 
-		//		if (!trylock) {
-		//			return;
-		//		}
+
 		writeLock.lock();
 		try {
 			runCount.incrementAndGet();
-//			System.out.println(this.logstr() + ", 运行次数" + runCount);
-			
+
 			if (isCanceled()) //任务已经被取消
 			{
 				return;
 			}
 
 			loopCount.set(0);
-			
+
 			runTask();
-			
+
 			while (isNeededExecute() && loopCount.incrementAndGet() <= 10) {
-//				System.out.println(this.logstr() + "循环执行" + loopCount);
 				runTask();
 			}
-			
+
 		} catch (Throwable e) {
 			log.error(e.toString(), e);
 		} finally {
@@ -144,10 +137,8 @@ public abstract class AbstractSynRunnable implements Runnable {
 	public void setExecuted(boolean executed) {
 		this.executed = executed;
 	}
-	
+
 	public String logstr() {
 		return this.getClass().getName();
 	}
-
-	
 }

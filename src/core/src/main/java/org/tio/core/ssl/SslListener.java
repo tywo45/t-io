@@ -47,7 +47,7 @@ public class SslListener implements ISSLListener {
 
 			//			log.info("clone packet:{}", Json.toJson(obj));
 
-			if (channelContext.groupContext.useQueueSend) {
+			if (channelContext.tioConfig.useQueueSend) {
 				boolean isAdded = channelContext.sendRunnable.addMsg(p);
 				if (isAdded) {
 					channelContext.sendRunnable.execute();
@@ -73,12 +73,12 @@ public class SslListener implements ISSLListener {
 			//			channelContext.decodeRunnable.setNewByteBuffer(plainBuffer);
 			//			channelContext.decodeRunnable.run();
 
-			if (channelContext.groupContext.useQueueDecode) {
+			if (channelContext.tioConfig.useQueueDecode) {
 				ByteBuffer copiedByteBuffer = ByteBufferUtils.copy(plainBuffer);
 				channelContext.decodeRunnable.addMsg(copiedByteBuffer);
 				channelContext.decodeRunnable.execute();
 			} else {
-				channelContext.decodeRunnable.setNewByteBuffer(plainBuffer);
+				channelContext.decodeRunnable.setNewReceivedByteBuffer(plainBuffer);
 				channelContext.decodeRunnable.decode();
 			}
 		} else {

@@ -41,15 +41,20 @@ public class UdpServer {
 				if (c % 10000 == 0) {
 					String str = "【" + msg + "】 from " + remote;
 					log.error(str);
-				}
+				}String str = "【" + msg + "】 from " + remote;
+				log.error(str);
 
-//				log.info("收到来自{}的消息:【{}】", remote, msg);
-				DatagramPacket datagramPacket = new DatagramPacket(data, data.length, new InetSocketAddress(remote.getIp(), remote.getPort()));
+				//				log.info("收到来自{}的消息:【{}】", remote, msg);
+				
+				// 演示 start ---- 下面的代码仅作演示，如果两边要交互，那么两边都要开udpclient和udpserver
+				int otherPartyPort = 8000;
+				DatagramPacket datagramPacket = new DatagramPacket(data, data.length, new InetSocketAddress(remote.getIp(), otherPartyPort));
 				try {
 					datagramSocket.send(datagramPacket);
 				} catch (Throwable e) {
 					log.error(e.toString(), e);
 				}
+				// 演示 end 
 
 			}
 		};

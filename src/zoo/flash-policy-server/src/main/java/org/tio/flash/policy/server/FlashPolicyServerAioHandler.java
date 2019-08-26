@@ -4,9 +4,9 @@ import java.nio.ByteBuffer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.core.Tio;
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
+import org.tio.core.Tio;
 import org.tio.core.exception.AioDecodeException;
 import org.tio.core.exception.LengthOverflowException;
 import org.tio.core.intf.Packet;
@@ -27,7 +27,7 @@ public class FlashPolicyServerAioHandler implements ServerAioHandler {
 	@Override
 	public void handler(Packet packet, ChannelContext channelContext) throws Exception {
 		Tio.send(channelContext, FlashPolicyPacket.RESPONSE);
-//		Tio.close(channelContext, "消息发送完毕");
+		//		Tio.close(channelContext, "消息发送完毕");
 	}
 
 	public static final String REQUEST_STR = "<policy-file-request/>";
@@ -76,13 +76,13 @@ public class FlashPolicyServerAioHandler implements ServerAioHandler {
 	/**
 	 * 
 	 * @param packet
-	 * @param groupContext
+	 * @param tioConfig
 	 * @param channelContext
 	 * @return
 	 * @author tanyaowu
 	 */
 	@Override
-	public ByteBuffer encode(Packet packet, GroupContext groupContext, ChannelContext channelContext) {
+	public ByteBuffer encode(Packet packet, TioConfig tioConfig, ChannelContext channelContext) {
 		ByteBuffer ret = ByteBuffer.wrap(RESPONSE_BYTES);
 		//		ret.position(ret.limit());
 		return ret;

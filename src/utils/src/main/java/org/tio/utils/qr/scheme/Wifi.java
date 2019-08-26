@@ -10,15 +10,15 @@ import java.util.Map;
  */
 public class Wifi extends Schema {
 
-	public static final String WIFI_PROTOCOL_HEADER = "WIFI:";
-	public static final String AUTHENTICATION = "T";
-	public static final String SSID = "S";
-	public static final String PSK = "P";
-	public static final String HIDDEN = "H";
-	private String authentication;
-	private String ssid;
-	private String psk;
-	private boolean hidden = false;
+	public static final String	WIFI_PROTOCOL_HEADER	= "WIFI:";
+	public static final String	AUTHENTICATION			= "T";
+	public static final String	SSID					= "S";
+	public static final String	PSK						= "P";
+	public static final String	HIDDEN					= "H";
+	private String				authentication;
+	private String				ssid;
+	private String				psk;
+	private boolean				hidden					= false;
 
 	public Wifi() {
 		super();
@@ -189,12 +189,10 @@ public class Wifi extends Schema {
 	}
 
 	public static String escape(final String text) {
-		return text.replace("\\", "\\\\").replace(",", "\\,").replace(";", "\\;").replace(".", "\\.")
-				.replace("\"", "\\\"").replace("'", "\\'");
+		return text.replace("\\", "\\\\").replace(",", "\\,").replace(";", "\\;").replace(".", "\\.").replace("\"", "\\\"").replace("'", "\\'");
 	}
 
 	public static String unescape(final String text) {
-		return text.replace("\\\\", "\\").replace("\\,", ",").replace("\\;", ";").replace("\\.", ".")
-				.replace("\\\"", "\"").replace("\\'", "'");
+		return text.replace("\\\\", "\\").replace("\\,", ",").replace("\\;", ";").replace("\\.", ".").replace("\\\"", "\"").replace("\\'", "'");
 	}
 }

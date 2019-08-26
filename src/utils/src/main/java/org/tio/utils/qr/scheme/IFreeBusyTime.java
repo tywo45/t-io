@@ -10,8 +10,8 @@ import java.util.Map;
  */
 public class IFreeBusyTime extends SubSchema {
 
-	public static final String NAME = "VFREEBUSY";
-	private static final String BEGIN_TODO = "BEGIN:VFREEBUSY";
+	public static final String	NAME		= "VFREEBUSY";
+	private static final String	BEGIN_TODO	= "BEGIN:VFREEBUSY";
 
 	public IFreeBusyTime() {
 		super();

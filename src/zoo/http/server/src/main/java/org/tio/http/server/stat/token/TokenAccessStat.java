@@ -23,16 +23,16 @@ public class TokenAccessStat implements Serializable {
 	 * value: TokenPathAccessStat
 	 */
 	private MapWithLock<String, TokenPathAccessStat> tokenPathAccessStatMap = new MapWithLock<>(new HashMap<>());
-	
+
 	private Long durationType;
-	
+
 	private String ip;
-	
-	private String uid;
+
+	private String	uid;
 	/**
 	 * 当前统计了多久，单位：毫秒
 	 */
-	private long duration;
+	private long	duration;
 
 	public long getDuration() {
 		duration = SystemTimer.currTime - this.firstAccessTime;
@@ -48,8 +48,6 @@ public class TokenAccessStat implements Serializable {
 	 */
 	private String token;
 
-
-
 	/**
 	 * 第一次访问时间， 单位：毫秒
 	 */
@@ -64,12 +62,12 @@ public class TokenAccessStat implements Serializable {
 	 * 这个token访问的次数
 	 */
 	public final AtomicInteger count = new AtomicInteger();
-	
+
 	/**
 	 * 这个token访问给服务器带来的时间消耗，单位：毫秒
 	 */
 	public final AtomicLong timeCost = new AtomicLong();
-	
+
 	/**
 	 * 根据token获取TokenAccesspathStat，如果缓存中不存在，则创建
 	 * @param tokenAccessStat
@@ -80,7 +78,7 @@ public class TokenAccessStat implements Serializable {
 	public TokenPathAccessStat get(String path) {
 		return get(path, true);
 	}
-	
+
 	/**
 	 * 根据tokenAccessStat获取TokenAccesspathStat，如果缓存中不存在，则根据forceCreate的值决定是否创建
 	 * @param tokenAccessStat
@@ -93,12 +91,12 @@ public class TokenAccessStat implements Serializable {
 		if (path == null) {
 			return null;
 		}
-		
+
 		TokenPathAccessStat tokenPathAccessStat = tokenPathAccessStatMap.get(path);
 		if (tokenPathAccessStat == null && forceCreate) {
 			tokenPathAccessStat = tokenPathAccessStatMap.putIfAbsent(path, new TokenPathAccessStat(durationType, token, path, ip, uid));
 		}
-		
+
 		return tokenPathAccessStat;
 	}
 
@@ -123,7 +121,7 @@ public class TokenAccessStat implements Serializable {
 	public void setTokenPathAccessStatMap(MapWithLock<String, TokenPathAccessStat> tokenPathAccessStatMap) {
 		this.tokenPathAccessStatMap = tokenPathAccessStatMap;
 	}
-	
+
 	/**
 	 * @return the duration
 	 */
@@ -132,11 +130,11 @@ public class TokenAccessStat implements Serializable {
 		BetweenFormater betweenFormater = new BetweenFormater(duration, Level.MILLSECOND);
 		return betweenFormater.format();
 	}
-	
+
 	public double getPerSecond() {
 		int count = this.count.get();
 		long duration = getDuration();
-		double perSecond = (double)((double)count / (double)duration) * (double)1000;
+		double perSecond = (double) ((double) count / (double) duration) * (double) 1000;
 		return perSecond;
 	}
 

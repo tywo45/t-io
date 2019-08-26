@@ -289,13 +289,13 @@ public class ClassUtil {
 	 */
 	public static boolean isNormalClass(Class<?> clazz) {
 		return null != clazz //
-				&& false == clazz.isInterface() //
-				&& false == isAbstract(clazz) //
-				&& false == clazz.isEnum() //
-				&& false == clazz.isArray() //
-				&& false == clazz.isAnnotation() //
-				&& false == clazz.isSynthetic() //
-				&& false == clazz.isPrimitive();//
+		        && false == clazz.isInterface() //
+		        && false == isAbstract(clazz) //
+		        && false == clazz.isEnum() //
+		        && false == clazz.isArray() //
+		        && false == clazz.isAnnotation() //
+		        && false == clazz.isSynthetic() //
+		        && false == clazz.isPrimitive();//
 	}
 
 	/**
@@ -517,7 +517,7 @@ public class ClassUtil {
 	 */
 	public static boolean isSimpleValueType(Class<?> clazz) {
 		return isBasicType(clazz) || clazz.isEnum() || CharSequence.class.isAssignableFrom(clazz) || Number.class.isAssignableFrom(clazz) || Date.class.isAssignableFrom(clazz)
-				|| clazz.equals(URI.class) || clazz.equals(URL.class) || clazz.equals(Locale.class) || clazz.equals(Class.class);
+		        || clazz.equals(URI.class) || clazz.equals(URL.class) || clazz.equals(Locale.class) || clazz.equals(Class.class);
 	}
 
 }

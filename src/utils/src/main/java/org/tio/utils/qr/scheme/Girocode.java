@@ -8,9 +8,9 @@ import static org.tio.utils.qr.scheme.SchemeUtil.LINE_FEED;
  */
 public class Girocode extends Schema {
 
-	protected static final String SERVICE_HEADER = "BCD";
-	protected static final String FUNCTION_SEPA_CREDIT_TRANSFER = "SCT";
-	protected static final String VERSION_1 = "001";
+	protected static final String	SERVICE_HEADER					= "BCD";
+	protected static final String	FUNCTION_SEPA_CREDIT_TRANSFER	= "SCT";
+	protected static final String	VERSION_1						= "001";
 
 	public enum Encoding {
 		UTF_8, ISO_8859_1, ISO_8859_2, ISO_8859_4, ISO_8859_5, ISO_8859_7, ISO_8859_10, ISO_8859_15;
@@ -34,15 +34,15 @@ public class Girocode extends Schema {
 		}
 	}
 
-	private String name;
-	private String iban;
-	private String bic;
-	private String amount;
-	private String purposeCode;
-	private String reference;
-	private String text;
-	private Encoding encoding;
-	private String hint;
+	private String		name;
+	private String		iban;
+	private String		bic;
+	private String		amount;
+	private String		purposeCode;
+	private String		reference;
+	private String		text;
+	private Encoding	encoding;
+	private String		hint;
 
 	public Girocode() {
 

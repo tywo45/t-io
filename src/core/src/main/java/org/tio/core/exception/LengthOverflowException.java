@@ -7,10 +7,6 @@ package org.tio.core.exception;
  */
 public class LengthOverflowException extends java.lang.Throwable {
 
-	/**
-	 * @含义: 
-	 * @类型: long
-	 */
 	private static final long serialVersionUID = 5231789012657669073L;
 
 	/**

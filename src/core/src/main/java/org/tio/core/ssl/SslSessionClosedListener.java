@@ -1,6 +1,7 @@
 package org.tio.core.ssl;
 
 import org.tio.core.ChannelContext;
+import org.tio.core.ChannelContext.CloseCode;
 import org.tio.core.Tio;
 import org.tio.core.ssl.facade.ISessionClosedListener;
 
@@ -13,8 +14,8 @@ public class SslSessionClosedListener implements ISessionClosedListener {
 
 	@Override
 	public void onSessionClosed() {
-//		log.info("{} onSessionClosed", channelContext);
-		Tio.close(channelContext, "SSL SessionClosed");
+		//		log.info("{} onSessionClosed", channelContext);
+		Tio.close(channelContext, "SSL SessionClosed", CloseCode.SSL_SESSION_CLOSED);
 	}
 
 }

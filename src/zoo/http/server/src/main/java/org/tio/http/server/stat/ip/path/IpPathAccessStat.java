@@ -21,9 +21,9 @@ public class IpPathAccessStat implements Serializable {
 	 * value: 访问的次数
 	 */
 	//	private MapWithLock<String, AtomicInteger> mapWithLock = new MapWithLock<>(new HashMap<>());
-	
+
 	private Long durationType;
-	
+
 	/**
 	 * 当前统计了多久，单位：毫秒
 	 */
@@ -53,12 +53,12 @@ public class IpPathAccessStat implements Serializable {
 	 * 这个ip访问这个路径的次数
 	 */
 	public final AtomicInteger count = new AtomicInteger();
-	
+
 	/**
 	 * 这个ip访问这个路径给服务器带来的时间消耗，单位：毫秒
 	 */
 	public final AtomicLong timeCost = new AtomicLong();
-	
+
 	/**
 	 * 不带session的次数
 	 */
@@ -72,7 +72,7 @@ public class IpPathAccessStat implements Serializable {
 		this.ip = ip;
 		this.path = path;
 	}
-	
+
 	/**
 	 * @return the duration
 	 */
@@ -81,11 +81,11 @@ public class IpPathAccessStat implements Serializable {
 		BetweenFormater betweenFormater = new BetweenFormater(duration, Level.MILLSECOND);
 		return betweenFormater.format();
 	}
-	
+
 	public double getPerSecond() {
 		int count = this.count.get();
 		long duration = getDuration();
-		double perSecond = (double)((double)count / (double)duration) * (double)1000;
+		double perSecond = (double) ((double) count / (double) duration) * (double) 1000;
 		return perSecond;
 	}
 

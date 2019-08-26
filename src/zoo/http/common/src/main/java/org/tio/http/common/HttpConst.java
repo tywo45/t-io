@@ -6,10 +6,10 @@ package org.tio.http.common;
  *
  */
 public interface HttpConst {
-	
-	public interface HttpVersion{
-		String V1_1 = "1.1";
-		String V1_0 = "1.0";
+
+	public interface HttpVersion {
+		String	V1_1	= "1.1";
+		String	V1_0	= "1.0";
 	}
 
 	/**
@@ -39,23 +39,23 @@ public interface HttpConst {
 	 * 2017年5月27日 下午2:11:57
 	 */
 	public interface RequestHeaderKey {
-		String Cookie = "cookie";//.toLowerCase();//Cookie: $Version=1; Skin=new;
-		String Origin = "origin";//.toLowerCase(); //http://127.0.0.1
-		String Sec_WebSocket_Key = "sec-websocket-key";//.toLowerCase(); //2GFwqJ1Z37glm62YKKLUeA==
-		String Cache_Control = "cache-control";//.toLowerCase(); //"public, max-age:86400"
-		String Connection = "connection";//.toLowerCase(); //Upgrade,  keep-alive
-		String User_Agent = "user-agent";//.toLowerCase(); //Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3088.3 Safari/537.36
-		String Sec_WebSocket_Version = "sec-websocket-version";//.toLowerCase(); //13
-		String Host = "host";//.toLowerCase(); //127.0.0.1:9321
-		String Pragma = "pragma";//.toLowerCase(); //no-cache
-		String Accept_Encoding = "accept-encoding";//.toLowerCase(); //gzip, deflate, br
-		String Accept_Language = "accept-language";//.toLowerCase(); //zh-CN,zh;q=0.8,en;q=0.6
-		String Upgrade = "upgrade";//.toLowerCase(); //websocket
-		String Sec_WebSocket_Extensions = "sec-websocket-extensions";//.toLowerCase(); //permessage-deflate; client_max_window_bits
-		String Content_Length = "content-length";//.toLowerCase(); //65
-		String Content_Type = "content-type";//.toLowerCase();// : 【application/x-www-form-urlencoded】【application/x-www-form-urlencoded; charset=UTF-8】【multipart/form-data; boundary=----WebKitFormBoundaryuwYcfA2AIgxqIxA0 】
-		String If_Modified_Since = "if-modified-since";//.toLowerCase(); //与Last-Modified配合
-		
+		String	Cookie						= "cookie";						//.toLowerCase();//Cookie: $Version=1; Skin=new;
+		String	Origin						= "origin";						//.toLowerCase(); //http://127.0.0.1
+		String	Sec_WebSocket_Key			= "sec-websocket-key";			//.toLowerCase(); //2GFwqJ1Z37glm62YKKLUeA==
+		String	Cache_Control				= "cache-control";				//.toLowerCase(); //"public, max-age:86400"
+		String	Connection					= "connection";					//.toLowerCase(); //Upgrade,  keep-alive
+		String	User_Agent					= "user-agent";					//.toLowerCase(); //Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3088.3 Safari/537.36
+		String	Sec_WebSocket_Version		= "sec-websocket-version";		//.toLowerCase(); //13
+		String	Host						= "host";						//.toLowerCase(); //127.0.0.1:9321
+		String	Pragma						= "pragma";						//.toLowerCase(); //no-cache
+		String	Accept_Encoding				= "accept-encoding";			//.toLowerCase(); //gzip, deflate, br
+		String	Accept_Language				= "accept-language";			//.toLowerCase(); //zh-CN,zh;q=0.8,en;q=0.6
+		String	Upgrade						= "upgrade";					//.toLowerCase(); //websocket
+		String	Sec_WebSocket_Extensions	= "sec-websocket-extensions";	//.toLowerCase(); //permessage-deflate; client_max_window_bits
+		String	Content_Length				= "content-length";				//.toLowerCase(); //65
+		String	Content_Type				= "content-type";				//.toLowerCase();// : 【application/x-www-form-urlencoded】【application/x-www-form-urlencoded; charset=UTF-8】【multipart/form-data; boundary=----WebKitFormBoundaryuwYcfA2AIgxqIxA0 】
+		String	If_Modified_Since			= "if-modified-since";			//.toLowerCase(); //与Last-Modified配合
+
 		String Referer = "referer";
 
 		/**
@@ -73,9 +73,9 @@ public interface HttpConst {
 	 */
 	public interface RequestHeaderValue {
 		public interface Connection {
-			String keep_alive = "keep-alive";//.toLowerCase();
-			String Upgrade = "upgrade";//.toLowerCase();
-			String close = "close";//.toLowerCase();
+			String	keep_alive	= "keep-alive";	//.toLowerCase();
+			String	Upgrade		= "upgrade";	//.toLowerCase();
+			String	close		= "close";		//.toLowerCase();
 		}
 
 		//application/x-www-form-urlencoded、multipart/form-data、text/plain
@@ -83,33 +83,33 @@ public interface HttpConst {
 			/**
 			 * 普通文本，一般会是json或是xml
 			 */
-			String text_plain = "text/plain";
+			String	text_plain							= "text/plain";
 			/**
 			 * 文件上传
 			 */
-			String multipart_form_data = "multipart/form-data";
+			String	multipart_form_data					= "multipart/form-data";
 			/**
 			 * 普通的key-value
 			 */
-			String application_x_www_form_urlencoded = "application/x-www-form-urlencoded";
+			String	application_x_www_form_urlencoded	= "application/x-www-form-urlencoded";
 		}
 	}
 
 	public interface ResponseHeaderKey {
 		//Set-Cookie: UserID=JohnDoe; Max-Age=3600; Version=1
-		String Set_Cookie = "Set-Cookie".toLowerCase(); //Set-Cookie: UserID=JohnDoe; Max-Age=3600; Version=1
-		String Content_Length = "Content-Length".toLowerCase(); //65
-		String Cache_Control = "Cache-Control".toLowerCase(); //"public, max-age:86400"
-		String Connection = "Connection".toLowerCase(); //Upgrade,  keep-alive
-		String Keep_Alive = "Keep-Alive".toLowerCase(); //Keep-Alive:timeout=20
-		String Sec_WebSocket_Accept = "Sec-WebSocket-Accept".toLowerCase();
-		String Upgrade = "Upgrade".toLowerCase();
+		String	Set_Cookie				= "Set-Cookie".toLowerCase();			//Set-Cookie: UserID=JohnDoe; Max-Age=3600; Version=1
+		String	Content_Length			= "Content-Length".toLowerCase();		//65
+		String	Cache_Control			= "Cache-Control".toLowerCase();		//"public, max-age:86400"
+		String	Connection				= "Connection".toLowerCase();			//Upgrade,  keep-alive
+		String	Keep_Alive				= "Keep-Alive".toLowerCase();			//Keep-Alive:timeout=20
+		String	Sec_WebSocket_Accept	= "Sec-WebSocket-Accept".toLowerCase();
+		String	Upgrade					= "Upgrade".toLowerCase();
 
 		/**
 		 * Content-Disposition: attachment;filename=FileName.txt
 		 * 文件下载
 		 */
-		String Content_Disposition = "Content-Disposition".toLowerCase();
+		String	Content_Disposition	= "Content-Disposition".toLowerCase();
 		/**
 		 * 文档的编码（Encode）方法。只有在解码之后才可以得到Content-Type头指定的内容类型。
 		 * 利用gzip压缩文档能够显著地减少HTML文档的下载时间。
@@ -117,29 +117,29 @@ public interface HttpConst {
 		 * 因此，Servlet应该通过查看Accept-Encoding头（即request.getHeader("Accept-Encoding")）检查浏览器是否支持gzip，
 		 * 为支持gzip的浏览器返回经gzip压缩的HTML页面，为其他浏览器返回普通页面。
 		 */
-		String Content_Encoding = "Content-Encoding".toLowerCase();
+		String	Content_Encoding	= "Content-Encoding".toLowerCase();
 		/**
 		 * 表示后面的文档属于什么MIME类型。Servlet默认为text/plain，但通常需要显式地指定为text/html。
 		 * 由于经常要设置Content-Type，因此HttpServletResponse提供了一个专用的方法setContentType。
 		 */
-		String Content_Type = "Content-Type".toLowerCase();
+		String	Content_Type		= "Content-Type".toLowerCase();
 		/**
 		 * 当前的GMT时间。你可以用setDateHeader来设置这个头以避免转换时间格式的麻烦。
 		 */
-		String Date = "Date".toLowerCase();
+		String	Date				= "Date".toLowerCase();
 		/**
 		 * 应该在什么时候认为文档已经过期，从而不再缓存它？
 		 */
-		String Expires = "Expires".toLowerCase();
+		String	Expires				= "Expires".toLowerCase();
 		/**
 		 * 文档的最后改动时间。客户可以通过If-Modified-Since请求头提供一个日期，该请求将被视为一个条件GET，
 		 * 只有改动时间迟于指定时间的文档才会返回，否则返回一个304（Not Modified）状态。Last-Modified也可用setDateHeader方法来设置。
 		 */
-		String Last_Modified = "Last-Modified".toLowerCase();
+		String	Last_Modified		= "Last-Modified".toLowerCase();
 		/**
 		 * 表示客户应当到哪里去提取文档。Location通常不是直接设置的，而是通过HttpServletResponse的sendRedirect方法，该方法同时设置状态代码为302。
 		 */
-		String Location = "Location".toLowerCase();
+		String	Location			= "Location".toLowerCase();
 		/**
 		 * 表示浏览器应该在多少时间之后刷新文档，以秒计。除了刷新当前文档之外，你还可以通过setHeader("Refresh", "5; URL=http://host/path")让浏览器读取指定的页面。
 		注意这种功能通常是通过设置HTML页面HEAD区的＜META HTTP-EQUIV="Refresh" CONTENT="5;URL=http://host/path"＞实现，这是因为，自动刷新或重定向对于那些不能使用CGI或Servlet的HTML编写者十分重要。但是，对于Servlet来说，直接设置Refresh头更加方便。
@@ -148,35 +148,35 @@ public interface HttpConst {
 		
 		注意Refresh头不属于HTTP 1.1正式规范的一部分，而是一个扩展，但Netscape和IE都支持它。
 		 */
-		String Refresh = "Refresh".toLowerCase();
+		String	Refresh				= "Refresh".toLowerCase();
 		/**
 		 * 服务器名字。Servlet一般不设置这个值，而是由Web服务器自己设置。
 		 */
-		String Server = "Server".toLowerCase();
+		String	Server				= "Server".toLowerCase();
 
 		/**
 		 *
 		 */
 		String Access_Control_Allow_Origin = "Access-Control-Allow-Origin".toLowerCase(); //value: *
-		
+
 		String Access_Control_Allow_Methods = "Access-Control-Allow-Methods".toLowerCase();
 
-		String Access_Control_Max_Age = "Access-Control-Max-Age".toLowerCase();
+		String	Access_Control_Max_Age			= "Access-Control-Max-Age".toLowerCase();
 		/**
 		 *
 		 */
-		String Access_Control_Allow_Headers = "Access-Control-Allow-Headers".toLowerCase();//.toLowerCase(); //value: x-requested-with,content-type
+		String	Access_Control_Allow_Headers	= "Access-Control-Allow-Headers".toLowerCase();	//.toLowerCase(); //value: x-requested-with,content-type
 
 		/**
 		 * 是否是从缓存中获取的数据，tio-httpserver特有的头部信息
 		 */
 		String tio_from_cache = "tio-from-cache";
-		
+
 		/**
 		 * 
 		 */
 		String tio_webpack_used_cache = "tio-webpack-used-cache";
-		
+
 	}
 
 	/**
@@ -186,9 +186,9 @@ public interface HttpConst {
 	 */
 	public interface ResponseHeaderValue {
 		public interface Connection {
-			String keep_alive = "keep-alive";//.toLowerCase();
-			String Upgrade = "Upgrade";//.toLowerCase();
-			String close = "close";//.toLowerCase();
+			String	keep_alive	= "keep-alive";	//.toLowerCase();
+			String	Upgrade		= "Upgrade";	//.toLowerCase();
+			String	close		= "close";		//.toLowerCase();
 		}
 
 		public interface Upgrade {

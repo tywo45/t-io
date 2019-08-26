@@ -7,6 +7,7 @@ import java.util.concurrent.Semaphore;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tio.core.ChannelContext.CloseCode;
 import org.tio.core.WriteCompletionHandler.WriteCompletionVo;
 import org.tio.core.intf.Packet;
 import org.tio.core.intf.Packet.Meta;
@@ -32,7 +33,7 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 		 */
 		public WriteCompletionVo(ByteBuffer byteBuffer, Object obj) {
 			super();
-			this.byteBuffer = byteBuffer;  //[pos=0 lim=212 cap=212]
+			this.byteBuffer = byteBuffer; //[pos=0 lim=212 cap=212]
 			this.obj = obj;
 		}
 	}
@@ -50,7 +51,7 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 	@Override
 	public void completed(Integer result, WriteCompletionVo writeCompletionVo) {
 		//		Object attachment = writeCompletionVo.getObj();
-		ByteBuffer byteBuffer = writeCompletionVo.byteBuffer;  //[pos=212 lim=212 cap=212]
+		ByteBuffer byteBuffer = writeCompletionVo.byteBuffer; //[pos=212 lim=212 cap=212]
 		if (byteBuffer.hasRemaining()) {
 			//			int iv = byteBuffer.capacity() - byteBuffer.position();
 			log.info("{} {}/{} has sent", channelContext, byteBuffer.position(), byteBuffer.limit());
@@ -86,18 +87,18 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 	public void handle(Integer result, Throwable throwable, WriteCompletionVo writeCompletionVo) {
 		this.writeSemaphore.release();
 		Object attachment = writeCompletionVo.obj;//();
-		GroupContext groupContext = channelContext.groupContext;
+		TioConfig tioConfig = channelContext.tioConfig;
 		boolean isSentSuccess = result > 0;
 
 		if (isSentSuccess) {
-			if (groupContext.statOn) {
-				groupContext.groupStat.sentBytes.addAndGet(result);
+			if (tioConfig.statOn) {
+				tioConfig.groupStat.sentBytes.addAndGet(result);
 				channelContext.stat.sentBytes.addAndGet(result);
 			}
 
-			if (groupContext.ipStats.durationList != null && groupContext.ipStats.durationList.size() > 0) {
-				for (Long v : groupContext.ipStats.durationList) {
-					IpStat ipStat = (IpStat) channelContext.groupContext.ipStats.get(v, channelContext.getClientNode().getIp());
+			if (tioConfig.ipStats.durationList != null && tioConfig.ipStats.durationList.size() > 0) {
+				for (Long v : tioConfig.ipStats.durationList) {
+					IpStat ipStat = (IpStat) channelContext.tioConfig.ipStats.get(v, channelContext);
 					ipStat.getSentBytes().addAndGet(result);
 				}
 			}
@@ -107,9 +108,9 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 			boolean isPacket = attachment instanceof Packet;
 			if (isPacket) {
 				if (isSentSuccess) {
-					if (groupContext.ipStats.durationList != null && groupContext.ipStats.durationList.size() > 0) {
-						for (Long v : groupContext.ipStats.durationList) {
-							IpStat ipStat = (IpStat) channelContext.groupContext.ipStats.get(v, channelContext.getClientNode().getIp());
+					if (tioConfig.ipStats.durationList != null && tioConfig.ipStats.durationList.size() > 0) {
+						for (Long v : tioConfig.ipStats.durationList) {
+							IpStat ipStat = (IpStat) channelContext.tioConfig.ipStats.get(v, channelContext);
 							ipStat.getSentPackets().incrementAndGet();
 						}
 					}
@@ -123,7 +124,7 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 			}
 
 			if (!isSentSuccess) {
-				Tio.close(channelContext, throwable, "写数据返回:" + result);
+				Tio.close(channelContext, throwable, "写数据返回:" + result, CloseCode.WRITE_COUNT_IS_NEGATIVE);
 			}
 		} catch (Throwable e) {
 			log.error(e.toString(), e);

@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.http.server.intf.CurrUseridGetter;
 import org.tio.http.server.stat.DefaultStatPathFilter;
 import org.tio.http.server.stat.StatPathFilter;
@@ -30,10 +30,10 @@ public class TokenPathAccessStats {
 	//	private final static Long timeToLiveSeconds = null;
 	//	private final static Long timeToIdleSeconds = Time.DAY_1;
 
-	private GroupContext groupContext;
+	private TioConfig tioConfig;
 
-	private String groupContextId;
-	
+	private String tioConfigId;
+
 	private StatPathFilter statPathFilter;
 
 	//	private CaffeineCache[] caches = null;
@@ -59,25 +59,25 @@ public class TokenPathAccessStats {
 	 * @param statPathFilter
 	 * @param tokenGetter
 	 * @param currUseridGetter
-	 * @param groupContext
+	 * @param tioConfig
 	 * @param tokenPathAccessStatListener
 	 * @param durations
 	 */
-	public TokenPathAccessStats(StatPathFilter statPathFilter, TokenGetter tokenGetter, CurrUseridGetter currUseridGetter, GroupContext groupContext, TokenPathAccessStatListener tokenPathAccessStatListener,
-			Long[] durations) {
+	public TokenPathAccessStats(StatPathFilter statPathFilter, TokenGetter tokenGetter, CurrUseridGetter currUseridGetter, TioConfig tioConfig,
+	        TokenPathAccessStatListener tokenPathAccessStatListener, Long[] durations) {
 		this.statPathFilter = statPathFilter;
 		if (this.statPathFilter == null) {
 			this.statPathFilter = DefaultStatPathFilter.me;
 		}
-		
+
 		if (tokenGetter == null) {
 			throw new RuntimeException("tokenGetter can not be null");
 		}
 
 		this.tokenGetter = tokenGetter;
 		this.currUseridGetter = currUseridGetter;
-		this.groupContext = groupContext;
-		this.groupContextId = groupContext.getId();
+		this.tioConfig = tioConfig;
+		this.tioConfigId = tioConfig.getId();
 		if (durations != null) {
 			for (Long duration : durations) {
 				addDuration(duration, tokenPathAccessStatListener);
@@ -85,8 +85,9 @@ public class TokenPathAccessStats {
 		}
 	}
 
-	public TokenPathAccessStats(StatPathFilter statPathFilter, CurrUseridGetter currUseridGetter, GroupContext groupContext, TokenPathAccessStatListener tokenPathAccessStatListener, Long[] durations) {
-		this(statPathFilter, DefaultTokenGetter.me, currUseridGetter, groupContext, tokenPathAccessStatListener, durations);
+	public TokenPathAccessStats(StatPathFilter statPathFilter, CurrUseridGetter currUseridGetter, TioConfig tioConfig,
+	        TokenPathAccessStatListener tokenPathAccessStatListener, Long[] durations) {
+		this(statPathFilter, DefaultTokenGetter.me, currUseridGetter, tioConfig, tokenPathAccessStatListener, durations);
 	}
 
 	/**
@@ -98,7 +99,7 @@ public class TokenPathAccessStats {
 	public void addDuration(Long duration, TokenPathAccessStatListener tokenPathAccessStatListener) {
 		@SuppressWarnings("unchecked")
 		CaffeineCache caffeineCache = CaffeineCache.register(getCacheName(duration), duration, null,
-				new TokenPathAccessStatRemovalListener(groupContext, tokenPathAccessStatListener));
+		        new TokenPathAccessStatRemovalListener(tioConfig, tokenPathAccessStatListener));
 		cacheMap.put(duration, caffeineCache);
 		durationList.add(duration);
 
@@ -149,7 +150,7 @@ public class TokenPathAccessStats {
 	 * @author: tanyaowu
 	 */
 	public String getCacheName(Long duration) {
-		String cacheName = CACHE_NAME + "_" + this.groupContextId + "_";
+		String cacheName = CACHE_NAME + "_" + this.tioConfigId + "_";
 		return cacheName + duration;
 	}
 

@@ -15,8 +15,8 @@ import org.tio.core.udp.intf.UdpHandler;
 public class UdpHandlerRunnable implements Runnable {
 	private static Logger log = LoggerFactory.getLogger(UdpHandlerRunnable.class);
 
-	private UdpHandler udpHandler;
-	private LinkedBlockingQueue<UdpPacket> queue;
+	private UdpHandler						udpHandler;
+	private LinkedBlockingQueue<UdpPacket>	queue;
 
 	private DatagramSocket datagramSocket;
 

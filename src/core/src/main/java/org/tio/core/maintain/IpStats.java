@@ -10,16 +10,16 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.core.GroupContext;
+import org.tio.core.ChannelContext;
+import org.tio.core.TioConfig;
 import org.tio.core.cache.IpStatRemovalListener;
 import org.tio.core.stat.IpStat;
 import org.tio.utils.cache.caffeine.CaffeineCache;
-import org.tio.utils.hutool.StrUtil;
 
 /**
  * 使用方法（注意顺序）：<br>
- *	1、serverGroupContext.setIpStatListener(ShowcaseIpStatListener.me);
-	2、serverGroupContext.ipStats.addDuration(Time.MINUTE_1 * 5);
+ *	1、serverTioConfig.setIpStatListener(ShowcaseIpStatListener.me);
+	2、serverTioConfig.ipStats.addDuration(Time.MINUTE_1 * 5);
  * @author tanyaowu
  * 2017年4月15日 下午12:13:19
  */
@@ -29,8 +29,8 @@ public class IpStats {
 
 	private final static String CACHE_NAME = "TIO_IP_STAT";
 
-	private String groupContextId;
-	private GroupContext groupContext;
+	private String			tioConfigId;
+	private TioConfig	tioConfig;
 
 	/**
 	 * key: 时长，单位：秒
@@ -39,9 +39,9 @@ public class IpStats {
 
 	public List<Long> durationList = null;//new ArrayList<>();
 
-	public IpStats(GroupContext groupContext, Long[] durations) {
-		this.groupContext = groupContext;
-		this.groupContextId = groupContext.getId();
+	public IpStats(TioConfig tioConfig, Long[] durations) {
+		this.tioConfig = tioConfig;
+		this.tioConfigId = tioConfig.getId();
 		if (durations != null) {
 			addDurations(durations);
 		}
@@ -58,7 +58,7 @@ public class IpStats {
 				durationList = new ArrayList<>();
 			}
 			@SuppressWarnings("unchecked")
-			CaffeineCache caffeineCache = CaffeineCache.register(getCacheName(duration), duration, null, new IpStatRemovalListener(groupContext, groupContext.getIpStatListener()));
+			CaffeineCache caffeineCache = CaffeineCache.register(getCacheName(duration), duration, null, new IpStatRemovalListener(tioConfig, tioConfig.getIpStatListener()));
 			cacheMap.put(duration, caffeineCache);
 			durationList.add(duration);
 		}
@@ -98,7 +98,7 @@ public class IpStats {
 	 * @author: tanyaowu
 	 */
 	public String getCacheName(Long duration) {
-		String cacheName = CACHE_NAME + "_" + this.groupContextId + "_";
+		String cacheName = CACHE_NAME + "_" + this.tioConfigId + "_";
 		return cacheName + duration;
 	}
 
@@ -117,24 +117,37 @@ public class IpStats {
 	/**
 	 * 根据ip获取IpStat，如果缓存中不存在，则创建
 	 * @param duration
-	 * @param ip
+	 * @param channelContext
 	 * @return
 	 * @author: tanyaowu
 	 */
-	public IpStat get(Long duration, String ip) {
-		return get(duration, ip, true);
+	public IpStat get(Long duration, ChannelContext channelContext) {
+		return get(duration, channelContext, true);
 	}
 
 	/**
 	 * 根据ip获取IpStat，如果缓存中不存在，则根据forceCreate的值决定是否创建
 	 * @param duration
-	 * @param ip
+	 * @param channelContext
 	 * @param forceCreate
 	 * @return
 	 * @author: tanyaowu
 	 */
-	public IpStat get(Long duration, String ip, boolean forceCreate) {
-		if (StrUtil.isBlank(ip)) {
+	public IpStat get(Long duration, ChannelContext channelContext, boolean forceCreate) {
+		return _get(duration, channelContext, forceCreate, true);
+	}
+	
+	/**
+	 * 
+	 * @param duration
+	 * @param channelContext
+	 * @param forceCreate
+	 * @param useProxyClient
+	 * @return
+	 * @author tanyaowu
+	 */
+	public IpStat _get(Long duration, ChannelContext channelContext, boolean forceCreate, boolean useProxyClient) {
+		if (channelContext == null) {
 			return null;
 		}
 		CaffeineCache caffeineCache = cacheMap.get(duration);
@@ -142,6 +155,12 @@ public class IpStats {
 			return null;
 		}
 
+		String ip = null;
+		if (useProxyClient && channelContext.getProxyClientNode() != null) {
+			ip = channelContext.getProxyClientNode().getIp();
+		} else {
+			ip = channelContext.getClientNode().getIp();
+		}
 		IpStat ipStat = (IpStat) caffeineCache.get(ip);
 		if (ipStat == null && forceCreate) {
 			synchronized (this) {

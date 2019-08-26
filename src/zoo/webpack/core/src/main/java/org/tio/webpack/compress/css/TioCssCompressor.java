@@ -19,7 +19,7 @@ public class TioCssCompressor implements ResCompressor {
 
 	private static Logger log = LoggerFactory.getLogger(TioCssCompressor.class);
 
-	public static final TioCssCompressor ME = new TioCssCompressor();
+	public static final TioCssCompressor me = new TioCssCompressor();
 
 	/**
 	 * 
@@ -30,12 +30,7 @@ public class TioCssCompressor implements ResCompressor {
 
 	static final String commits = "/*" + DOC + "*/\r\n";
 
-	/**
-	 * 
-	 * @param srcCssContent 压缩前的内容
-	 * @return 压缩后的内容
-	 * @author tanyaowu
-	 */
+	@Override
 	public String compress(String filePath, String srcCssContent) {
 		try {
 			CssCompressor cssCompressor = new CssCompressor(new StringReader(srcCssContent));
@@ -51,15 +46,16 @@ public class TioCssCompressor implements ResCompressor {
 				return srcCssContent;
 			}
 
-			byte[] initBytes = srcCssContent.getBytes();
-			byte[] afterBytes = ret.getBytes();
+			//			byte[] initBytes = srcCssContent.getBytes();
+			//			byte[] afterBytes = ret.getBytes();
+			//
+			//			if (afterBytes.length >= initBytes.length) {
+			//				log.warn("CSS压缩后的文件反而较大,  init size:{}, after size:{}, file:{}", initBytes.length, afterBytes.length, filePath);
+			//				return srcCssContent;
+			//			}
 
-			if (afterBytes.length >= initBytes.length) {
-				log.warn("CSS压缩后的文件反而较大,  init size:{}, after size:{}, file:{}", initBytes.length, afterBytes.length, filePath);
-				return srcCssContent;
-			}
-
-			return commits + ret;
+//			return commits + ret;
+			return ret;
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 			return srcCssContent;
@@ -77,7 +73,7 @@ public class TioCssCompressor implements ResCompressor {
 
 		byte[] bytes = Files.readAllBytes(new File("E:\\svn\\nbyb\\html\\nbyb_bootstrap\\src\\public\\css\\common.css").toPath());
 		String xx = new String(bytes, "utf-8");
-		String compiled_code = TioCssCompressor.ME.compress("cc.css", xx);
+		String compiled_code = TioCssCompressor.me.compress("cc.css", xx);
 		System.out.println(compiled_code);
 		long end = System.currentTimeMillis();
 		long iv = end - start;

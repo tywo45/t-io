@@ -8,7 +8,6 @@ import org.tio.core.ChannelContext;
  * 2017年4月1日 上午9:34:08
  */
 public interface AioListener {
-	
 
 	/**
 	 * 建链后触发本方法，注：建链不一定成功，需要关注参数isConnected
@@ -30,7 +29,7 @@ public interface AioListener {
 	 * @author: tanyaowu
 	 */
 	public void onAfterDecoded(ChannelContext channelContext, Packet packet, int packetSize) throws Exception;
-	
+
 	/**
 	 * 接收到TCP层传过来的数据后
 	 * @param channelContext
@@ -48,7 +47,7 @@ public interface AioListener {
 	 * @author tanyaowu
 	 */
 	public void onAfterSent(ChannelContext channelContext, Packet packet, boolean isSentSuccess) throws Exception;
-	
+
 	/**
 	 * 处理一个消息包后
 	 * @param channelContext
@@ -68,7 +67,7 @@ public interface AioListener {
 	 * @throws Exception 
 	 */
 	public void onBeforeClose(ChannelContext channelContext, Throwable throwable, String remark, boolean isRemove) throws Exception;
-	
+
 	/**
 	 * 连接关闭前后触发本方法
 	 * 警告：走到这个里面时，很多绑定的业务都已经解绑了，所以这个方法一般是空着不实现的
@@ -79,5 +78,5 @@ public interface AioListener {
 	 * @throws Exception
 	 * @author: tanyaowu
 	 */
-//	public void onAfterClose(ChannelContext channelContext, Throwable throwable, String remark, boolean isRemove) throws Exception;
+	//	public void onAfterClose(ChannelContext channelContext, Throwable throwable, String remark, boolean isRemove) throws Exception;
 }

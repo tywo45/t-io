@@ -73,7 +73,7 @@ public class BeanUtil {
 	private static Map<String, PropertyDescriptor> internalGetPropertyDescriptorMap(Class<?> clazz, boolean ignoreCase) throws IntrospectionException {
 		final PropertyDescriptor[] propertyDescriptors = getPropertyDescriptors(clazz);
 		final Map<String, PropertyDescriptor> map = ignoreCase ? new CaseInsensitiveMap<String, PropertyDescriptor>(propertyDescriptors.length, 1)
-				: new HashMap<String, PropertyDescriptor>((int) (propertyDescriptors.length), 1);
+		        : new HashMap<String, PropertyDescriptor>((int) (propertyDescriptors.length), 1);
 
 		for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
 			map.put(propertyDescriptor.getName(), propertyDescriptor);

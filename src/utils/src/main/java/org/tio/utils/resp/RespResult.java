@@ -13,11 +13,11 @@ public enum RespResult {
 	/**
 	 * 成功的响应
 	 */
-	OK(1), 
+	OK(1),
 	/**
 	 * 失败的响应
 	 */
-	FAIL(2), 
+	FAIL(2),
 	/**
 	 * 未知的响应
 	 */

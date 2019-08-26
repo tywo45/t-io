@@ -1,5 +1,7 @@
 package org.tio.webpack.compress;
 
+import org.tio.utils.SysConst;
+
 /**
  * @author tanyaowu 
  * 2017年11月20日 上午11:03:45
@@ -9,15 +11,11 @@ public interface ResCompressor {
 	/**
 	 * 
 	 * @param filePath 
-	 * @param srcContent 原内容
+	 * @param initStr 原内容
 	 * @return 压缩后的内容
 	 * @author tanyaowu
 	 */
-	public String compress(String filePath, String srcContent);
-	
-	String CHARSET = "utf-8";
-	
-	String DOC = "\r\n1、全新编译压缩技术tio-webpack(基于t-io)为本站提供压缩渲染"
-			+ "\r\n2、如果本站把您的IP拉黑，冤有头债有主，请去码云找tio ： https://gitee.com/tywo45/t-io"
-			+ "\r\n";
+	public String compress(String filePath, String initStr);
+
+	String DOC = "\r\n1、t-io提供压缩能力" + "\r\n2、不仅仅是百万级网络编程框架 ： https://www.t-io.org" + SysConst.CRLF;
 }

@@ -1,5 +1,7 @@
 package org.tio.utils.cache;
 
+import java.io.Serializable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.utils.hutool.StrUtil;
@@ -13,9 +15,9 @@ public abstract class AbsCache implements ICache {
 	private static Logger log = LoggerFactory.getLogger(AbsCache.class);
 
 	protected String cacheName = null;
-	
+
 	private Long timeToLiveSeconds;
-	
+
 	private Long timeToIdleSeconds;
 
 	/**
@@ -28,7 +30,7 @@ public abstract class AbsCache implements ICache {
 		}
 		this.setCacheName(cacheName);
 	}
-	
+
 	public AbsCache(String cacheName, Long timeToLiveSeconds, Long timeToIdleSeconds) {
 		if (StrUtil.isBlank(cacheName)) {
 			throw new RuntimeException("cacheName不允许为空");
@@ -67,5 +69,33 @@ public abstract class AbsCache implements ICache {
 	public void setTimeToIdleSeconds(Long timeToIdleSeconds) {
 		this.timeToIdleSeconds = timeToIdleSeconds;
 	}
+
+	/**
+	 * 根据key获取value
+	 * @param key
+	 * @return
+	 * @author tanyaowu
+	 */
+	public Serializable get(String key) {
+		Serializable obj = _get(key);
+		if (obj instanceof ICache.NullClass) {
+			return null;
+		}
+		return obj;
+	}
+
+	/**
+	 * 根据key获取value
+	 * @param key
+	 * @param clazz
+	 * @return
+	 * @author: tanyaowu
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T get(String key, Class<T> clazz) {
+		return (T)get(key);
+	}
+
+	public abstract Serializable _get(String key);
 
 }

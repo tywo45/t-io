@@ -8,7 +8,7 @@ import org.tio.http.common.HttpRequest;
  * 2017年11月15日 下午1:12:39
  */
 public interface ModelGenerator {
-	
+
 	/**
 	 * 
 	 * @param request

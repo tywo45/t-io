@@ -31,7 +31,6 @@ public class RedisExpireUpdateTask {
 	}
 
 	public static void start() {
-		//		INSTANCE = new RedisExpireUpdateTask();
 		if (started) {
 			return;
 		}

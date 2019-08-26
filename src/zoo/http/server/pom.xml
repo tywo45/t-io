@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>org.t-io</groupId>
 		<artifactId>tio-http-parent</artifactId>
-		<version>3.2.6.v20190110-RELEASE</version>
+		<version>3.5.1.v20190826-RELEASE</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -16,6 +16,11 @@
 		<dependency>
 			<groupId>org.t-io</groupId>
 			<artifactId>tio-http-common</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.thoughtworks.paranamer</groupId>
+			<artifactId>paranamer</artifactId>
 		</dependency>
 
 
@@ -31,7 +36,7 @@
 			<artifactId>redisson</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
@@ -48,40 +53,19 @@
 			<artifactId>testng</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
-		
+
+
 		<dependency>
 			<groupId>com.esotericsoftware</groupId>
 			<artifactId>reflectasm</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
 	</dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-						</manifest>
-						<addMavenDescriptor>false</addMavenDescriptor><!-- 生成的jar中，不要包含pom.xml和pom.properties这两个文件 -->
-					</archive>
-
-					<excludes>
-						<exclude>**/config/**/*</exclude>
-
-						<exclude>app.conf</exclude>
-						<exclude>logback.properties</exclude>
-						<exclude>logback.xml</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
-
-		</plugins>
-	</build>
+	
 
 </project>

@@ -12,8 +12,8 @@ import java.util.Map;
  */
 public class ICal extends Schema {
 
-	private static final String BEGIN_VCALENDAR = "BEGIN:VCALENDAR";
-	private SubSchema subSchema;
+	private static final String	BEGIN_VCALENDAR	= "BEGIN:VCALENDAR";
+	private SubSchema			subSchema;
 
 	/**
 	 * Invisible default constructor.

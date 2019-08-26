@@ -14,7 +14,7 @@ public class WsResponse extends WsPacket {
 	private static Logger log = LoggerFactory.getLogger(WsResponse.class);
 
 	private static final long serialVersionUID = 963847148301021559L;
-	
+
 	public static WsResponse fromText(String text, String charset) {
 		WsResponse wsResponse = new WsResponse();
 		try {
@@ -25,8 +25,8 @@ public class WsResponse extends WsPacket {
 		wsResponse.setWsOpcode(Opcode.TEXT);
 		return wsResponse;
 	}
-	
-	public static WsResponse fromBytes(byte[] bytes) {	
+
+	public static WsResponse fromBytes(byte[] bytes) {
 		WsResponse wsResponse = new WsResponse();
 		wsResponse.setBody(bytes);
 		wsResponse.setWsOpcode(Opcode.BINARY);

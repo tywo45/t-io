@@ -20,9 +20,9 @@ import org.tio.utils.hutool.StrUtil;
  */
 public class SslConfig {
 
-	private InputStream keyStoreInputStream = null;
-	private InputStream trustStoreInputStream = null;
-	private String passwd = null;
+	private InputStream	keyStoreInputStream		= null;
+	private InputStream	trustStoreInputStream	= null;
+	private String		passwd					= null;
 
 	private KeyManagerFactory keyManagerFactory;
 

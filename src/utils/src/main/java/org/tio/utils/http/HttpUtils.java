@@ -78,7 +78,7 @@ public class HttpUtils {
 	 * @throws Exception
 	 */
 	private static Response post(String url, Map<String, String> headerMap, MediaType mediaType, String bodyString, Map<String, String> paramMap, List<String> paramNames,
-			List<String> paramValues) throws Exception {
+	        List<String> paramValues) throws Exception {
 		Request.Builder builder = new Request.Builder().url(url);
 		if (headerMap != null) {
 			Headers headers = Headers.of(headerMap);
@@ -172,15 +172,4 @@ public class HttpUtils {
 		return post(url, null);
 	}
 
-	
-	public static void main(String[] args) throws Exception {
-		String url = "https://www.t-io.org/api/app/conf.php";
-		Response response = get(url);
-		String body = response.body().string();
-		Headers headers = response.headers();
-		String cookie = headers.get("Set-Cookie");
-		System.out.println(body);
-		System.out.println(cookie);
-		
-	}
 }

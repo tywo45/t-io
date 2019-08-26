@@ -16,7 +16,8 @@ public interface FirsthandCreater<T extends Serializable> {
 	 * 
 	 * @return
 	 * @author tanyaowu
+	 * @throws Exception 
 	 */
-	public T create();
+	public T create() throws Exception;
 
 }

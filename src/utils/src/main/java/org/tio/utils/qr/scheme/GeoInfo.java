@@ -10,8 +10,8 @@ import java.util.List;
  */
 public class GeoInfo extends Schema {
 
-	public static final String GEO = "geo";
-	private List<String> points;
+	public static final String	GEO	= "geo";
+	private List<String>		points;
 
 	/**
 	 * Default constructor to construct new geo info object.

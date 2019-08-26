@@ -15,15 +15,15 @@ import java.util.regex.Pattern;
 public class ReUtil {
 
 	/** 正则表达式匹配中文汉字 */
-	public final static String RE_CHINESE = "[\u4E00-\u9FFF]";
+	public final static String	RE_CHINESE	= "[\u4E00-\u9FFF]";
 	/** 正则表达式匹配中文字符串 */
-	public final static String RE_CHINESES = RE_CHINESE + "+";
+	public final static String	RE_CHINESES	= RE_CHINESE + "+";
 
 	/** 正则中需要被转义的关键字 */
 	public final static Set<Character> RE_KEYS = new HashSet<>();
 	static {
 		RE_KEYS.add('$');
-		
+
 		RE_KEYS.add('(');
 		RE_KEYS.add(')');
 		RE_KEYS.add('*');
@@ -38,8 +38,6 @@ public class ReUtil {
 		RE_KEYS.add('}');
 		RE_KEYS.add('|');
 	}
-
-
 
 	/**
 	 * 获得匹配的字符串，，获得正则中分组0的内容
@@ -84,7 +82,7 @@ public class ReUtil {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * 获得匹配的字符串匹配到的所有分组
 	 * 
@@ -138,7 +136,6 @@ public class ReUtil {
 		return pattern.matcher(content).replaceFirst(StrUtil.EMPTY);
 	}
 
-
 	/**
 	 * 删除匹配的全部内容
 	 * 
@@ -153,7 +150,6 @@ public class ReUtil {
 
 		return pattern.matcher(content).replaceAll(StrUtil.EMPTY);
 	}
-
 
 	/**
 	 * 取得内容中匹配的所有结果，获得匹配的所有结果中正则对应分组0的内容
@@ -273,7 +269,6 @@ public class ReUtil {
 		}
 		return collection;
 	}
-
 
 	/**
 	 * 计算指定字符串中，匹配pattern的个数

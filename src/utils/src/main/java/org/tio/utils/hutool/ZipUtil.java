@@ -3,7 +3,6 @@ package org.tio.utils.hutool;
 import java.io.IOException;
 import java.util.zip.GZIPOutputStream;
 
-
 /**
  * Zip工具类
  * 
@@ -30,7 +29,7 @@ public class ZipUtil {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} finally {
-			if(null != gos) {
+			if (null != gos) {
 				try {
 					gos.close();
 				} catch (IOException e) {

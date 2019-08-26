@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 
-
-
 /**
  * 基于快速缓冲FastByteBuffer的OutputStream，随着数据的增长自动扩充缓冲区
  * <p>
@@ -69,10 +67,9 @@ public class FastByteArrayOutputStream extends OutputStream {
 			out.write(buf);
 		}
 		out.write(buffer.array(index), 0, buffer.offset());
-	
+
 	}
 
-	
 	/**
 	 * 转为Byte数组
 	 * @return Byte数组
@@ -94,7 +91,7 @@ public class FastByteArrayOutputStream extends OutputStream {
 	public String toString(String charsetName) {
 		return toString(Charset.forName(charsetName));
 	}
-	
+
 	/**
 	 * 转为字符串
 	 * @param charset 编码

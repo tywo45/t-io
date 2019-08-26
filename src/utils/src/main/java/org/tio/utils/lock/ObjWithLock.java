@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
  * @author tanyaowu
  */
 public class ObjWithLock<T> implements Serializable {
-	
+
 	private static final long serialVersionUID = -3048283373239453901L;
-	
+
 	private static Logger log = LoggerFactory.getLogger(ObjWithLock.class);
 
 	/**
@@ -58,7 +58,7 @@ public class ObjWithLock<T> implements Serializable {
 	public ReentrantReadWriteLock getLock() {
 		return lock;
 	}
-	
+
 	/**
 	 * 获取写锁
 	 * @return
@@ -66,7 +66,7 @@ public class ObjWithLock<T> implements Serializable {
 	public WriteLock writeLock() {
 		return lock.writeLock();
 	}
-	
+
 	/**
 	 * 获取读锁
 	 * @return
@@ -92,12 +92,12 @@ public class ObjWithLock<T> implements Serializable {
 	public void setObj(T obj) {
 		this.obj = obj;
 	}
-	
+
 	/**
 	 * 操作obj时，带上读锁
 	 * @param readLockHandler
 	 */
-	public void handle(ReadLockHandler<T>  readLockHandler) {
+	public void handle(ReadLockHandler<T> readLockHandler) {
 		ReadLock readLock = lock.readLock();
 		readLock.lock();
 		try {
@@ -108,12 +108,12 @@ public class ObjWithLock<T> implements Serializable {
 			readLock.unlock();
 		}
 	}
-	
+
 	/**
 	 * 操作obj时，带上写锁
 	 * @param writeLockHandler
 	 */
-	public void handle(WriteLockHandler<T>  writeLockHandler) {
+	public void handle(WriteLockHandler<T> writeLockHandler) {
 		WriteLock writeLock = lock.writeLock();
 		writeLock.lock();
 		try {
@@ -124,5 +124,5 @@ public class ObjWithLock<T> implements Serializable {
 			writeLock.unlock();
 		}
 	}
-	
+
 }

@@ -9,20 +9,15 @@ import org.tio.utils.SystemTimer;
  */
 public class UdpPacket {
 
-	/**
-	 *
-	 */
-	private byte[] data;
-
+	private byte[]	data;
 	/**
 	 * 对端Node
 	 */
-	private Node remote;
-
+	private Node	remote;
 	/**
 	 * 收到消息的时间
 	 */
-	private long time = SystemTimer.currTime;
+	private long	time	= SystemTimer.currTime;
 
 	/**
 	 *

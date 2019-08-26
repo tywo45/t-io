@@ -11,13 +11,13 @@ import java.util.Map;
  */
 public class EnterpriseWifi extends Wifi {
 
-	public static final String USER = "U";
-	public static final String EAP = "E";
-	public static final String PHASE = "PH";
+	public static final String	USER	= "U";
+	public static final String	EAP		= "E";
+	public static final String	PHASE	= "PH";
 
-	private String user;
-	private String eap;
-	private String phase;
+	private String	user;
+	private String	eap;
+	private String	phase;
 
 	public EnterpriseWifi() {
 		super();
@@ -123,12 +123,10 @@ public class EnterpriseWifi extends Wifi {
 	}
 
 	public static String escape(final String text) {
-		return text.replace("\\", "\\\\").replace(",", "\\,").replace(";", "\\;").replace(".", "\\.")
-				.replace("\"", "\\\"").replace("'", "\\'");
+		return text.replace("\\", "\\\\").replace(",", "\\,").replace(";", "\\;").replace(".", "\\.").replace("\"", "\\\"").replace("'", "\\'");
 	}
 
 	public static String unescape(final String text) {
-		return text.replace("\\\\", "\\").replace("\\,", ",").replace("\\;", ";").replace("\\.", ".")
-				.replace("\\\"", "\"").replace("\\'", "'");
+		return text.replace("\\\\", "\\").replace("\\,", ",").replace("\\;", ";").replace("\\.", ".").replace("\\\"", "\"").replace("\\'", "'");
 	}
 }

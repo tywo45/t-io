@@ -12,28 +12,28 @@ import org.tio.core.intf.Packet;
  */
 public class TioClusterVo implements java.io.Serializable {
 	private static final long serialVersionUID = 6978027913776155664L;
-	
+
 	public static final String CLIENTID = UUID.randomUUID().toString();
 
 	private Packet packet;
 
 	private String clientId = CLIENTID;
-	
+
 	private String group;
 
 	private String userid;
-	
+
 	private String token;
-	
+
 	private String ip;
-	
+
 	/**
 	 * ChannelContext'id
 	 */
 	private String channelId;
-	
+
 	private String bsId;
-	
+
 	private boolean toAll = false;
 
 	public Packet getPacket() {
@@ -74,7 +74,7 @@ public class TioClusterVo implements java.io.Serializable {
 	 */
 	public TioClusterVo() {
 	}
-	
+
 	public TioClusterVo(Packet packet) {
 		this.packet = packet;
 	}

@@ -10,7 +10,7 @@ import org.tio.http.common.HttpRequest;
  *
  */
 public interface TokenGetter {
-	
+
 	/**
 	 * 根据HttpRequest对象获取业务上的token
 	 * @param request

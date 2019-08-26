@@ -1,7 +1,10 @@
 package org.tio.utils.json;
 
 import java.util.Date;
+import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tio.utils.hutool.StrUtil;
 
 import com.alibaba.fastjson.JSON;
@@ -17,6 +20,7 @@ import com.alibaba.fastjson.serializer.SimpleDateFormatSerializer;
  * 2017年4月16日 上午11:36:53
  */
 public class Json {
+	private static Logger log = LoggerFactory.getLogger(Json.class);
 
 	private static SerializeConfig mapping = new SerializeConfig();
 
@@ -38,11 +42,29 @@ public class Json {
 	}
 
 	public static <T> T toBean(String jsonString, Class<T> tt) {
-		if (StrUtil.isBlank(jsonString)) {
+		try {
+			if (StrUtil.isBlank(jsonString)) {
+				return null;
+			}
+			T t = JSON.parseObject(jsonString, tt);
+			return t;
+		} catch (Exception e) {
+			log.error(jsonString, e);
 			return null;
 		}
-		T t = JSON.parseObject(jsonString, tt);
-		return t;
+	}
+	
+	public static <T> List<T> toList(String jsonString, Class<T> clazz) {
+		try {
+			if (StrUtil.isBlank(jsonString)) {
+				return null;
+			}
+			List<T> list = JSON.parseArray(jsonString, clazz);
+			return list;
+		} catch (Exception e) {
+			log.error(jsonString, e);
+			return null;
+		}
 	}
 
 	/**

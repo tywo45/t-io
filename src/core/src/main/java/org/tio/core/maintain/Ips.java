@@ -2,15 +2,15 @@ package org.tio.core.maintain;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.concurrent.locks.Lock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.utils.hutool.StrUtil;
+import org.tio.utils.lock.LockUtils;
 import org.tio.utils.lock.MapWithLock;
+import org.tio.utils.lock.ReadWriteLockHandler;
 import org.tio.utils.lock.SetWithLock;
 
 /**
@@ -28,7 +28,8 @@ public class Ips {
 	 * key: ip
 	 * value: SetWithLock<ChannelContext>
 	 */
-	private MapWithLock<String, SetWithLock<ChannelContext>> ipmap = new MapWithLock<>(new HashMap<String, SetWithLock<ChannelContext>>());
+	private MapWithLock<String, SetWithLock<ChannelContext>>	ipmap	= new MapWithLock<>(new HashMap<String, SetWithLock<ChannelContext>>());
+	private String												rwKey	= "_tio_ips__";
 
 	/**
 	 * 和ip绑定
@@ -37,16 +38,15 @@ public class Ips {
 	 * @author tanyaowu
 	 */
 	public void bind(ChannelContext channelContext) {
+		if (channelContext == null) {
+			return;
+		}
+
+		if (channelContext.tioConfig.isShortConnection) {
+			return;
+		}
+		
 		try {
-			if (channelContext == null) {
-				return;
-			}
-
-			GroupContext groupContext = channelContext.groupContext;
-			if (groupContext.isShortConnection) {
-				return;
-			}
-
 			String ip = channelContext.getClientNode().getIp();
 			if (ChannelContext.UNKNOWN_ADDRESS_IP.equals(ip)) {
 				return;
@@ -56,21 +56,24 @@ public class Ips {
 				return;
 			}
 
-			SetWithLock<ChannelContext> channelContexts = null;//ipmap.getObj().get(ip);
-			Lock lock1 = ipmap.writeLock();
-			lock1.lock();
-			try {
-				Map<String, SetWithLock<ChannelContext>> map = ipmap.getObj();
-				channelContexts = map.get(ip);
-				if (channelContexts == null) {
-					channelContexts = new SetWithLock<>(new HashSet<ChannelContext>());
-					map.put(ip, channelContexts);
-				}
-				channelContexts.add(channelContext);
-			} catch (Throwable e) {
-				log.error(e.toString(), e);
-			} finally {
-				lock1.unlock();
+			SetWithLock<ChannelContext> channelSet = ipmap.get(ip);
+			if (channelSet == null) {
+				LockUtils.runReadOrWrite(rwKey + ip, this, new ReadWriteLockHandler() {
+					@Override
+					public Object read() {
+						return null;
+					}
+
+					@Override
+					public Object write() {
+						SetWithLock<ChannelContext> channelSet = new SetWithLock<>(new HashSet<ChannelContext>());
+						channelSet.add(channelContext);
+						ipmap.put(ip, channelSet);
+						return null;
+					}
+				});
+			} else {
+				channelSet.add(channelContext);
 			}
 		} catch (Exception e) {
 			log.error(e.toString(), e);
@@ -79,13 +82,13 @@ public class Ips {
 
 	/**
 	 * 一个ip有哪些客户端，有可能返回null
-	 * @param groupContext
+	 * @param tioConfig
 	 * @param ip
 	 * @return
 	 * @author tanyaowu
 	 */
-	public SetWithLock<ChannelContext> clients(GroupContext groupContext, String ip) {
-		if (groupContext.isShortConnection) {
+	public SetWithLock<ChannelContext> clients(TioConfig tioConfig, String ip) {
+		if (tioConfig.isShortConnection) {
 			return null;
 		}
 
@@ -109,50 +112,31 @@ public class Ips {
 	 * @author tanyaowu
 	 */
 	public void unbind(ChannelContext channelContext) {
+		if (channelContext == null) {
+			return;
+		}
+
+		if (channelContext.tioConfig.isShortConnection) {
+			return;
+		}
+
 		try {
-			if (channelContext == null) {
-				return;
-			}
-
-			GroupContext groupContext = channelContext.groupContext;
-			if (groupContext.isShortConnection) {
-				return;
-			}
-
 			String ip = channelContext.getClientNode().getIp();
-			if (ChannelContext.UNKNOWN_ADDRESS_IP.equals(ip)) {
-				log.error("{} ip is not right", channelContext);
-				return;
-			}
-
 			if (StrUtil.isBlank(ip)) {
 				return;
 			}
+			if (ChannelContext.UNKNOWN_ADDRESS_IP.equals(ip)) {
+				return;
+			}
 
-			SetWithLock<ChannelContext> channelContexts = ipmap.getObj().get(ip);
-			if (channelContexts != null) {
-				Lock lock1 = channelContexts.writeLock();
-				lock1.lock();
-				try {
-					channelContexts.getObj().remove(channelContext);
-					if (channelContexts.getObj().size() == 0) {
-						Lock lock2 = ipmap.writeLock();
-						lock2.lock();
-						try {
-							ipmap.getObj().remove(ip);
-						} catch (Throwable e) {
-							log.error(e.toString(), e);
-						} finally {
-							lock2.unlock();
-						}
-					}
-				} catch (Throwable e) {
-					log.error(e.toString(), e);
-				} finally {
-					lock1.unlock();
+			SetWithLock<ChannelContext> channelSet = ipmap.get(ip);
+			if (channelSet != null) {
+				channelSet.remove(channelContext);
+				if (channelSet.size() == 0) {
+					ipmap.remove(ip);
 				}
 			} else {
-				log.info("{}, ip【{}】 找不到对应的SetWithLock", groupContext.getName(), ip);
+				log.info("{}, ip【{}】 找不到对应的SetWithLock", channelContext.tioConfig.getName(), ip);
 			}
 		} catch (Exception e) {
 			log.error(e.toString(), e);

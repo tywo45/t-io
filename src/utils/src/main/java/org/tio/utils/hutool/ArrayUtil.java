@@ -4,7 +4,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-
 public class ArrayUtil {
 
 	/** 数组中元素未找到的下标，值为-1 */
@@ -201,4 +200,32 @@ public class ArrayUtil {
 	public static <T> T[] newArray(Class<?> componentType, int newSize) {
 		return (T[]) Array.newInstance(componentType, newSize);
 	}
+	
+	
+	public static byte[] addAll(byte[]... arrays) {
+		if (arrays.length == 1) {
+			return arrays[0];
+		}
+
+		int length = 0;
+		for (byte[] array : arrays) {
+			if (array == null) {
+				continue;
+			}
+			length += array.length;
+		}
+		byte[] result = new byte[length];
+
+		length = 0;
+		for (byte[] array : arrays) {
+			if (array == null) {
+				continue;
+			}
+			System.arraycopy(array, 0, result, length, array.length);
+			length += array.length;
+		}
+		return result;
+	}
+	
+
 }

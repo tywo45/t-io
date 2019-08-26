@@ -1,15 +1,15 @@
 package org.tio.utils.lock;
 
 /**
- * @author tanyw
+ * @author tanyaowu
  *
  */
-public interface ReadLockHandler <T> {
-	
+public interface ReadLockHandler<T> {
+
 	/**
 	 * 
 	 * @param t
 	 */
 	public void handler(T t);
-	
+
 }

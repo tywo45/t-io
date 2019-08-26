@@ -4,7 +4,7 @@
 package org.tio.core.stat;
 
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.core.intf.Packet;
 
 /**
@@ -22,10 +22,10 @@ public class DefaultIpStatListener implements IpStatListener {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.tio.core.stat.IpStatListener#onExpired(org.tio.core.GroupContext, org.tio.core.stat.IpStat)
+	 * @see org.tio.core.stat.IpStatListener#onExpired(org.tio.core.TioConfig, org.tio.core.stat.IpStat)
 	 */
 	@Override
-	public void onExpired(GroupContext groupContext, IpStat ipStat) {
+	public void onExpired(TioConfig tioConfig, IpStat ipStat) {
 	}
 
 	/* (non-Javadoc)

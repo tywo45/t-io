@@ -25,7 +25,7 @@ public abstract class ClassScanAnnotationHandler implements ClassScanHandler {
 		}
 		handlerAnnotation(clazz);
 	}
-	
+
 	/**
 	 * 
 	 * @param clazz 拥有annotationClass注解的class对象

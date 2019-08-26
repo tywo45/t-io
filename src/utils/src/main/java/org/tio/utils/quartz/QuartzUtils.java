@@ -67,6 +67,8 @@ public class QuartzUtils {
 	public static void start(String file1) {
 		if (StrUtil.isBlank(file1)) {
 			file = DEFAULT_FILE;
+		} else {
+			file = file1;
 		}
 		initJobClasses();
 		if (JOB_CLASSES.size() <= 0) {
@@ -116,7 +118,7 @@ public class QuartzUtils {
 		Set<Entry<Object, Object>> set = props.entrySet();//.keySet();
 		if (set != null && set.size() > 0) {
 			for (Entry<Object, Object> entry : set) {
-				
+
 				String clazz = StrUtil.trim((String) entry.getKey());
 				String cron = StrUtil.trim((String) entry.getValue());
 
@@ -127,8 +129,8 @@ public class QuartzUtils {
 	}
 
 	private static class QuartzTimeVo {
-		private String clazz = null;
-		private String cron = null;
+		private String	clazz	= null;
+		private String	cron	= null;
 
 		public QuartzTimeVo(String clazz, String cron) {
 			super();

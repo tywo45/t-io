@@ -8,7 +8,8 @@ import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.ChannelContext.CloseCode;
+import org.tio.core.TioConfig;
 import org.tio.core.Tio;
 import org.tio.core.exception.AioDecodeException;
 import org.tio.core.intf.Packet;
@@ -25,7 +26,17 @@ import org.tio.utils.thread.pool.AbstractQueueRunnable;
  * 2012-08-09
  */
 public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
-	private static final Logger log = LoggerFactory.getLogger(DecodeRunnable.class);
+	private static final Logger	log						= LoggerFactory.getLogger(DecodeRunnable.class);
+	private ChannelContext		channelContext			= null;
+	private TioConfig		tioConfig			= null;
+	/**
+	 * 上一次解码剩下的数据
+	 */
+	private ByteBuffer			lastByteBuffer			= null;
+	/**
+	 * 新收到的数据
+	 */
+	private ByteBuffer			newReceivedByteBuffer	= null;
 
 	/**
 	 *
@@ -34,7 +45,10 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 	 * @author tanyaowu
 	 */
 	public void handler(Packet packet, int byteCount) {
-		switch (groupContext.packetHandlerMode) {
+		switch (tioConfig.packetHandlerMode) {
+		case SINGLE_THREAD:
+			channelContext.handlerRunnable.handler(packet);
+			break;
 		case QUEUE:
 			channelContext.handlerRunnable.addMsg(packet);
 			channelContext.handlerRunnable.execute();
@@ -45,27 +59,13 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 		}
 	}
 
-	private ChannelContext channelContext = null;
-
-	private GroupContext groupContext = null;
-
-	/**
-	 * 上一次解码剩下的数据
-	 */
-	private ByteBuffer lastByteBuffer = null;
-
-	/**
-	 * 新收到的数据
-	 */
-	private ByteBuffer newByteBuffer = null;
-
 	/**
 	 *
 	 */
 	public DecodeRunnable(ChannelContext channelContext, Executor executor) {
 		super(executor);
 		this.channelContext = channelContext;
-		this.groupContext = channelContext.groupContext;
+		this.tioConfig = channelContext.tioConfig;
 	}
 
 	/**
@@ -74,12 +74,12 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 	public void clearMsgQueue() {
 		super.clearMsgQueue();
 		lastByteBuffer = null;
-		newByteBuffer = null;
+		newReceivedByteBuffer = null;
 	}
 
 	@Override
 	public void runTask() {
-		while ((newByteBuffer = msgQueue.poll()) != null) {
+		while ((newReceivedByteBuffer = msgQueue.poll()) != null) {
 			decode();
 		}
 	}
@@ -92,7 +92,7 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 	 *
 	 */
 	public void decode() {
-		ByteBuffer byteBuffer = newByteBuffer;
+		ByteBuffer byteBuffer = newReceivedByteBuffer;
 		if (lastByteBuffer != null) {
 			byteBuffer = ByteBufferUtils.composite(lastByteBuffer, byteBuffer);
 			lastByteBuffer = null;
@@ -105,13 +105,15 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 				int readableLength = limit - initPosition;
 				Packet packet = null;
 				if (channelContext.packetNeededLength != null) {
-					log.info("{}, 解码所需长度:{}", channelContext, channelContext.packetNeededLength);
+					if (log.isInfoEnabled()) {
+						log.info("{}, 解码所需长度:{}", channelContext, channelContext.packetNeededLength);
+					}
 					if (readableLength >= channelContext.packetNeededLength) {
-						packet = groupContext.getAioHandler().decode(byteBuffer, limit, initPosition, readableLength, channelContext);
+						packet = tioConfig.getAioHandler().decode(byteBuffer, limit, initPosition, readableLength, channelContext);
 					}
 				} else {
 					try {
-						packet = groupContext.getAioHandler().decode(byteBuffer, limit, initPosition, readableLength, channelContext);
+						packet = tioConfig.getAioHandler().decode(byteBuffer, limit, initPosition, readableLength, channelContext);
 					} catch (BufferUnderflowException e) {
 						//log.error(e.toString(), e);
 						//数据不够读
@@ -121,7 +123,7 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 				if (packet == null)// 数据不够，解不了码
 				{
 					//					lastByteBuffer = ByteBufferUtils.copy(byteBuffer, initPosition, limit);
-					if (groupContext.useQueueDecode || (byteBuffer != newByteBuffer)) {
+					if (tioConfig.useQueueDecode || (byteBuffer != newReceivedByteBuffer)) {
 						byteBuffer.position(initPosition);
 						byteBuffer.limit(limit);
 						lastByteBuffer = byteBuffer;
@@ -131,19 +133,22 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 					ChannelStat channelStat = channelContext.stat;
 					channelStat.decodeFailCount++;
 					//					int len = byteBuffer.limit() - initPosition;
-					log.info("{} 本次解码失败, 已经连续{}次解码失败，参与解码的数据长度共{}字节", channelContext, channelStat.decodeFailCount, readableLength);
+					if (log.isInfoEnabled()) {
+						log.info("{} 本次解码失败, 已经连续{}次解码失败，参与解码的数据长度共{}字节", channelContext, channelStat.decodeFailCount, readableLength);
+					}
 					if (channelStat.decodeFailCount > 5) {
 						if (channelContext.packetNeededLength == null) {
-							log.info("{} 本次解码失败, 已经连续{}次解码失败，参与解码的数据长度共{}字节", channelContext, channelStat.decodeFailCount, readableLength);
+							if (log.isInfoEnabled()) {
+								log.info("{} 本次解码失败, 已经连续{}次解码失败，参与解码的数据长度共{}字节", channelContext, channelStat.decodeFailCount, readableLength);
+							}
 						}
 
 						//检查慢包攻击（只有自用版才有）
 						if (channelStat.decodeFailCount > 10) {
 							//							int capacity = lastByteBuffer.capacity();
 							int per = readableLength / channelStat.decodeFailCount;
-							if (per < Math.min(groupContext.getReadBufferSize() / 2, 256)) {
+							if (per < Math.min(channelContext.getReadBufferSize() / 2, 256)) {
 								String str = "连续解码" + channelStat.decodeFailCount + "次都不成功，并且平均每次接收到的数据为" + per + "字节，有慢攻击的嫌疑";
-								log.error(str);
 								throw new AioDecodeException(str);
 							}
 						}
@@ -155,29 +160,29 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 					channelContext.stat.latestTimeOfReceivedPacket = SystemTimer.currTime;
 					channelContext.stat.decodeFailCount = 0;
 
-					int len = byteBuffer.position() - initPosition;
-					packet.setByteCount(len);
+					int packetSize = byteBuffer.position() - initPosition;
+					packet.setByteCount(packetSize);
 
-					if (groupContext.statOn) {
-						groupContext.groupStat.receivedPackets.incrementAndGet();
+					if (tioConfig.statOn) {
+						tioConfig.groupStat.receivedPackets.incrementAndGet();
 						channelContext.stat.receivedPackets.incrementAndGet();
 					}
 
-					if (groupContext.ipStats.durationList != null && groupContext.ipStats.durationList.size() > 0) {
+					if (tioConfig.ipStats.durationList != null && tioConfig.ipStats.durationList.size() > 0) {
 						try {
-							for (Long v : groupContext.ipStats.durationList) {
-								IpStat ipStat = groupContext.ipStats.get(v, channelContext.getClientNode().getIp());
+							for (Long v : tioConfig.ipStats.durationList) {
+								IpStat ipStat = tioConfig.ipStats.get(v, channelContext);
 								ipStat.getReceivedPackets().incrementAndGet();
-								groupContext.getIpStatListener().onAfterDecoded(channelContext, packet, len, ipStat);
+								tioConfig.getIpStatListener().onAfterDecoded(channelContext, packet, packetSize, ipStat);
 							}
 						} catch (Exception e1) {
 							log.error(packet.logstr(), e1);
 						}
 					}
 
-					if (groupContext.getAioListener() != null) {
+					if (tioConfig.getAioListener() != null) {
 						try {
-							groupContext.getAioListener().onAfterDecoded(channelContext, packet, len);
+							tioConfig.getAioListener().onAfterDecoded(channelContext, packet, packetSize);
 						} catch (Throwable e) {
 							log.error(e.toString(), e);
 						}
@@ -187,7 +192,7 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 						log.debug("{}, 解包获得一个packet:{}", channelContext, packet.logstr());
 					}
 
-					handler(packet, len);
+					handler(packet, packetSize);
 
 					if (byteBuffer.hasRemaining())//组包后，还剩有数据
 					{
@@ -198,7 +203,9 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 					} else//组包后，数据刚好用完
 					{
 						lastByteBuffer = null;
-						log.debug("{},组包后，数据刚好用完", channelContext);
+						if (log.isDebugEnabled()) {
+							log.debug("{},组包后，数据刚好用完", channelContext);
+						}
 						return;
 					}
 				}
@@ -206,17 +213,17 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 				if (channelContext.logWhenDecodeError) {
 					log.error("解码时遇到异常", e);
 				}
-				
+
 				channelContext.setPacketNeededLength(null);
 
 				if (e instanceof AioDecodeException) {
-					List<Long> list = groupContext.ipStats.durationList;
+					List<Long> list = tioConfig.ipStats.durationList;
 					if (list != null && list.size() > 0) {
 						try {
 							for (Long v : list) {
-								IpStat ipStat = groupContext.ipStats.get(v, channelContext.getClientNode().getIp());
+								IpStat ipStat = tioConfig.ipStats.get(v, channelContext);
 								ipStat.getDecodeErrorCount().incrementAndGet();
-								groupContext.getIpStatListener().onDecodeError(channelContext, ipStat);
+								tioConfig.getIpStatListener().onDecodeError(channelContext, ipStat);
 							}
 						} catch (Exception e1) {
 							log.error(e1.toString(), e1);
@@ -224,17 +231,18 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 					}
 				}
 
-				Tio.close(channelContext, e, "解码异常:" + e.getMessage());
+				Tio.close(channelContext, e, "解码异常:" + e.getMessage(), CloseCode.DECODE_ERROR);
 				return;
 			}
 		}
 	}
 
 	/**
-	 * @param newByteBuffer the newByteBuffer to set
+	 * 
+	 * @param newReceivedByteBuffer
 	 */
-	public void setNewByteBuffer(ByteBuffer newByteBuffer) {
-		this.newByteBuffer = newByteBuffer;
+	public void setNewReceivedByteBuffer(ByteBuffer newReceivedByteBuffer) {
+		this.newReceivedByteBuffer = newReceivedByteBuffer;
 	}
 
 	@Override

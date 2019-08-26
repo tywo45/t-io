@@ -14,7 +14,7 @@ import org.tio.core.Node;
 import org.tio.core.Tio;
 import org.tio.http.common.HttpConst.RequestBodyFormat;
 import org.tio.http.common.session.HttpSession;
-import org.tio.http.common.utils.IpUtils;
+import org.tio.utils.SysConst;
 import org.tio.utils.SystemTimer;
 import org.tio.utils.hutool.StrUtil;
 
@@ -24,55 +24,41 @@ import org.tio.utils.hutool.StrUtil;
  *
  */
 public class HttpRequest extends HttpPacket {
-
-	private static Logger log = LoggerFactory.getLogger(HttpRequest.class);
-
-	private static final long serialVersionUID = -3849253977016967211L;
-	
-	private boolean needForward = false;
-	
-	private boolean isForward = false;
-
-	public RequestLine requestLine = null;
+	private static Logger			log					= LoggerFactory.getLogger(HttpRequest.class);
+	private static final long		serialVersionUID	= -3849253977016967211L;
+	private boolean					needForward			= false;
+	private boolean					isForward			= false;
+	public RequestLine				requestLine			= null;
 	/**
 	 * 请求参数
 	 */
-	private Map<String, Object[]> params = new HashMap<>();
-	private List<Cookie> cookies = null;
-	private Map<String, Cookie> cookieMap = null;
-	private int contentLength;
-	private String connection;
-	//	private byte[] bodyBytes;
-	private String bodyString;
-	//	private UserAgent userAgent;
-	private RequestBodyFormat bodyFormat;
-	private String charset = HttpConst.CHARSET_NAME;
-	private Boolean isAjax = null;
+	private Map<String, Object[]>	params				= new HashMap<>();
+	private List<Cookie>			cookies				= null;
+	private Map<String, Cookie>		cookieMap			= null;
+	private int						contentLength;
+	private String					connection;
+	private String					bodyString;
+	private RequestBodyFormat		bodyFormat;
+	private String					charset				= HttpConst.CHARSET_NAME;
+	private Boolean					isAjax				= null;
 	@SuppressWarnings("unused")
-	private Boolean isSupportGzip = null;
-	private HttpSession httpSession;
-	private Node remote = null;
-	//	private HttpSession httpSession = null;
-	public ChannelContext channelContext;
-
-	public HttpConfig httpConfig;
-
-	private String domain = null;
-	private String host = null;
-	private String clientIp = null;
-	// 该HttpRequest对象的创建时间
-	private long createTime = SystemTimer.currTime;
-
-	private boolean closed = false;
-	protected Map<String, String> headers = new HashMap<>();
-	private Integer forwardCount = null;
+	private Boolean					isSupportGzip		= null;
+	private HttpSession				httpSession;
+	private Node					remote				= null;
+	public ChannelContext			channelContext;
+	public HttpConfig				httpConfig;
+	private String					domain				= null;
+	private String					host				= null;
+//	private String					clientIp			= null;
+	/**该HttpRequest对象的创建时间*/
+	private long					createTime			= SystemTimer.currTime;
+	private boolean					closed				= false;
+	protected Map<String, String>	headers				= new HashMap<>();
+	private Integer					forwardCount		= null;
 
 	/**
-	 *
-	 *
 	 * @author tanyaowu
 	 * 2017年2月22日 下午4:14:40
-	 *
 	 */
 	public HttpRequest(Node remote) {
 		this.remote = remote;
@@ -137,7 +123,7 @@ public class HttpRequest extends HttpPacket {
 			requestLine.path = newPath;
 			requestLine.queryString = null;
 		}
-		
+
 		if (forwardCount == null) {
 			forwardCount = 1;
 		} else {
@@ -148,11 +134,11 @@ public class HttpRequest extends HttpPacket {
 			this.close();
 			return null;
 		}
-		
+
 		this.needForward = true;
-		
+
 		return HttpResponse.NULL_RESPONSE;
-		
+
 	}
 
 	/**
@@ -191,10 +177,11 @@ public class HttpRequest extends HttpPacket {
 	 * @author tanyaowu
 	 */
 	public String getClientIp() {
-		if (clientIp == null) {
-			clientIp = IpUtils.getRealIp(this);
-		}
-		return clientIp;
+		return remote.getIp();
+//		if (clientIp == null) {
+//			clientIp = IpUtils.getRealIp(this);
+//		}
+//		return clientIp;
 	}
 
 	public void addHeader(String key, String value) {
@@ -376,7 +363,28 @@ public class HttpRequest extends HttpPacket {
 		return params;
 	}
 	
+	/**
+	 * 把类型为数组的参数值转换成Object，相当于是取了数组的第一个值，便于业务开发（因为大部分参数值其实只有一个）
+	 * @return
+	 */
+	public Map<String, Object> getParam() {
+		Map<String, Object> params = new HashMap<>();
+		if (getParams() != null) {
+			for (String key : this.params.keySet()) {
+				Object[] param = this.params.get(key);
+				if (param != null && param.length >= 1) {
+					params.put(key, param[0]);
+				}
+			}
+		}
+		return params;
+	}
+
 	public Object getObject(String name) {
+		if (StrUtil.isBlank(name)) {
+			return null;
+		}
+		
 		Object[] values = params.get(name);
 		if (values != null && values.length > 0) {
 			Object obj = values[0];
@@ -392,14 +400,9 @@ public class HttpRequest extends HttpPacket {
 	 * @author: tanyaowu
 	 */
 	public String getParam(String name) {
-		Object[] values = params.get(name);
-		if (values != null && values.length > 0) {
-			Object obj = values[0];
-			return (String) obj;
-		}
-		return null;
+		return (String)getObject(name);
 	}
-	
+
 	/**
 	 * 同getParam(String name)
 	 * @param name
@@ -409,7 +412,7 @@ public class HttpRequest extends HttpPacket {
 	public String getString(String name) {
 		return getParam(name);
 	}
-	
+
 	/**
 	 * 
 	 * @param name
@@ -424,7 +427,7 @@ public class HttpRequest extends HttpPacket {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * 
 	 * @param name
@@ -436,52 +439,52 @@ public class HttpRequest extends HttpPacket {
 		if (StrUtil.isBlank(value)) {
 			return null;
 		}
-		
+
 		return Integer.parseInt(value);
 	}
-	
+
 	public Short getShort(String name) {
 		String value = getParam(name);
 		if (StrUtil.isBlank(value)) {
 			return null;
 		}
-		
+
 		return Short.parseShort(value);
 	}
-	
+
 	public Byte getByte(String name) {
 		String value = getParam(name);
 		if (StrUtil.isBlank(value)) {
 			return null;
 		}
-		
+
 		return Byte.parseByte(value);
 	}
-	
+
 	public Long getLong(String name) {
 		String value = getParam(name);
 		if (StrUtil.isBlank(value)) {
 			return null;
 		}
-		
+
 		return Long.parseLong(value);
 	}
-	
+
 	public Double getDouble(String name) {
 		String value = getParam(name);
 		if (StrUtil.isBlank(value)) {
 			return null;
 		}
-		
+
 		return Double.parseDouble(value);
 	}
-	
+
 	public Float getFloat(String name) {
 		String value = getParam(name);
 		if (StrUtil.isBlank(value)) {
 			return null;
 		}
-		
+
 		return Float.parseFloat(value);
 	}
 
@@ -513,7 +516,7 @@ public class HttpRequest extends HttpPacket {
 	 */
 	@Override
 	public String logstr() {
-		String str = "\r\n请求ID_" + getId() + "\r\n" + getHeaderString();
+		String str = "\r\n请求ID_" + getId() + SysConst.CRLF + getHeaderString();
 		if (null != getBodyString()) {
 			str += getBodyString();
 		}
@@ -603,7 +606,7 @@ public class HttpRequest extends HttpPacket {
 
 		//		String Sec_WebSocket_Key = headers.get(HttpConst.RequestHeaderKey.Sec_WebSocket_Key);
 		//		if (StrUtil.isNotBlank(Sec_WebSocket_Key)) {
-		//			ImSessionContext httpSession = channelContext.getAttribute();
+		//			ImSessionContext httpSession = channelContext.get();
 		//			httpSession.setWebsocket(true);
 		//		}
 	}
@@ -665,10 +668,10 @@ public class HttpRequest extends HttpPacket {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(this.requestLine.toString()).append("\r\n");
+		sb.append(this.requestLine.toString()).append(SysConst.CRLF);
 
 		if (this.getHeaderString() != null) {
-			sb.append(this.getHeaderString()).append("\r\n");
+			sb.append(this.getHeaderString()).append(SysConst.CRLF);
 		}
 
 		if (this.getBodyString() != null) {
@@ -712,6 +715,10 @@ public class HttpRequest extends HttpPacket {
 	 */
 	public void setConnection(String connection) {
 		this.connection = connection;
+	}
+
+	public String getReferer() {
+		return getHeader(HttpConst.RequestHeaderKey.Referer);
 	}
 
 	public boolean isNeedForward() {

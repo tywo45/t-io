@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.Tio;
+import org.tio.core.ChannelContext.CloseCode;
 import org.tio.utils.thread.ThreadUtils;
 
 /**
@@ -26,7 +27,8 @@ public class TioUtils {
 			if (channelContext.isClosed || channelContext.isRemoved) {
 				if (isopen) {
 					try {
-						Tio.close(channelContext, "asynchronousSocketChannel is open, but channelContext isClosed: " + channelContext.isClosed + ", isRemoved: " + channelContext.isRemoved);
+						Tio.close(channelContext,
+						        "asynchronousSocketChannel is open, but channelContext isClosed: " + channelContext.isClosed + ", isRemoved: " + channelContext.isRemoved, CloseCode.CHANNEL_NOT_OPEN);
 					} catch (Throwable e) {
 						log.error(e.toString(), e);
 					}
@@ -36,13 +38,13 @@ public class TioUtils {
 			}
 		} else {
 			log.error("{}, 请检查此异常, asynchronousSocketChannel is null, isClosed:{}, isRemoved:{}, {} ", channelContext, channelContext.isClosed, channelContext.isRemoved,
-					ThreadUtils.stackTrace());
+			        ThreadUtils.stackTrace());
 			return false;
 		}
 
 		if (!isopen) {
 			log.info("{}, 可能对方关闭了连接, isopen:{}, isClosed:{}, isRemoved:{}", channelContext, isopen, channelContext.isClosed, channelContext.isRemoved);
-			Tio.close(channelContext, "asynchronousSocketChannel is not open, 可能对方关闭了连接");
+			Tio.close(channelContext, "asynchronousSocketChannel is not open, 可能对方关闭了连接", CloseCode.CHANNEL_NOT_OPEN);
 			return false;
 		}
 		return true;

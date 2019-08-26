@@ -10,7 +10,6 @@ public enum PacketHandlerMode {
 	 * 处理消息与解码在同一个线程中处理
 	 */
 	SINGLE_THREAD(1),
-
 	/**
 	 * 把packet丢到一个队列中，让线程池去处理
 	 */

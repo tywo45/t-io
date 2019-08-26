@@ -23,7 +23,7 @@ public interface IWsMsgHandler {
 	 * @author tanyaowu
 	 */
 	public HttpResponse handshake(HttpRequest httpRequest, HttpResponse httpResponse, ChannelContext channelContext) throws Exception;
-	
+
 	/**
 	 * 握手成功后触发该方法
 	 * @param httpRequest

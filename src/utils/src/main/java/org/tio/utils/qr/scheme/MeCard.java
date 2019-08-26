@@ -10,17 +10,17 @@ import java.util.Map;
  */
 public class MeCard extends Schema {
 
-	private static final String BEGIN_MECARD = "MECARD";
-	private static final String NAME = "N";
-	private static final String ADDRESS = "ADR";
-	private static final String TEL = "TEL";
-	private static final String EMAIL = "EMAIL";
-	private static final String LINE_SEPARATOR = ";";
+	private static final String	BEGIN_MECARD	= "MECARD";
+	private static final String	NAME			= "N";
+	private static final String	ADDRESS			= "ADR";
+	private static final String	TEL				= "TEL";
+	private static final String	EMAIL			= "EMAIL";
+	private static final String	LINE_SEPARATOR	= ";";
 
-	private String name;
-	private String address;
-	private String telephone;
-	private String email;
+	private String	name;
+	private String	address;
+	private String	telephone;
+	private String	email;
 
 	public MeCard() {
 		super();

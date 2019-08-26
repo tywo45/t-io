@@ -11,7 +11,7 @@ import org.tio.http.common.HttpResponse;
  *
  */
 public interface StatPathFilter {
-	
+
 	/**
 	 * 
 	 * @param path

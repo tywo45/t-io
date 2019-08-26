@@ -2,11 +2,6 @@ Apache License
 Version 2.0, January 2004
 http://www.apache.org/licenses/
 
-Portions copyright 2017-2018, talent-tan
-Portions copyright (c) 2006-2018 Paul Hammant & ThoughtWorks Inc
-Portions copyright (c) 2000-2007 INRIA, France Telecom
-
-
 TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
 
 1. Definitions.
@@ -181,7 +176,7 @@ recommend that a file or class name and description of purpose be included on
 the same "printed page" as the copyright notice for easier identification within
 third-party archives.
 
-   Copyright 2017 talent-tan
+   Copyright 2018 JFinal
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -194,3 +189,4 @@ third-party archives.
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+

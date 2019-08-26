@@ -49,7 +49,7 @@ public class ConnectionCompletionVo {
 	 *
 	 */
 	public ConnectionCompletionVo(ClientChannelContext channelContext, TioClient tioClient, boolean isReconnect, AsynchronousSocketChannel asynchronousSocketChannel,
-			Node serverNode, String bindIp, Integer bindPort) {
+	        Node serverNode, String bindIp, Integer bindPort) {
 		super();
 		this.channelContext = channelContext;
 		this.tioClient = tioClient;

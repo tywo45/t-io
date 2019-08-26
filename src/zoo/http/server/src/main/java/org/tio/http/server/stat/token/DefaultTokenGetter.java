@@ -25,15 +25,15 @@ public class DefaultTokenGetter implements TokenGetter {
 
 	@Override
 	public String getToken(HttpRequest request) {
-//		HttpSession httpSession = request.getHttpSession();
-//		if (httpSession != null) {
-//			return httpSession.getId();
-//		}
-//		Cookie cookie = DefaultHttpRequestHandler.getSessionCookie(request, request.httpConfig);
-//		if (cookie != null) {
-//			log.error("token from cookie: {}", cookie.getValue());
-//			return cookie.getValue();
-//		}
+		//		HttpSession httpSession = request.getHttpSession();
+		//		if (httpSession != null) {
+		//			return httpSession.getId();
+		//		}
+		//		Cookie cookie = DefaultHttpRequestHandler.getSessionCookie(request, request.httpConfig);
+		//		if (cookie != null) {
+		//			log.error("token from cookie: {}", cookie.getValue());
+		//			return cookie.getValue();
+		//		}
 		return DefaultHttpRequestHandler.getSessionId(request);
 	}
 

@@ -33,8 +33,7 @@ public class Url extends Schema {
 
 	@Override
 	public Schema parseSchema(String code) {
-		if (code == null
-				|| (!code.trim().toLowerCase().startsWith("http") && !code.trim().toLowerCase().startsWith("https"))) {
+		if (code == null || (!code.trim().toLowerCase().startsWith("http") && !code.trim().toLowerCase().startsWith("https"))) {
 			throw new IllegalArgumentException("this is not a valid url code: " + code);
 		}
 		setUrl(code.trim());

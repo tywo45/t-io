@@ -10,9 +10,9 @@ import java.util.Map;
  */
 public class MMS extends Schema {
 
-	private static final String MMS = "mms";
-	private String number;
-	private String subject;
+	private static final String	MMS	= "mms";
+	private String				number;
+	private String				subject;
 
 	public MMS() {
 		super();

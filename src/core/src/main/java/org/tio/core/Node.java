@@ -10,8 +10,8 @@ import org.tio.utils.hutool.StrUtil;
  * 2017年10月19日 上午9:40:07
  */
 public class Node implements Comparable<Node> {
-	private String ip;
-	private int port;
+	private String	ip;
+	private int		port;
 
 	public Node(String ip, int port) {
 		super();

@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.http.server.stat.DefaultStatPathFilter;
 import org.tio.http.server.stat.StatPathFilter;
 import org.tio.utils.cache.caffeine.CaffeineCache;
@@ -29,9 +29,9 @@ public class IpPathAccessStats {
 	//	private final static Long timeToLiveSeconds = null;
 	//	private final static Long timeToIdleSeconds = Time.DAY_1;
 
-	private GroupContext groupContext;
+	private TioConfig tioConfig;
 
-	private String groupContextId;
+	private String tioConfigId;
 
 	private StatPathFilter statPathFilter;
 
@@ -51,18 +51,18 @@ public class IpPathAccessStats {
 
 	/**
 	 * 
-	 * @param groupContext
+	 * @param tioConfig
 	 * @param ipPathAccessStatListener
 	 * @param durations
 	 * @author tanyaowu
 	 */
-	public IpPathAccessStats(StatPathFilter statPathFilter, GroupContext groupContext, IpPathAccessStatListener ipPathAccessStatListener, Long[] durations) {
+	public IpPathAccessStats(StatPathFilter statPathFilter, TioConfig tioConfig, IpPathAccessStatListener ipPathAccessStatListener, Long[] durations) {
 		this.statPathFilter = statPathFilter;
 		if (this.statPathFilter == null) {
 			this.statPathFilter = DefaultStatPathFilter.me;
 		}
-		this.groupContext = groupContext;
-		this.groupContextId = groupContext.getId();
+		this.tioConfig = tioConfig;
+		this.tioConfigId = tioConfig.getId();
 		if (durations != null) {
 			for (Long duration : durations) {
 				addDuration(duration, ipPathAccessStatListener);
@@ -78,7 +78,7 @@ public class IpPathAccessStats {
 	 */
 	public void addDuration(Long duration, IpPathAccessStatListener ipPathAccessStatListener) {
 		@SuppressWarnings("unchecked")
-		CaffeineCache caffeineCache = CaffeineCache.register(getCacheName(duration), duration, null, new IpPathAccessStatRemovalListener(groupContext, ipPathAccessStatListener));
+		CaffeineCache caffeineCache = CaffeineCache.register(getCacheName(duration), duration, null, new IpPathAccessStatRemovalListener(tioConfig, ipPathAccessStatListener));
 		cacheMap.put(duration, caffeineCache);
 		durationList.add(duration);
 
@@ -129,7 +129,7 @@ public class IpPathAccessStats {
 	 * @author: tanyaowu
 	 */
 	public String getCacheName(Long duration) {
-		String cacheName = CACHE_NAME + "_" + this.groupContextId + "_";
+		String cacheName = CACHE_NAME + "_" + this.tioConfigId + "_";
 		return cacheName + duration;
 	}
 

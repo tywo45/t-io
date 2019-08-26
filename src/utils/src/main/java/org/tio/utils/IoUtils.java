@@ -25,9 +25,8 @@ import java.io.OutputStream;
  * this class copied from org.apache.commons.io.IOUtils
  */
 public class IoUtils {
-	public static final int EOF = -1;
-
-	private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
+	public static final int		EOF					= -1;
+	private static final int	DEFAULT_BUFFER_SIZE	= 1024 * 4;
 
 	public static long copyLarge(final InputStream input, final OutputStream output, final byte[] buffer) throws IOException {
 		long count = 0;
@@ -60,5 +59,19 @@ public class IoUtils {
 			return -1;
 		}
 		return (int) count;
+	}
+
+	public static String streamToString(InputStream inputStream) {
+		try {
+			ByteArrayOutputStream result = new ByteArrayOutputStream();
+			byte[] buffer = new byte[1024];
+			int length;
+			while ((length = inputStream.read(buffer)) != -1) {
+				result.write(buffer, 0, length);
+			}
+			return result.toString(org.tio.utils.SysConst.DEFAULT_ENCODING);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }

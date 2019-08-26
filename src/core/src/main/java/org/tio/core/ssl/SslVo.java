@@ -17,11 +17,11 @@ public class SslVo implements Serializable {
 	 */
 	private static final long serialVersionUID = 2582637215518609443L;
 
-	private ByteBuffer byteBuffer = null;
+	private ByteBuffer	byteBuffer	= null;
 	/**
 	 * List<Packet> or Packet
 	 */
-	private Object obj = null;
+	private Object		obj			= null;
 
 	public ByteBuffer getByteBuffer() {
 		return byteBuffer;

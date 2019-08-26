@@ -12,6 +12,7 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.retry.RetryForever;
 import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException.NodeExistsException;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +71,7 @@ public class Zk {
 			throw new RuntimeException("zk address is null");
 		}
 
-//		RetryPolicy rp = new ExponentialBackoffRetry(500, Integer.MAX_VALUE);//Retry mechanism
+		//		RetryPolicy rp = new ExponentialBackoffRetry(500, Integer.MAX_VALUE);//Retry mechanism
 		RetryPolicy rp = new RetryForever(500);
 		Builder builder = CuratorFrameworkFactory.builder().connectString(address).connectionTimeoutMs(15 * 1000).sessionTimeoutMs(60 * 1000).retryPolicy(rp);
 		//				builder.namespace(nameSpace);
@@ -96,17 +97,14 @@ public class Zk {
 	 * @param path
 	 * @param content
 	 * @param createMode
-	 * @return
 	 * @throws Exception
-	 * @author: tanyaowu
-	 * @创建时间:　2013年8月3日 上午10:39:00
 	 */
-	public static String createOrUpdate(String path, String content, CreateMode createMode) throws Exception {
+	public static void createOrUpdate(String path, String content, CreateMode createMode) throws Exception {
 		if (content != null) {
-			return createOrUpdate(path, content.getBytes(CHARSET), createMode);
+			createOrUpdate(path, content.getBytes(CHARSET), createMode);
+			return;
 		}
-		return createOrUpdate(path, (byte[]) null, createMode);
-
+		createOrUpdate(path, (byte[]) null, createMode);
 	}
 
 	/**
@@ -114,24 +112,27 @@ public class Zk {
 	 * @param path
 	 * @param content
 	 * @param createMode
-	 * @return
 	 * @throws Exception
-	 * @author: tanyaowu
-	 * @创建时间:　2013年8月3日 上午11:06:54
 	 */
-	public static String createOrUpdate(String path, byte[] content, CreateMode createMode) throws Exception {
+	public static void createOrUpdate(String path, byte[] content, CreateMode createMode) throws Exception {
 		if (!createMode.isSequential()) {
 			if (exists(path)) {
 				log.info("节点已经存在:{}", path);
 				if (content != null) {
 					setData(path, content);
 				}
-				return path;
+				return;
 			}
 		}
-		String str = zkclient.create().creatingParentsIfNeeded().withMode(createMode).forPath(path, content);
 
-		return str;
+		try {
+			zkclient.create().creatingParentsIfNeeded().withMode(createMode).forPath(path, content);
+		} catch (NodeExistsException e) {
+			//			node exists skip it
+			//			log.error(e.toString(), e);
+		}
+
+		return;
 	}
 
 	public static void createContainers(String path) throws Exception {
@@ -142,8 +143,6 @@ public class Zk {
 	 * 
 	 * @param path
 	 * @throws Exception
-	 * @author: tanyaowu
-	 * @创建时间:　2013年8月3日 上午10:39:31
 	 */
 	public static void delete(String path) throws Exception {
 		zkclient.delete().guaranteed().deletingChildrenIfNeeded().forPath(path);
@@ -155,8 +154,6 @@ public class Zk {
 	 * @param path
 	 * @return
 	 * @throws Exception
-	 * @author: tanyaowu
-	 * @创建时间:　2013年8月1日 下午5:51:16
 	 */
 	public static boolean exists(String path) throws Exception {
 		Stat stat = zkclient.checkExists().forPath(path);
@@ -172,8 +169,6 @@ public class Zk {
 	 * @param path
 	 * @return
 	 * @throws Exception
-	 * @author: tanyaowu
-	 * @创建时间:　2013年8月3日 上午11:13:04
 	 */
 	public static byte[] getBytes(String path) throws Exception {
 		return zkclient.getData().forPath(path);
@@ -185,8 +180,6 @@ public class Zk {
 	 * @param charset
 	 * @return
 	 * @throws Exception
-	 * @author: tanyaowu
-	 * @创建时间:　2013年8月9日 上午11:47:48
 	 */
 	public static String getString(String path, String charset) throws Exception {
 		byte[] bs = getBytes(path);
@@ -205,8 +198,6 @@ public class Zk {
 	 * @param path
 	 * @return
 	 * @throws Exception
-	 * @author: tanyaowu
-	 * @创建时间:　2013年8月3日 上午11:13:00
 	 */
 	public static List<String> getChildren(String path) throws Exception {
 		List<String> paths = zkclient.getChildren().forPath(path);
@@ -219,8 +210,6 @@ public class Zk {
 	 * @param localpath
 	 * @param createMode
 	 * @throws Exception
-	 * @author: tanyaowu
-	 * @创建时间:　2013年8月3日 上午11:05:06
 	 */
 	public static void upload(String path, String localpath, CreateMode createMode) throws Exception {
 		byte[] bs = Files.readAllBytes(new File(localpath).toPath());
@@ -232,15 +221,18 @@ public class Zk {
 	 * @param path
 	 * @param bs
 	 * @throws Exception
-	 * @author: tanyaowu
-	 * @创建时间:　2013年8月3日 上午11:08:40
 	 */
 	public static void setData(String path, byte[] bs) throws Exception {
 		if (bs != null) {
 			if (Zk.exists(path)) {
 				zkclient.setData().forPath(path, bs);
 			} else {
-				zkclient.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path, bs);
+				try {
+					zkclient.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path, bs);
+				} catch (NodeExistsException e) {
+					//节点已经存在, skip it
+					//log.error(e.toString(), e);
+				}
 			}
 		}
 	}
@@ -250,8 +242,6 @@ public class Zk {
 	 * @param path
 	 * @param content
 	 * @throws Exception
-	 * @author: tanyaowu
-	 * @创建时间:　2013年8月3日 上午11:10:38
 	 */
 	public static void setData(String path, String content) throws Exception {
 		if (false == StrUtil.isBlank(content)) {
@@ -259,31 +249,11 @@ public class Zk {
 		}
 	}
 
-	//	/**
-	//	 * 暂未实现
-	//	 * @param path
-	//	 * @param content
-	//	 * @throws Exception
-	//	 *
-	//	 * @author: tanyaowu
-	//	 * @创建时间:　2016年12月13日 下午4:00:26
-	//	 *
-	//	 */
-	//	@Deprecated
-	//	public static void addListener(String path, String content) throws Exception {
-	//
-	//		zkclient.get.getCuratorListenable().addListener(listener);
-	//		//		zkclient.getCuratorListenable().addListener(listener);;
-	//
-	//	}
-
 	/**
 	 * 
 	 * @param path
 	 * @param pathChildrenCacheListener
 	 * @throws Exception
-	 * @author: tanyaowu
-	 * @创建时间:　2013年8月3日 下午1:46:19
 	 */
 	@SuppressWarnings("resource")
 	public static void addPathChildrenCacheListener(String path, PathChildrenCacheListener pathChildrenCacheListener) throws Exception {

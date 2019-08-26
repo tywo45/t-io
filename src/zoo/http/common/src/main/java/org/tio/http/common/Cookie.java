@@ -102,19 +102,19 @@ public class Cookie {
 		return result.toArray(new String[0]);
 	}
 
-	private String domain = null;
-	private String path = null;
-	private Long maxAge = null;
+	private String	domain	= null;
+	private String	path	= null;
+	private Long	maxAge	= null;
 
-	private String expires = null;
-	private boolean secure = false;
+	private String	expires	= null;
+	private boolean	secure	= false;
 
 	private boolean httpOnly = false;
 
 	private String name;
 
 	private String value;
-	
+
 	private byte[] bytes;
 
 	/**
@@ -208,8 +208,8 @@ public class Cookie {
 	@Override
 	public String toString() {
 		return (this.name != null || this.value != null ? this.name + "=" + this.value : "") + (this.domain != null ? "; Domain=" + this.domain : "")
-				+ (this.maxAge != null ? "; Max-Age=" + this.maxAge : "") + (this.path != null ? "; Path=" + this.path : " ") + (this.httpOnly ? "; httponly; " : "")
-				+ (this.secure ? "; Secure" : "");
+		        + (this.maxAge != null ? "; Max-Age=" + this.maxAge : "") + (this.path != null ? "; Path=" + this.path : " ") + (this.httpOnly ? "; httponly; " : "")
+		        + (this.secure ? "; Secure" : "");
 	}
 
 	/**

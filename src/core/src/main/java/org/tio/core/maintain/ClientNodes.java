@@ -93,10 +93,10 @@ public class ClientNodes {
 	 * @author tanyaowu
 	 */
 	public void put(ChannelContext channelContext) {
+		if (channelContext.tioConfig.isShortConnection) {
+			return;
+		}
 		try {
-			if (channelContext.groupContext.isShortConnection) {
-				return;
-			}
 			String key = getKey(channelContext);
 			mapWithLock.put(key, channelContext);
 		} catch (Exception e) {
@@ -110,11 +110,10 @@ public class ClientNodes {
 	 * @author tanyaowu
 	 */
 	public void remove(ChannelContext channelContext) {
+		if (channelContext.tioConfig.isShortConnection) {
+			return;
+		}
 		try {
-			if (channelContext.groupContext.isShortConnection) {
-				return;
-			}
-
 			String key = getKey(channelContext);
 			mapWithLock.remove(key);
 		} catch (Throwable e) {

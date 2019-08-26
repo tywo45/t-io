@@ -12,7 +12,7 @@ import org.junit.Test;
  *
  */
 public class ResourceUtilTest {
-	
+
 	@Test
 	public void getResourceAsStreamTest() {
 		InputStream resourceAsStream = ResourceUtil.getResourceAsStream("classpath:config/tio-quartz.properties");

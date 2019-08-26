@@ -16,7 +16,6 @@ import org.tio.http.common.view.ModelGenerator;
 import org.tio.utils.freemarker.ShortMessageTemplateExceptionHandler;
 
 import freemarker.template.Configuration;
-import freemarker.template.TemplateExceptionHandler;
 
 /**
  * @author tanyaowu 
@@ -88,16 +87,17 @@ public class FreemarkerConfig {
 		}
 
 		Configuration cfg = new Configuration(Configuration.getVersion());
-		
+
 		if (httpConfig.isPageInClasspath()) {
-			cfg.setClassForTemplateLoading(this.getClass(), "/" + root/**.substring("classpath:".length())*/);
+			cfg.setClassForTemplateLoading(this.getClass(), "/" + root/**.substring("classpath:".length())*/
+			);
 			//cfg.setClassForTemplateLoading(FreemarkerUtil.class, "/template");
 		} else {
 			cfg.setDirectoryForTemplateLoading(new File(root));
 		}
-		
+
 		cfg.setDefaultEncoding(httpConfig.getCharset());
-//		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+		//		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
 		cfg.setLogTemplateExceptions(false);
 		cfg.setWrapUncheckedExceptions(true);
 		cfg.setTemplateExceptionHandler(ShortMessageTemplateExceptionHandler.me);
@@ -135,15 +135,15 @@ public class FreemarkerConfig {
 		return configuration;
 	}
 
-//	/**
-//	 * 
-//	 * @param domain 形如www.t-io.org的域名，也可以是形如.t-io.org这样的通配域名
-//	 * @param pageRoot 如果是以"classpath:"开头，则从classpath中查找，否则视为普通的文件路径
-//	 * @throws IOException 
-//	 */
-//	public void addDomainConfiguration(String domain, String pageRoot) throws IOException {
-//		addDomainConfiguration(domain, HttpConfig.fromPath(pageRoot));
-//	}
+	//	/**
+	//	 * 
+	//	 * @param domain 形如www.t-io.org的域名，也可以是形如.t-io.org这样的通配域名
+	//	 * @param pageRoot 如果是以"classpath:"开头，则从classpath中查找，否则视为普通的文件路径
+	//	 * @throws IOException 
+	//	 */
+	//	public void addDomainConfiguration(String domain, String pageRoot) throws IOException {
+	//		addDomainConfiguration(domain, HttpConfig.fromPath(pageRoot));
+	//	}
 
 	/**
 	 * 

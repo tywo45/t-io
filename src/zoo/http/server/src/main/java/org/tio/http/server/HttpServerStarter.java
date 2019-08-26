@@ -17,13 +17,13 @@ import java.util.concurrent.ThreadPoolExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.TcpConst;
-import org.tio.http.common.GroupContextKey;
+import org.tio.http.common.TioConfigKey;
 import org.tio.http.common.HttpConfig;
 import org.tio.http.common.HttpConst;
 import org.tio.http.common.HttpUuid;
 import org.tio.http.common.handler.HttpRequestHandler;
 import org.tio.http.common.session.id.impl.UUIDSessionIdGenerator;
-import org.tio.server.ServerGroupContext;
+import org.tio.server.ServerTioConfig;
 import org.tio.server.TioServer;
 import org.tio.utils.Threads;
 import org.tio.utils.cache.caffeine.CaffeineCache;
@@ -40,24 +40,17 @@ import okhttp3.Response;
  * @author tanyaowu
  */
 public class HttpServerStarter {
-	private static Logger log = LoggerFactory.getLogger(HttpServerStarter.class);
-
-	private HttpConfig httpConfig = null;
-
-	private HttpServerAioHandler httpServerAioHandler = null;
-
-	private HttpServerAioListener httpServerAioListener = null;
-
-	private ServerGroupContext serverGroupContext = null;
-
-	private TioServer tioServer = null;
-
-	private HttpRequestHandler httpRequestHandler;
-
+	private static Logger			log						= LoggerFactory.getLogger(HttpServerStarter.class);
+	private HttpConfig				httpConfig				= null;
+	private HttpServerAioHandler	httpServerAioHandler	= null;
+	private HttpServerAioListener	httpServerAioListener	= null;
+	private ServerTioConfig		serverTioConfig		= null;
+	private TioServer				tioServer				= null;
+	private HttpRequestHandler		httpRequestHandler		= null;
 	/**
 	 * 预访问路径的后缀
 	 */
-	private List<String> preAccessFileType = new ArrayList<>();
+	private List<String>			preAccessFileType		= new ArrayList<>();
 
 	/**
 	 * 
@@ -78,13 +71,13 @@ public class HttpServerStarter {
 	 * @author tanyaowu
 	 */
 	public HttpServerStarter(HttpConfig httpConfig, HttpRequestHandler requestHandler, SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
-//		preAccessFileType.add("css");
-//		preAccessFileType.add("js");
-//		preAccessFileType.add("jsp");
+		//		preAccessFileType.add("css");
+		//		preAccessFileType.add("js");
+		//		preAccessFileType.add("jsp");
 		preAccessFileType.add("html");
 		preAccessFileType.add("ftl");
-//		preAccessFileType.add("xml");
-//		preAccessFileType.add("htm");
+		//		preAccessFileType.add("xml");
+		//		preAccessFileType.add("htm");
 
 		if (tioExecutor == null) {
 			tioExecutor = Threads.getTioExecutor();
@@ -206,10 +199,10 @@ public class HttpServerStarter {
 	}
 
 	/**
-	 * @return the serverGroupContext
+	 * @return the serverTioConfig
 	 */
-	public ServerGroupContext getServerGroupContext() {
-		return serverGroupContext;
+	public ServerTioConfig getServerTioConfig() {
+		return serverTioConfig;
 	}
 
 	private void init(HttpConfig httpConfig, HttpRequestHandler requestHandler, SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
@@ -223,17 +216,21 @@ public class HttpServerStarter {
 		httpConfig.setHttpRequestHandler(this.httpRequestHandler);
 		this.httpServerAioHandler = new HttpServerAioHandler(httpConfig, requestHandler);
 		httpServerAioListener = new HttpServerAioListener();
-		serverGroupContext = new ServerGroupContext("Tio Http Server", httpServerAioHandler, httpServerAioListener, tioExecutor, groupExecutor);
-		serverGroupContext.setHeartbeatTimeout(1000 * 20);
-		serverGroupContext.setShortConnection(true);
-		serverGroupContext.setReadBufferSize(TcpConst.MAX_DATA_LENGTH);
-		//		serverGroupContext.setAttribute(GroupContextKey.HTTP_SERVER_CONFIG, httpConfig);
-		serverGroupContext.setAttribute(GroupContextKey.HTTP_REQ_HANDLER, this.httpRequestHandler);
+		String name = httpConfig.getName();
+		if (StrUtil.isBlank(name)) {
+			name = "Tio Http Server";
+		}
+		serverTioConfig = new ServerTioConfig(name, httpServerAioHandler, httpServerAioListener, tioExecutor, groupExecutor);
+		serverTioConfig.setHeartbeatTimeout(1000 * 20);
+		serverTioConfig.setShortConnection(true);
+		serverTioConfig.setReadBufferSize(TcpConst.MAX_DATA_LENGTH);
+		//		serverTioConfig.setAttribute(TioConfigKey.HTTP_SERVER_CONFIG, httpConfig);
+		serverTioConfig.setAttribute(TioConfigKey.HTTP_REQ_HANDLER, this.httpRequestHandler);
 
-		tioServer = new TioServer(serverGroupContext);
+		tioServer = new TioServer(serverTioConfig);
 
 		HttpUuid imTioUuid = new HttpUuid();
-		serverGroupContext.setTioUuid(imTioUuid);
+		serverTioConfig.setTioUuid(imTioUuid);
 	}
 
 	public void setHttpRequestHandler(HttpRequestHandler requestHandler) {
@@ -245,7 +242,6 @@ public class HttpServerStarter {
 	}
 
 	/**
-	 * 
 	 * @param preAccess
 	 * @throws IOException
 	 * @author tanyaowu
@@ -279,7 +275,7 @@ public class HttpServerStarter {
 			log.info("暂时只支持目录形式的预访问");
 			return;
 		}
-		
+
 		String pageRoot = httpConfig.getPageRoot();
 		if (pageRoot == null) {
 			return;
@@ -326,7 +322,7 @@ public class HttpServerStarter {
 		}).start();
 
 	}
-	
+
 	/**
 	 * 预访问第一版功能先上，后面再优化
 	 * 
@@ -339,7 +335,7 @@ public class HttpServerStarter {
 
 			String protocol = null;
 
-			if (serverGroupContext.isSsl()) {
+			if (serverTioConfig.isSsl()) {
 				protocol = "https";
 			} else {
 				protocol = "http";
@@ -368,7 +364,6 @@ public class HttpServerStarter {
 				}
 			});
 
-			
 			File pageRootFile = new File(httpConfig.getPageRoot());
 			String pageRootAbs = pageRootFile.getCanonicalPath();
 			for (File file : files) {
@@ -405,4 +400,9 @@ public class HttpServerStarter {
 	public void stop() throws IOException {
 		tioServer.stop();
 	}
+
+	public TioServer getTioServer() {
+		return tioServer;
+	}
+
 }

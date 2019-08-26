@@ -34,7 +34,7 @@ public class TioClient {
 
 	private AsynchronousChannelGroup channelGroup;
 
-	private ClientGroupContext clientGroupContext;
+	private ClientTioConfig clientTioConfig;
 
 	/**
 	 * @param serverIp 可以为空
@@ -47,10 +47,10 @@ public class TioClient {
 	 * @throws IOException
 	 *
 	 */
-	public TioClient(final ClientGroupContext clientGroupContext) throws IOException {
+	public TioClient(final ClientTioConfig clientTioConfig) throws IOException {
 		super();
-		this.clientGroupContext = clientGroupContext;
-		this.channelGroup = AsynchronousChannelGroup.withThreadPool(clientGroupContext.groupExecutor);
+		this.clientTioConfig = clientTioConfig;
+		this.channelGroup = AsynchronousChannelGroup.withThreadPool(clientTioConfig.groupExecutor);
 
 		startHeartbeatTask();
 		startReconnTask();
@@ -154,7 +154,7 @@ public class TioClient {
 		AsynchronousSocketChannel asynchronousSocketChannel = null;
 		ClientChannelContext channelContext = null;
 		boolean isReconnect = initClientChannelContext != null;
-		//		ClientAioListener clientAioListener = clientGroupContext.getClientAioListener();
+		//		ClientAioListener clientAioListener = clientTioConfig.getClientAioListener();
 
 		long start = SystemTimer.currTime;
 		asynchronousSocketChannel = AsynchronousSocketChannel.open(channelGroup);
@@ -197,7 +197,7 @@ public class TioClient {
 
 			CountDownLatch countDownLatch = new CountDownLatch(1);
 			attachment.setCountDownLatch(countDownLatch);
-			asynchronousSocketChannel.connect(inetSocketAddress, attachment, clientGroupContext.getConnectionCompletionHandler());
+			asynchronousSocketChannel.connect(inetSocketAddress, attachment, clientTioConfig.getConnectionCompletionHandler());
 			boolean f = countDownLatch.await(realTimeout, TimeUnit.SECONDS);
 			if (f) {
 				return attachment.getChannelContext();
@@ -206,7 +206,7 @@ public class TioClient {
 				return attachment.getChannelContext();
 			}
 		} else {
-			asynchronousSocketChannel.connect(inetSocketAddress, attachment, clientGroupContext.getConnectionCompletionHandler());
+			asynchronousSocketChannel.connect(inetSocketAddress, attachment, clientTioConfig.getConnectionCompletionHandler());
 			return null;
 		}
 	}
@@ -235,10 +235,10 @@ public class TioClient {
 	}
 
 	/**
-	 * @return the clientGroupContext
+	 * @return the clientTioConfig
 	 */
-	public ClientGroupContext getClientGroupContext() {
-		return clientGroupContext;
+	public ClientTioConfig getClientTioConfig() {
+		return clientTioConfig;
 	}
 
 	/**
@@ -256,10 +256,10 @@ public class TioClient {
 	}
 
 	/**
-	 * @param clientGroupContext the clientGroupContext to set
+	 * @param clientTioConfig the clientTioConfig to set
 	 */
-	public void setClientGroupContext(ClientGroupContext clientGroupContext) {
-		this.clientGroupContext = clientGroupContext;
+	public void setClientTioConfig(ClientTioConfig clientTioConfig) {
+		this.clientTioConfig = clientTioConfig;
 	}
 
 	/**
@@ -268,20 +268,20 @@ public class TioClient {
 	 *
 	 */
 	private void startHeartbeatTask() {
-		final ClientGroupStat clientGroupStat = (ClientGroupStat) clientGroupContext.groupStat;
-		final ClientAioHandler aioHandler = clientGroupContext.getClientAioHandler();
+		final ClientGroupStat clientGroupStat = (ClientGroupStat) clientTioConfig.groupStat;
+		final ClientAioHandler aioHandler = clientTioConfig.getClientAioHandler();
 
-		final String id = clientGroupContext.getId();
+		final String id = clientTioConfig.getId();
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				while (!clientGroupContext.isStopped()) {
-					//					final long heartbeatTimeout = clientGroupContext.heartbeatTimeout;
-					if (clientGroupContext.heartbeatTimeout <= 0) {
+				while (!clientTioConfig.isStopped()) {
+					//					final long heartbeatTimeout = clientTioConfig.heartbeatTimeout;
+					if (clientTioConfig.heartbeatTimeout <= 0) {
 						log.warn("用户取消了框架层面的心跳定时发送功能，请用户自己去完成心跳机制");
 						break;
 					}
-					SetWithLock<ChannelContext> setWithLock = clientGroupContext.connecteds;
+					SetWithLock<ChannelContext> setWithLock = clientTioConfig.connecteds;
 					ReadLock readLock = setWithLock.readLock();
 					readLock.lock();
 					try {
@@ -296,7 +296,7 @@ public class TioClient {
 							ChannelStat stat = channelContext.stat;
 							long compareTime = Math.max(stat.latestTimeOfReceivedByte, stat.latestTimeOfSentPacket);
 							long interval = currtime - compareTime;
-							if (interval >= clientGroupContext.heartbeatTimeout / 2) {
+							if (interval >= clientTioConfig.heartbeatTimeout / 2) {
 								Packet packet = aioHandler.heartbeatPacket(channelContext);
 								if (packet != null) {
 									if (log.isInfoEnabled()) {
@@ -317,7 +317,7 @@ public class TioClient {
 					} finally {
 						try {
 							readLock.unlock();
-							Thread.sleep(clientGroupContext.heartbeatTimeout / 4);
+							Thread.sleep(clientTioConfig.heartbeatTimeout / 4);
 						} catch (Throwable e) {
 							log.error(e.toString(), e);
 						} finally {
@@ -336,17 +336,17 @@ public class TioClient {
 	 *
 	 */
 	private void startReconnTask() {
-		final ReconnConf reconnConf = clientGroupContext.getReconnConf();
+		final ReconnConf reconnConf = clientTioConfig.getReconnConf();
 		if (reconnConf == null || reconnConf.getInterval() <= 0) {
 			return;
 		}
 
-		final String id = clientGroupContext.getId();
+		final String id = clientTioConfig.getId();
 		Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				while (!clientGroupContext.isStopped()) {
-					log.error("closeds:{}, connections:{}", clientGroupContext.closeds.size(), clientGroupContext.connections.size());
+				while (!clientTioConfig.isStopped()) {
+					log.error("closeds:{}, connections:{}", clientTioConfig.closeds.size(), clientTioConfig.connections.size());
 					//log.info("准备重连");
 					LinkedBlockingQueue<ChannelContext> queue = reconnConf.getQueue();
 					ClientChannelContext channelContext = null;
@@ -414,20 +414,20 @@ public class TioClient {
 	public boolean stop() {
 		boolean ret = true;
 		try {
-			clientGroupContext.groupExecutor.shutdown();
+			clientTioConfig.groupExecutor.shutdown();
 		} catch (Exception e1) {
 			log.error(e1.toString(), e1);
 		}
 		try {
-			clientGroupContext.tioExecutor.shutdown();
+			clientTioConfig.tioExecutor.shutdown();
 		} catch (Exception e1) {
 			log.error(e1.toString(), e1);
 		}
 
-		clientGroupContext.setStopped(true);
+		clientTioConfig.setStopped(true);
 		try {
-			ret = ret && clientGroupContext.groupExecutor.awaitTermination(6000, TimeUnit.SECONDS);
-			ret = ret && clientGroupContext.tioExecutor.awaitTermination(6000, TimeUnit.SECONDS);
+			ret = ret && clientTioConfig.groupExecutor.awaitTermination(6000, TimeUnit.SECONDS);
+			ret = ret && clientTioConfig.tioExecutor.awaitTermination(6000, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			log.error(e.getLocalizedMessage(), e);
 		}

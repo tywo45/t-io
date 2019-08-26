@@ -11,10 +11,10 @@ import java.io.InputStream;
  *
  */
 public class HttpResource {
-	
-	private String path = null;
-	private InputStream inputStream = null;
-	private File file = null;
+
+	private String		path		= null;
+	private InputStream	inputStream	= null;
+	private File		file		= null;
 
 	public HttpResource(String path, InputStream inputStream, File file) {
 		super();
@@ -52,7 +52,5 @@ public class HttpResource {
 	public void setFile(File file) {
 		this.file = file;
 	}
-
-	
 
 }

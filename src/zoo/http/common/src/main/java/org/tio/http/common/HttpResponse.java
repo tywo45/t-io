@@ -10,6 +10,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.http.common.utils.HttpGzipUtils;
+import org.tio.utils.SysConst;
 import org.tio.utils.hutool.StrUtil;
 
 /**
@@ -19,15 +20,37 @@ import org.tio.utils.hutool.StrUtil;
  */
 public class HttpResponse extends HttpPacket {
 	@SuppressWarnings("unused")
-	private static Logger log = LoggerFactory.getLogger(HttpResponse.class);
-
-	private static final long serialVersionUID = -3512681144230291786L;
-	
-	public static final HttpResponse NULL_RESPONSE = new HttpResponse();
+	private static Logger					log					= LoggerFactory.getLogger(HttpResponse.class);
+	private static final long				serialVersionUID	= -3512681144230291786L;
+	public static final HttpResponse		NULL_RESPONSE		= new HttpResponse();
+	/**
+	 * 服务器端用（因为服务器端可以直接枚举）
+	 */
+	private HttpResponseStatus				status				= HttpResponseStatus.C200;
+	/**
+	 * 是否是静态资源
+	 * true: 静态资源
+	 */
+	private boolean							isStaticRes			= false;
+	private HttpRequest						request				= null;
+	private List<Cookie>					cookies				= null;
+	private Map<HeaderName, HeaderValue>	headers				= new HashMap<>();
+	private int								headerByteCount		= 2;
+	/**
+	 * 是否已经被gzip压缩过了，防止重复压缩
+	 */
+	private boolean							hasGzipped			= false;
+	private String							charset				= HttpConst.CHARSET_NAME;
+	/**
+	 * 忽略ip访问统计
+	 */
+	private boolean							skipIpStat			= false;
+	/**
+	 * 忽略token访问统计
+	 */
+	private boolean							skipTokenStat		= false;
 
 	public HttpResponse() {
-		//		addHeader(HeaderName.Server, HeaderValue.Server.TIO);  //在encode()中添加了，此处不必再加
-		//		addHeader(HeaderName.Date, HttpDateTimer.httpDateValue);  //在encode()中添加了，此处不必再加
 	}
 
 	/**
@@ -112,49 +135,6 @@ public class HttpResponse extends HttpPacket {
 		return headers;
 	}
 
-	/**
-	 * 服务器端用（因为服务器端可以直接枚举）
-	 */
-	private HttpResponseStatus status = HttpResponseStatus.C200;
-
-	/**
-	 * 是否是静态资源
-	 * true: 静态资源
-	 */
-	private boolean isStaticRes = false;
-
-	private HttpRequest request = null;
-	private List<Cookie> cookies = null;
-
-	private Map<HeaderName, HeaderValue> headers = new HashMap<>();
-
-	private int headerByteCount = 2;
-
-	//	private int cookieByteCount = 0;
-
-	/**
-	 * 是否已经被gzip压缩过了，防止重复压缩
-	 */
-	private boolean hasGzipped = false;
-
-	//	private int contentLength;
-	//	private byte[] bodyBytes;
-	private String charset = HttpConst.CHARSET_NAME;
-
-	//	/**
-	//	 * 已经编码好的byte[]
-	//	 */
-	//	private byte[] encodedBytes = null;
-
-	/**
-	 * 忽略ip访问统计
-	 */
-	private boolean skipIpStat = false;
-	/**
-	 * 忽略token访问统计
-	 */
-	private boolean skipTokenStat = false;
-
 	//	private String lastModified = null;//HttpConst.ResponseHeaderKey.Last_Modified
 
 	//	/**
@@ -196,7 +176,7 @@ public class HttpResponse extends HttpPacket {
 
 	public void addHeader(HeaderName key, HeaderValue value) {
 		headers.put(key, value);
-		headerByteCount += (key.bytes.length + value.bytes.length + 3);
+		headerByteCount += (key.bytes.length + value.bytes.length + 3);  //冒号和\r\n
 	}
 
 	public void addHeaders(Map<HeaderName, HeaderValue> headers) {
@@ -278,7 +258,7 @@ public class HttpResponse extends HttpPacket {
 		String str = null;
 		if (request != null) {
 			str = "\r\n响应: 请求ID_" + request.getId() + "  " + request.getRequestLine().getPathAndQuery();
-			str += "\r\n" + this.getHeaderString();
+			str += SysConst.CRLF + this.getHeaderString();
 		} else {
 			str = "\r\n响应\r\n" + status.getHeaderText();
 		}
@@ -377,14 +357,14 @@ public class HttpResponse extends HttpPacket {
 
 	@Override
 	public String toString() {
-//		String ret = this.getHeaderString();
-//		if (this.getBody() != null) {
-//			try {
-//				ret += new String(this.getBody(), this.request.getCharset());
-//			} catch (UnsupportedEncodingException e) {
-//				log.error(e.toString(), e);
-//			}
-//		}
+		//		String ret = this.getHeaderString();
+		//		if (this.getBody() != null) {
+		//			try {
+		//				ret += new String(this.getBody(), this.request.getCharset());
+		//			} catch (UnsupportedEncodingException e) {
+		//				log.error(e.toString(), e);
+		//			}
+		//		}
 		return this.status.toString();
 	}
 

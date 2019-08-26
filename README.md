@@ -1,21 +1,18 @@
-### 一张图了解t-io的历史和能力
-![](https://res.t-io.org/doc/t-io-base_01.png?434)
+### 官网
+https://www.t-io.org/
 
-### 一张图了解t-io及官方衍生品
-![](https://res.t-io.org/doc/t-io-base_02.png?434)
-
-### 最新pom
-```xml
-<dependency>
-    <groupId>org.t-io</groupId>
-    <artifactId>tio-core</artifactId>
-    <version>3.2.5.v20190101-RELEASE</version>
-</dependency>
-```
-
-### 例行说明
-- t-io是OSC官方人员（还不止一个^_^，此处 @红薯 应该来辟谣）也在使用的通讯框架，譬如这个网站的动弹：http://lifes77.com
-- 欢迎来 [https://www.t-io.org/doc](https://www.t-io.org/doc)， 用t-io写的t-io官网（注：官网用的是tio-core、tio-http、tio-websocket、tio-webpack，并未使用类似tomcat这样的容器）
-
-[![](https://res.t-io.org/blog/upload/img/50/8931/1119484/88097537/74541310905/89/095501/1.png)](https://www.t-io.org/doc)
-
+### t-io技术白皮书
+图片打不开的话，请直接访问原站：https://www.t-io.org/1151436975476187136
+<div style="background-color: #393D49;padding:5px"><img src="https://res.t-io.org/img/baipi/t-io技术白皮书_01.jpg">
+<img src="https://res.t-io.org/img/baipi/t-io技术白皮书_02.jpg">
+<img src="https://res.t-io.org/img/baipi/t-io技术白皮书_03.jpg">
+<img src="https://res.t-io.org/img/baipi/t-io技术白皮书_04.jpg">
+<img src="https://res.t-io.org/img/baipi/t-io技术白皮书_05.jpg">
+<img src="https://res.t-io.org/img/baipi/t-io技术白皮书_06.jpg">
+<img src="https://res.t-io.org/img/baipi/t-io技术白皮书_07.jpg">
+<img src="https://res.t-io.org/img/baipi/t-io技术白皮书_08.jpg">
+<img src="https://res.t-io.org/img/baipi/t-io技术白皮书_09.jpg">
+<img src="https://res.t-io.org/img/baipi/t-io技术白皮书_10.jpg">
+<img src="https://res.t-io.org/img/baipi/t-io技术白皮书_11.jpg">
+<img src="https://res.t-io.org/img/baipi/t-io技术白皮书_12.jpg">
+<img src="https://res.t-io.org/img/baipi/t-io技术白皮书_13.jpg"></div>

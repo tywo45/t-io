@@ -11,21 +11,21 @@ import org.slf4j.LoggerFactory;
  * 2018年12月5日 下午10:36:28
  */
 public class SessionRateVo implements Serializable {
-	private static final long serialVersionUID = 5585145117550534333L;
+	private static final long	serialVersionUID	= 5585145117550534333L;
 	@SuppressWarnings("unused")
-	private static Logger log = LoggerFactory.getLogger(SessionRateVo.class);
-	
+	private static Logger		log					= LoggerFactory.getLogger(SessionRateVo.class);
+
 	public static SessionRateVo create(String path) {
 		return new SessionRateVo(path);
 	}
-	
+
 	private String path = null;
-	
+
 	/**
 	 * 上一次访问时间
 	 */
 	private long lastAccessTime = 0;
-	
+
 	/**
 	 * 已经访问了多少次（一分钟）
 	 */

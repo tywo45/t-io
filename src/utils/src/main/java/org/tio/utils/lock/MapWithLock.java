@@ -14,11 +14,15 @@ import org.slf4j.LoggerFactory;
  * 2017年5月14日 上午9:55:37
  */
 public class MapWithLock<K, V> extends ObjWithLock<Map<K, V>> {
-	private static final long serialVersionUID = -652862323697152866L;
-	private static final Logger log = LoggerFactory.getLogger(MapWithLock.class);
+	private static final long	serialVersionUID	= -652862323697152866L;
+	private static final Logger	log					= LoggerFactory.getLogger(MapWithLock.class);
 
 	public MapWithLock() {
 		this(new HashMap<>());
+	}
+	
+	public MapWithLock(int initCapacity) {
+		this(new HashMap<>(initCapacity));
 	}
 
 	/**

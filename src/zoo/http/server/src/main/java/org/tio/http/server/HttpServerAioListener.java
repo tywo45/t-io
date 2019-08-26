@@ -76,4 +76,9 @@ public class HttpServerAioListener implements ServerAioListener {
 	public void onAfterReceivedBytes(ChannelContext channelContext, int receivedBytes) throws Exception {
 
 	}
+
+	@Override
+	public boolean onHeartbeatTimeout(ChannelContext channelContext, Long interval, int heartbeatTimeoutCount) {
+		return false;
+	}
 }

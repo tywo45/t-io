@@ -12,13 +12,13 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 
 import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.EvaluatorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tio.utils.SysConst;
 import org.tio.webpack.compress.ResCompressor;
 
 import com.yahoo.platform.yui.compressor.JavaScriptCompressor;
@@ -40,8 +40,8 @@ public class YuiJsCompressor implements ResCompressor {
 		File initFile = new File("D:\\svn_nb\\nbyb\\html\\nbyb\\web_server\\src\\res\\js\\live\\live-all.txt");
 		byte[] bytes = Files.readAllBytes(initFile.toPath());
 		String content = new String(bytes, "utf-8");
-//		String content = cn.hutool.core.io.FileUtil.readString(initFile, "utf-8");
-		
+		//		String content = cn.hutool.core.io.FileUtil.readString(initFile, "utf-8");
+
 		String xx = YuiJsCompressor.ME.compress(initFile.getAbsolutePath(), content);
 		System.out.println(xx);
 	}
@@ -56,12 +56,7 @@ public class YuiJsCompressor implements ResCompressor {
 	@Override
 	public String compress(String filePath, String srcContent) {
 		ByteArrayInputStream input = null;
-		try {
-			input = new ByteArrayInputStream(srcContent.getBytes(CHARSET));
-		} catch (UnsupportedEncodingException e) {
-			log.error(filePath, e);
-			return srcContent;
-		}
+		input = new ByteArrayInputStream(srcContent.getBytes(SysConst.DEFAULT_CHARSET));
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
 			transform(filePath, input, output);
@@ -70,12 +65,7 @@ public class YuiJsCompressor implements ResCompressor {
 			return srcContent;
 		}
 		byte[] bs = output.toByteArray();
-		try {
-			return new String(bs, CHARSET);
-		} catch (UnsupportedEncodingException e) {
-			log.error(filePath, e);
-			return srcContent;
-		}
+		return new String(bs, SysConst.DEFAULT_CHARSET);
 	}
 
 	/**
@@ -85,7 +75,7 @@ public class YuiJsCompressor implements ResCompressor {
 	 * @throws IOException
 	 */
 	public void transform(String filePath, InputStream input, OutputStream output) throws IOException {
-		Reader reader = new InputStreamReader(input, CHARSET);
+		Reader reader = new InputStreamReader(input, SysConst.DEFAULT_CHARSET);
 		JavaScriptCompressor compressor = new JavaScriptCompressor(reader, new ErrorReporter() {
 
 			@Override
@@ -107,10 +97,10 @@ public class YuiJsCompressor implements ResCompressor {
 		});
 
 		// write compressed output 
-		OutputStreamWriter writer = new OutputStreamWriter(output, CHARSET);
+		OutputStreamWriter writer = new OutputStreamWriter(output, SysConst.DEFAULT_CHARSET);
 		/**
 		 * Writer out, int linebreak, boolean munge, boolean verbose,
-            boolean preserveAllSemiColons, boolean disableOptimizations
+		    boolean preserveAllSemiColons, boolean disableOptimizations
 		 */
 		boolean verbose = false;
 		compressor.compress(writer, 100000, false, verbose, true, true);

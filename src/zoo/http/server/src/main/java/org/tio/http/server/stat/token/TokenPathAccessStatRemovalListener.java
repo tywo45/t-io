@@ -2,7 +2,7 @@ package org.tio.http.server.stat.token;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.RemovalListener;
@@ -18,14 +18,14 @@ public class TokenPathAccessStatRemovalListener implements RemovalListener {
 
 	private TokenPathAccessStatListener tokenPathAccessStatListener;
 
-	private GroupContext groupContext = null;
+	private TioConfig tioConfig = null;
 
 	/**
 	 * 
 	 * @author: tanyaowu
 	 */
-	public TokenPathAccessStatRemovalListener(GroupContext groupContext, TokenPathAccessStatListener tokenPathAccessStatListener) {
-		this.groupContext = groupContext;
+	public TokenPathAccessStatRemovalListener(TioConfig tioConfig, TokenPathAccessStatListener tokenPathAccessStatListener) {
+		this.tioConfig = tioConfig;
 		this.tokenPathAccessStatListener = tokenPathAccessStatListener;
 	}
 
@@ -35,7 +35,7 @@ public class TokenPathAccessStatRemovalListener implements RemovalListener {
 	//		TokenAccessStat tokenAccessStat = (TokenAccessStat) notification.getValue();
 	//
 	//		if (tokenPathAccessStatListener != null) {
-	//			tokenPathAccessStatListener.onExpired(groupContext, token, tokenAccessStat);
+	//			tokenPathAccessStatListener.onExpired(tioConfig, token, tokenAccessStat);
 	//		}
 	//
 	//		//		log.info("token数据统计[{}]\r\n{}", token, Json.toFormatedJson(tokenAccesspathStat));
@@ -47,7 +47,7 @@ public class TokenPathAccessStatRemovalListener implements RemovalListener {
 		TokenAccessStat tokenAccessStat = (TokenAccessStat) value;
 
 		if (tokenPathAccessStatListener != null) {
-			tokenPathAccessStatListener.onExpired(groupContext, token, tokenAccessStat);
+			tokenPathAccessStatListener.onExpired(tioConfig, token, tokenAccessStat);
 		}
 
 	}

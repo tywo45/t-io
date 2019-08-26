@@ -19,10 +19,10 @@ import org.tio.utils.hutool.ClassUtil;
 import org.tio.utils.hutool.FileUtil;
 import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.json.Json;
-import org.tio.utils.thoughtworksparanamer.BytecodeReadingParanamer;
-import org.tio.utils.thoughtworksparanamer.Paranamer;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
+import com.thoughtworks.paranamer.BytecodeReadingParanamer;
+import com.thoughtworks.paranamer.Paranamer;
 
 /**
  * @author tanyaowu
@@ -30,13 +30,13 @@ import com.esotericsoftware.reflectasm.MethodAccess;
  */
 public class Routes {
 	private static Logger log = LoggerFactory.getLogger(Routes.class);
-	
+
 	/**
 	 * 
 	 */
 	public static final String META_PATH_KEY = "TIO_HTTP_META_PATH";
 
-	private boolean writeMappingToFile = true;
+//	private boolean writeMappingToFile = true;
 
 	/**
 	 * 路径和对象映射<br>
@@ -87,7 +87,7 @@ public class Routes {
 	 * value: ["id", "name", "scanPackages"]<br>
 	 */
 	public final Map<Method, String[]> METHOD_PARAMNAME_MAP = new HashMap<>();
-	
+
 	/**
 	 * path跟forward映射<br>
 	 * key: 原访问路径<br>
@@ -238,13 +238,13 @@ public class Routes {
 										continue c;
 									}
 
-//									String methodName = method.getName();
+									//									String methodName = method.getName();
 									String methodPath = mapping.value();
-//									if (StrUtil.isBlank(beanPath)) {
-//										log.error("方法有注解，但类没注解, method:{}, class:{}", methodName, clazz);
-//										errorStr.append("方法有注解，但类没注解, method:" + methodName + ", class:" + clazz + "\r\n\r\n");
-//										continue c;
-//									}
+									//									if (StrUtil.isBlank(beanPath)) {
+									//										log.error("方法有注解，但类没注解, method:{}, class:{}", methodName, clazz);
+									//										errorStr.append("方法有注解，但类没注解, method:" + methodName + ", class:" + clazz + "\r\n\r\n");
+									//										continue c;
+									//									}
 
 									String completePath = beanPath + methodPath;
 									Class<?>[] parameterTypes = method.getParameterTypes();
@@ -256,7 +256,7 @@ public class Routes {
 										if (checkMethod != null) {
 											log.error("mapping[{}] already exists in method [{}]", completePath, checkMethod.getDeclaringClass() + "#" + checkMethod.getName());
 											errorStr.append("mapping[" + completePath + "] already exists in method [" + checkMethod.getDeclaringClass() + "#"
-													+ checkMethod.getName() + "]\r\n\r\n");
+											        + checkMethod.getName() + "]\r\n\r\n");
 											continue c;
 										}
 
@@ -272,7 +272,7 @@ public class Routes {
 											PATH_METHODSTR_MAP.put(mapping.forward(), methodStr);
 											PATH_METHOD_MAP.put(mapping.forward(), method);
 										}
-										
+
 										METHOD_BEAN_MAP.put(method, bean);
 									} catch (Throwable e) {
 										log.error(e.toString(), e);
@@ -300,7 +300,8 @@ public class Routes {
 			String variablePathMethodstrMapStr = Json.toFormatedJson(VARIABLEPATH_METHODSTR_MAP);
 			log.info("variable path mapping\r\n{}", variablePathMethodstrMapStr);
 
-			if (writeMappingToFile) {
+			String writeMappingToFile = System.getProperty("tio.mvc.route.writeMappingToFile", "true");
+			if ("true".equalsIgnoreCase(writeMappingToFile)) {
 				try {
 					FileUtil.writeString(pathClassMapStr, "/tio_mvc_path_class.json", "utf-8");
 					FileUtil.writeString(pathMethodstrMapStr, "/tio_mvc_path_method.json", "utf-8");
@@ -457,19 +458,5 @@ public class Routes {
 		} else {
 			return method;
 		}
-	}
-
-	/**
-	 * @return the writeMappingToFile
-	 */
-	public boolean isWriteMappingToFile() {
-		return writeMappingToFile;
-	}
-
-	/**
-	 * @param writeMappingToFile the writeMappingToFile to set
-	 */
-	public void setWriteMappingToFile(boolean writeMappingToFile) {
-		this.writeMappingToFile = writeMappingToFile;
 	}
 }

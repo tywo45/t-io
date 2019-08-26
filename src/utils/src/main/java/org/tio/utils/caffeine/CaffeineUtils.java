@@ -34,7 +34,7 @@ public class CaffeineUtils {
 	 * @return
 	 */
 	public static <K, V> LoadingCache<K, V> createLoadingCache(String cacheName, Long timeToLiveSeconds, Long timeToIdleSeconds, Integer initialCapacity, Integer maximumSize,
-			boolean recordStats) {
+	        boolean recordStats) {
 		return createLoadingCache(cacheName, timeToLiveSeconds, timeToIdleSeconds, initialCapacity, maximumSize, recordStats, null);
 	}
 
@@ -49,7 +49,7 @@ public class CaffeineUtils {
 	 * @return
 	 */
 	public static <K, V> LoadingCache<K, V> createLoadingCache(String cacheName, Long timeToLiveSeconds, Long timeToIdleSeconds, Integer initialCapacity, Integer maximumSize,
-			boolean recordStats, RemovalListener<K, V> removalListener) {
+	        boolean recordStats, RemovalListener<K, V> removalListener) {
 
 		if (removalListener == null) {
 			removalListener = new DefaultRemovalListener<K, V>(cacheName);

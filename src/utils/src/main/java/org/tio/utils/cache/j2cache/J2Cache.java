@@ -37,20 +37,13 @@ public class J2Cache extends AbsCache {
 	}
 
 	@Override
-	public Serializable get(String key) {
+	public Serializable _get(String key) {
 		CacheChannel cache = getChannel();
 		CacheObject cacheObject = cache.get(cacheName, key);
 		if (cacheObject != null) {
 			return (Serializable) cacheObject.getValue();
 		}
 		return null;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T get(String key, Class<T> clazz) {
-		Serializable ret = get(key);
-		return (T) ret;
 	}
 
 	@Override

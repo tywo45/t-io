@@ -8,14 +8,14 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.client.ClientChannelContext;
-import org.tio.client.ClientGroupContext;
+import org.tio.client.ClientTioConfig;
 import org.tio.client.ReconnConf;
 import org.tio.client.TioClient;
 import org.tio.core.Node;
 import org.tio.core.Tio;
 import org.tio.http.common.HttpConst;
 import org.tio.utils.Threads;
-import org.tio.utils.date.DateUtils;
+import org.tio.utils.hutool.DateUtil;
 import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.thread.pool.SynThreadPoolExecutor;
 
@@ -35,7 +35,7 @@ public class HttpClientStarter {
 	private ReconnConf reconnConf = null;//new ReconnConf(5000L);
 
 	//一组连接共用的上下文对象
-	public ClientGroupContext clientGroupContext = new ClientGroupContext(httpClientAioHandler, httpClientAioListener, reconnConf);
+	public ClientTioConfig clientTioConfig = new ClientTioConfig(httpClientAioHandler, httpClientAioListener, reconnConf);
 
 	private TioClient tioClient = null;
 
@@ -80,10 +80,10 @@ public class HttpClientStarter {
 	}
 
 	/**
-	 * @return the clientGroupContext
+	 * @return the clientTioConfig
 	 */
-	public ClientGroupContext getClientGroupContext() {
-		return clientGroupContext;
+	public ClientTioConfig getClientTioConfig() {
+		return clientTioConfig;
 	}
 
 	private void init(SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) throws IOException {
@@ -91,55 +91,51 @@ public class HttpClientStarter {
 		//		if (StrUtil.isBlank(system_timer_period)) {
 		//			System.setProperty("tio.system.timer.period", "50");
 		//		}
-		clientGroupContext.setName("Tio Http Client");
-		clientGroupContext.statOn = false;
-		tioClient = new TioClient(clientGroupContext);
+		clientTioConfig.setName("Tio Http Client");
+		clientTioConfig.statOn = false;
+		tioClient = new TioClient(clientTioConfig);
 	}
-
 
 	public void stop() throws IOException {
 		tioClient.stop();
 	}
 
-	public static int requestCount = 10000; //每个客户端的请求数
-	public static int clientCount = 1000; //客户端个数
-	public static int totalRequestCount = requestCount * clientCount; //总请求数
-	public static int stepCount = totalRequestCount / 10;
-	public static ClientChannelContext[] clientChannelContextArray = null;
-	public static long startTime = System.currentTimeMillis();
-	public static long stageStartTime = System.currentTimeMillis();
-	
+	public static int						requestCount				= 10000;						//每个客户端的请求数
+	public static int						clientCount					= 1000;							//客户端个数
+	public static int						totalRequestCount			= requestCount * clientCount;	//总请求数
+	public static int						stepCount					= totalRequestCount / 10;
+	public static ClientChannelContext[]	clientChannelContextArray	= null;
+	public static long						startTime					= System.currentTimeMillis();
+	public static long						stageStartTime				= System.currentTimeMillis();
+
 	//received 
-	public static AtomicLong receivedCount = new AtomicLong();
-	public static AtomicLong receivedStageCount = new AtomicLong();
-	
-	public static AtomicLong receivedBytes = new AtomicLong();
-	public static AtomicLong receivedStageBytes = new AtomicLong();
-	
-	public static HttpClientStarter httpClientStarter = null;
-	public static HttpClientStarter httpsClientStarter = null;
-	
+	public static AtomicLong	receivedCount		= new AtomicLong();
+	public static AtomicLong	receivedStageCount	= new AtomicLong();
+
+	public static AtomicLong	receivedBytes		= new AtomicLong();
+	public static AtomicLong	receivedStageBytes	= new AtomicLong();
+
+	public static HttpClientStarter	httpClientStarter	= null;
+	public static HttpClientStarter	httpsClientStarter	= null;
+
 	public static String requestPath;
-	
-	
+
 	public static void init() throws Exception {
 		httpClientStarter = new HttpClientStarter();
 		httpsClientStarter = new HttpClientStarter();
-		ClientGroupContext clientGroupContext = httpsClientStarter.getClientGroupContext();
-		clientGroupContext.useSsl();
+		ClientTioConfig clientTioConfig = httpsClientStarter.getClientTioConfig();
+		clientTioConfig.useSsl();
 	}
-	
-	
+
 	public static void main(String[] args) throws Exception {
 		HttpClientStarter httpClientStarter = new HttpClientStarter();
-		
+
 		init();
-		
+
 		httpClientStarter.readCommand();
-		
-		
+
 	}
-	
+
 	/**
 	 * 开始测试
 	 * @throws Exception
@@ -148,40 +144,38 @@ public class HttpClientStarter {
 	public static void startTest(String serverip, int serverport, String path, int clientCount, int requestCount) throws Exception {
 		boolean useSsl = false;
 		String queryString = "";
-		
-		
+
 		HttpClientStarter httpClientStarter;
 		if (useSsl) {
 			httpClientStarter = httpsClientStarter;
 		} else {
 			httpClientStarter = org.tio.http.client.HttpClientStarter.httpClientStarter;
 		}
-		
-		HttpClientStarter.clientCount = clientCount;   //客户端个数
+
+		HttpClientStarter.clientCount = clientCount; //客户端个数
 		HttpClientStarter.requestCount = requestCount; //每个客户端的请求数
 		HttpClientStarter.requestPath = path;
 
 		HttpClientStarter.totalRequestCount = HttpClientStarter.requestCount * HttpClientStarter.clientCount; //总请求数
 		HttpClientStarter.stepCount = HttpClientStarter.totalRequestCount / 10;
-		
+
 		Node serverNode = new Node(serverip, serverport);
 		clientChannelContextArray = new ClientChannelContext[clientCount];
 		for (int i = 0; i < clientCount; i++) {
 			clientChannelContextArray[i] = httpClientStarter.tioClient.connect(serverNode);
 		}
-		
-		
+
 		startTime = System.currentTimeMillis();
 		stageStartTime = System.currentTimeMillis();
-		
+
 		//received
 		receivedCount = new AtomicLong();
-	    receivedStageCount = new AtomicLong();
-	    
-	    receivedBytes = new AtomicLong();
+		receivedStageCount = new AtomicLong();
+
+		receivedBytes = new AtomicLong();
 		receivedStageBytes = new AtomicLong();
-		
-		System.out.println("start time:" + startTime + "(" + DateUtils.formatDateTime(new Date(startTime)) + ")");
+
+		System.out.println("start time:" + startTime + "(" + DateUtil.formatDateTime(new Date(startTime)) + ")");
 		ClientHttpRequest clientHttpRequest = ClientHttpRequest.get(requestPath, queryString);
 		for (int i = 0; i < clientCount; i++) {
 			for (int j = 0; j < requestCount; j++) {
@@ -190,10 +184,11 @@ public class HttpClientStarter {
 			}
 		}
 	}
-	
+
 	private String helpStr = null;
-	
+
 	String line = "";
+
 	public void readCommand() throws Exception {
 		@SuppressWarnings("resource")
 		java.util.Scanner sc = new java.util.Scanner(System.in);
@@ -205,7 +200,7 @@ public class HttpClientStarter {
 		sb.append("   eg: get 127.0.0.1 8080 /plaintext 100 10000\r\n");
 
 		sb.append(i++ + "、退出程序，输入 'exit'.\r\n");
-		
+
 		helpStr = sb.toString();
 
 		System.out.println(helpStr);
@@ -227,7 +222,7 @@ public class HttpClientStarter {
 		tioClient.stop();
 		System.exit(0);
 	}
-	
+
 	public void processCommand(String line) throws Exception {
 		if (StrUtil.isBlank(line)) {
 			return;
@@ -249,63 +244,43 @@ public class HttpClientStarter {
 			int requestCount = Integer.parseInt(args[i++]);
 			HttpClientStarter.startTest(ip, port, requestPath, clientCount, requestCount);
 		} else {
-			
+
 		}
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 	public static void gsOsc() throws Exception {
 		boolean useSsl = false;
 		String serverip = "www.baidu.com";
 		int serverport = 80;
 		String path = "/";
-//		String requestPath = "/json";
+		//		String requestPath = "/json";
 		String queryString = "";
-		
-		
+
 		HttpClientStarter httpClientStarter;
 		if (useSsl) {
 			httpClientStarter = org.tio.http.client.HttpClientStarter.httpsClientStarter;
 		} else {
 			httpClientStarter = org.tio.http.client.HttpClientStarter.httpClientStarter;
 		}
-		
+
 		Node serverNode = new Node(serverip, serverport);
 		clientChannelContextArray = new ClientChannelContext[clientCount];
 		for (int i = 0; i < clientCount; i++) {
 			clientChannelContextArray[i] = httpClientStarter.tioClient.connect(serverNode);
 		}
-		
+
 		requestCount = 10000; //每个客户端的请求数
 		clientCount = 100; //客户端个数
 		totalRequestCount = requestCount * clientCount; //总请求数
 		stepCount = totalRequestCount / 10;
 		startTime = System.currentTimeMillis();
 		stageStartTime = System.currentTimeMillis();
-		
+
 		//received
 		receivedCount = new AtomicLong();
-	    receivedStageCount = new AtomicLong();
-		
-		System.out.println("start time:" + startTime + "(" + DateUtils.formatDateTime(new Date(startTime)) + ")");
+		receivedStageCount = new AtomicLong();
+
+		System.out.println("start time:" + startTime + "(" + DateUtil.formatDateTime(new Date(startTime)) + ")");
 		ClientHttpRequest clientHttpRequest = ClientHttpRequest.get(path, queryString);
 		for (int i = 0; i < clientCount; i++) {
 			for (int j = 0; j < requestCount; j++) {

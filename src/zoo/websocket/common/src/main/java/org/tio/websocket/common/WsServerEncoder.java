@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.core.utils.ByteBufferUtils;
 
 /**
@@ -34,13 +34,13 @@ public class WsServerEncoder {
 		}
 	}
 
-	public static ByteBuffer encode(WsResponse wsResponse, GroupContext groupContext, ChannelContext channelContext) {
+	public static ByteBuffer encode(WsResponse wsResponse, TioConfig tioConfig, ChannelContext channelContext) {
 		byte[] wsBody = wsResponse.getBody();//就是ws的body，不包括ws的头
 		byte[][] wsBodies = wsResponse.getBodys();
 		int wsBodyLength = 0;
 		if (wsBody != null) {
 			wsBodyLength += wsBody.length;
-		} else if (wsBodies != null){
+		} else if (wsBodies != null) {
 			for (int i = 0; i < wsBodies.length; i++) {
 				byte[] bs = wsBodies[i];
 				wsBodyLength += bs.length;
@@ -62,10 +62,10 @@ public class WsServerEncoder {
 			buf = ByteBuffer.allocate(10 + wsBodyLength);
 			buf.put(header0);
 			buf.put((byte) 127);
-			
-//			buf.put(new byte[] { 0, 0, 0, 0 });
+
+			//			buf.put(new byte[] { 0, 0, 0, 0 });
 			buf.position(buf.position() + 4);
-			
+
 			ByteBufferUtils.writeUB4WithBigEdian(buf, wsBodyLength);
 		}
 

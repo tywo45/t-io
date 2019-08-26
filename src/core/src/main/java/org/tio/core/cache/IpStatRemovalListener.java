@@ -2,7 +2,7 @@ package org.tio.core.cache;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.core.GroupContext;
+import org.tio.core.TioConfig;
 import org.tio.core.stat.IpStat;
 import org.tio.core.stat.IpStatListener;
 
@@ -16,18 +16,16 @@ import com.github.benmanes.caffeine.cache.RemovalListener;
 @SuppressWarnings("rawtypes")
 public class IpStatRemovalListener implements RemovalListener {
 	@SuppressWarnings("unused")
-	private static Logger log = LoggerFactory.getLogger(IpStatRemovalListener.class);
-
-	private IpStatListener ipStatListener;
-
-	private GroupContext groupContext = null;
+	private static Logger	log				= LoggerFactory.getLogger(IpStatRemovalListener.class);
+	private IpStatListener	ipStatListener;
+	private TioConfig	tioConfig	= null;
 
 	/**
 	 * 
 	 * @author: tanyaowu
 	 */
-	public IpStatRemovalListener(GroupContext groupContext, IpStatListener ipStatListener) {
-		this.groupContext = groupContext;
+	public IpStatRemovalListener(TioConfig tioConfig, IpStatListener ipStatListener) {
+		this.tioConfig = tioConfig;
 		this.ipStatListener = ipStatListener;
 	}
 
@@ -37,7 +35,7 @@ public class IpStatRemovalListener implements RemovalListener {
 	//		IpStat ipStat = (IpStat) notification.getValue();
 	//
 	//		if (ipStatListener != null) {
-	//			ipStatListener.onExpired(groupContext, ipStat);
+	//			ipStatListener.onExpired(tioConfig, ipStat);
 	//		}
 	//
 	//		//		log.info("ip数据统计[{}]\r\n{}", ip, Json.toFormatedJson(ipStat));
@@ -49,7 +47,7 @@ public class IpStatRemovalListener implements RemovalListener {
 		IpStat ipStat = (IpStat) value;
 
 		if (ipStatListener != null) {
-			ipStatListener.onExpired(groupContext, ipStat);
+			ipStatListener.onExpired(tioConfig, ipStat);
 		}
 
 	}
