@@ -50,7 +50,7 @@
 		<mysql.driver.version>8.0.17</mysql.driver.version><!-- 5.1.46 -->
 		<druid.version>1.1.20</druid.version>
 		<HikariCP.version>3.3.1</HikariCP.version>
-		<jfinal.version>4.2</jfinal.version>
+		<jfinal.version>4.5</jfinal.version>
 		<logback.version>1.2.3</logback.version>
 		<slf4j.version>1.7.26</slf4j.version>
 		<log4j.version>1.2.17</log4j.version>
@@ -462,7 +462,7 @@
 			<dependency>
 				<groupId>nl.basjes.parse.useragent</groupId>
 				<artifactId>yauaa</artifactId>
-				<version>5.11</version>
+				<version>5.12</version>
 			</dependency>
 
 			<dependency>
