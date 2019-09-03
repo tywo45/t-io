@@ -48,9 +48,9 @@
 		<maven.version>3.5.0</maven.version>
 
 		<mysql.driver.version>8.0.17</mysql.driver.version><!-- 5.1.46 -->
-		<druid.version>1.1.19</druid.version>
+		<druid.version>1.1.20</druid.version>
 		<HikariCP.version>3.3.1</HikariCP.version>
-		<jfinal.version>4.2</jfinal.version>
+		<jfinal.version>4.5</jfinal.version>
 		<logback.version>1.2.3</logback.version>
 		<slf4j.version>1.7.26</slf4j.version>
 		<log4j.version>1.2.17</log4j.version>
@@ -60,15 +60,15 @@
 		<commons-io.version>2.6</commons-io.version>
 		<commons-lang3.version>3.9</commons-lang3.version>
 		<commons-codec.version>1.13</commons-codec.version>
-		<commons-compress.version>1.18</commons-compress.version>
+		<commons-compress.version>1.19</commons-compress.version>
 		<fastjson.version>1.2.59</fastjson.version>
 		<testng.version>7.0.0</testng.version>
-		<hutool.version>4.6.3</hutool.version>
+		<hutool.version>4.6.4</hutool.version>
 		<protobuf-java.version>3.9.1</protobuf-java.version>
 		<commons-beanutils.version>1.9.4</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
 		<protostuff.version>1.6.0</protostuff.version>
-		<redisson.version>3.11.2</redisson.version>
+		<redisson.version>3.11.3</redisson.version>
 		<jodd.version>5.1.0-20190624</jodd.version>
 		<quartz.version>2.3.1</quartz.version>
 		<caffeine.version>2.8.0</caffeine.version>
@@ -123,15 +123,8 @@
 		</developer>
 	</developers>
 
-	<repositories>
 
 
-	</repositories>
-	<pluginRepositories>
-
-
-
-	</pluginRepositories>
 
 	<dependencyManagement>
 		<dependencies>
@@ -463,13 +456,13 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>28.0-jre</version>
+				<version>28.1-jre</version>
 			</dependency>
 
 			<dependency>
 				<groupId>nl.basjes.parse.useragent</groupId>
 				<artifactId>yauaa</artifactId>
-				<version>5.11</version>
+				<version>5.12</version>
 			</dependency>
 
 			<dependency>
@@ -548,7 +541,7 @@
 			<dependency>
 				<groupId>io.github.classgraph</groupId>
 				<artifactId>classgraph</artifactId>
-				<version>4.8.46</version>
+				<version>4.8.47</version>
 			</dependency>
 			<dependency>
 				<groupId>com.thoughtworks.paranamer</groupId>
@@ -1185,5 +1178,19 @@
 			</distributionManagement>
 		</profile>
 	</profiles>
+
+
+	<repositories>
+		<!-- 非SSL的仓库，这个速度更快 -->
+		<repository>
+			<id>plain-repo</id>
+			<name>maven-public</name>
+			<url>http://repo.maven.apache.org/maven2</url>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+
+	</pluginRepositories>
 
 </project>
