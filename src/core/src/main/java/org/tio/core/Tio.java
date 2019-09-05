@@ -747,8 +747,13 @@ public class Tio {
 		if (setWithLock == null) {
 			return 0;
 		}
-
-		return setWithLock.getObj().size();
+		
+		Set<ChannelContext> set = setWithLock.getObj();
+		if (set == null) {
+			return 0;
+		}
+		
+		return set.size();
 	}
 
 	/**
@@ -759,11 +764,17 @@ public class Tio {
 	 * @author: tanyaowu
 	 */
 	public static boolean isInGroup(String group, ChannelContext channelContext) {
-		SetWithLock<String> set = channelContext.getGroups();
+		SetWithLock<String> setWithLock = channelContext.getGroups();
+		if (setWithLock == null) {
+			return false;
+		}
+		
+		Set<String> set = setWithLock.getObj();
 		if (set == null) {
 			return false;
 		}
-		return set.getObj().contains(group);
+		
+		return set.contains(group);
 	}
 
 	/**
