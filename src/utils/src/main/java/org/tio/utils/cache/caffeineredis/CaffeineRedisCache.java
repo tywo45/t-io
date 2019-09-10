@@ -212,7 +212,6 @@ import org.tio.utils.cache.redis.RedisExpireUpdateTask;
 import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.lock.LockUtils;
 import org.tio.utils.lock.ReadWriteLockHandler;
-import org.tio.utils.lock.ReadWriteLockHandler.ReadWriteRet;
 
 /**
  * @author tanyaowu
@@ -349,9 +348,8 @@ public class CaffeineRedisCache extends AbsCache {
 
 		Serializable ret = localCache.get(key);
 		if (ret == null) {
-			ReadWriteRet readWriteRet = null;
 			try {
-				readWriteRet = LockUtils.runReadOrWrite("_tio_cr_" + key, this, new ReadWriteLockHandler() {
+				LockUtils.runReadOrWrite("_tio_cr_" + key, this, new ReadWriteLockHandler() {
 					@Override
 					public Object read() {
 						return null;
@@ -370,34 +368,7 @@ public class CaffeineRedisCache extends AbsCache {
 			} catch (Exception e) {
 				log.error(e.toString(), e);
 			}
-			ret = (Serializable) readWriteRet.writeRet;
-//			///////////////////////////////////
-//			
-//			ReentrantReadWriteLock rWriteLock = LockUtils.getReentrantReadWriteLock("_tio_cr_" + key, this);
-//			WriteLock writeLock = rWriteLock.writeLock();
-//			boolean tryWrite = writeLock.tryLock();
-//			if (tryWrite) {
-//				try {
-//					ret = distCache.get(key);
-//					if (ret != null) {
-//						localCache.put(key, ret);
-//					} 
-//				} finally {
-//					writeLock.unlock();
-//				}
-//			} else {
-//				ReadLock readLock = rWriteLock.readLock();
-//				boolean tryRead = false;
-//				try {
-//					tryRead = readLock.tryLock(120, TimeUnit.SECONDS);
-//					if (tryRead) {
-//						//获取read锁，仅仅是为了等待写锁的完成，所以获取后，立即释放
-//						readLock.unlock();
-//					}
-//				} catch (InterruptedException e) {
-//					log.error(e.toString(), e);
-//				}
-//			}
+			ret = localCache.get(key);//(Serializable) readWriteRet.writeRet;
 		} else {//在本地就取到数据了，那么需要在redis那定时更新一下过期时间
 			Long timeToIdleSeconds = distCache.getTimeToIdleSeconds();
 			if (timeToIdleSeconds != null) {

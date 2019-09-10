@@ -253,7 +253,7 @@ public class Groups {
 		if (StrUtil.isBlank(groupid)) {
 			return;
 		}
-		
+
 		SetWithLock<ChannelContext> channelSet = groupmap.get(groupid);
 		if (channelSet == null) {
 			try {
@@ -266,7 +266,6 @@ public class Groups {
 					@Override
 					public Object write() {
 						SetWithLock<ChannelContext> channelSet = new SetWithLock<>(MaintainUtils.createSet(channelContextComparator));
-						channelSet.add(channelContext);
 						groupmap.put(groupid, channelSet);
 						return null;
 					}
@@ -274,10 +273,9 @@ public class Groups {
 			} catch (Exception e) {
 				log.error(e.toString(), e);
 			}
-		} else {
-			channelSet.add(channelContext);
+			channelSet = groupmap.get(groupid);
 		}
-
+		channelSet.add(channelContext);
 		channelContext.getGroups().add(groupid);
 
 		if (callbackListener) {
@@ -372,7 +370,7 @@ public class Groups {
 			} finally {
 				writeLock.unlock();
 			}
-		
+
 		} catch (Throwable e) {
 			log.error(e.toString(), e);
 		}

@@ -238,7 +238,7 @@ public class Ips {
 		if (channelContext.tioConfig.isShortConnection) {
 			return;
 		}
-		
+
 		try {
 			String ip = channelContext.getClientNode().getIp();
 			if (ChannelContext.UNKNOWN_ADDRESS_IP.equals(ip)) {
@@ -260,14 +260,13 @@ public class Ips {
 					@Override
 					public Object write() {
 						SetWithLock<ChannelContext> channelSet = new SetWithLock<>(new HashSet<ChannelContext>());
-						channelSet.add(channelContext);
 						ipmap.put(ip, channelSet);
 						return null;
 					}
 				});
-			} else {
-				channelSet.add(channelContext);
+				channelSet = ipmap.get(ip);
 			}
+			channelSet.add(channelContext);
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		}

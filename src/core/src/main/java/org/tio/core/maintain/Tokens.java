@@ -254,15 +254,14 @@ public class Tokens {
 					@Override
 					public Object write() {
 						SetWithLock<ChannelContext> setWithLock = new SetWithLock<>(new HashSet<>());
-						setWithLock.add(channelContext);
 						mapWithLock.put(token, setWithLock);
 						return null;
 					}
 				});
 				setWithLock = mapWithLock.get(token);
-			} else {
-				setWithLock.add(channelContext);
 			}
+			setWithLock.add(channelContext);
+
 			channelContext.setToken(token);
 		} catch (Throwable e) {
 			log.error("", e);

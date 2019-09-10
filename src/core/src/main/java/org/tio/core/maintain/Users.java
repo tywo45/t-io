@@ -251,14 +251,13 @@ public class Users {
 					@Override
 					public Object write() {
 						SetWithLock<ChannelContext> setWithLock = new SetWithLock<>(new HashSet<ChannelContext>());
-						setWithLock.add(channelContext);
 						mapWithLock.put(userid, setWithLock);
 						return null;
 					}
 				});
-			} else {
-				setWithLock.add(channelContext);
-			}
+				setWithLock = mapWithLock.get(userid);
+			} 
+			setWithLock.add(channelContext);
 
 			channelContext.setUserid(userid);
 		} catch (Throwable e) {

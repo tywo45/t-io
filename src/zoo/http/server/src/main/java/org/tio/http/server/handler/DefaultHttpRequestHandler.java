@@ -313,7 +313,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 	private static MethodAccess getMethodAccess(Class<?> clazz) throws Exception {
 		MethodAccess ret = CLASS_METHODACCESS_MAP.get(clazz);
 		if (ret == null) {
-			ReadWriteRet rwRet = LockUtils.runReadOrWrite("_tio_http_h_ma_" + clazz.getName(), clazz, new ReadWriteLockHandler() {
+			LockUtils.runReadOrWrite("_tio_http_h_ma_" + clazz.getName(), clazz, new ReadWriteLockHandler() {
 				@Override
 				public Object read() {
 					return null;
@@ -326,7 +326,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 					return ret;
 				}
 			});
-			ret = (MethodAccess) rwRet.writeRet;
+			ret = CLASS_METHODACCESS_MAP.get(clazz);
 		}
 		return ret;
 	}
