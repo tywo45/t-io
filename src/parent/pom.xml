@@ -75,7 +75,7 @@
 		<binarywang.version>3.5.0</binarywang.version>
 		<zxing.version>3.4.0</zxing.version>
 		<httpcore.version>4.4.12</httpcore.version>
-		<httpclient.version>4.5.9</httpclient.version>
+		<httpclient.version>4.5.10</httpclient.version>
 		<closure.version>v20190819</closure.version>
 		<freemarker.version>2.3.29</freemarker.version>
 		<UserAgentUtils.version>1.21</UserAgentUtils.version>
@@ -131,7 +131,7 @@
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
-				<version>2.1.7.RELEASE</version>
+				<version>2.1.8.RELEASE</version>
 				<type>pom</type>
 			</dependency>
 
