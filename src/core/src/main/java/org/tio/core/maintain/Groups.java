@@ -265,8 +265,11 @@ public class Groups {
 
 					@Override
 					public Object write() {
-						SetWithLock<ChannelContext> channelSet = new SetWithLock<>(MaintainUtils.createSet(channelContextComparator));
-						groupmap.put(groupid, channelSet);
+						SetWithLock<ChannelContext> channelSet = groupmap.get(groupid);
+						if (channelSet == null) {
+							channelSet = new SetWithLock<>(MaintainUtils.createSet(channelContextComparator));
+							groupmap.put(groupid, channelSet);
+						}
 						return null;
 					}
 				});

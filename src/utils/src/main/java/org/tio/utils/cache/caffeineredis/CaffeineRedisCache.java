@@ -357,13 +357,15 @@ public class CaffeineRedisCache extends AbsCache {
 
 					@Override
 					public Object write() {
-						Serializable ret = distCache.get(key);
-						if (ret != null) {
-							localCache.put(key, ret);
+						Serializable ret = localCache.get(key);
+						if (ret == null) {
+							ret = distCache.get(key);
+							if (ret != null) {
+								localCache.put(key, ret);
+							}
 						}
 						return ret;
 					}
-					
 				});
 			} catch (Exception e) {
 				log.error(e.toString(), e);

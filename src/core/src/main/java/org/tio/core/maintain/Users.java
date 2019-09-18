@@ -250,8 +250,11 @@ public class Users {
 
 					@Override
 					public Object write() {
-						SetWithLock<ChannelContext> setWithLock = new SetWithLock<>(new HashSet<ChannelContext>());
-						mapWithLock.put(userid, setWithLock);
+						SetWithLock<ChannelContext> setWithLock = mapWithLock.get(userid);
+						if (setWithLock == null) {
+							setWithLock = new SetWithLock<>(new HashSet<ChannelContext>());
+							mapWithLock.put(userid, setWithLock);
+						}
 						return null;
 					}
 				});

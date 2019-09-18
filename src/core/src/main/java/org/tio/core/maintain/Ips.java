@@ -259,8 +259,11 @@ public class Ips {
 
 					@Override
 					public Object write() {
-						SetWithLock<ChannelContext> channelSet = new SetWithLock<>(new HashSet<ChannelContext>());
-						ipmap.put(ip, channelSet);
+						SetWithLock<ChannelContext> channelSet = ipmap.get(ip);
+						if (channelSet == null) {
+							channelSet = new SetWithLock<>(new HashSet<ChannelContext>());
+							ipmap.put(ip, channelSet);
+						}
 						return null;
 					}
 				});

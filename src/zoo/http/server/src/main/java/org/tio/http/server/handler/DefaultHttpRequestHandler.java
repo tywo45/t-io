@@ -320,8 +320,11 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 
 				@Override
 				public Object write() {
-					MethodAccess ret = MethodAccess.get(clazz);
-					CLASS_METHODACCESS_MAP.put(clazz, ret);
+					MethodAccess ret = CLASS_METHODACCESS_MAP.get(clazz);
+					if (ret == null) {
+						ret = MethodAccess.get(clazz);
+						CLASS_METHODACCESS_MAP.put(clazz, ret);
+					}
 					return ret;
 				}
 			});
