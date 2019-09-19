@@ -261,20 +261,25 @@ public class TioServerAutoConfiguration {
     @Autowired(required = false)
     private RedissonTioClusterTopic redissonTioClusterTopic;
 
+
+    private static TioServerBootstrap tioServerBootstrap;
     /**
      * Tio Server bootstrap
      * */
     @Bean
     public TioServerBootstrap webSocketServerBootstrap() {
-        return new TioServerBootstrap(
-                serverProperties,
-                clusterProperties,
-                serverSslProperties,
-                redissonTioClusterTopic,
-                ipStatListener,
-                groupListener,
-                serverAioHandler,
-                serverAioListener);
+        if(tioServerBootstrap == null) {
+            tioServerBootstrap = new TioServerBootstrap(
+                    serverProperties,
+                    clusterProperties,
+                    serverSslProperties,
+                    redissonTioClusterTopic,
+                    ipStatListener,
+                    groupListener,
+                    serverAioHandler,
+                    serverAioListener);
+        }
+        return tioServerBootstrap;
     }
 
     @Bean
