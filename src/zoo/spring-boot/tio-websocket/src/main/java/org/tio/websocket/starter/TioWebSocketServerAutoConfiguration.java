@@ -196,6 +196,7 @@ package org.tio.websocket.starter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -262,30 +263,36 @@ public class TioWebSocketServerAutoConfiguration {
     @Autowired(required = false)
     private TioWebSocketClassScanner tioWebSocketClassScanner;
 
+
+    private static TioWebSocketServerBootstrap tioWebSocketServerBootstrap;
     /**
      * Tio WebSocket Server bootstrap
      * */
     @Bean
-    public TioWebSocketServerBootstrap webSocketServerBootstrap() {
-        return new TioWebSocketServerBootstrap(serverProperties,
-                clusterProperties,
-                serverSslProperties,
-                redissonTioClusterTopic,
-                tioWebSocketMsgHandler,
-                tioWebSocketIpStatListener,
-                tioWebSocketGroupListener,
-                tioWebSocketServerAioListener,
-                tioWebSocketClassScanner);
+    public TioWebSocketServerBootstrap wsServerBootstrap() {
+        if (tioWebSocketServerBootstrap == null) {
+            tioWebSocketServerBootstrap = new TioWebSocketServerBootstrap(serverProperties,
+                    clusterProperties,
+                    serverSslProperties,
+                    redissonTioClusterTopic,
+                    tioWebSocketMsgHandler,
+                    tioWebSocketIpStatListener,
+                    tioWebSocketGroupListener,
+                    tioWebSocketServerAioListener,
+                    tioWebSocketClassScanner);
+        }
+        return tioWebSocketServerBootstrap;
+
     }
 
     @Bean
-    public ServerTioConfig serverTioConfig(TioWebSocketServerBootstrap bootstrap){
+    public ServerTioConfig wsServerTioConfig(TioWebSocketServerBootstrap bootstrap){
         return bootstrap.getServerTioConfig();
     }
 
     @Bean(destroyMethod="shutdown")
     @ConditionalOnProperty(value = "tio.websocket.cluster.enabled",havingValue = "true",matchIfMissing = true)
-    public RedisInitializer redisInitializer(ApplicationContext applicationContext) {
+    public RedisInitializer wsRedisInitializer(ApplicationContext applicationContext) {
         return new RedisInitializer(redisConfig, applicationContext);
     }
 
@@ -295,7 +302,7 @@ public class TioWebSocketServerAutoConfiguration {
      * */
     @Bean
     @ConditionalOnBean(RedisInitializer.class)
-    public RedissonTioClusterTopic redissonTioClusterTopic(RedisInitializer redisInitializer) {
+    public RedissonTioClusterTopic wsRedissonTioClusterTopic(RedisInitializer redisInitializer) {
         return new RedissonTioClusterTopic(CLUSTER_TOPIC_CHANNEL,redisInitializer.getRedissonClient());
     }
 
