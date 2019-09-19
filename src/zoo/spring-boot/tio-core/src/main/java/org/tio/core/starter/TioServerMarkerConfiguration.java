@@ -206,7 +206,7 @@ import org.springframework.context.annotation.Configuration;
 public class TioServerMarkerConfiguration {
 
     @Bean
-    public Marker tioWebSocketServerMarkBean() {
+    public Marker tioServerMarkBean() {
         return new Marker();
     }
 
