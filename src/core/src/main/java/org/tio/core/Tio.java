@@ -1723,10 +1723,10 @@ public class Tio {
 	/**
 	 * 发送并等待响应.<br>
 	 * 注意：<br>
-	 * 1、参数packet的synSeq不为空且大于0（null、等于小于0都不行）<br>
-	 * 2、对端收到此消息后，需要回一条synSeq一样的消息。业务需要在decode()方法中为packet的synSeq赋值<br>
+	 * 1、发送消息时，设置一下synSeq，形如：xxPacket.setSynSeq(789798786)。synSeq不为空且大于0（null、等于小于0都不行）<br>
+	 * 2、对端收到此消息后，需要回一条synSeq一样的消息，所以业务需要在decode()方法中根据bytebuffer反解析出packet的synSeq值，并赋给XxPacket对象<br>
 	 * 3、对于同步发送，框架层面并不会帮应用去调用handler.handler(packet, channelContext)方法，应用需要自己去处理响应的消息包，
-	 *参考：tioConfig.getAioHandler().handler(packet, channelContext);<br>
+	 *参考写法：tioConfig.getAioHandler().handler(packet, channelContext);<br>
 	 *
 	 * @param channelContext
 	 * @param packet 业务层必须设置好synSeq字段的值，而且要保证唯一（不能重复）。可以在tioConfig范围内用AtomicInteger
