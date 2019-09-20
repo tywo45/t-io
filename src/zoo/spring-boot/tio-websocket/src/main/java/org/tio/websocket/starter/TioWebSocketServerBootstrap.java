@@ -222,7 +222,7 @@ public final class TioWebSocketServerBootstrap {
 
     private static final String GROUP_CONTEXT_NAME = "tio-websocket-spring-boot-starter";
 
-    private static final boolean started = false;
+    private boolean initialized = false;
 
     private TioWebSocketServerProperties serverProperties;
     private TioWebSocketServerClusterProperties clusterProperties;
@@ -313,13 +313,18 @@ public final class TioWebSocketServerBootstrap {
     }
 
     public void contextInitialized() {
-        logger.info("initialize tio websocket server");
+        if (initialized){
+            logger.info("Tio WebSocket Server has been initialized");
+            return;
+        }
+        logger.info("Initializing Tio WebSocket Server");
         try {
             initTioWebSocketConfig();
             initTioWebSocketServer();
             initTioWebSocketServerTioConfig();
 
             start();
+            initialized = true;
         }
         catch (Throwable e) {
             logger.error("Cannot bootstrap tio websocket server :", e);
