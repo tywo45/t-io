@@ -291,7 +291,7 @@ public class TioWebSocketServerAutoConfiguration {
     }
 
     @Bean(destroyMethod="shutdown")
-    @ConditionalOnProperty(value = "tio.websocket.cluster.enabled",havingValue = "true",matchIfMissing = true)
+    @ConditionalOnProperty(value = "tio.websocket.cluster.enabled",havingValue = "true")
     public RedisInitializer wsRedisInitializer(ApplicationContext applicationContext) {
         return new RedisInitializer(redisConfig, applicationContext);
     }
@@ -307,7 +307,7 @@ public class TioWebSocketServerAutoConfiguration {
     }
 
     @Bean(destroyMethod = "destroy")
-    @ConditionalOnProperty(value = "tio.websocket.server.use-scanner",havingValue = "true",matchIfMissing = true)
+    @ConditionalOnProperty(value = "tio.websocket.server.use-scanner",havingValue = "true")
     public TioWebSocketClassScanner tioWebSocketClassScanner(ApplicationContext applicationContext) {
         return new TioWebSocketClassScanner(applicationContext);
     }
