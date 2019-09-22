@@ -1326,42 +1326,44 @@ public class StrUtil {
 	 * @author tanyaowu
 	 */
 	public static Object convert(Class<?> type, String value) throws Exception {
-		if (value == null) {
-			return null;
-		}
-
 		if (type == String.class) {
 			return value;
-		} else if (type == Byte.class || type == byte.class) {
-			return Byte.parseByte(value);
-		} else if (type == Short.class || type == short.class) {
-			return Short.parseShort(value);
-		} else if (type == Integer.class || type == int.class) {
-			return Integer.parseInt(value);
-		} else if (type == Long.class || type == long.class) {
-			return Long.parseLong(value);
-		} else if (type == Float.class || type == float.class) {
-			return Float.parseFloat(value);
-		} else if (type == Double.class || type == double.class) {
-			return Double.parseDouble(value);
-		} else if (type == Character.class || type == char.class) {
-			return Character.valueOf(value.charAt(0));
-		} else if (type == Boolean.class || type == boolean.class) {
-			return "1".equalsIgnoreCase(value) || "true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value);
-		} else if (type == BigDecimal.class) {
-			return new BigDecimal(value);
-		} else if (type == BigInteger.class) {
-			return new BigInteger(value);
-		} else if (type == Number.class) {
-			return NumberFormat.getInstance().parse(value);
-		} else if (type == Date.class) {
-			return DateUtil.parseToDate(value);
-		} else if (type == java.sql.Date.class) {
-			return DateUtil.parseToSqlDate(value);
-		} else if (type == java.sql.Timestamp.class) {
-			return DateUtil.parseToTimestamp(value);
-		} else if (type == java.sql.Time.class) {
-			return DateUtil.parseToTime(value);
+		} else {
+			if (StrUtil.isBlank(value)) {
+				return null;
+			}
+
+			if (type == Byte.class || type == byte.class) {
+				return Byte.parseByte(value);
+			} else if (type == Short.class || type == short.class) {
+				return Short.parseShort(value);
+			} else if (type == Integer.class || type == int.class) {
+				return Integer.parseInt(value);
+			} else if (type == Long.class || type == long.class) {
+				return Long.parseLong(value);
+			} else if (type == Float.class || type == float.class) {
+				return Float.parseFloat(value);
+			} else if (type == Double.class || type == double.class) {
+				return Double.parseDouble(value);
+			} else if (type == Character.class || type == char.class) {
+				return Character.valueOf(value.charAt(0));
+			} else if (type == Boolean.class || type == boolean.class) {
+				return "1".equalsIgnoreCase(value) || "true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value);
+			} else if (type == BigDecimal.class) {
+				return new BigDecimal(value);
+			} else if (type == BigInteger.class) {
+				return new BigInteger(value);
+			} else if (type == Number.class) {
+				return NumberFormat.getInstance().parse(value);
+			} else if (type == Date.class) {
+				return DateUtil.parseToDate(value);
+			} else if (type == java.sql.Date.class) {
+				return DateUtil.parseToSqlDate(value);
+			} else if (type == java.sql.Timestamp.class) {
+				return DateUtil.parseToTimestamp(value);
+			} else if (type == java.sql.Time.class) {
+				return DateUtil.parseToTime(value);
+			}
 		}
 
 		throw new Exception("不知道要转换成啥" + type);
