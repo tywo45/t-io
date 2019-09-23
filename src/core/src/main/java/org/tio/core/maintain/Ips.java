@@ -203,7 +203,6 @@ import org.tio.core.TioConfig;
 import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.lock.LockUtils;
 import org.tio.utils.lock.MapWithLock;
-import org.tio.utils.lock.ReadWriteLockHandler;
 import org.tio.utils.lock.SetWithLock;
 
 /**
@@ -251,21 +250,19 @@ public class Ips {
 
 			SetWithLock<ChannelContext> channelSet = ipmap.get(ip);
 			if (channelSet == null) {
-				LockUtils.runReadOrWrite(rwKey + ip, this, new ReadWriteLockHandler() {
-					@Override
-					public Object read() {
-						return null;
-					}
+				LockUtils.runWriteOrWaitRead(rwKey + ip, this, () -> {
+//					@Override
+//					public void read() {
+//					}
 
-					@Override
-					public Object write() {
-						SetWithLock<ChannelContext> channelSet = ipmap.get(ip);
-						if (channelSet == null) {
-							channelSet = new SetWithLock<>(new HashSet<ChannelContext>());
-							ipmap.put(ip, channelSet);
+//					@Override
+//					public void write() {
+//						SetWithLock<ChannelContext> channelSet = ipmap.get(ip);
+						if (ipmap.get(ip) == null) {
+//							channelSet = new SetWithLock<>(new HashSet<ChannelContext>());
+							ipmap.put(ip, new SetWithLock<>(new HashSet<ChannelContext>()));
 						}
-						return null;
-					}
+//					}
 				});
 				channelSet = ipmap.get(ip);
 			}

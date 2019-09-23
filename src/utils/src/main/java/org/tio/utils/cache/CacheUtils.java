@@ -201,7 +201,6 @@ import org.slf4j.LoggerFactory;
 import org.tio.utils.cache.caffeine.CaffeineCache;
 import org.tio.utils.cache.caffeineredis.CaffeineRedisCache;
 import org.tio.utils.lock.LockUtils;
-import org.tio.utils.lock.ReadWriteLockHandler;
 
 /**
  * cache使用的一些工具方法，简化业务代码
@@ -305,34 +304,31 @@ public abstract class CacheUtils {
 
 		String lockKey = cache.getCacheName() + cacheKey;
 		try {
-			LockUtils.runReadOrWrite(lockKey, cache, new ReadWriteLockHandler() {
-				@Override
-				public Object read() throws Exception {
-					return null;
-				}
+			LockUtils.runWriteOrWaitRead(lockKey, cache, () -> {
+//				@Override
+//				public void read() throws Exception {
+//				}
 
-				@Override
-				public Object write() throws Exception {
-					Serializable ret = getFromCacheOnly(cache, cacheKey);
-					if (ret != null) {
-						return (T) ret;
+//				@Override
+//				public void write() throws Exception {
+					Serializable ret1 = getFromCacheOnly(cache, cacheKey);
+					if (ret1 != null) {
+						return;
 					}
 
 					try {
-						ret = firsthandCreater.create();
+						ret1 = firsthandCreater.create();
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}
-					if (ret == null) {
+					if (ret1 == null) {
 						if (putTempToCacheIfNull) {
 							cache.putTemporary(cacheKey, org.tio.utils.cache.ICache.NULL_OBJ);
 						}
 					} else {
-						cache.put(cacheKey, ret);
+						cache.put(cacheKey, ret1);
 					}
-
-					return null;
-				}
+//				}
 			}, readTimeoutWithSeconds);
 		} catch (Exception e1) {
 			log.error(e1.toString(), e1);

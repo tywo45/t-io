@@ -206,7 +206,6 @@ import org.tio.core.intf.GroupListener;
 import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.lock.LockUtils;
 import org.tio.utils.lock.MapWithLock;
-import org.tio.utils.lock.ReadWriteLockHandler;
 import org.tio.utils.lock.SetWithLock;
 
 /**
@@ -257,21 +256,19 @@ public class Groups {
 		SetWithLock<ChannelContext> channelSet = groupmap.get(groupid);
 		if (channelSet == null) {
 			try {
-				LockUtils.runReadOrWrite(rwKey + groupid, this, new ReadWriteLockHandler() {
-					@Override
-					public Object read() {
-						return null;
-					}
-
-					@Override
-					public Object write() {
-						SetWithLock<ChannelContext> channelSet = groupmap.get(groupid);
-						if (channelSet == null) {
-							channelSet = new SetWithLock<>(MaintainUtils.createSet(channelContextComparator));
-							groupmap.put(groupid, channelSet);
+				LockUtils.runWriteOrWaitRead(rwKey + groupid, this, () -> {
+//					@Override
+//					public void read() {
+//					}
+//
+//					@Override
+//					public void write() {
+//						SetWithLock<ChannelContext> channelSet1 = groupmap.get(groupid);
+						if (groupmap.get(groupid) == null) {
+//							channelSet1 = new SetWithLock<>(MaintainUtils.createSet(channelContextComparator));
+							groupmap.put(groupid, new SetWithLock<>(MaintainUtils.createSet(channelContextComparator)));
 						}
-						return null;
-					}
+//					}
 				});
 			} catch (Exception e) {
 				log.error(e.toString(), e);

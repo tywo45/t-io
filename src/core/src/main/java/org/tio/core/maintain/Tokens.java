@@ -207,7 +207,6 @@ import org.tio.core.TioConfig;
 import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.lock.LockUtils;
 import org.tio.utils.lock.MapWithLock;
-import org.tio.utils.lock.ReadWriteLockHandler;
 import org.tio.utils.lock.SetWithLock;
 
 /**
@@ -245,21 +244,19 @@ public class Tokens {
 		try {
 			SetWithLock<ChannelContext> setWithLock = mapWithLock.get(token);
 			if (setWithLock == null) {
-				LockUtils.runReadOrWrite("_tio_tokens_bind__" + token, synLockObj1, new ReadWriteLockHandler() {
-					@Override
-					public Object read() {
-						return null;
-					}
+				LockUtils.runWriteOrWaitRead("_tio_tokens_bind__" + token, synLockObj1, () -> {
+//					@Override
+//					public void read() {
+//					}
 
-					@Override
-					public Object write() {
-						SetWithLock<ChannelContext> setWithLock  = mapWithLock.get(token);
-						if (setWithLock == null) {
-							setWithLock = new SetWithLock<>(new HashSet<>());
-							mapWithLock.put(token, setWithLock);
+//					@Override
+//					public void write() {
+//						SetWithLock<ChannelContext> setWithLock  = mapWithLock.get(token);
+						if (mapWithLock.get(token) == null) {
+//							setWithLock = new SetWithLock<>(new HashSet<>());
+							mapWithLock.put(token, new SetWithLock<>(new HashSet<>()));
 						}
-						return null;
-					}
+//					}
 				});
 				setWithLock = mapWithLock.get(token);
 			}

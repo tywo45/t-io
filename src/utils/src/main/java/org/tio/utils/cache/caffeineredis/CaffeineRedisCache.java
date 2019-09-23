@@ -211,7 +211,6 @@ import org.tio.utils.cache.redis.RedisCache;
 import org.tio.utils.cache.redis.RedisExpireUpdateTask;
 import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.lock.LockUtils;
-import org.tio.utils.lock.ReadWriteLockHandler;
 
 /**
  * @author tanyaowu
@@ -349,23 +348,21 @@ public class CaffeineRedisCache extends AbsCache {
 		Serializable ret = localCache.get(key);
 		if (ret == null) {
 			try {
-				LockUtils.runReadOrWrite("_tio_cr_" + key, this, new ReadWriteLockHandler() {
-					@Override
-					public Object read() {
-						return null;
-					}
+				LockUtils.runWriteOrWaitRead("_tio_cr_" + key, this, () -> {
+//					@Override
+//					public void read() {
+//					}
 
-					@Override
-					public Object write() {
-						Serializable ret = localCache.get(key);
-						if (ret == null) {
-							ret = distCache.get(key);
-							if (ret != null) {
-								localCache.put(key, ret);
+//					@Override
+//					public void write() {
+//						Serializable ret = localCache.get(key);
+						if (localCache.get(key) == null) {
+							Serializable ret1 = distCache.get(key);
+							if (ret1 != null) {
+								localCache.put(key, ret1);
 							}
 						}
-						return ret;
-					}
+//					}
 				});
 			} catch (Exception e) {
 				log.error(e.toString(), e);

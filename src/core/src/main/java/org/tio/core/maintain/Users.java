@@ -207,7 +207,6 @@ import org.tio.core.TioConfig;
 import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.lock.LockUtils;
 import org.tio.utils.lock.MapWithLock;
-import org.tio.utils.lock.ReadWriteLockHandler;
 import org.tio.utils.lock.SetWithLock;
 
 /**
@@ -242,21 +241,19 @@ public class Users {
 		try {
 			SetWithLock<ChannelContext> setWithLock = mapWithLock.get(userid);
 			if (setWithLock == null) {
-				LockUtils.runReadOrWrite("_tio_users_bind__" + userid, this, new ReadWriteLockHandler() {
-					@Override
-					public Object read() {
-						return null;
-					}
+				LockUtils.runWriteOrWaitRead("_tio_users_bind__" + userid, this, () -> {
+//					@Override
+//					public void read() {
+//					}
 
-					@Override
-					public Object write() {
-						SetWithLock<ChannelContext> setWithLock = mapWithLock.get(userid);
-						if (setWithLock == null) {
-							setWithLock = new SetWithLock<>(new HashSet<ChannelContext>());
-							mapWithLock.put(userid, setWithLock);
+//					@Override
+//					public void write() {
+//						SetWithLock<ChannelContext> setWithLock = mapWithLock.get(userid);
+						if (mapWithLock.get(userid) == null) {
+//							setWithLock = new SetWithLock<>(new HashSet<ChannelContext>());
+							mapWithLock.put(userid, new SetWithLock<>(new HashSet<ChannelContext>()));
 						}
-						return null;
-					}
+//					}
 				});
 				setWithLock = mapWithLock.get(userid);
 			} 
