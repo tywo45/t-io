@@ -337,6 +337,26 @@ public class Tio {
 	}
 
 	/**
+	 * 将用户绑定到群组
+	 * @param tioConfig
+	 * @param userid
+	 * @param group
+	 */
+	public static void bindGroup(TioConfig tioConfig, String userid, String group) {
+		SetWithLock<ChannelContext> setWithLock = Tio.getByUserid(tioConfig, userid);
+		if (setWithLock != null) {
+			setWithLock.handle(new ReadLockHandler<Set<ChannelContext>>() {
+				@Override
+				public void handler(Set<ChannelContext> set) {
+					for (ChannelContext channelContext : set) {
+						Tio.bindGroup(channelContext, group);
+					}
+				}
+			});
+		}
+	}
+
+	/**
 	 * 绑定token
 	 * @param channelContext
 	 * @param token
@@ -561,7 +581,7 @@ public class Tio {
 			log.debug("{} 正在等待被关闭", channelContext);
 			return;
 		}
-		
+
 		//先立即取消各项任务，这样可防止有新的任务被提交进来
 		channelContext.decodeRunnable.setCanceled(true);
 		channelContext.handlerRunnable.setCanceled(true);
@@ -649,7 +669,7 @@ public class Tio {
 	public static void closeGroup(TioConfig tioConfig, String group, String remark) {
 		closeGroup(tioConfig, group, remark, null);
 	}
-	
+
 	/**
 	 * 关闭某群所有连接
 	 * @param tioConfig
@@ -668,7 +688,7 @@ public class Tio {
 			}
 		});
 	}
-	
+
 	/**
 	 * 获取所有连接，包括当前处于断开状态的
 	 * @param tioConfig
@@ -678,7 +698,7 @@ public class Tio {
 	public static SetWithLock<ChannelContext> getAll(TioConfig tioConfig) {
 		return tioConfig.connections;
 	}
-	
+
 	/**
 	 * 获取所有连接，包括当前处于断开状态的
 	 * @param tioConfig
@@ -690,7 +710,6 @@ public class Tio {
 		return getAll(tioConfig);
 	}
 
-	
 	/**
 	 * 此API仅供 tio client使用
 	 * 获取所有处于正常连接状态的连接
@@ -701,7 +720,7 @@ public class Tio {
 	public static SetWithLock<ChannelContext> getConnecteds(ClientTioConfig clientTioConfig) {
 		return clientTioConfig.connecteds;
 	}
-	
+
 	/**
 	 * 此API仅供 tio client使用
 	 * 获取所有处于正常连接状态的连接
@@ -724,7 +743,7 @@ public class Tio {
 	public static ChannelContext getByBsId(TioConfig tioConfig, String bsId) {
 		return tioConfig.bsIds.find(tioConfig, bsId);
 	}
-	
+
 	/**
 	 * 根据业务id找ChannelContext
 	 * @param tioConfig
@@ -748,6 +767,7 @@ public class Tio {
 	public static ChannelContext getByClientNode(TioConfig tioConfig, String clientIp, Integer clientPort) {
 		return tioConfig.clientNodes.find(clientIp, clientPort);
 	}
+
 	/**
 	 * 根据clientip和clientport获取ChannelContext
 	 * @param tioConfig
@@ -758,9 +778,9 @@ public class Tio {
 	 * @deprecated getByClientNode(tioConfig, clientIp, clientPort)
 	 */
 	public static ChannelContext getChannelContextByClientNode(TioConfig tioConfig, String clientIp, Integer clientPort) {
-		return  getByClientNode(tioConfig, clientIp, clientPort);
+		return getByClientNode(tioConfig, clientIp, clientPort);
 	}
-	
+
 	/**
 	 * 根据ChannelContext.id获取ChannelContext
 	 * @param channelContextId
@@ -781,7 +801,7 @@ public class Tio {
 	public static ChannelContext getChannelContextById(TioConfig tioConfig, String channelContextId) {
 		return getByChannelContextId(tioConfig, channelContextId);
 	}
-	
+
 	/**
 	 * 获取一个组的所有客户端
 	 * @param tioConfig
@@ -792,7 +812,7 @@ public class Tio {
 	public static SetWithLock<ChannelContext> getByGroup(TioConfig tioConfig, String group) {
 		return tioConfig.groups.clients(tioConfig, group);
 	}
-	
+
 	/**
 	 * 获取一个组的所有客户端
 	 * @param tioConfig
@@ -815,7 +835,7 @@ public class Tio {
 	public static SetWithLock<ChannelContext> getByToken(TioConfig tioConfig, String token) {
 		return tioConfig.tokens.find(tioConfig, token);
 	}
-	
+
 	/**
 	 * 根据token获取SetWithLock<ChannelContext>
 	 * @param tioConfig
@@ -838,7 +858,7 @@ public class Tio {
 	public static SetWithLock<ChannelContext> getByUserid(TioConfig tioConfig, String userid) {
 		return tioConfig.users.find(tioConfig, userid);
 	}
-	
+
 	/**
 	 * 根据userid获取SetWithLock<ChannelContext>
 	 * @param tioConfig
@@ -940,12 +960,12 @@ public class Tio {
 		if (setWithLock == null) {
 			return 0;
 		}
-		
+
 		Set<ChannelContext> set = setWithLock.getObj();
 		if (set == null) {
 			return 0;
 		}
-		
+
 		return set.size();
 	}
 
@@ -961,12 +981,12 @@ public class Tio {
 		if (setWithLock == null) {
 			return false;
 		}
-		
+
 		Set<String> set = setWithLock.getObj();
 		if (set == null) {
 			return false;
 		}
-		
+
 		return set.contains(group);
 	}
 
@@ -1525,8 +1545,7 @@ public class Tio {
 	 * @param isBlock
 	 * @author tanyaowu
 	 */
-	private static Boolean sendToSet(TioConfig tioConfig, SetWithLock<ChannelContext> setWithLock, Packet packet, ChannelContextFilter channelContextFilter,
-	        boolean isBlock) {
+	private static Boolean sendToSet(TioConfig tioConfig, SetWithLock<ChannelContext> setWithLock, Packet packet, ChannelContextFilter channelContextFilter, boolean isBlock) {
 		boolean releasedLock = false;
 		Lock lock = setWithLock.readLock();
 		lock.lock();
