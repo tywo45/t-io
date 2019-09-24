@@ -222,7 +222,9 @@ public class TioWebSocketServerInitializerConfiguration
 
     @Override
     public void stop() {
-
+    	if(isRunning()) {
+    		running = false;
+    	}
     }
 
     @Override
@@ -246,7 +248,8 @@ public class TioWebSocketServerInitializerConfiguration
 
     @Override
     public void stop(Runnable runnable) {
-
+    	stop();
+    	runnable.run();
     }
 
 }
