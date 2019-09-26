@@ -225,7 +225,7 @@ import org.tio.utils.thread.pool.AbstractQueueRunnable;
 public class SendRunnable extends AbstractQueueRunnable<Packet> {
 	private static final Logger				log									= LoggerFactory.getLogger(SendRunnable.class);
 	private ChannelContext					channelContext						= null;
-	private TioConfig					tioConfig						= null;
+	private TioConfig						tioConfig							= null;
 	private AioHandler						aioHandler							= null;
 	private boolean							isSsl								= false;
 	/** The msg queue. */
