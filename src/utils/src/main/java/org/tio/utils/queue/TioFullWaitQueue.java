@@ -63,8 +63,8 @@ public class TioFullWaitQueue<T> implements FullWaitQueue<T> {
 				}
 				log.info("队列已满，不过等到了空位置");
 			}
-			array[tailIndex] = t;
-			if (++tailIndex == capacity) {
+			array[tailIndex++] = t;
+			if (tailIndex == capacity) {
 				tailIndex = 0;
 			}
 			size++;
@@ -91,8 +91,8 @@ public class TioFullWaitQueue<T> implements FullWaitQueue<T> {
 				return null;
 			}
 			T t = array[headIndex];
-			array[headIndex] = null;
-			if (++headIndex == capacity) {
+			array[headIndex++] = null;
+			if (headIndex == capacity) {
 				headIndex = 0;
 			}
 			size--;
