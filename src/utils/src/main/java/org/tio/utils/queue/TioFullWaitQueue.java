@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TioFullWaitQueue<T> implements FullWaitQueue<T> {
 	private static Logger	log					= LoggerFactory.getLogger(TioFullWaitQueue.class);
-	private T[]				array				= null;												//定义为数组，在创建对象时就确定容量
+	private T[]				array				= null;
 	private Lock			lock				= new ReentrantLock();
 	private Condition		fullWaitCondition	= lock.newCondition();
 	private long			waitTimeoutInSecond	= 5L;
