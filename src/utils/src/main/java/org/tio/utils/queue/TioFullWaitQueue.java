@@ -68,7 +68,6 @@ public class TioFullWaitQueue<T> implements FullWaitQueue<T> {
 				tailIndex = 0;
 			}
 			size++;
-			//			System.out.println("插入一个元素:" + t + "，数组为：" + Arrays.toString(array));
 			return true;
 		} catch (InterruptedException e) {
 			log.error(e.toString(), e);
@@ -93,7 +92,6 @@ public class TioFullWaitQueue<T> implements FullWaitQueue<T> {
 			}
 			T t = array[headIndex];
 			array[headIndex] = null;
-			//			System.out.println("移除一个元素:" + t + "，数组为：" + Arrays.toString(array));
 			if (++headIndex == capacity) {
 				headIndex = 0;
 			}
