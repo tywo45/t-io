@@ -193,11 +193,12 @@
 */
 package org.tio.utils.thread.pool;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tio.utils.queue.FullWaitQueue;
+import org.tio.utils.queue.TioFullWaitQueue;
 
 /**
  *
@@ -208,7 +209,7 @@ public abstract class AbstractQueueRunnable<T> extends AbstractSynRunnable {
 	private static final Logger log = LoggerFactory.getLogger(AbstractQueueRunnable.class);
 
 	/** The msg queue. */
-	protected ConcurrentLinkedQueue<T> msgQueue = new ConcurrentLinkedQueue<>();
+	protected FullWaitQueue<T> msgQueue = null;
 
 	/**
 	 *
@@ -216,7 +217,12 @@ public abstract class AbstractQueueRunnable<T> extends AbstractSynRunnable {
 	 * @author tanyaowu
 	 */
 	public AbstractQueueRunnable(Executor executor) {
+		this(executor, Integer.getInteger("tio.fullqueue.capacity", 10), Long.getLong("tio.fullqueue.wait.timeout", 10L));
+	}
+
+	public AbstractQueueRunnable(Executor executor, int capacity, long waitTimeoutInSecond) {
 		super(executor);
+		msgQueue = new TioFullWaitQueue<>(capacity, waitTimeoutInSecond);
 	}
 
 	/**
@@ -241,14 +247,14 @@ public abstract class AbstractQueueRunnable<T> extends AbstractSynRunnable {
 
 	@Override
 	public boolean isNeededExecute() {
-		return  !this.isCanceled() && msgQueue.size() > 0;
+		return !this.isCanceled() && msgQueue.size() > 0;
 	}
 
 	/**
 	 * 获取消息队列
 	 * @return
 	 */
-	public ConcurrentLinkedQueue<T> getMsgQueue() {
+	public FullWaitQueue<T> getMsgQueue() {
 		return msgQueue;
 	}
 }

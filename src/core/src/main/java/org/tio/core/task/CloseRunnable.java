@@ -274,7 +274,7 @@ public class CloseRunnable extends AbstractQueueRunnable<ChannelContext> {
 					channelContext.decodeRunnable.setCanceled(true);
 					channelContext.handlerRunnable.setCanceled(true);
 					channelContext.sendRunnable.setCanceled(true);
-					
+
 					channelContext.decodeRunnable.clearMsgQueue();
 					channelContext.handlerRunnable.clearMsgQueue();
 					channelContext.sendRunnable.clearMsgQueue();
