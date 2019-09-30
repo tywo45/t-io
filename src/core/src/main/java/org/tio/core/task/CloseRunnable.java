@@ -193,7 +193,6 @@
 */
 package org.tio.core.task;
 
-import java.nio.ByteBuffer;
 import java.util.concurrent.Executor;
 
 import org.slf4j.Logger;
