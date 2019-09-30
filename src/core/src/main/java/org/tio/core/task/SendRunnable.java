@@ -206,15 +206,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.ChannelContext.CloseCode;
-import org.tio.core.TioConfig;
 import org.tio.core.TcpConst;
 import org.tio.core.Tio;
+import org.tio.core.TioConfig;
 import org.tio.core.WriteCompletionHandler.WriteCompletionVo;
 import org.tio.core.intf.AioHandler;
 import org.tio.core.intf.Packet;
 import org.tio.core.ssl.SslUtils;
 import org.tio.core.ssl.SslVo;
 import org.tio.core.utils.TioUtils;
+import org.tio.utils.queue.FullWaitQueue;
+import org.tio.utils.queue.TioFullWaitQueue;
 import org.tio.utils.thread.pool.AbstractQueueRunnable;
 
 /**
@@ -258,6 +260,8 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 		this.tioConfig = channelContext.tioConfig;
 		this.aioHandler = tioConfig.getAioHandler();
 		this.isSsl = SslUtils.isSsl(tioConfig);
+		
+		getMsgQueue();
 	}
 
 	@Override
@@ -493,6 +497,21 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 	@Override
 	public String logstr() {
 		return toString();
+	}
+
+	/** The msg queue. */
+	private FullWaitQueue<Packet> msgQueue = null;
+
+	@Override
+	public FullWaitQueue<Packet> getMsgQueue() {
+		if (msgQueue == null) {
+			synchronized (this) {
+				if (msgQueue == null) {
+					msgQueue = new TioFullWaitQueue<Packet>(Integer.getInteger("tio.fullqueue.capacity", null), false);
+				}
+			}
+		}
+		return msgQueue;
 	}
 
 }

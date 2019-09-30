@@ -202,14 +202,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.ChannelContext.CloseCode;
-import org.tio.core.TioConfig;
 import org.tio.core.Tio;
+import org.tio.core.TioConfig;
 import org.tio.core.exception.AioDecodeException;
 import org.tio.core.intf.Packet;
 import org.tio.core.stat.ChannelStat;
 import org.tio.core.stat.IpStat;
 import org.tio.core.utils.ByteBufferUtils;
 import org.tio.utils.SystemTimer;
+import org.tio.utils.queue.FullWaitQueue;
+import org.tio.utils.queue.TioFullWaitQueue;
 import org.tio.utils.thread.pool.AbstractQueueRunnable;
 
 /**
@@ -221,7 +223,7 @@ import org.tio.utils.thread.pool.AbstractQueueRunnable;
 public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 	private static final Logger	log						= LoggerFactory.getLogger(DecodeRunnable.class);
 	private ChannelContext		channelContext			= null;
-	private TioConfig		tioConfig			= null;
+	private TioConfig			tioConfig				= null;
 	/**
 	 * 上一次解码剩下的数据
 	 */
@@ -259,6 +261,7 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 		super(executor);
 		this.channelContext = channelContext;
 		this.tioConfig = channelContext.tioConfig;
+		getMsgQueue();
 	}
 
 	/**
@@ -447,4 +450,23 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 	public String logstr() {
 		return toString();
 	}
+
+	/** The msg queue. */
+	private FullWaitQueue<ByteBuffer> msgQueue = null;
+
+	@Override
+	public FullWaitQueue<ByteBuffer> getMsgQueue() {
+		if (tioConfig.useQueueDecode) {
+			if (msgQueue == null) {
+				synchronized (this) {
+					if (msgQueue == null) {
+						msgQueue = new TioFullWaitQueue<ByteBuffer>(Integer.getInteger("tio.fullqueue.capacity", null), true);
+					}
+				}
+			}
+			return msgQueue;
+		}
+		return null;
+	}
+
 }

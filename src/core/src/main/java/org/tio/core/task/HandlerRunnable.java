@@ -202,11 +202,14 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
+import org.tio.core.PacketHandlerMode;
 import org.tio.core.TioConfig;
 import org.tio.core.intf.Packet;
 import org.tio.core.stat.IpStat;
 import org.tio.utils.SystemTimer;
 import org.tio.utils.lock.MapWithLock;
+import org.tio.utils.queue.FullWaitQueue;
+import org.tio.utils.queue.TioFullWaitQueue;
 import org.tio.utils.thread.pool.AbstractQueueRunnable;
 
 /**
@@ -219,7 +222,7 @@ public class HandlerRunnable extends AbstractQueueRunnable<Packet> {
 	private static final Logger log = LoggerFactory.getLogger(HandlerRunnable.class);
 
 	private ChannelContext	channelContext	= null;
-	private TioConfig	tioConfig	= null;
+	private TioConfig		tioConfig		= null;
 
 	private AtomicLong synFailCount = new AtomicLong();
 
@@ -227,6 +230,7 @@ public class HandlerRunnable extends AbstractQueueRunnable<Packet> {
 		super(executor);
 		this.channelContext = channelContext;
 		tioConfig = channelContext.tioConfig;
+		getMsgQueue();
 	}
 
 	/**
@@ -320,4 +324,23 @@ public class HandlerRunnable extends AbstractQueueRunnable<Packet> {
 	public String logstr() {
 		return toString();
 	}
+
+	/** The msg queue. */
+	private FullWaitQueue<Packet> msgQueue = null;
+
+	@Override
+	public FullWaitQueue<Packet> getMsgQueue() {
+		if (PacketHandlerMode.QUEUE == tioConfig.packetHandlerMode) {
+			if (msgQueue == null) {
+				synchronized (this) {
+					if (msgQueue == null) {
+						msgQueue = new TioFullWaitQueue<Packet>(Integer.getInteger("tio.fullqueue.capacity", null), true);
+					}
+				}
+			}
+			return msgQueue;
+		}
+		return null;
+	}
+
 }
