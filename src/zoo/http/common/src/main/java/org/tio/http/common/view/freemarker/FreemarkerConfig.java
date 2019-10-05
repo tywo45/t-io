@@ -288,13 +288,14 @@ public class FreemarkerConfig {
 		} else {
 			cfg.setDirectoryForTemplateLoading(new File(root));
 		}
-
 		cfg.setDefaultEncoding(httpConfig.getCharset());
 		//		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
 		cfg.setLogTemplateExceptions(false);
 		cfg.setWrapUncheckedExceptions(true);
 		cfg.setTemplateExceptionHandler(ShortMessageTemplateExceptionHandler.me);
 		cfg.setLocale(Locale.SIMPLIFIED_CHINESE);
+		cfg.setNumberFormat("#");
+		cfg.setClassicCompatible(true);
 		return cfg;
 	}
 

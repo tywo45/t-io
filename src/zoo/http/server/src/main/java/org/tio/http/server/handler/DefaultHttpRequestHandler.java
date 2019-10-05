@@ -822,7 +822,7 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 													String retStr = FreemarkerUtils.generateStringByPath(template, configuration, model);
 													response = Resps.bytes(request, retStr.getBytes(configuration.getDefaultEncoding()), extension);
 													return response;
-												} catch (Exception e) {
+												} catch (Throwable e) {
 													log.error("freemarker错误，当成普通文本处理：" + file.getCanonicalPath() + ", " + e.toString());
 												}
 											}

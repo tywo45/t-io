@@ -209,8 +209,8 @@ import freemarker.template.TemplateExceptionHandler;
  * 
  */
 public class ShortMessageTemplateExceptionHandler implements TemplateExceptionHandler {
-	private static Logger								log	= LoggerFactory.getLogger(ShortMessageTemplateExceptionHandler.class);
-	public static ShortMessageTemplateExceptionHandler	me	= new ShortMessageTemplateExceptionHandler();
+	private static Logger										log	= LoggerFactory.getLogger(ShortMessageTemplateExceptionHandler.class);
+	public final static ShortMessageTemplateExceptionHandler	me	= new ShortMessageTemplateExceptionHandler();
 
 	@Override
 	public void handleTemplateException(TemplateException templateexception, Environment environment, Writer writer) throws TemplateException {
