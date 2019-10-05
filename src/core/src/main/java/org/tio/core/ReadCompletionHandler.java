@@ -203,6 +203,7 @@ import org.tio.core.stat.IpStat;
 import org.tio.core.utils.ByteBufferUtils;
 import org.tio.core.utils.TioUtils;
 import org.tio.utils.SystemTimer;
+import org.tio.utils.hutool.CollUtil;
 
 /**
  *
@@ -242,8 +243,8 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuf
 			}
 
 			channelContext.stat.latestTimeOfReceivedByte = SystemTimer.currTime;
-
-			if (tioConfig.ipStats.durationList != null && tioConfig.ipStats.durationList.size() > 0) {
+			
+			if (CollUtil.isNotEmpty(tioConfig.ipStats.durationList)) {
 				try {
 					for (Long v : tioConfig.ipStats.durationList) {
 						IpStat ipStat = tioConfig.ipStats.get(v, channelContext);

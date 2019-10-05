@@ -207,6 +207,7 @@ import org.tio.core.TioConfig;
 import org.tio.core.intf.Packet;
 import org.tio.core.stat.IpStat;
 import org.tio.utils.SystemTimer;
+import org.tio.utils.hutool.CollUtil;
 import org.tio.utils.lock.MapWithLock;
 import org.tio.utils.queue.FullWaitQueue;
 import org.tio.utils.queue.TioFullWaitQueue;
@@ -274,8 +275,8 @@ public class HandlerRunnable extends AbstractQueueRunnable<Packet> {
 				tioConfig.groupStat.handledBytes.addAndGet(packet.getByteCount());
 				tioConfig.groupStat.handledPacketCosts.addAndGet(iv);
 			}
-
-			if (tioConfig.ipStats.durationList != null && tioConfig.ipStats.durationList.size() > 0) {
+			
+			if (CollUtil.isNotEmpty(tioConfig.ipStats.durationList)) {
 				try {
 					for (Long v : tioConfig.ipStats.durationList) {
 						IpStat ipStat = (IpStat) tioConfig.ipStats.get(v, channelContext);

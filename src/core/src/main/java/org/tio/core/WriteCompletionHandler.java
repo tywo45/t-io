@@ -206,6 +206,7 @@ import org.tio.core.intf.Packet;
 import org.tio.core.intf.Packet.Meta;
 import org.tio.core.stat.IpStat;
 import org.tio.utils.SystemTimer;
+import org.tio.utils.hutool.CollUtil;
 
 /**
  *
@@ -288,8 +289,8 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 				tioConfig.groupStat.sentBytes.addAndGet(result);
 				channelContext.stat.sentBytes.addAndGet(result);
 			}
-
-			if (tioConfig.ipStats.durationList != null && tioConfig.ipStats.durationList.size() > 0) {
+			
+			if (CollUtil.isNotEmpty(tioConfig.ipStats.durationList)) {
 				for (Long v : tioConfig.ipStats.durationList) {
 					IpStat ipStat = (IpStat) channelContext.tioConfig.ipStats.get(v, channelContext);
 					ipStat.getSentBytes().addAndGet(result);
@@ -301,7 +302,7 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 			boolean isPacket = attachment instanceof Packet;
 			if (isPacket) {
 				if (isSentSuccess) {
-					if (tioConfig.ipStats.durationList != null && tioConfig.ipStats.durationList.size() > 0) {
+					if (CollUtil.isNotEmpty(tioConfig.ipStats.durationList)) {
 						for (Long v : tioConfig.ipStats.durationList) {
 							IpStat ipStat = (IpStat) channelContext.tioConfig.ipStats.get(v, channelContext);
 							ipStat.getSentPackets().incrementAndGet();

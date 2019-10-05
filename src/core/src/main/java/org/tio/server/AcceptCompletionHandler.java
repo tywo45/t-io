@@ -206,6 +206,7 @@ import org.tio.core.ReadCompletionHandler;
 import org.tio.core.ssl.SslUtils;
 import org.tio.core.stat.IpStat;
 import org.tio.utils.SystemTimer;
+import org.tio.utils.hutool.CollUtil;
 
 /**
  *
@@ -286,8 +287,8 @@ public class AcceptCompletionHandler implements CompletionHandler<AsynchronousSo
 					}
 				}
 			}
-
-			if (serverTioConfig.ipStats.durationList != null && serverTioConfig.ipStats.durationList.size() > 0) {
+			
+			if (CollUtil.isNotEmpty(serverTioConfig.ipStats.durationList)) {
 				try {
 					for (Long v : serverTioConfig.ipStats.durationList) {
 						IpStat ipStat = (IpStat) serverTioConfig.ipStats.get(v, channelContext);

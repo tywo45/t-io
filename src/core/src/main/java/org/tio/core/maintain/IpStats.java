@@ -208,6 +208,7 @@ import org.tio.core.TioConfig;
 import org.tio.core.cache.IpStatRemovalListener;
 import org.tio.core.stat.IpStat;
 import org.tio.utils.cache.caffeine.CaffeineCache;
+import org.tio.utils.hutool.CollUtil;
 
 /**
  * 使用方法（注意顺序）：<br>
@@ -278,8 +279,8 @@ public class IpStats {
 	public void removeDuration(Long duration) {
 		clear(duration);
 		cacheMap.remove(duration);
-
-		if (durationList != null) {
+		
+		if (CollUtil.isNotEmpty(durationList)) {
 			durationList.remove(duration);
 		}
 	}

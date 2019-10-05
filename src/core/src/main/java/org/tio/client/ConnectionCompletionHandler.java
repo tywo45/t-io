@@ -209,6 +209,7 @@ import org.tio.core.ssl.SslFacadeContext;
 import org.tio.core.ssl.SslUtils;
 import org.tio.core.stat.IpStat;
 import org.tio.utils.SystemTimer;
+import org.tio.utils.hutool.CollUtil;
 
 /**
  *
@@ -349,7 +350,7 @@ public class ConnectionCompletionHandler implements CompletionHandler<Void, Conn
 					}
 
 					TioConfig tioConfig = channelContext.tioConfig;
-					if (tioConfig.ipStats.durationList != null && tioConfig.ipStats.durationList.size() > 0) {
+					if (CollUtil.isNotEmpty(tioConfig.ipStats.durationList)) {
 						try {
 							for (Long v : tioConfig.ipStats.durationList) {
 								IpStat ipStat = tioConfig.ipStats.get(v, channelContext);

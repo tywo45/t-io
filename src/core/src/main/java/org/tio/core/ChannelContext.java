@@ -211,6 +211,7 @@ import org.tio.core.stat.IpStat;
 import org.tio.core.task.DecodeRunnable;
 import org.tio.core.task.HandlerRunnable;
 import org.tio.core.task.SendRunnable;
+import org.tio.utils.hutool.CollUtil;
 import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.lock.SetWithLock;
 import org.tio.utils.prop.MapWithLockPropSupport;
@@ -492,7 +493,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 					stat.sentPackets.incrementAndGet();
 				}
 
-				if (tioConfig.ipStats.durationList != null && tioConfig.ipStats.durationList.size() > 0) {
+				if (CollUtil.isNotEmpty(tioConfig.ipStats.durationList)) {
 					try {
 						for (Long v : tioConfig.ipStats.durationList) {
 							IpStat ipStat = tioConfig.ipStats.get(v, this);
@@ -821,7 +822,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 			//将性能数据进行转移
 			if (!Objects.equals(proxyClientNode.getIp(), clientNode.getIp())) {
 
-				if (tioConfig.ipStats.durationList != null && tioConfig.ipStats.durationList.size() > 0) {
+				if (CollUtil.isNotEmpty(tioConfig.ipStats.durationList)) {
 					try {
 						for (Long v : tioConfig.ipStats.durationList) {
 							IpStat oldIpStat = (IpStat) tioConfig.ipStats._get(v, this, true, false);

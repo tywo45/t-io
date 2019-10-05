@@ -203,8 +203,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.ChannelContext.CloseCode;
-import org.tio.core.TioConfig;
 import org.tio.core.Tio;
+import org.tio.core.TioConfig;
 import org.tio.core.intf.AioHandler;
 import org.tio.core.intf.AioListener;
 import org.tio.core.maintain.IpBlacklist;
@@ -213,6 +213,7 @@ import org.tio.server.intf.ServerAioHandler;
 import org.tio.server.intf.ServerAioListener;
 import org.tio.utils.SysConst;
 import org.tio.utils.SystemTimer;
+import org.tio.utils.hutool.CollUtil;
 import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.json.Json;
 import org.tio.utils.lock.SetWithLock;
@@ -373,7 +374,8 @@ public class ServerTioConfig extends TioConfig {
 								builder.append("\r\n │ \t ├ 平均每次TCP包接收的字节数  :").append(groupStat.getBytesPerTcpReceive());
 								builder.append("\r\n │ \t └ 平均每次TCP包接收的业务包  :").append(groupStat.getPacketsPerTcpReceive());
 								builder.append("\r\n └ IP统计时段 ");
-								if (ServerTioConfig.this.ipStats.durationList != null && ServerTioConfig.this.ipStats.durationList.size() > 0) {
+								
+								if (CollUtil.isNotEmpty(ServerTioConfig.this.ipStats.durationList)) {
 									builder.append("\r\n   \t └ ").append(Json.toJson(ServerTioConfig.this.ipStats.durationList));
 								} else {
 									builder.append("\r\n   \t └ ").append("没有设置ip统计时间");
