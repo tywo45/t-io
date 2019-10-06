@@ -295,7 +295,7 @@ public class FreemarkerConfig {
 		cfg.setTemplateExceptionHandler(ShortMessageTemplateExceptionHandler.me);
 		cfg.setLocale(Locale.SIMPLIFIED_CHINESE);
 		cfg.setNumberFormat("#");
-		cfg.setClassicCompatible(true);
+//		cfg.setClassicCompatible(true);
 		return cfg;
 	}
 

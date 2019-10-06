@@ -426,7 +426,6 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 
 	public boolean sendPacket(Packet packet) {
 		ByteBuffer byteBuffer = getByteBuffer(packet);
-
 		if (isSsl) {
 			if (!packet.isSslEncrypted()) {
 				SslVo sslVo = new SslVo(byteBuffer, packet);
@@ -461,9 +460,9 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 			return;
 		}
 
-		if (!byteBuffer.hasRemaining()) {
-			byteBuffer.flip();
-		}
+//		if (!byteBuffer.hasRemaining()) {
+//			byteBuffer.flip();
+//		}
 
 		try {
 			channelContext.writeCompletionHandler.getWriteSemaphore().acquire();
