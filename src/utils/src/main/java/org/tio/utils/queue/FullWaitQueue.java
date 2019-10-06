@@ -27,4 +27,6 @@ public interface FullWaitQueue<T> {
 	public void clear();
 
 	public int size();
+	
+	public boolean isEmpty();
 }

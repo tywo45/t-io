@@ -196,7 +196,6 @@ package org.tio.core.task;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 
@@ -232,6 +231,7 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 	private boolean							isSsl								= false;
 	/** The msg queue. */
 	private ConcurrentLinkedQueue<Packet>	forSendAfterSslHandshakeCompleted	= null;											//new ConcurrentLinkedQueue<>();
+	public boolean							canSend								= true;
 
 	public ConcurrentLinkedQueue<Packet> getForSendAfterSslHandshakeCompleted(boolean forceCreate) {
 		if (forSendAfterSslHandshakeCompleted == null && forceCreate) {
@@ -260,7 +260,7 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 		this.tioConfig = channelContext.tioConfig;
 		this.aioHandler = tioConfig.getAioHandler();
 		this.isSsl = SslUtils.isSsl(tioConfig);
-		
+
 		getMsgQueue();
 	}
 
@@ -328,29 +328,26 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 	 * @param newValue
 	 * @return
 	 */
-	private static boolean swithed(Boolean oldValue, boolean newValue) {
-		if (oldValue == null) {
-			return false;
-		}
+	//	private static boolean changed(Boolean oldValue, boolean newValue) {
+	//		if (oldValue == null) {
+	//			return false;
+	//		}
+	//
+	//		return oldValue != newValue;
+	//	}
 
-		if (Objects.equals(oldValue, newValue)) {
-			return false;
-		}
-
-		return true;
-	}
-
-	private static final int MAX_CAPACITY = TcpConst.MAX_DATA_LENGTH - 1024; //减掉1024是尽量防止溢出的一小部分还分成一个tcp包发出 
+	private static final int	MAX_CAPACITY_MIN	= TcpConst.MAX_DATA_LENGTH - 1024;	//减掉1024是尽量防止溢出的一小部分还分成一个tcp包发出 
+	private static final int	MAX_CAPACITY_MAX	= MAX_CAPACITY_MIN * 10;
 
 	//	private int repeatCount = 0;
 
 	@Override
 	public void runTask() {
-		int queueSize = msgQueue.size();
-		if (queueSize == 0) {
+		if (msgQueue.isEmpty()) {
 			return;
 		}
 
+		int queueSize = msgQueue.size();
 		if (queueSize == 1) {
 			//			System.out.println(1);
 			Packet packet = msgQueue.poll();
@@ -360,7 +357,7 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 			return;
 		}
 
-		int listInitialCapacity = Math.min(queueSize, 200);
+		int listInitialCapacity = Math.min(queueSize, canSend ? 300 : 1000);
 
 		Packet packet = null;
 		List<Packet> packets = new ArrayList<>(listInitialCapacity);
@@ -368,7 +365,7 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 		//		int packetCount = 0;
 		int allBytebufferCapacity = 0;
 		Boolean needSslEncrypted = null;
-		boolean sslSwitched = false;
+		boolean sslChanged = false;
 		while ((packet = msgQueue.poll()) != null) {
 			ByteBuffer byteBuffer = getByteBuffer(packet);
 
@@ -378,24 +375,21 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 			allBytebufferCapacity += byteBuffer.limit();
 
 			if (isSsl) {
-				if (packet.isSslEncrypted()) {
-					boolean _needSslEncrypted = false;
-					sslSwitched = swithed(needSslEncrypted, _needSslEncrypted);
-					needSslEncrypted = _needSslEncrypted;
+				boolean _needSslEncrypted = !packet.isSslEncrypted();
+				if (needSslEncrypted == null) {
+					sslChanged = false;
 				} else {
-					boolean _needSslEncrypted = true;
-					sslSwitched = swithed(needSslEncrypted, _needSslEncrypted);
-					needSslEncrypted = _needSslEncrypted;
+					sslChanged = needSslEncrypted != _needSslEncrypted;
 				}
-			} else { //非ssl，不涉及到加密和不加密的切换
-				needSslEncrypted = false;
+				needSslEncrypted = _needSslEncrypted;
 			}
 
-			if ((allBytebufferCapacity >= MAX_CAPACITY) || sslSwitched) {
+			if ((canSend && allBytebufferCapacity >= MAX_CAPACITY_MIN) || (allBytebufferCapacity >= MAX_CAPACITY_MAX) || sslChanged) {
 				break;
 			}
 		}
 
+		//		System.out.println(packets.size());
 		if (allBytebufferCapacity == 0) {
 			return;
 		}
@@ -406,7 +400,7 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 
 		allByteBuffer.flip();
 
-		if (needSslEncrypted) {
+		if (isSsl && needSslEncrypted) {
 			SslVo sslVo = new SslVo(allByteBuffer, packets);
 			try {
 				channelContext.sslFacadeContext.getSslFacade().encrypt(sslVo);
@@ -473,16 +467,12 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 
 		try {
 			channelContext.writeCompletionHandler.getWriteSemaphore().acquire();
+			canSend = false;
+			WriteCompletionVo writeCompletionVo = new WriteCompletionVo(byteBuffer, packets);
+			channelContext.asynchronousSocketChannel.write(byteBuffer, writeCompletionVo, channelContext.writeCompletionHandler);
 		} catch (InterruptedException e) {
 			log.error(e.toString(), e);
 		}
-
-		write(byteBuffer, packets);
-	}
-
-	private void write(ByteBuffer byteBuffer, Object packets) {
-		WriteCompletionVo writeCompletionVo = new WriteCompletionVo(byteBuffer, packets);
-		channelContext.asynchronousSocketChannel.write(byteBuffer, writeCompletionVo, channelContext.writeCompletionHandler);
 	}
 
 	@Override

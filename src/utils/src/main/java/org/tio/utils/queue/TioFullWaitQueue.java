@@ -40,4 +40,13 @@ public class TioFullWaitQueue<T> implements FullWaitQueue<T> {
 		queue.clear();
 	}
 
+	/** 
+	 * @return
+	 * @author tanyaowu
+	 */
+	@Override
+	public boolean isEmpty() {
+		return queue.isEmpty();
+	}
+
 }

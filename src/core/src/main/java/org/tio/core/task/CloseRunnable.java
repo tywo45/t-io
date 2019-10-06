@@ -224,8 +224,7 @@ public class CloseRunnable extends AbstractQueueRunnable<ChannelContext> {
 
 	@Override
 	public void runTask() {
-		int queueSize = msgQueue.size();
-		if (queueSize == 0) {
+		if (msgQueue.isEmpty()) {
 			return;
 		}
 		ChannelContext channelContext = null;

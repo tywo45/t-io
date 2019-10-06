@@ -446,7 +446,7 @@ public class HttpConfig {
 	}
 
 	public String getPageRoot(HttpRequest request) {
-		if (this.domainPageMap == null || domainPageMap.size() == 0) {
+		if (domainPageMap == null || domainPageMap.isEmpty()) {
 			return pageRoot;
 		}
 

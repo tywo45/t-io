@@ -235,7 +235,7 @@ public abstract class AbstractQueueRunnable<T> extends AbstractSynRunnable {
 
 	@Override
 	public boolean isNeededExecute() {
-		return !this.isCanceled() && (getMsgQueue() != null && getMsgQueue().size() > 0);
+		return  (getMsgQueue() != null && !getMsgQueue().isEmpty()) && !this.isCanceled();
 	}
 
 	/**
