@@ -198,6 +198,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLException;
 
@@ -464,22 +465,18 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 		//			byteBuffer.flip();
 		//		}
 
+		ReentrantLock lock = channelContext.writeCompletionHandler.lock;
+		lock.lock();
 		try {
-			acquire();
+			canSend = false;
 			WriteCompletionVo writeCompletionVo = new WriteCompletionVo(byteBuffer, packets);
 			channelContext.asynchronousSocketChannel.write(byteBuffer, writeCompletionVo, channelContext.writeCompletionHandler);
+			channelContext.writeCompletionHandler.condition.await();
 		} catch (InterruptedException e) {
 			log.error(e.toString(), e);
+		} finally {
+			lock.unlock();
 		}
-	}
-
-	/**
-	 * @throws InterruptedException
-	 * @author tanyaowu
-	 */
-	private void acquire() throws InterruptedException {
-		channelContext.writeCompletionHandler.writeSemaphore.acquire();
-		canSend = false;
 	}
 
 	@Override

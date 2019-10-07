@@ -196,7 +196,8 @@ package org.tio.core;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 import java.util.List;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -214,9 +215,10 @@ import org.tio.utils.hutool.CollUtil;
  *
  */
 public class WriteCompletionHandler implements CompletionHandler<Integer, WriteCompletionVo> {
-	private static Logger	log				= LoggerFactory.getLogger(WriteCompletionHandler.class);
-	private ChannelContext	channelContext	= null;
-	public final Semaphore	writeSemaphore	= new Semaphore(1);
+	private static Logger		log				= LoggerFactory.getLogger(WriteCompletionHandler.class);
+	private ChannelContext		channelContext	= null;
+	public final ReentrantLock	lock			= new ReentrantLock();
+	public final Condition		condition		= lock.newCondition();
 
 	public static class WriteCompletionVo {
 		private ByteBuffer byteBuffer = null;
@@ -269,52 +271,60 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 	 * @author tanyaowu
 	 */
 	public void handle(Integer bytesWritten, Throwable throwable, WriteCompletionVo writeCompletionVo) {
-		this.writeSemaphore.release();
-		channelContext.sendRunnable.canSend = true;
-		channelContext.stat.latestTimeOfSentPacket = SystemTimer.currTime;
-		Object attachment = writeCompletionVo.obj;//();
-		TioConfig tioConfig = channelContext.tioConfig;
-		boolean isSentSuccess = bytesWritten > 0;
-
-		if (isSentSuccess) {
-			if (tioConfig.statOn) {
-				tioConfig.groupStat.sentBytes.addAndGet(bytesWritten);
-				channelContext.stat.sentBytes.addAndGet(bytesWritten);
-			}
-
-			if (CollUtil.isNotEmpty(tioConfig.ipStats.durationList)) {
-				for (Long v : tioConfig.ipStats.durationList) {
-					IpStat ipStat = (IpStat) channelContext.tioConfig.ipStats.get(v, channelContext);
-					ipStat.getSentBytes().addAndGet(bytesWritten);
-				}
-			}
-		}
-
+		ReentrantLock lock = channelContext.writeCompletionHandler.lock;
+		lock.lock();
 		try {
-			boolean isPacket = attachment instanceof Packet;
-			if (isPacket) {
-				if (isSentSuccess) {
-					if (CollUtil.isNotEmpty(tioConfig.ipStats.durationList)) {
-						for (Long v : tioConfig.ipStats.durationList) {
-							IpStat ipStat = (IpStat) channelContext.tioConfig.ipStats.get(v, channelContext);
-							ipStat.getSentPackets().incrementAndGet();
-						}
+			channelContext.sendRunnable.canSend = true;
+			channelContext.writeCompletionHandler.condition.signal();
+			channelContext.stat.latestTimeOfSentPacket = SystemTimer.currTime;
+			Object attachment = writeCompletionVo.obj;//();
+			TioConfig tioConfig = channelContext.tioConfig;
+			boolean isSentSuccess = bytesWritten > 0;
+
+			if (isSentSuccess) {
+				if (tioConfig.statOn) {
+					tioConfig.groupStat.sentBytes.addAndGet(bytesWritten);
+					channelContext.stat.sentBytes.addAndGet(bytesWritten);
+				}
+
+				if (CollUtil.isNotEmpty(tioConfig.ipStats.durationList)) {
+					for (Long v : tioConfig.ipStats.durationList) {
+						IpStat ipStat = (IpStat) channelContext.tioConfig.ipStats.get(v, channelContext);
+						ipStat.getSentBytes().addAndGet(bytesWritten);
 					}
 				}
-				handleOne(bytesWritten, throwable, (Packet) attachment, isSentSuccess);
-			} else {
-				List<?> ps = (List<?>) attachment;
-				for (Object obj : ps) {
-					handleOne(bytesWritten, throwable, (Packet) obj, isSentSuccess);
-				}
 			}
 
-			if (!isSentSuccess) {
-				Tio.close(channelContext, throwable, "写数据返回:" + bytesWritten, CloseCode.WRITE_COUNT_IS_NEGATIVE);
+			try {
+				boolean isPacket = attachment instanceof Packet;
+				if (isPacket) {
+					if (isSentSuccess) {
+						if (CollUtil.isNotEmpty(tioConfig.ipStats.durationList)) {
+							for (Long v : tioConfig.ipStats.durationList) {
+								IpStat ipStat = (IpStat) channelContext.tioConfig.ipStats.get(v, channelContext);
+								ipStat.getSentPackets().incrementAndGet();
+							}
+						}
+					}
+					handleOne(bytesWritten, throwable, (Packet) attachment, isSentSuccess);
+				} else {
+					List<?> ps = (List<?>) attachment;
+					for (Object obj : ps) {
+						handleOne(bytesWritten, throwable, (Packet) obj, isSentSuccess);
+					}
+				}
+
+				if (!isSentSuccess) {
+					Tio.close(channelContext, throwable, "写数据返回:" + bytesWritten, CloseCode.WRITE_COUNT_IS_NEGATIVE);
+				}
+			} catch (Throwable e) {
+				log.error(e.toString(), e);
 			}
-		} catch (Throwable e) {
-			log.error(e.toString(), e);
+
+		} finally {
+			lock.unlock();
 		}
+
 	}
 
 	/**
