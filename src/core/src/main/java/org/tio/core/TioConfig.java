@@ -262,7 +262,7 @@ public abstract class TioConfig extends MapWithLockPropSupport {
 	/**
 	 * 本jvm中所有的TioConfig对象
 	 */
-	public static final Set<TioConfig>		ALL_GROUPCONTEXTS			= new HashSet<>();
+	public static final Set<TioConfig>			ALL_GROUPCONTEXTS			= new HashSet<>();
 	/**
 	 * 启动时间
 	 */
