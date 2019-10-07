@@ -460,18 +460,26 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 			return;
 		}
 
-//		if (!byteBuffer.hasRemaining()) {
-//			byteBuffer.flip();
-//		}
+		//		if (!byteBuffer.hasRemaining()) {
+		//			byteBuffer.flip();
+		//		}
 
 		try {
-			channelContext.writeCompletionHandler.getWriteSemaphore().acquire();
-			canSend = false;
+			acquire();
 			WriteCompletionVo writeCompletionVo = new WriteCompletionVo(byteBuffer, packets);
 			channelContext.asynchronousSocketChannel.write(byteBuffer, writeCompletionVo, channelContext.writeCompletionHandler);
 		} catch (InterruptedException e) {
 			log.error(e.toString(), e);
 		}
+	}
+
+	/**
+	 * @throws InterruptedException
+	 * @author tanyaowu
+	 */
+	private void acquire() throws InterruptedException {
+		channelContext.writeCompletionHandler.writeSemaphore.acquire();
+		canSend = false;
 	}
 
 	@Override

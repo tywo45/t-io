@@ -216,7 +216,7 @@ import org.tio.utils.hutool.CollUtil;
 public class WriteCompletionHandler implements CompletionHandler<Integer, WriteCompletionVo> {
 	private static Logger	log				= LoggerFactory.getLogger(WriteCompletionHandler.class);
 	private ChannelContext	channelContext	= null;
-	private final Semaphore	writeSemaphore	= new Semaphore(1);
+	public final Semaphore	writeSemaphore	= new Semaphore(1);
 
 	public static class WriteCompletionVo {
 		private ByteBuffer byteBuffer = null;
@@ -259,13 +259,6 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 	public void failed(Throwable throwable, WriteCompletionVo writeCompletionVo) {
 		//		Object attachment = writeCompletionVo.getObj();
 		handle(0, throwable, writeCompletionVo);
-	}
-
-	/**
-	 * @return the writeSemaphore
-	 */
-	public java.util.concurrent.Semaphore getWriteSemaphore() {
-		return writeSemaphore;
 	}
 
 	/**
@@ -321,8 +314,6 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 			}
 		} catch (Throwable e) {
 			log.error(e.toString(), e);
-		} finally {
-
 		}
 	}
 
