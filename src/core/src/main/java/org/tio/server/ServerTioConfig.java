@@ -344,7 +344,7 @@ public class ServerTioConfig extends TioConfig {
 							}
 
 							if (needRemove) {
-								if (!serverAioListener.onHeartbeatTimeout(channelContext, interval, channelContext.stat.heartbeatTimeoutCount.incrementAndGet())) {
+								if (!ServerTioConfig.this.serverAioListener.onHeartbeatTimeout(channelContext, interval, channelContext.stat.heartbeatTimeoutCount.incrementAndGet())) {
 									log.info("{}, {} ms没有收发消息", channelContext, interval);
 									channelContext.setCloseCode(CloseCode.HEARTBEAT_TIMEOUT);
 									Tio.remove(channelContext, interval + " ms没有收发消息");
