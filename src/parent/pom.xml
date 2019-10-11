@@ -61,13 +61,13 @@
 		<commons-lang3.version>3.9</commons-lang3.version>
 		<commons-codec.version>1.13</commons-codec.version>
 		<commons-compress.version>1.19</commons-compress.version>
-		<fastjson.version>1.2.60</fastjson.version>
+		<fastjson.version>1.2.62</fastjson.version>
 		<testng.version>7.0.0</testng.version>
-		<hutool.version>4.6.8</hutool.version>
+		<hutool.version>4.6.10</hutool.version>
 		<protobuf-java.version>3.10.0</protobuf-java.version>
 		<commons-beanutils.version>1.9.4</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
-		<protostuff.version>1.6.1</protostuff.version>
+		<protostuff.version>1.6.2</protostuff.version>
 		<redisson.version>3.11.4</redisson.version>
 		<jodd.version>5.1.0-20190624</jodd.version>
 		<quartz.version>2.3.1</quartz.version>
@@ -79,7 +79,7 @@
 		<closure.version>v20190929</closure.version>
 		<freemarker.version>2.3.29</freemarker.version>
 		<UserAgentUtils.version>1.21</UserAgentUtils.version>
-		<scribejava-apis.version>6.8.1</scribejava-apis.version>
+		<scribejava-apis.version>6.9.0</scribejava-apis.version>
 		<oltu.oauth2.version>1.0.2</oltu.oauth2.version>
 
 
@@ -103,7 +103,6 @@
 		<javacpp.version>1.4.4</javacpp.version>
 		<ffmpeg.version>4.1-${javacpp.version}</ffmpeg.version>
 		<opencv.version>4.0.1-${javacpp.version}</opencv.version>
-		<netty.version>4.1.36.Final</netty.version>
 
 		<IJPay.version>2.2.1</IJPay.version>
 
@@ -313,7 +312,7 @@
 			<dependency>
 				<groupId>com.squareup.okhttp3</groupId>
 				<artifactId>okhttp</artifactId>
-				<version>4.2.1</version>
+				<version>4.2.2</version>
 			</dependency>
 
 
@@ -670,20 +669,6 @@
 				<artifactId>zookeeper</artifactId>
 				<version>3.5.5</version>
 			</dependency>
-
-			<dependency>
-				<groupId>io.netty</groupId>
-				<artifactId>netty-parent</artifactId>
-				<version>${netty.version}</version>
-				<type>pom</type>
-			</dependency>
-
-			<dependency>
-				<groupId>io.netty</groupId>
-				<artifactId>netty-all</artifactId>
-				<version>${netty.version}</version>
-			</dependency>
-
 
 			<!-- QQ登录 -->
 			<dependency>
