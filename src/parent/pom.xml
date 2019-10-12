@@ -61,7 +61,7 @@
 		<commons-lang3.version>3.9</commons-lang3.version>
 		<commons-codec.version>1.13</commons-codec.version>
 		<commons-compress.version>1.19</commons-compress.version>
-		<fastjson.version>1.2.62</fastjson.version>
+		<fastjson.version>1.2.60</fastjson.version>
 		<testng.version>7.0.0</testng.version>
 		<hutool.version>4.6.10</hutool.version>
 		<protobuf-java.version>3.10.0</protobuf-java.version>
