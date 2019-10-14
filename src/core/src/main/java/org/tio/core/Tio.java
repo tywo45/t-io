@@ -1817,6 +1817,26 @@ public class Tio {
 	}
 
 	/**
+	 * 将某用户从组中解除绑定
+	 * @param tioConfig
+	 * @param userid
+	 * @param group
+	 */
+	public static void unbindGroup(TioConfig tioConfig, String userid, String group) {
+		SetWithLock<ChannelContext> setWithLock = Tio.getByUserid(tioConfig, userid);
+		if (setWithLock != null) {
+			setWithLock.handle(new ReadLockHandler<Set<ChannelContext>>() {
+				@Override
+				public void handler(Set<ChannelContext> set) {
+					for (ChannelContext channelContext : set) {
+						Tio.unbindGroup(group, channelContext);
+					}
+				}
+			});
+		}
+	}
+
+	/**
 	 * 解除channelContext绑定的token
 	 * @param channelContext
 	 * @author tanyaowu
