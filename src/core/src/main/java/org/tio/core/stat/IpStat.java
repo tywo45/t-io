@@ -207,7 +207,6 @@ import org.tio.utils.hutool.BetweenFormater.Level;
  * 2017年8月20日 下午8:02:41
  */
 public class IpStat implements java.io.Serializable {
-
 	private static final long	serialVersionUID	= -6942731710053482089L;
 	private Date				start				= new Date();
 	/**
@@ -264,11 +263,6 @@ public class IpStat implements java.io.Serializable {
 	 */
 	private AtomicLong		receivedPackets		= new AtomicLong();
 
-	public IpStat(String ip, Long durationType) {
-		this.ip = ip;
-		this.durationType = durationType;
-	}
-
 	/**
 	 * 平均每次TCP接收到的字节数，这个可以用来监控慢攻击，配置PacketsPerTcpReceive定位慢攻击
 	 */
@@ -290,6 +284,11 @@ public class IpStat implements java.io.Serializable {
 	public long getDuration() {
 		duration = SystemTimer.currTime - this.start.getTime();
 		return duration;
+	}
+
+	public IpStat(String ip, Long durationType) {
+		this.ip = ip;
+		this.durationType = durationType;
 	}
 
 	/**
