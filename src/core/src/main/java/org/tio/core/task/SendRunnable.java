@@ -198,7 +198,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLException;
 
@@ -225,14 +224,15 @@ import org.tio.utils.thread.pool.AbstractQueueRunnable;
  * 2017年4月4日 上午9:19:18
  */
 public class SendRunnable extends AbstractQueueRunnable<Packet> {
-	private static final Logger				log									= LoggerFactory.getLogger(SendRunnable.class);
-	private ChannelContext					channelContext						= null;
-	private TioConfig						tioConfig							= null;
-	private AioHandler						aioHandler							= null;
-	private boolean							isSsl								= false;
+	private static final Logger						log									= LoggerFactory.getLogger(SendRunnable.class);
+	private ChannelContext							channelContext						= null;
+	private TioConfig								tioConfig							= null;
+	private AioHandler								aioHandler							= null;
+	private boolean									isSsl								= false;
 	/** The msg queue. */
-	private ConcurrentLinkedQueue<Packet>	forSendAfterSslHandshakeCompleted	= null;											//new ConcurrentLinkedQueue<>();
-	public boolean							canSend								= true;
+	private ConcurrentLinkedQueue<Packet>			forSendAfterSslHandshakeCompleted	= null;											//new ConcurrentLinkedQueue<>();
+	public ConcurrentLinkedQueue<WriteCompletionVo>	writeQueue							= new ConcurrentLinkedQueue<>();
+	public boolean									isWriting							= false;
 
 	public ConcurrentLinkedQueue<Packet> getForSendAfterSslHandshakeCompleted(boolean forceCreate) {
 		if (forSendAfterSslHandshakeCompleted == null && forceCreate) {
@@ -358,7 +358,7 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 			return;
 		}
 
-		int listInitialCapacity = Math.min(queueSize, canSend ? 300 : 1000);
+		int listInitialCapacity = Math.min(queueSize, 500);
 
 		Packet packet = null;
 		List<Packet> packets = new ArrayList<>(listInitialCapacity);
@@ -385,7 +385,7 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 				needSslEncrypted = _needSslEncrypted;
 			}
 
-			if ((canSend && allBytebufferCapacity >= MAX_CAPACITY_MIN) || (allBytebufferCapacity >= MAX_CAPACITY_MAX) || sslChanged) {
+			if ((isWriting && allBytebufferCapacity >= MAX_CAPACITY_MAX) || (allBytebufferCapacity >= MAX_CAPACITY_MIN) || sslChanged) {
 				break;
 			}
 		}
@@ -465,18 +465,54 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 		//			byteBuffer.flip();
 		//		}
 
-		ReentrantLock lock = channelContext.writeCompletionHandler.lock;
-		lock.lock();
-		try {
-			canSend = false;
-			WriteCompletionVo writeCompletionVo = new WriteCompletionVo(byteBuffer, packets);
-			channelContext.asynchronousSocketChannel.write(byteBuffer, writeCompletionVo, channelContext.writeCompletionHandler);
-			channelContext.writeCompletionHandler.condition.await();
-		} catch (InterruptedException e) {
-			log.error(e.toString(), e);
-		} finally {
-			lock.unlock();
+		WriteCompletionVo writeCompletionVo = new WriteCompletionVo(byteBuffer, packets);
+		writeQueue.add(writeCompletionVo);
+
+		startWrite();
+
+		//		ReentrantLock lock = channelContext.writeCompletionHandler.lock;
+		//		lock.lock();
+		//		try {
+		//			
+		//			channelContext.asynchronousSocketChannel.write(byteBuffer, writeCompletionVo, channelContext.writeCompletionHandler);
+		//			channelContext.writeCompletionHandler.condition.await();
+		//		} catch (InterruptedException e) {
+		//			log.error(e.toString(), e);
+		//		} finally {
+		//			lock.unlock();
+		//		}
+	}
+
+	public void startWrite() {
+		if (isWriting) {
+			return;
 		}
+		boolean tryLock = channelContext.writeCompletionHandler.semaphore.tryAcquire();
+		//		boolean tryLock = channelContext.writeCompletionHandler.lock.tryLock();
+		if (tryLock) {
+			boolean started = startWriteWithoutLock();
+			//			try {
+			//				started = startWriteWithoutLock();
+			//			} catch (Exception e) {
+			//				channelContext.writeCompletionHandler.semaphore.release();
+			//				log.error(e.toString(), e);
+			//			}
+
+			if (!started) {
+				channelContext.writeCompletionHandler.semaphore.release();
+			} else {
+				isWriting = true;
+			}
+		}
+	}
+
+	public boolean startWriteWithoutLock() {
+		WriteCompletionVo writeCompletionVo = writeQueue.poll();
+		if (writeCompletionVo != null) {
+			channelContext.asynchronousSocketChannel.write(writeCompletionVo.byteBuffer, writeCompletionVo, channelContext.writeCompletionHandler);
+			return true;
+		}
+		return false;
 	}
 
 	@Override

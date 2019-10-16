@@ -196,8 +196,7 @@ package org.tio.core;
 import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 import java.util.List;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.Semaphore;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -215,15 +214,16 @@ import org.tio.utils.hutool.CollUtil;
  *
  */
 public class WriteCompletionHandler implements CompletionHandler<Integer, WriteCompletionVo> {
-	private static Logger		log				= LoggerFactory.getLogger(WriteCompletionHandler.class);
-	private ChannelContext		channelContext	= null;
-	public final ReentrantLock	lock			= new ReentrantLock();
-	public final Condition		condition		= lock.newCondition();
+	private static Logger	log				= LoggerFactory.getLogger(WriteCompletionHandler.class);
+	private ChannelContext	channelContext	= null;
+	//	public final ReentrantLock	lock			= new ReentrantLock();
+	public final Semaphore semaphore = new Semaphore(1);
+	//	public final Condition		condition		= lock.newCondition();
 
 	public static class WriteCompletionVo {
-		private ByteBuffer byteBuffer = null;
+		public ByteBuffer byteBuffer = null;
 
-		private Object obj = null;
+		public Object obj = null;
 
 		/**
 		 * @param byteBuffer
@@ -271,11 +271,10 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 	 * @author tanyaowu
 	 */
 	public void handle(Integer bytesWritten, Throwable throwable, WriteCompletionVo writeCompletionVo) {
-		ReentrantLock lock = channelContext.writeCompletionHandler.lock;
-		lock.lock();
+		//		ReentrantLock lock = channelContext.writeCompletionHandler.lock;
+		//		lock.lock();
 		try {
-			channelContext.sendRunnable.canSend = true;
-			channelContext.writeCompletionHandler.condition.signal();
+			//			channelContext.writeCompletionHandler.condition.signal();
 			channelContext.stat.latestTimeOfSentPacket = SystemTimer.currTime;
 			Object attachment = writeCompletionVo.obj;//();
 			TioConfig tioConfig = channelContext.tioConfig;
@@ -322,11 +321,29 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 			}
 
 		} finally {
-			lock.unlock();
-		}
+			//			lock.unlock();
+			boolean started = channelContext.sendRunnable.startWriteWithoutLock();
+			//			if (!channelContext.sendRunnable.writeQueue.isEmpty()) {
+			//				started = channelContext.sendRunnable.startWriteWithoutLock();
+			//			}
 
+			if (started) {
+//				System.out.println(c.incrementAndGet());
+				return;
+			} else {
+				semaphore.release();
+				channelContext.sendRunnable.isWriting = false;
+
+				if (!channelContext.sendRunnable.writeQueue.isEmpty()) {
+					channelContext.sendRunnable.startWrite();
+				}
+
+			}
+
+		}
 	}
 
+//	java.util.concurrent.atomic.AtomicLong c = new AtomicLong();
 	/**
 	 * 
 	 * @param result
