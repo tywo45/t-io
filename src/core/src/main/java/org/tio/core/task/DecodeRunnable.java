@@ -340,7 +340,7 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 							}
 						}
 
-						//检查慢包攻击（只有自用版才有）
+						//检查慢包攻击
 						if (channelStat.decodeFailCount > 10) {
 							//							int capacity = lastByteBuffer.capacity();
 							int per = readableLength / channelStat.decodeFailCount;
