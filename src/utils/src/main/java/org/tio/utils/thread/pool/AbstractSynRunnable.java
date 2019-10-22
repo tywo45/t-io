@@ -236,12 +236,13 @@ public abstract class AbstractSynRunnable implements Runnable {
 
 	@Override
 	public final void run() {
-		runningLock.lock();
+		if (isCanceled()) //任务已经被取消
+		{
+			return;
+		}
+//		runningLock.lock();
 		try {
-			if (isCanceled()) //任务已经被取消
-			{
-				return;
-			}
+
 			int loopCount = 0;
 			runTask();
 			while (isNeededExecute() && loopCount++ < 100) {
@@ -252,7 +253,7 @@ public abstract class AbstractSynRunnable implements Runnable {
 			log.error(e.toString(), e);
 		} finally {
 			executed = false;
-			runningLock.unlock();
+//			runningLock.unlock();
 
 			//下面这段代码一定要在unlock()后面，别弄错了 ^_^
 			if (isNeededExecute()) {
