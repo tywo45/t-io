@@ -1187,7 +1187,7 @@ public class Tio {
 	 * @return
 	 * @author tanyaowu
 	 */
-	private static Boolean send(final ChannelContext channelContext, final Packet packet, CountDownLatch countDownLatch, PacketSendMode packetSendMode) {
+	private static Boolean send(final ChannelContext channelContext, Packet packet, CountDownLatch countDownLatch, PacketSendMode packetSendMode) {
 		try {
 			if (packet == null || channelContext == null) {
 				if (countDownLatch != null) {
@@ -1212,6 +1212,17 @@ public class Tio {
 				}
 				return false;
 			}
+			
+			if (channelContext.tioConfig.packetConverter != null) {
+				Packet packet1 = channelContext.tioConfig.packetConverter.convert(packet, channelContext);
+				if (packet1 == null) {
+					if (log.isInfoEnabled()) {
+						log.info("convert后为null，表示不需要发送", channelContext, packet.logstr());
+					}
+					return true;
+				}
+				packet = packet1;
+			}
 
 			boolean isSingleBlock = countDownLatch != null && packetSendMode == PacketSendMode.SINGLE_BLOCK;
 
@@ -1221,6 +1232,8 @@ public class Tio {
 				meta.setCountDownLatch(countDownLatch);
 				packet.setMeta(meta);
 			}
+			
+
 
 			if (channelContext.tioConfig.useQueueSend) {
 				isAdded = channelContext.sendRunnable.addMsg(packet);

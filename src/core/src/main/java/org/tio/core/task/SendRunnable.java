@@ -272,14 +272,7 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 			return false;
 		}
 
-		if (tioConfig.packetConverter != null) {
-			Packet packet1 = tioConfig.packetConverter.convert(packet, channelContext);
-			if (packet1 == null) {
-				log.info("convert后为null，表示不需要发送", channelContext, packet.logstr());
-				return true;
-			}
-			packet = packet1;
-		}
+		///hhhhhhh
 
 		if (channelContext.sslFacadeContext != null && !channelContext.sslFacadeContext.isHandshakeCompleted() && SslUtils.needSslEncrypt(packet, tioConfig)) {
 			return this.getForSendAfterSslHandshakeCompleted(true).add(packet);
