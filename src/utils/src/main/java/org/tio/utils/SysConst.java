@@ -211,6 +211,14 @@ public interface SysConst {
 	 */
 	String	BLANK					= "";
 	/**
+	 * 反斜扛
+	 */
+	byte	BACKSLASH				= '/';
+	/**
+	 * 斜扛
+	 */
+	byte	SLASH					= '\\';
+	/**
 	 * \r
 	 */
 	byte	CR						= 13;

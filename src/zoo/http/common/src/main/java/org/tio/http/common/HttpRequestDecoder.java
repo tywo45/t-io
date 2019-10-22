@@ -411,10 +411,9 @@ public class HttpRequestDecoder {
 			String value1 = null;
 			if (keyvalueArr.length == 2) {
 				value1 = keyvalueArr[1];
-			} else if (keyvalueArr.length > 2){
+			} else if (keyvalueArr.length > 2) {
 				throw new AioDecodeException("含有多个" + SysConst.STR_EQ);
 			}
-			
 
 			String key = keyvalueArr[0];
 			String value;
@@ -586,9 +585,9 @@ public class HttpRequestDecoder {
 	 * @author tanyaowu
 	 */
 	public static boolean parseHeaderLine(ByteBuffer buffer, Map<String, String> headers, int hasReceivedHeaderLength, HttpConfig httpConfig) throws AioDecodeException {
-		if (!buffer.hasArray()) {
-			return parseHeaderLine2(buffer, headers, hasReceivedHeaderLength, httpConfig);
-		}
+		//		if (!buffer.hasArray()) {
+		//			return parseHeaderLine2(buffer, headers, hasReceivedHeaderLength, httpConfig);
+		//		}
 
 		byte[] allbs = buffer.array();
 		int initPosition = buffer.position();
@@ -620,7 +619,8 @@ public class HttpRequestDecoder {
 			if (name == null) {
 				if (b == SysConst.COL) {
 					int len = buffer.position() - lastPosition - 1;
-					name = new String(allbs, lastPosition, len);
+					name = StrCache.get(allbs, lastPosition, len);
+					//					name = new String(allbs, lastPosition, len);
 					lastPosition = buffer.position();
 				} else if (b == SysConst.LF) {
 					byte lastByte = buffer.get(buffer.position() - 2);
@@ -628,9 +628,10 @@ public class HttpRequestDecoder {
 					if (lastByte == SysConst.CR) {
 						len = buffer.position() - lastPosition - 2;
 					}
-					name = new String(allbs, lastPosition, len);
+					name = StrCache.get(allbs, lastPosition, len);
+					//					name = new String(allbs, lastPosition, len);
 					lastPosition = buffer.position();
-					headers.put(name.toLowerCase(), "");
+					headers.put(StrCache.getLowercase(name), "");
 
 					needIteration = true;
 					break;
@@ -646,7 +647,7 @@ public class HttpRequestDecoder {
 					value = new String(allbs, lastPosition, len);
 					lastPosition = buffer.position();
 
-					headers.put(name.toLowerCase(), StrUtil.trimEnd(value));
+					headers.put(StrCache.getLowercase(name), StrUtil.trimEnd(value));
 					needIteration = true;
 					break;
 				} else {
@@ -686,6 +687,7 @@ public class HttpRequestDecoder {
 	 * @return 头部是否解析完成，true: 解析完成, false: 没有解析完成
 	 * @author tanyaowu
 	 */
+	@SuppressWarnings("unused")
 	private static boolean parseHeaderLine2(ByteBuffer buffer, Map<String, String> headers, int headerLength, HttpConfig httpConfig) throws AioDecodeException {
 		int initPosition = buffer.position();
 		int lastPosition = initPosition;
@@ -802,9 +804,9 @@ public class HttpRequestDecoder {
 	 *
 	 */
 	public static RequestLine parseRequestLine(ByteBuffer buffer, ChannelContext channelContext) throws AioDecodeException {
-		if (!buffer.hasArray()) {
-			return parseRequestLine2(buffer, channelContext);
-		}
+		//		if (!buffer.hasArray()) {
+		//			return parseRequestLine2(buffer, channelContext);
+		//		}
 
 		byte[] allbs = buffer.array();
 
@@ -822,18 +824,20 @@ public class HttpRequestDecoder {
 			if (methodStr == null) {
 				if (b == SysConst.SPACE) {
 					int len = buffer.position() - lastPosition - 1;
-					methodStr = new String(allbs, lastPosition, len);
+					methodStr = StrCache.get(allbs, lastPosition, len);
+					//					methodStr = new String(allbs, lastPosition, len);
 					lastPosition = buffer.position();
 				}
 				continue;
 			} else if (pathStr == null) {
 				if (b == SysConst.SPACE || b == SysConst.ASTERISK) {
 					int len = buffer.position() - lastPosition - 1;
-					pathStr = new String(allbs, lastPosition, len);
+					pathStr = StrCache.get(allbs, lastPosition, len);
+					//					pathStr = new String(allbs, lastPosition, len);
 					lastPosition = buffer.position();
 
 					if (b == SysConst.SPACE) {
-						queryStr = "";
+						queryStr = org.tio.utils.SysConst.BLANK;
 					}
 				}
 				continue;
@@ -845,9 +849,10 @@ public class HttpRequestDecoder {
 				}
 				continue;
 			} else if (protocol == null) {
-				if (b == '/') {
+				if (b == SysConst.BACKSLASH) {
 					int len = buffer.position() - lastPosition - 1;
-					protocol = new String(allbs, lastPosition, len);
+					protocol = StrCache.get(allbs, lastPosition, len);
+					//					protocol = new String(allbs, lastPosition, len);
 					lastPosition = buffer.position();
 				}
 				continue;
@@ -858,7 +863,10 @@ public class HttpRequestDecoder {
 					if (lastByte == SysConst.CR) {
 						len = buffer.position() - lastPosition - 2;
 					}
-					version = new String(allbs, lastPosition, len);
+
+					version = StrCache.get(allbs, lastPosition, len);
+					//					version = new String(allbs, lastPosition, len);
+
 					lastPosition = buffer.position();
 
 					RequestLine requestLine = new RequestLine();
@@ -884,6 +892,7 @@ public class HttpRequestDecoder {
 		return null;
 	}
 
+	@SuppressWarnings("unused")
 	private static RequestLine parseRequestLine2(ByteBuffer buffer, ChannelContext channelContext) throws AioDecodeException {
 		int initPosition = buffer.position();
 		//		int remaining = buffer.remaining();
@@ -990,7 +999,8 @@ public class HttpRequestDecoder {
 	 * @author tanyaowu
 	 * @throws AioDecodeException 
 	 */
-	private static void parseUrlencoded(HttpRequest httpRequest, RequestLine firstLine, byte[] bodyBytes, String bodyString, ChannelContext channelContext) throws AioDecodeException {
+	private static void parseUrlencoded(HttpRequest httpRequest, RequestLine firstLine, byte[] bodyBytes, String bodyString, ChannelContext channelContext)
+	        throws AioDecodeException {
 		decodeParams(httpRequest.getParams(), bodyString, httpRequest.getCharset(), channelContext);
 	}
 
