@@ -5,33 +5,48 @@ package org.tio.utils;
  * @author tanyaowu
  */
 public class HashUtils {
-	private static final long	OFFSET_BASIS	= 2166136261L;
-	private static final long	PRIME			= 16777619;
+	private static final int	OFFSET_BASIS	= (int) 2166136261L;
+	private static final int	PRIME			= 16777619;
 
 	/**
 	 * @param src
 	 * @return
 	 */
-	public static int hash(byte[] src) {
-		return hash(src, 0, src.length);
+	public static int hashFNV1(byte[] src) {
+		return hashFNV1(src, 0, src.length);
 	}
 
 	/**
+	 * FNV1算法
 	 * @param src
 	 * @param start
 	 * @param len
 	 * @return
 	 */
-	public static int hash(byte[] src, int start, int len) {
-		long hash = OFFSET_BASIS;
+	public static int hashFNV1(byte[] src, int start, int len) {
+		int hash = OFFSET_BASIS;
 		int end = start + len;
 		for (int i = start; i < end; i++) {
-			byte b = src[i];
-			hash ^= b;
-			hash *= PRIME;
+			hash = (hash ^ src[i]) * PRIME;
 		}
+		return hash;
+	}
 
-		return (int) hash;
+	/**
+	 * 每位乘以31相加
+	 * @param src
+	 * @param start
+	 * @param len
+	 * @return
+	 * @author tanyaowu
+	 */
+	public static int hash31(byte[] src, int start, int len) {
+		int hash = 1;
+		int end = start + len;
+		for (int i = start; i < end; i++) {
+			hash = 31 * hash + src[i];
+		}
+		return hash;
 	}
 
 }

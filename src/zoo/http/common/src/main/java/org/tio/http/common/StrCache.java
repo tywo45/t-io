@@ -48,7 +48,7 @@ public class StrCache {
 	 * @return
 	 */
 	public static String get(byte[] allbs, int start, int len) {
-		int hashcode = HashUtils.hash(allbs, start, len);
+		int hashcode = HashUtils.hash31(allbs, start, len);
 		String str = BYTES_STRING_MAP.get(hashcode);
 		if (str == null) {
 			if (BYTES_STRING_MAP.size() > 1000) {
@@ -68,8 +68,6 @@ public class StrCache {
 			}
 
 			str = BYTES_STRING_MAP.get(hashcode);
-		} else {
-//			System.out.println("1:" + str);
 		}
 		return str;
 	}
@@ -103,8 +101,6 @@ public class StrCache {
 			}
 
 			str = INIT_LOWERCASE_MAP.get(hashcode);
-		} else {
-//			System.out.println("2:" + str);
 		}
 		return str;
 
