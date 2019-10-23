@@ -272,8 +272,6 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 			return false;
 		}
 
-		///hhhhhhh
-
 		if (channelContext.sslFacadeContext != null && !channelContext.sslFacadeContext.isHandshakeCompleted() && SslUtils.needSslEncrypt(packet, tioConfig)) {
 			return this.getForSendAfterSslHandshakeCompleted(true).add(packet);
 		} else {
@@ -300,9 +298,7 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 	private ByteBuffer getByteBuffer(Packet packet) {
 		try {
 			ByteBuffer byteBuffer = packet.getPreEncodedByteBuffer();
-			if (byteBuffer != null) {
-				//			byteBuffer = byteBuffer.duplicate();
-			} else {
+			if (byteBuffer == null) {
 				byteBuffer = aioHandler.encode(packet, tioConfig, channelContext);
 			}
 
