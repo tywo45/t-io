@@ -195,6 +195,7 @@ package org.tio.utils.thread.pool;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -221,6 +222,21 @@ public class SynThreadPoolExecutor extends ThreadPoolExecutor {
 	 */
 	public SynThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, BlockingQueue<Runnable> runnableQueue, ThreadFactory threadFactory, String name) {
 		super(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS, runnableQueue, threadFactory);
+		this.name = name;
+	}
+	
+	/**
+	 * 
+	 * @param corePoolSize
+	 * @param maximumPoolSize
+	 * @param keepAliveTime
+	 * @param runnableQueue
+	 * @param threadFactory
+	 * @param name
+	 * @param rejectedExecutionHandler
+	 */
+	public SynThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, BlockingQueue<Runnable> runnableQueue, ThreadFactory threadFactory, String name, RejectedExecutionHandler rejectedExecutionHandler) {
+		super(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS, runnableQueue, threadFactory, rejectedExecutionHandler);
 		this.name = name;
 	}
 

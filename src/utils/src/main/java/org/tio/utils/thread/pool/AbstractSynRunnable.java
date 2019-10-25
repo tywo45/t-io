@@ -194,6 +194,7 @@
 package org.tio.utils.thread.pool;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
@@ -240,26 +241,35 @@ public abstract class AbstractSynRunnable implements Runnable {
 		{
 			return;
 		}
-//		runningLock.lock();
+		boolean tryLock = false;
 		try {
-
-			int loopCount = 0;
-			runTask();
-			while (isNeededExecute() && loopCount++ < 100) {
-				runTask();
-			}
-
-		} catch (Throwable e) {
-			log.error(e.toString(), e);
-		} finally {
-			executed = false;
-//			runningLock.unlock();
-
-			//下面这段代码一定要在unlock()后面，别弄错了 ^_^
-			if (isNeededExecute()) {
-				execute();
-			}
+			tryLock = runningLock.tryLock(1L, TimeUnit.SECONDS);
+		} catch (InterruptedException e1) {
+			log.error(e1.toString(), e1);
 		}
+		if (tryLock) {
+			try {
+				int loopCount = 0;
+				runTask();
+				while (isNeededExecute() && loopCount++ < 100) {
+					runTask();
+				}
+
+			} catch (Throwable e) {
+				log.error(e.toString(), e);
+			} finally {
+				executed = false;
+				runningLock.unlock();
+			}
+		} else {
+			executed = false;
+		}
+
+		//下面这段代码一定要在unlock()后面，别弄错了 ^_^
+		if (isNeededExecute()) {
+			execute();
+		}
+
 	}
 
 	/**

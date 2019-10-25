@@ -198,10 +198,12 @@ package org.tio.utils;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 import java.util.concurrent.TimeUnit;
 
 import org.tio.utils.thread.pool.DefaultThreadFactory;
 import org.tio.utils.thread.pool.SynThreadPoolExecutor;
+import org.tio.utils.thread.pool.TioCallerRunsPolicy;
 
 /**
  *
@@ -234,12 +236,13 @@ public class Threads {
 				return groupExecutor;
 			}
 
-			LinkedBlockingQueue<Runnable> groupQueue = new LinkedBlockingQueue<>();
+			LinkedBlockingQueue<Runnable> runnableQueue = new LinkedBlockingQueue<>(4000);
 			//			ArrayBlockingQueue<Runnable> groupQueue = new ArrayBlockingQueue<>(QUEUE_CAPACITY);
-			String groupThreadName = "tio-group";
-			DefaultThreadFactory defaultThreadFactory = DefaultThreadFactory.getInstance(groupThreadName, Thread.MAX_PRIORITY);
-
-			groupExecutor = new ThreadPoolExecutor(MAX_POOL_SIZE_FOR_GROUP, MAX_POOL_SIZE_FOR_GROUP, KEEP_ALIVE_TIME, TimeUnit.SECONDS, groupQueue, defaultThreadFactory);
+			String threadName = "tio-group";
+			DefaultThreadFactory threadFactory = DefaultThreadFactory.getInstance(threadName, Thread.MAX_PRIORITY);
+			CallerRunsPolicy callerRunsPolicy = new TioCallerRunsPolicy();
+			groupExecutor = new ThreadPoolExecutor(MAX_POOL_SIZE_FOR_GROUP, MAX_POOL_SIZE_FOR_GROUP, KEEP_ALIVE_TIME, TimeUnit.SECONDS, runnableQueue, threadFactory,
+			        callerRunsPolicy);
 			//			groupExecutor = new ThreadPoolExecutor(AVAILABLE_PROCESSORS * 2, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), defaultThreadFactory);
 
 			groupExecutor.prestartCoreThread();
@@ -263,12 +266,13 @@ public class Threads {
 				return tioExecutor;
 			}
 
-			LinkedBlockingQueue<Runnable> tioQueue = new LinkedBlockingQueue<>();
+			LinkedBlockingQueue<Runnable> runnableQueue = new LinkedBlockingQueue<>(4000);
 			//			ArrayBlockingQueue<Runnable> tioQueue = new ArrayBlockingQueue<>(QUEUE_CAPACITY);
-			String tioThreadName = "tio-worker";
-			DefaultThreadFactory defaultThreadFactory = DefaultThreadFactory.getInstance(tioThreadName, Thread.MAX_PRIORITY);
-
-			tioExecutor = new SynThreadPoolExecutor(MAX_POOL_SIZE_FOR_TIO, MAX_POOL_SIZE_FOR_TIO, KEEP_ALIVE_TIME, tioQueue, defaultThreadFactory, tioThreadName);
+			String threadName = "tio-worker";
+			DefaultThreadFactory defaultThreadFactory = DefaultThreadFactory.getInstance(threadName, Thread.MAX_PRIORITY);
+			CallerRunsPolicy callerRunsPolicy = new TioCallerRunsPolicy();
+			tioExecutor = new SynThreadPoolExecutor(MAX_POOL_SIZE_FOR_TIO, MAX_POOL_SIZE_FOR_TIO, KEEP_ALIVE_TIME, runnableQueue, defaultThreadFactory, threadName,
+			        callerRunsPolicy);
 			//			tioExecutor = new SynThreadPoolExecutor(AVAILABLE_PROCESSORS * 2, Integer.MAX_VALUE, 60, new SynchronousQueue<Runnable>(), defaultThreadFactory, tioThreadName);
 
 			tioExecutor.prestartCoreThread();
