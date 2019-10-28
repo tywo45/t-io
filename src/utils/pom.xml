@@ -31,12 +31,6 @@
 			<groupId>org.redisson</groupId>
 			<artifactId>redisson</artifactId>
 			<scope>provided</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.jodd</groupId>
-					<artifactId>jodd-bean</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<dependency>
