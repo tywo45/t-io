@@ -5,7 +5,7 @@
 	<groupId>org.t-io</groupId>
 	<artifactId>tio-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>3.5.5.v20191010-RELEASE</version>
+	<version>3.5.6.v20191101-RELEASE</version>
 	<name>${project.artifactId}</name>
 	<url>http://maven.apache.org</url>
 
@@ -35,7 +35,7 @@
 
 	<properties>
 		<maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
-		<tio-utils.version>3.5.5.v20191010-RELEASE</tio-utils.version>
+		<tio-utils.version>3.5.6.v20191101-RELEASE</tio-utils.version>
 		<tio-core.version>${tio-utils.version}</tio-core.version>
 		<tio-flash-policy-server.version>${tio-utils.version}</tio-flash-policy-server.version>
 
@@ -76,7 +76,7 @@
 		<zxing.version>3.4.0</zxing.version>
 		<httpcore.version>4.4.12</httpcore.version>
 		<httpclient.version>4.5.10</httpclient.version>
-		<closure.version>v20190929</closure.version>
+		<closure.version>v20191027</closure.version>
 		<freemarker.version>2.3.29</freemarker.version>
 		<UserAgentUtils.version>1.21</UserAgentUtils.version>
 		<scribejava-apis.version>6.9.0</scribejava-apis.version>
