@@ -236,7 +236,7 @@ public class Threads {
 				return groupExecutor;
 			}
 
-			LinkedBlockingQueue<Runnable> runnableQueue = new LinkedBlockingQueue<>(4000);
+			LinkedBlockingQueue<Runnable> runnableQueue = new LinkedBlockingQueue<>();
 			//			ArrayBlockingQueue<Runnable> groupQueue = new ArrayBlockingQueue<>(QUEUE_CAPACITY);
 			String threadName = "tio-group";
 			DefaultThreadFactory threadFactory = DefaultThreadFactory.getInstance(threadName, Thread.MAX_PRIORITY);
@@ -266,7 +266,7 @@ public class Threads {
 				return tioExecutor;
 			}
 
-			LinkedBlockingQueue<Runnable> runnableQueue = new LinkedBlockingQueue<>(4000);
+			LinkedBlockingQueue<Runnable> runnableQueue = new LinkedBlockingQueue<>();
 			//			ArrayBlockingQueue<Runnable> tioQueue = new ArrayBlockingQueue<>(QUEUE_CAPACITY);
 			String threadName = "tio-worker";
 			DefaultThreadFactory defaultThreadFactory = DefaultThreadFactory.getInstance(threadName, Thread.MAX_PRIORITY);
