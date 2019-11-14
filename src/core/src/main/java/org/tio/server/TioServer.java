@@ -433,7 +433,7 @@ public class TioServer {
 									log.info("The version you are using is the latest");
 								} else {
 									log.info("t-io latest version:{}，your version:{}", result, SysConst.TIO_CORE_VERSION);
-									//3.5.6.v20191101-RELEASE
+									//3.5.7.v20191115-RELEASE
 									String myVersionDateStr = SysConst.TIO_CORE_VERSION.substring(SysConst.TIO_CORE_VERSION.length() - 16, SysConst.TIO_CORE_VERSION.length() - 8);
 									String latestVersionDateStr = result.substring(result.length() - 16, result.length() - 8);
 
