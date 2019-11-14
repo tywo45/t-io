@@ -230,4 +230,8 @@ public class SnowflakeSessionIdGenerator implements ISessionIdGenerator {
 	public String sessionId(HttpConfig httpConfig, HttpRequest request) {
 		return String.valueOf(snowflake.nextId());
 	}
+	
+	public long nextId() {
+		return snowflake.nextId();
+	}
 }
