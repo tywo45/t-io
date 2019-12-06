@@ -302,26 +302,23 @@ public abstract class TioConfig extends MapWithLockPropSupport {
 	public BsIds								bsIds						= new BsIds();
 	public Ips									ips							= new Ips();
 	public IpStats								ipStats						= null;
-
-	protected String		id;
+	protected String							id;
 	/**
 	 * 解码异常多少次就把ip拉黑
 	 */
-	protected int			maxDecodeErrorCountForIp	= 10;
-	protected String		name						= "未命名";
-	private IpStatListener	ipStatListener				= DefaultIpStatListener.me;
-	private boolean			isStopped					= false;
+	protected int								maxDecodeErrorCountForIp	= 10;
+	protected String							name						= "未命名";
+	private IpStatListener						ipStatListener				= DefaultIpStatListener.me;
+	private boolean								isStopped					= false;
 	/**
 	 * ip黑名单
 	 */
-	public IpBlacklist		ipBlacklist					= null;						//new IpBlacklist();
-
-	public MapWithLock<Integer, Packet> waitingResps = new MapWithLock<Integer, Packet>(new HashMap<Integer, Packet>());
-
+	public IpBlacklist							ipBlacklist					= null;
+	public MapWithLock<Integer, Packet>			waitingResps				= new MapWithLock<Integer, Packet>(new HashMap<Integer, Packet>());
 	/**
 	 * 如果此值不为null，就表示要集群
 	 */
-	private TioClusterConfig tioClusterConfig = null;
+	private TioClusterConfig					tioClusterConfig			= null;
 
 	public TioConfig() {
 		this(null, null);
