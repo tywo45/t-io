@@ -206,13 +206,12 @@ import nl.basjes.parse.useragent.classify.UserAgentClassifier;
  * @author tanyaowu
  *
  */
-@SuppressWarnings("rawtypes")
 public class UAUtils {
 
 	private static UserAgentAnalyzer ua = null;
 
 	static {//agent_name agent_version_major operating_system_name operating_system_version
-		UserAgentAnalyzerBuilder<? extends UserAgentAnalyzer, ? extends UserAgentAnalyzerBuilder> builder = UserAgentAnalyzer.newBuilder();
+		UserAgentAnalyzerBuilder builder = UserAgentAnalyzer.newBuilder();
 		builder.withField(UserAgent.AGENT_NAME);
 		builder.withField(UserAgent.AGENT_VERSION_MAJOR);
 
