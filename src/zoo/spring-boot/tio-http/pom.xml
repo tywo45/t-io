@@ -5,7 +5,7 @@
     <parent>
         <artifactId>tio-spring-boot-parent</artifactId>
         <groupId>org.t-io</groupId>
-        <version>3.5.7.v20191115-RELEASE</version>
+        <version>3.5.8.v20191228-RELEASE</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>

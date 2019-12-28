@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>org.t-io</groupId>
 		<artifactId>tio-parent</artifactId>
-		<version>3.5.7.v20191115-RELEASE</version>
+		<version>3.5.8.v20191228-RELEASE</version>
 		<relativePath>../../parent/pom.xml</relativePath>
 	</parent>
 
