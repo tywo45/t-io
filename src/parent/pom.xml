@@ -53,16 +53,15 @@
 		<jfinal.version>4.8</jfinal.version>
 		<logback.version>1.2.3</logback.version>
 		<slf4j.version>1.7.26</slf4j.version>
-		<log4j.version>1.2.17</log4j.version>
 		<jdk.version>1.8</jdk.version>
-		<junit.version>4.12</junit.version>
+		<junit.version>4.13</junit.version>
 		<commons-collections4.version>4.4</commons-collections4.version>
 		<commons-io.version>2.6</commons-io.version>
 		<commons-lang3.version>3.9</commons-lang3.version>
-		<commons-codec.version>1.13</commons-codec.version>
+		<commons-codec.version>1.14</commons-codec.version>
 		<commons-compress.version>1.19</commons-compress.version>
 		<fastjson.version>1.2.60</fastjson.version>
-		<testng.version>7.0.0</testng.version>
+		<testng.version>7.1.0</testng.version>
 		<hutool.version>5.1.0</hutool.version>
 		<protobuf-java.version>3.11.1</protobuf-java.version>
 		<commons-beanutils.version>1.9.4</commons-beanutils.version>
@@ -76,7 +75,7 @@
 		<zxing.version>3.4.0</zxing.version>
 		<httpcore.version>4.4.12</httpcore.version>
 		<httpclient.version>4.5.10</httpclient.version>
-		<closure.version>v20191111</closure.version>
+		<closure.version>v20200101</closure.version>
 		<freemarker.version>2.3.29</freemarker.version>
 		<UserAgentUtils.version>1.21</UserAgentUtils.version>
 		<scribejava-apis.version>6.9.0</scribejava-apis.version>
@@ -312,7 +311,7 @@
 			<dependency>
 				<groupId>com.squareup.okhttp3</groupId>
 				<artifactId>okhttp</artifactId>
-				<version>4.2.2</version>
+				<version>4.3.0</version>
 			</dependency>
 
 
@@ -357,11 +356,6 @@
 			</dependency>
 			<!-- log framework end -->
 
-			<dependency>
-				<groupId>log4j</groupId>
-				<artifactId>log4j</artifactId>
-				<version>${log4j.version}</version>
-			</dependency>
 
 			<dependency>
 				<groupId>junit</groupId>
@@ -746,7 +740,7 @@
 			<dependency>
 				<groupId>com.github.hazendaz</groupId>
 				<artifactId>htmlcompressor</artifactId>
-				<version>1.6.5</version>
+				<version>1.6.6</version>
 			</dependency>
 
 			<dependency>
