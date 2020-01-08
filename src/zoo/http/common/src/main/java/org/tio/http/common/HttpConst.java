@@ -290,13 +290,14 @@ public interface HttpConst {
 
 	public interface ResponseHeaderKey {
 		//Set-Cookie: UserID=JohnDoe; Max-Age=3600; Version=1
-		String	Set_Cookie				= "Set-Cookie".toLowerCase();			//Set-Cookie: UserID=JohnDoe; Max-Age=3600; Version=1
-		String	Content_Length			= "Content-Length".toLowerCase();		//65
-		String	Cache_Control			= "Cache-Control".toLowerCase();		//"public, max-age:86400"
-		String	Connection				= "Connection".toLowerCase();			//Upgrade,  keep-alive
-		String	Keep_Alive				= "Keep-Alive".toLowerCase();			//Keep-Alive:timeout=20
-		String	Sec_WebSocket_Accept	= "Sec-WebSocket-Accept".toLowerCase();
-		String	Upgrade					= "Upgrade".toLowerCase();
+		String	Set_Cookie							= "Set-Cookie".toLowerCase();						//Set-Cookie: UserID=JohnDoe; Max-Age=3600; Version=1
+		String	Content_Length						= "Content-Length".toLowerCase();					//65
+		String	Cache_Control						= "Cache-Control".toLowerCase();					//"public, max-age:86400"
+		String	Connection							= "Connection".toLowerCase();						//Upgrade,  keep-alive
+		String	Keep_Alive							= "Keep-Alive".toLowerCase();						//Keep-Alive:timeout=20
+		String	Sec_WebSocket_Accept				= "Sec-WebSocket-Accept".toLowerCase();
+		String	Upgrade								= "Upgrade".toLowerCase();
+		String	Access_Control_Allow_Credentials	= "Access-Control-Allow-Credentials".toLowerCase();
 
 		/**
 		 * Content-Disposition: attachment;filename=FileName.txt
