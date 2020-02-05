@@ -375,7 +375,8 @@ public class Packet implements java.io.Serializable, Cloneable {
 		this.meta = meta;
 	}
 
-	public static class Meta {
+	public static class Meta implements java.io.Serializable {
+		private static final long serialVersionUID = 6209036094326369490L;
 		private Boolean			isSentSuccess	= false;
 		private CountDownLatch	countDownLatch	= null;
 
