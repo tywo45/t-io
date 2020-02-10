@@ -662,6 +662,29 @@ public class Tio {
 	/**
 	 * 关闭某群所有连接
 	 * @param tioConfig
+	 * @param ip
+	 * @param remark
+	 * @return
+	 */
+	public static void closeIp(TioConfig tioConfig, String ip, String remark) {
+		closeIp(tioConfig, ip, remark, null);
+	}
+
+	/**
+	 * 关闭某群所有连接
+	 * @param tioConfig
+	 * @param ip
+	 * @param remark
+	 * @param closeCode
+	 */
+	public static void closeIp(TioConfig tioConfig, String ip, String remark, CloseCode closeCode) {
+		SetWithLock<ChannelContext> setWithLock = Tio.getByIp(tioConfig, ip);
+		closeSet(tioConfig, setWithLock, remark, closeCode);
+	}
+
+	/**
+	 * 关闭某群所有连接
+	 * @param tioConfig
 	 * @param group
 	 * @param remark
 	 * @return
@@ -678,15 +701,188 @@ public class Tio {
 	 * @param closeCode
 	 */
 	public static void closeGroup(TioConfig tioConfig, String group, String remark, CloseCode closeCode) {
-		SetWithLock<ChannelContext> setWithLock = Tio.getChannelContextsByGroup(tioConfig, group);
-		setWithLock.handle(new ReadLockHandler<Set<ChannelContext>>() {
-			@Override
-			public void handler(Set<ChannelContext> set) {
-				for (ChannelContext channelContext : set) {
-					Tio.close(channelContext, remark, closeCode);
+		SetWithLock<ChannelContext> setWithLock = Tio.getByGroup(tioConfig, group);
+		closeSet(tioConfig, setWithLock, remark, closeCode);
+	}
+
+	/**
+	 * 关闭用户的所有连接
+	 * @param tioConfig
+	 * @param userid
+	 * @param remark
+	 * @return
+	 */
+	public static void closeUser(TioConfig tioConfig, String userid, String remark) {
+		closeUser(tioConfig, userid, remark, null);
+	}
+
+	/**
+	 * 关闭某用户的所有连接
+	 * @param tioConfig
+	 * @param userid
+	 * @param remark
+	 * @param closeCode
+	 */
+	public static void closeUser(TioConfig tioConfig, String userid, String remark, CloseCode closeCode) {
+		SetWithLock<ChannelContext> setWithLock = Tio.getByUserid(tioConfig, userid);
+		closeSet(tioConfig, setWithLock, remark, closeCode);
+	}
+
+	/**
+	 * 关闭token的所有连接
+	 * @param tioConfig
+	 * @param token
+	 * @param remark
+	 * @return
+	 */
+	public static void closeToken(TioConfig tioConfig, String token, String remark) {
+		closeToken(tioConfig, token, remark, null);
+	}
+
+	/**
+	 * 关闭某token的所有连接
+	 * @param tioConfig
+	 * @param token
+	 * @param remark
+	 * @param closeCode
+	 */
+	public static void closeToken(TioConfig tioConfig, String token, String remark, CloseCode closeCode) {
+		SetWithLock<ChannelContext> setWithLock = Tio.getByToken(tioConfig, token);
+		closeSet(tioConfig, setWithLock, remark, closeCode);
+	}
+
+	/**
+	 * 关闭某群所有连接
+	 * @param tioConfig
+	 * @param ip
+	 * @param remark
+	 * @return
+	 */
+	public static void removeIp(TioConfig tioConfig, String ip, String remark) {
+		removeIp(tioConfig, ip, remark, null);
+	}
+
+	/**
+	 * 关闭某群所有连接
+	 * @param tioConfig
+	 * @param ip
+	 * @param remark
+	 * @param removeCode
+	 */
+	public static void removeIp(TioConfig tioConfig, String ip, String remark, CloseCode removeCode) {
+		SetWithLock<ChannelContext> setWithLock = Tio.getByIp(tioConfig, ip);
+		removeSet(tioConfig, setWithLock, remark, removeCode);
+	}
+
+	/**
+	 * 关闭某群所有连接
+	 * @param tioConfig
+	 * @param group
+	 * @param remark
+	 * @return
+	 */
+	public static void removeGroup(TioConfig tioConfig, String group, String remark) {
+		removeGroup(tioConfig, group, remark, null);
+	}
+
+	/**
+	 * 关闭某群所有连接
+	 * @param tioConfig
+	 * @param group
+	 * @param remark
+	 * @param removeCode
+	 */
+	public static void removeGroup(TioConfig tioConfig, String group, String remark, CloseCode removeCode) {
+		SetWithLock<ChannelContext> setWithLock = Tio.getByGroup(tioConfig, group);
+		removeSet(tioConfig, setWithLock, remark, removeCode);
+	}
+
+	/**
+	 * 关闭用户的所有连接
+	 * @param tioConfig
+	 * @param userid
+	 * @param remark
+	 * @return
+	 */
+	public static void removeUser(TioConfig tioConfig, String userid, String remark) {
+		removeUser(tioConfig, userid, remark, null);
+	}
+
+	/**
+	 * 关闭某用户的所有连接
+	 * @param tioConfig
+	 * @param userid
+	 * @param remark
+	 * @param removeCode
+	 */
+	public static void removeUser(TioConfig tioConfig, String userid, String remark, CloseCode removeCode) {
+		SetWithLock<ChannelContext> setWithLock = Tio.getByUserid(tioConfig, userid);
+		removeSet(tioConfig, setWithLock, remark, removeCode);
+	}
+
+	/**
+	 * 关闭token的所有连接
+	 * @param tioConfig
+	 * @param token
+	 * @param remark
+	 * @return
+	 */
+	public static void removeToken(TioConfig tioConfig, String token, String remark) {
+		removeToken(tioConfig, token, remark, null);
+	}
+
+	/**
+	 * 关闭某token的所有连接
+	 * @param tioConfig
+	 * @param token
+	 * @param remark
+	 * @param removeCode
+	 */
+	public static void removeToken(TioConfig tioConfig, String token, String remark, CloseCode removeCode) {
+		SetWithLock<ChannelContext> setWithLock = Tio.getByToken(tioConfig, token);
+		removeSet(tioConfig, setWithLock, remark, removeCode);
+	}
+
+	/**
+	 * 关闭集合
+	 * @param tioConfig
+	 * @param setWithLock
+	 * @param remark
+	 * @param closeCode
+	 * @author tanyaowu
+	 */
+	public static void closeSet(TioConfig tioConfig, SetWithLock<ChannelContext> setWithLock, String remark, CloseCode closeCode) {
+		if (setWithLock != null) {
+			setWithLock.handle(new ReadLockHandler<Set<ChannelContext>>() {
+				@Override
+				public void handler(Set<ChannelContext> set) {
+					for (ChannelContext channelContext : set) {
+						Tio.close(channelContext, remark, closeCode);
+					}
 				}
-			}
-		});
+			});
+		}
+	}
+
+	/**
+	 * 移除集合
+	 * @param tioConfig
+	 * @param setWithLock
+	 * @param remark
+	 * @param closeCode
+	 * @author tanyaowu
+	 */
+	public static void removeSet(TioConfig tioConfig, SetWithLock<ChannelContext> setWithLock, String remark, CloseCode closeCode) {
+		if (setWithLock != null) {
+			setWithLock.handle(new ReadLockHandler<Set<ChannelContext>>() {
+				@Override
+				public void handler(Set<ChannelContext> set) {
+					for (ChannelContext channelContext : set) {
+						Tio.remove(channelContext, remark, closeCode);
+					}
+				}
+			});
+		}
 	}
 
 	/**
@@ -834,6 +1030,17 @@ public class Tio {
 	 */
 	public static SetWithLock<ChannelContext> getByToken(TioConfig tioConfig, String token) {
 		return tioConfig.tokens.find(tioConfig, token);
+	}
+
+	/**
+	 * 根据客户端ip获取SetWithLock<ChannelContext>
+	 * @param tioConfig
+	 * @param ip
+	 * @return
+	 * @author tanyaowu
+	 */
+	public static SetWithLock<ChannelContext> getByIp(TioConfig tioConfig, String ip) {
+		return tioConfig.ips.clients(tioConfig, ip);
 	}
 
 	/**
@@ -1212,7 +1419,7 @@ public class Tio {
 				}
 				return false;
 			}
-			
+
 			if (channelContext.tioConfig.packetConverter != null) {
 				Packet packet1 = channelContext.tioConfig.packetConverter.convert(packet, channelContext);
 				if (packet1 == null) {
@@ -1232,8 +1439,6 @@ public class Tio {
 				meta.setCountDownLatch(countDownLatch);
 				packet.setMeta(meta);
 			}
-			
-
 
 			if (channelContext.tioConfig.useQueueSend) {
 				isAdded = channelContext.sendRunnable.addMsg(packet);
