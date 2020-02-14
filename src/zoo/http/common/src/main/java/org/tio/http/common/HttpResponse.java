@@ -369,7 +369,7 @@ public class HttpResponse extends HttpPacket {
 
 	public void addHeader(HeaderName key, HeaderValue value) {
 		headers.put(key, value);
-		headerByteCount += (key.bytes.length + value.bytes.length + 3);  //冒号和\r\n
+		headerByteCount += (key.bytes.length + value.bytes.length + 3); //冒号和\r\n
 	}
 
 	public void addHeaders(Map<HeaderName, HeaderValue> headers) {
@@ -392,15 +392,8 @@ public class HttpResponse extends HttpPacket {
 
 	public boolean addCookie(Cookie cookie) {
 		if (cookies == null) {
-			//			synchronized (this) {
-			//				if (cookies == null) {
-			//					cookies = new ArrayList<>();
-			//				}
-			//			}
-
 			cookies = new ArrayList<>();
 		}
-		//		log.error("cookie domain:{}, value:{}", cookie.getDomain(), cookie.getValue());
 		return cookies.add(cookie);
 	}
 
