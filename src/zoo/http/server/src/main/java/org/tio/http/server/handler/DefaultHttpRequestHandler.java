@@ -1175,13 +1175,13 @@ public class DefaultHttpRequestHandler implements HttpRequestHandler {
 		String oldId = httpSession.getId();
 		String newId = httpConfig.getSessionIdGenerator().sessionId(httpConfig, request);
 		httpSession.setId(newId);
-		httpSession.update(httpConfig); //HttpSession有变动时，都要调一下update()
+		
 		if (httpSessionListener != null) {
 			httpSessionListener.doAfterCreated(request, httpSession, httpConfig);
 		}
 		httpConfig.getSessionStore().remove(oldId);
 		createSessionCookie(request, httpSession, httpResponse, true);
-
+		httpSession.update(httpConfig); //HttpSession有变动时，都要调一下update()
 		return httpSession;
 	}
 
