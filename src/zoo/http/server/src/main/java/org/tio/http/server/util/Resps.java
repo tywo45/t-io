@@ -619,7 +619,7 @@ public class Resps {
 	 * @author tanyaowu
 	 */
 	public static HttpResponse redirectWithPage(HttpRequest request, String path) {
-		StringBuilder sb = new StringBuilder(64);
+		StringBuilder sb = new StringBuilder(256);
 		sb.append("<script>");
 		sb.append("window.location.href='").append(path).append("'");
 		sb.append("</script>");
