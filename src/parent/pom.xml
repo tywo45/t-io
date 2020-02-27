@@ -75,7 +75,7 @@
 		<zxing.version>3.4.0</zxing.version>
 		<httpcore.version>4.4.13</httpcore.version>
 		<httpclient.version>4.5.11</httpclient.version>
-		<closure.version>v20200204</closure.version>
+		<closure.version>v20200224</closure.version>
 		<freemarker.version>2.3.29</freemarker.version>
 		<UserAgentUtils.version>1.21</UserAgentUtils.version>
 		<scribejava-apis.version>6.9.0</scribejava-apis.version>
@@ -849,7 +849,7 @@
 			<dependency>
 				<groupId>net.coobird</groupId>
 				<artifactId>thumbnailator</artifactId>
-				<version>0.4.10</version>
+				<version>0.4.11</version>
 			</dependency>
 
 			<dependency>
