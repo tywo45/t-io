@@ -711,7 +711,11 @@
 				<artifactId>reflectasm</artifactId>
 				<version>1.11.9</version>
 			</dependency>
-
+			<dependency>
+				<groupId>com.esotericsoftware</groupId>
+				<artifactId>kryo</artifactId>
+				<version>5.0.0-RC4</version>
+			</dependency>
 
 			<dependency>
 				<groupId>io.netty</groupId>
