@@ -60,7 +60,7 @@
 		<commons-lang3.version>3.9</commons-lang3.version>
 		<commons-codec.version>1.14</commons-codec.version>
 		<commons-compress.version>1.20</commons-compress.version>
-		<fastjson.version>1.2.60</fastjson.version>
+		<fastjson.version>1.2.66</fastjson.version>
 		<testng.version>7.1.0</testng.version>
 		<hutool.version>5.1.5</hutool.version>
 		<protobuf-java.version>3.11.4</protobuf-java.version>
@@ -437,7 +437,7 @@
 			<dependency>
 				<groupId>org.jsoup</groupId>
 				<artifactId>jsoup</artifactId>
-				<version>1.12.2</version>
+				<version>1.13.1</version>
 			</dependency>
 
 			<dependency>
