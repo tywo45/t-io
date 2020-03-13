@@ -62,7 +62,7 @@
 		<commons-compress.version>1.20</commons-compress.version>
 		<fastjson.version>1.2.66</fastjson.version>
 		<testng.version>7.1.0</testng.version>
-		<hutool.version>5.2.1</hutool.version>
+		<hutool.version>5.2.2</hutool.version>
 		<protobuf-java.version>3.11.4</protobuf-java.version>
 		<commons-beanutils.version>1.9.4</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>

@@ -463,6 +463,7 @@ public class TioServer {
 	}
 
 	public void setCheckLastVersion(boolean checkLastVersion) {
-		this.checkLastVersion = checkLastVersion;
+		log.debug("community edition is no longer supported");
+//		this.checkLastVersion = checkLastVersion;
 	}
 }
