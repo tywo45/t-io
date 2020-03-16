@@ -223,7 +223,7 @@ import org.tio.utils.hutool.StrUtil;
  */
 public class TioServer {
 	private static Logger					log					= LoggerFactory.getLogger(TioServer.class);
-	private ServerTioConfig				serverTioConfig;
+	private ServerTioConfig					serverTioConfig;
 	private AsynchronousServerSocketChannel	serverSocketChannel;
 	private AsynchronousChannelGroup		channelGroup		= null;
 	private Node							serverNode;
@@ -433,7 +433,7 @@ public class TioServer {
 									log.info("The version you are using is the latest");
 								} else {
 									log.info("t-io latest version:{}，your version:{}", result, SysConst.TIO_CORE_VERSION);
-									//3.5.9.v20200214-RELEASE
+									//3.6.0.v20200315-RELEASE
 									String myVersionDateStr = SysConst.TIO_CORE_VERSION.substring(SysConst.TIO_CORE_VERSION.length() - 16, SysConst.TIO_CORE_VERSION.length() - 8);
 									String latestVersionDateStr = result.substring(result.length() - 16, result.length() - 8);
 
@@ -451,7 +451,7 @@ public class TioServer {
 
 						}
 					} catch (Exception e) {
-//						log.error("", e);
+						//						log.error("", e);
 					}
 				}
 			});
@@ -464,6 +464,6 @@ public class TioServer {
 
 	public void setCheckLastVersion(boolean checkLastVersion) {
 		log.debug("community edition is no longer supported");
-//		this.checkLastVersion = checkLastVersion;
+		//		this.checkLastVersion = checkLastVersion;
 	}
 }

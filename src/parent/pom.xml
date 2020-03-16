@@ -5,7 +5,7 @@
 	<groupId>org.t-io</groupId>
 	<artifactId>tio-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>3.5.9.v20200214-RELEASE</version>
+	<version>3.6.0.v20200315-RELEASE</version>
 	<name>${project.artifactId}</name>
 	<url>http://maven.apache.org</url>
 
@@ -35,7 +35,7 @@
 
 	<properties>
 		<maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
-		<tio-utils.version>3.5.9.v20200214-RELEASE</tio-utils.version>
+		<tio-utils.version>3.6.0.v20200315-RELEASE</tio-utils.version>
 		<tio-core.version>${tio-utils.version}</tio-core.version>
 		<tio-flash-policy-server.version>${tio-utils.version}</tio-flash-policy-server.version>
 
@@ -62,7 +62,7 @@
 		<commons-compress.version>1.20</commons-compress.version>
 		<fastjson.version>1.2.66</fastjson.version>
 		<testng.version>7.1.0</testng.version>
-		<hutool.version>5.2.2</hutool.version>
+		<hutool.version>5.2.3</hutool.version>
 		<protobuf-java.version>3.11.4</protobuf-java.version>
 		<commons-beanutils.version>1.9.4</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
@@ -787,7 +787,7 @@
 			<dependency>
 				<groupId>io.reactivex.rxjava2</groupId>
 				<artifactId>rxjava</artifactId>
-				<version>2.2.18</version>
+				<version>2.2.19</version>
 			</dependency>
 
 			<dependency>
