@@ -60,14 +60,14 @@
 		<commons-lang3.version>3.9</commons-lang3.version>
 		<commons-codec.version>1.14</commons-codec.version>
 		<commons-compress.version>1.20</commons-compress.version>
-		<fastjson.version>1.2.66</fastjson.version>
+		<fastjson.version>1.2.68</fastjson.version>
 		<testng.version>7.1.0</testng.version>
-		<hutool.version>5.2.3</hutool.version>
+		<hutool.version>5.2.5</hutool.version>
 		<protobuf-java.version>3.11.4</protobuf-java.version>
 		<commons-beanutils.version>1.9.4</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
 		<protostuff.version>1.7.0</protostuff.version>
-		<redisson.version>3.12.3</redisson.version>
+		<redisson.version>3.12.4</redisson.version>
 		<jodd.version>5.1.4</jodd.version>
 		<quartz.version>2.3.2</quartz.version>
 		<caffeine.version>2.8.1</caffeine.version>
@@ -75,7 +75,7 @@
 		<zxing.version>3.4.0</zxing.version>
 		<httpcore.version>4.4.13</httpcore.version>
 		<httpclient.version>4.5.12</httpclient.version>
-		<closure.version>v20200224</closure.version>
+		<closure.version>v20200315</closure.version>
 		<freemarker.version>2.3.30</freemarker.version>
 		<UserAgentUtils.version>1.21</UserAgentUtils.version>
 		<scribejava-apis.version>6.9.0</scribejava-apis.version>
@@ -103,7 +103,7 @@
 		<ffmpeg.version>4.1-${javacpp.version}</ffmpeg.version>
 		<opencv.version>4.0.1-${javacpp.version}</opencv.version>
 
-		<IJPay.version>2.4.2</IJPay.version>
+		<IJPay.version>2.5.1</IJPay.version>
 
 
 		<shardingsphere.version>3.1.0</shardingsphere.version>
