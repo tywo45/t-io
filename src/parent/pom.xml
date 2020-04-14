@@ -57,16 +57,16 @@
 		<junit.version>4.13</junit.version>
 		<commons-collections4.version>4.4</commons-collections4.version>
 		<commons-io.version>2.6</commons-io.version>
-		<commons-lang3.version>3.9</commons-lang3.version>
+		<commons-lang3.version>3.10</commons-lang3.version>
 		<commons-codec.version>1.14</commons-codec.version>
 		<commons-compress.version>1.20</commons-compress.version>
 		<fastjson.version>1.2.68</fastjson.version>
 		<testng.version>7.1.0</testng.version>
-		<hutool.version>5.2.5</hutool.version>
+		<hutool.version>5.3.0</hutool.version>
 		<protobuf-java.version>3.11.4</protobuf-java.version>
 		<commons-beanutils.version>1.9.4</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
-		<protostuff.version>1.7.0</protostuff.version>
+		<protostuff.version>1.7.1</protostuff.version>
 		<redisson.version>3.12.4</redisson.version>
 		<jodd.version>5.1.4</jodd.version>
 		<quartz.version>2.3.2</quartz.version>
@@ -75,7 +75,7 @@
 		<zxing.version>3.4.0</zxing.version>
 		<httpcore.version>4.4.13</httpcore.version>
 		<httpclient.version>4.5.12</httpclient.version>
-		<closure.version>v20200315</closure.version>
+		<closure.version>v20200406</closure.version>
 		<freemarker.version>2.3.30</freemarker.version>
 		<UserAgentUtils.version>1.21</UserAgentUtils.version>
 		<scribejava-apis.version>6.9.0</scribejava-apis.version>
@@ -485,13 +485,13 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>28.2-jre</version>
+				<version>29.0-jre</version>
 			</dependency>
 
 			<dependency>
 				<groupId>nl.basjes.parse.useragent</groupId>
 				<artifactId>yauaa</artifactId>
-				<version>5.15</version>
+				<version>5.17</version>
 			</dependency>
 
 			<dependency>
