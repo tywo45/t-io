@@ -5,7 +5,7 @@
 	<groupId>org.t-io</groupId>
 	<artifactId>tio-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>3.6.0.v20200315-RELEASE</version>
+	<version>3.6.1.v20200512-RELEASE</version>
 	<name>${project.artifactId}</name>
 	<url>http://maven.apache.org</url>
 
@@ -35,13 +35,7 @@
 
 	<properties>
 		<maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
-		<tio-utils.version>3.6.0.v20200315-RELEASE</tio-utils.version>
-		<tio-core.version>${tio-utils.version}</tio-core.version>
-		<tio-flash-policy-server.version>${tio-utils.version}</tio-flash-policy-server.version>
-
-		<tio-http.version>${tio-utils.version}</tio-http.version>
-		<tio-websocket.version>${tio-utils.version}</tio-websocket.version>
-
+		<tio.version>3.6.1.v20200512-RELEASE</tio.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.test.skip>true</maven.test.skip>
@@ -114,6 +108,8 @@
 		<neo4j.version>3.2.10</neo4j.version>
 		<xmlunit.version>2.6.4</xmlunit.version>
 		<mongodb.version>3.12.2</mongodb.version>
+		
+		<spring.boot.version>2.2.7.RELEASE</spring.boot.version>
 
 	</properties>
 
@@ -127,32 +123,30 @@
 	</developers>
 
 
-
-
 	<dependencyManagement>
 		<dependencies>
 
 			<dependency>
 				<groupId>org.t-io</groupId>
 				<artifactId>tio-utils</artifactId>
-				<version>${tio-utils.version}</version>
+				<version>${tio.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.t-io</groupId>
 				<artifactId>tio-core</artifactId>
-				<version>${tio-core.version}</version>
+				<version>${tio.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.t-io</groupId>
 				<artifactId>tio-flash-policy-server</artifactId>
-				<version>${tio-flash-policy-server.version}</version>
+				<version>${tio.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.t-io</groupId>
 				<artifactId>tio-webpack-core</artifactId>
-				<version>${tio-core.version}</version>
+				<version>${tio.version}</version>
 			</dependency>
 
 
@@ -160,34 +154,34 @@
 			<dependency>
 				<groupId>org.t-io</groupId>
 				<artifactId>tio-websocket-common</artifactId>
-				<version>${tio-websocket.version}</version>
+				<version>${tio.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.t-io</groupId>
 				<artifactId>tio-websocket-server</artifactId>
-				<version>${tio-websocket.version}</version>
+				<version>${tio.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.t-io</groupId>
 				<artifactId>tio-http-common</artifactId>
-				<version>${tio-http.version}</version>
+				<version>${tio.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.t-io</groupId>
 				<artifactId>tio-http-server</artifactId>
-				<version>${tio-http.version}</version>
+				<version>${tio.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.t-io</groupId>
 				<artifactId>tio-http-client</artifactId>
-				<version>${tio-http.version}</version>
+				<version>${tio.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.t-io</groupId>
 				<artifactId>tio-umeng</artifactId>
-				<version>${tio-core.version}</version>
+				<version>${tio.version}</version>
 			</dependency>
 
 			<dependency>
@@ -223,7 +217,7 @@
 			<dependency>
 				<groupId>org.t-io</groupId>
 				<artifactId>jfinal-activerecord</artifactId>
-				<version>${tio-utils.version}</version>
+				<version>${tio.version}</version>
 			</dependency>
 
 			<dependency>
@@ -925,13 +919,7 @@
 				<version>2.5.1</version>
 			</dependency>
 
-			<dependency>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-dependencies</artifactId>
-				<version>2.2.7.RELEASE</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
+			
 
 			<dependency>
 				<groupId>net.bytebuddy</groupId>
