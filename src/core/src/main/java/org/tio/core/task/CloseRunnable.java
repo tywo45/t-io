@@ -208,8 +208,8 @@ import org.tio.utils.queue.TioFullWaitQueue;
 import org.tio.utils.thread.pool.AbstractQueueRunnable;
 
 /**
- *
- * @author tanyaowu
+ * 
+ * @author tanyaowu 
  * 2017年10月19日 上午9:39:59
  */
 public class CloseRunnable extends AbstractQueueRunnable<ChannelContext> {
