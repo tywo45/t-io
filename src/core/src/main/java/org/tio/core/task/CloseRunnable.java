@@ -326,7 +326,7 @@ public class CloseRunnable extends AbstractQueueRunnable<ChannelContext> {
 	}
 
 	/** The msg queue. */
-	private FullWaitQueue<ChannelContext> msgQueue = null;
+	private volatile FullWaitQueue<ChannelContext> msgQueue = null;
 
 	@Override
 	public FullWaitQueue<ChannelContext> getMsgQueue() {
