@@ -44,20 +44,20 @@
 		<mysql.driver.version>8.0.20</mysql.driver.version><!-- 5.1.46 -->
 		<druid.version>1.1.22</druid.version>
 		<HikariCP.version>3.4.5</HikariCP.version>
-		<jfinal.version>4.8</jfinal.version>
+		<jfinal.version>4.9</jfinal.version>
 		<logback.version>1.2.3</logback.version>
 		<slf4j.version>1.7.26</slf4j.version>
 		<jdk.version>1.8</jdk.version>
 		<junit.version>4.13</junit.version>
 		<commons-collections4.version>4.4</commons-collections4.version>
-		<commons-io.version>2.6</commons-io.version>
+		<commons-io.version>2.7</commons-io.version>
 		<commons-lang3.version>3.10</commons-lang3.version>
 		<commons-codec.version>1.14</commons-codec.version>
 		<commons-compress.version>1.20</commons-compress.version>
-		<fastjson.version>1.2.68</fastjson.version>
+		<fastjson.version>1.2.70</fastjson.version>
 		<testng.version>7.1.0</testng.version>
-		<hutool.version>5.3.5</hutool.version>
-		<protobuf-java.version>3.12.1</protobuf-java.version>
+		<hutool.version>5.3.6</hutool.version>
+		<protobuf-java.version>3.12.2</protobuf-java.version>
 		<commons-beanutils.version>1.9.4</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
 		<protostuff.version>1.7.2</protostuff.version>
@@ -97,15 +97,15 @@
 		<ffmpeg.version>4.1-${javacpp.version}</ffmpeg.version>
 		<opencv.version>4.0.1-${javacpp.version}</opencv.version>
 
-		<IJPay.version>2.6.1</IJPay.version>
+		<IJPay.version>2.6.2</IJPay.version>
 
 
 		<shardingsphere.version>3.1.0</shardingsphere.version>
 
 		<svnkit.version>1.10.1</svnkit.version>
 		<proguard.version>6.2.2</proguard.version>
-		<okhttp.version>4.7.0</okhttp.version>
-		<neo4j.version>3.2.11</neo4j.version>
+		<okhttp.version>4.7.2</okhttp.version>
+		<neo4j.version>3.2.12</neo4j.version>
 		<xmlunit.version>2.7.0</xmlunit.version>
 		<mongodb.version>3.12.4</mongodb.version>
 		
@@ -706,7 +706,7 @@
 			<dependency>
 				<groupId>org.apache.curator</groupId>
 				<artifactId>curator-x-discovery</artifactId>
-				<version>4.3.0</version>
+				<version>5.0.0</version>
 			</dependency>
 
 			<dependency>
