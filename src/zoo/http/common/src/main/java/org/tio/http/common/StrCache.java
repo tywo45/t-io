@@ -208,6 +208,7 @@ import org.tio.utils.lock.LockUtils;
  */
 public class StrCache {
 	private static Logger						log					= LoggerFactory.getLogger(StrCache.class);
+	private static final int					MAX_SIZE			= 5000;
 	/**
 	 * key: byte[]对应的hashcode
 	 * value: byte[]对应的字符串
@@ -244,7 +245,7 @@ public class StrCache {
 		int hashcode = HashUtils.hash31(allbs, start, len);
 		String str = BYTES_STRING_MAP.get(hashcode);
 		if (str == null) {
-			if (BYTES_STRING_MAP.size() > 1000) {
+			if (BYTES_STRING_MAP.size() > MAX_SIZE) {
 				return new String(allbs, start, len);
 			}
 
@@ -277,7 +278,7 @@ public class StrCache {
 		int hashcode = initStr.hashCode();
 		String str = INIT_LOWERCASE_MAP.get(hashcode);
 		if (str == null) {
-			if (INIT_LOWERCASE_MAP.size() > 1000) {
+			if (INIT_LOWERCASE_MAP.size() > MAX_SIZE) {
 				return initStr.toLowerCase();
 			}
 
