@@ -205,6 +205,7 @@ import org.tio.utils.hutool.StrUtil;
 public class Node implements Comparable<Node> {
 	private String	ip;
 	private int		port;
+	private Byte	ssl	= 1;
 
 	public Node(String ip, int port) {
 		super();
@@ -265,6 +266,20 @@ public class Node implements Comparable<Node> {
 		StringBuilder builder = new StringBuilder();
 		builder.append(ip).append(":").append(port);
 		return builder.toString();
+	}
+
+	/**
+	 * @return the ssl
+	 */
+	public Byte getSsl() {
+		return ssl;
+	}
+
+	/**
+	 * @param ssl the ssl to set
+	 */
+	public void setSsl(Byte ssl) {
+		this.ssl = ssl;
 	}
 
 }
