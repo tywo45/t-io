@@ -177,7 +177,7 @@
 	the same "printed page" as the copyright notice for easier identification within
 	third-party archives.
 	
-	   Copyright 2020 t-io
+	   Copyright 2018 JFinal
 	
 	   Licensed under the Apache License, Version 2.0 (the "License");
 	   you may not use this file except in compliance with the License.
@@ -213,10 +213,10 @@ public class DomainMappingSessionCookieDecorator implements SessionCookieDecorat
 	private static Logger log = LoggerFactory.getLogger(DomainMappingSessionCookieDecorator.class);
 
 	/**
-	 * key:    (.)*(.t-io.org){1}
-	 * value : 替换原始domain的domain，譬如.t-io.org
+	 * key:    (.)*(.tiocloud.com){1}
+	 * value : 替换原始domain的domain，譬如.tiocloud.com
 	 * 
-	 * 结果会把域名为www.t-io.org的cookie的域名替换成.t-io.org
+	 * 结果会把域名为www.tiocloud.com的cookie的域名替换成.tiocloud.com
 	 */
 	private Map<String, String> domainMap = null;
 
@@ -258,13 +258,13 @@ public class DomainMappingSessionCookieDecorator implements SessionCookieDecorat
 	}
 
 	public static void main(String[] args) {
-		boolean ss = ReUtil.isMatch("(.)*(.t-io.org){1}", ".t-io.org");
+		boolean ss = ReUtil.isMatch("(.)*(.tiocloud.com){1}", ".tiocloud.com");
 		System.out.println(ss);
 
-		ss = ReUtil.isMatch("(.)*(.t-io.org){1}", "www.t-io.org");
+		ss = ReUtil.isMatch("(.)*(.tiocloud.com){1}", "www.tiocloud.com");
 		System.out.println(ss);
 
-		ss = ReUtil.isMatch("(.)*(.t-io.org){1}", "www.xx.t-io.org");
+		ss = ReUtil.isMatch("(.)*(.tiocloud.com){1}", "www.xx.tiocloud.com");
 		System.out.println(ss);
 	}
 

@@ -177,7 +177,7 @@
 	the same "printed page" as the copyright notice for easier identification within
 	third-party archives.
 	
-	   Copyright 2020 t-io
+	   Copyright 2018 JFinal
 	
 	   Licensed under the Apache License, Version 2.0 (the "License");
 	   you may not use this file except in compliance with the License.
@@ -206,14 +206,11 @@ import org.slf4j.LoggerFactory;
 import org.tio.client.ClientChannelContext;
 import org.tio.client.ClientTioConfig;
 import org.tio.client.ReconnConf;
-import org.tio.cluster.TioClusterConfig;
-import org.tio.cluster.TioClusterVo;
 import org.tio.core.ChannelContext.CloseCode;
 import org.tio.core.intf.Packet;
 import org.tio.core.intf.Packet.Meta;
 import org.tio.server.ServerTioConfig;
 import org.tio.utils.convert.Converter;
-import org.tio.utils.lock.MapWithLock;
 import org.tio.utils.lock.ReadLockHandler;
 import org.tio.utils.lock.SetWithLock;
 import org.tio.utils.page.Page;
@@ -1199,85 +1196,6 @@ public class Tio {
 
 	/**
 	 * 
-	 * @param tioConfig
-	 * @param bsId
-	 * @param packet
-	 * @author tanyaowu
-	 */
-	public static void notifyClusterForBsId(TioConfig tioConfig, String bsId, Packet packet) {
-		TioClusterConfig tioClusterConfig = tioConfig.getTioClusterConfig();
-		TioClusterVo tioClusterVo = new TioClusterVo(packet);
-		tioClusterVo.setBsId(bsId);
-		tioClusterConfig.publish(tioClusterVo);
-	}
-
-	/**
-	 * 在集群环境下，把群组消息通知到集群中的其它机器
-	 * @param tioConfig
-	 * @param group
-	 * @param packet
-	 */
-	public static void notifyClusterForGroup(TioConfig tioConfig, String group, Packet packet) {
-		TioClusterConfig tioClusterConfig = tioConfig.getTioClusterConfig();
-		TioClusterVo tioClusterVo = new TioClusterVo(packet);
-		tioClusterVo.setGroup(group);
-		tioClusterConfig.publish(tioClusterVo);
-	}
-
-	/**
-	 * 在集群环境下，把channelContextId消息通知到集群中的其它机器
-	 * @param tioConfig
-	 * @param channelContextId
-	 * @param packet
-	 */
-	public static void notifyClusterForId(TioConfig tioConfig, String channelContextId, Packet packet) {
-		TioClusterConfig tioClusterConfig = tioConfig.getTioClusterConfig();
-		TioClusterVo tioClusterVo = new TioClusterVo(packet);
-		tioClusterVo.setChannelId(channelContextId);
-		tioClusterConfig.publish(tioClusterVo);
-	}
-
-	/**
-	 * 在集群环境下，把IP消息通知到集群中的其它机器
-	 * @param tioConfig
-	 * @param ip
-	 * @param packet
-	 */
-	public static void notifyClusterForIp(TioConfig tioConfig, String ip, Packet packet) {
-		TioClusterConfig tioClusterConfig = tioConfig.getTioClusterConfig();
-		TioClusterVo tioClusterVo = new TioClusterVo(packet);
-		tioClusterVo.setIp(ip);
-		tioClusterConfig.publish(tioClusterVo);
-	}
-
-	/**
-	 * 在集群环境下，把token消息通知到集群中的其它机器
-	 * @param tioConfig
-	 * @param token
-	 * @param packet
-	 */
-	public static void notifyClusterForToken(TioConfig tioConfig, String token, Packet packet) {
-		TioClusterConfig tioClusterConfig = tioConfig.getTioClusterConfig();
-		TioClusterVo tioClusterVo = new TioClusterVo(packet);
-		tioClusterVo.setToken(token);
-		tioClusterConfig.publish(tioClusterVo);
-	}
-
-	/**
-	 * 在集群环境下，把userid消息通知到集群中的其它机器
-	 * @param tioConfig
-	 * @param userid
-	 * @param packet
-	 */
-	public static void notifyClusterForUser(TioConfig tioConfig, String userid, Packet packet) {
-		TioClusterConfig tioClusterConfig = tioConfig.getTioClusterConfig();
-		TioClusterVo tioClusterVo = new TioClusterVo(packet);
-		tioClusterVo.setUserid(userid);
-		tioClusterConfig.publish(tioClusterVo);
-	}
-
-	/**
-	 * 
 	 * @param channelContext
 	 * @param remark
 	 */
@@ -1548,15 +1466,6 @@ public class Tio {
 			Boolean ret = sendToSet(tioConfig, setWithLock, packet, channelContextFilter, isBlock);
 			return ret;
 		} finally {
-			if (tioConfig.isCluster() && !packet.isFromCluster()) {
-				TioClusterConfig tioClusterConfig = tioConfig.getTioClusterConfig();
-
-				if (tioClusterConfig.isCluster4all()) {
-					TioClusterVo tioClusterVo = new TioClusterVo(packet);
-					tioClusterVo.setToAll(true);
-					tioClusterConfig.publish(tioClusterVo);
-				}
-			}
 		}
 	}
 
@@ -1582,15 +1491,8 @@ public class Tio {
 	 * @author tanyaowu
 	 */
 	private static Boolean sendToBsId(TioConfig tioConfig, String bsId, Packet packet, boolean isBlock) {
-		ChannelContext channelContext = Tio.getChannelContextByBsId(tioConfig, bsId);
+		ChannelContext channelContext = Tio.getByBsId(tioConfig, bsId);
 		if (channelContext == null) {
-			if (tioConfig.isCluster() && !packet.isFromCluster()) {
-				TioClusterConfig tioClusterConfig = tioConfig.getTioClusterConfig();
-
-				if (tioClusterConfig.isCluster4bsId()) {
-					notifyClusterForBsId(tioConfig, bsId, packet);
-				}
-			}
 			return false;
 		}
 		if (isBlock) {
@@ -1642,13 +1544,6 @@ public class Tio {
 			Boolean ret = sendToSet(tioConfig, setWithLock, packet, channelContextFilter, isBlock);
 			return ret;
 		} finally {
-			if (tioConfig.isCluster() && !packet.isFromCluster()) {
-				TioClusterConfig tioClusterConfig = tioConfig.getTioClusterConfig();
-
-				if (tioClusterConfig.isCluster4group()) {
-					notifyClusterForGroup(tioConfig, group, packet);
-				}
-			}
 		}
 	}
 
@@ -1673,13 +1568,6 @@ public class Tio {
 	private static Boolean sendToId(TioConfig tioConfig, String channelContextId, Packet packet, boolean isBlock) {
 		ChannelContext channelContext = Tio.getChannelContextById(tioConfig, channelContextId);
 		if (channelContext == null) {
-			if (tioConfig.isCluster() && !packet.isFromCluster()) {
-				TioClusterConfig tioClusterConfig = tioConfig.getTioClusterConfig();
-
-				if (tioClusterConfig.isCluster4channelId()) {
-					notifyClusterForId(tioConfig, channelContextId, packet);
-				}
-			}
 			return false;
 		}
 		if (isBlock) {
@@ -1732,13 +1620,6 @@ public class Tio {
 			Boolean ret = sendToSet(tioConfig, setWithLock, packet, channelContextFilter, isBlock);
 			return ret;
 		} finally {
-			if (tioConfig.isCluster() && !packet.isFromCluster()) {
-				TioClusterConfig tioClusterConfig = tioConfig.getTioClusterConfig();
-
-				if (tioClusterConfig.isCluster4ip()) {
-					notifyClusterForIp(tioConfig, ip, packet);
-				}
-			}
 		}
 	}
 
@@ -1886,13 +1767,6 @@ public class Tio {
 			}
 			return false;
 		} finally {
-			if (tioConfig.isCluster() && !packet.isFromCluster()) {
-				TioClusterConfig tioClusterConfig = tioConfig.getTioClusterConfig();
-
-				if (tioClusterConfig.isCluster4user()) {
-					notifyClusterForToken(tioConfig, token, packet);
-				}
-			}
 		}
 	}
 
@@ -1947,62 +1821,6 @@ public class Tio {
 			}
 			return false;
 		} finally {
-			if (tioConfig.isCluster() && !packet.isFromCluster()) {
-				TioClusterConfig tioClusterConfig = tioConfig.getTioClusterConfig();
-
-				if (tioClusterConfig.isCluster4user()) {
-					notifyClusterForUser(tioConfig, userid, packet);
-				}
-			}
-		}
-	}
-
-	/**
-	 * 发送并等待响应.<br>
-	 * 注意：<br>
-	 * 1、发送消息时，设置一下synSeq，形如：xxPacket.setSynSeq(789798786)。synSeq不为空且大于0（null、等于小于0都不行）<br>
-	 * 2、对端收到此消息后，需要回一条synSeq一样的消息，所以业务需要在decode()方法中根据bytebuffer反解析出packet的synSeq值，并赋给XxPacket对象<br>
-	 * 3、对于同步发送，框架层面并不会帮应用去调用handler.handler(packet, channelContext)方法，应用需要自己去处理响应的消息包。
-	 *业务侧可以手工调一下：tioConfig.getAioHandler().handler(packet, channelContext);<br>
-	 *
-	 * @param channelContext
-	 * @param packet 业务层必须设置好synSeq字段的值，而且要保证唯一（不能重复）。可以在tioConfig范围内用AtomicInteger
-	 * @param timeout
-	 * @return
-	 * @author tanyaowu
-	 */
-	@SuppressWarnings("finally")
-	public static Packet synSend(ChannelContext channelContext, Packet packet, long timeout) {
-		Integer synSeq = packet.getSynSeq();
-		if (synSeq == null || synSeq <= 0) {
-			throw new RuntimeException("synSeq必须大于0");
-		}
-
-		MapWithLock<Integer, Packet> waitingResps = channelContext.tioConfig.getWaitingResps();
-		try {
-			waitingResps.put(synSeq, packet);
-
-			synchronized (packet) {
-				send(channelContext, packet);
-				try {
-					packet.wait(timeout);
-				} catch (InterruptedException e) {
-					log.error(e.toString(), e);
-				}
-			}
-		} catch (Throwable e) {
-			log.error(e.toString(), e);
-		} finally {
-			Packet respPacket = waitingResps.remove(synSeq);
-			if (respPacket == null) {
-				log.error("respPacket == null,{}", channelContext);
-				return null;
-			}
-			if (respPacket == packet) {
-				log.error("{}, 同步发送超时, {}", channelContext.tioConfig.getName(), channelContext);
-				return null;
-			}
-			return respPacket;
 		}
 	}
 

@@ -177,7 +177,7 @@
 	the same "printed page" as the copyright notice for easier identification within
 	third-party archives.
 	
-	   Copyright 2020 t-io
+	   Copyright 2018 JFinal
 	
 	   Licensed under the Apache License, Version 2.0 (the "License");
 	   you may not use this file except in compliance with the License.
@@ -203,8 +203,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.client.ClientTioConfig;
-import org.tio.cluster.TioClusterConfig;
-import org.tio.cluster.TioClusterMessageListener;
 import org.tio.core.intf.AioHandler;
 import org.tio.core.intf.AioListener;
 import org.tio.core.intf.GroupListener;
@@ -315,10 +313,6 @@ public abstract class TioConfig extends MapWithLockPropSupport {
 	 */
 	public IpBlacklist							ipBlacklist					= null;
 	public MapWithLock<Integer, Packet>			waitingResps				= new MapWithLock<Integer, Packet>(new HashMap<Integer, Packet>());
-	/**
-	 * 如果此值不为null，就表示要集群
-	 */
-	private TioClusterConfig					tioClusterConfig			= null;
 
 	public TioConfig() {
 		this(null, null);
@@ -384,15 +378,6 @@ public abstract class TioConfig extends MapWithLockPropSupport {
 	 * @author: tanyaowu
 	 */
 	public abstract AioListener getAioListener();
-
-	/**
-	 * 是否是集群
-	 * @return true: 是集群
-	 * @author: tanyaowu
-	 */
-	public boolean isCluster() {
-		return tioClusterConfig != null;
-	}
 
 	/**
 	 *
@@ -532,18 +517,6 @@ public abstract class TioConfig extends MapWithLockPropSupport {
 	 */
 	public void setTioUuid(TioUuid tioUuid) {
 		this.tioUuid = tioUuid;
-	}
-
-	public TioClusterConfig getTioClusterConfig() {
-		return tioClusterConfig;
-	}
-
-	public void setTioClusterConfig(TioClusterConfig tioClusterConfig) {
-		this.tioClusterConfig = tioClusterConfig;
-		if (this.tioClusterConfig != null) {
-			this.tioClusterConfig.getTioClusterTopic().addMessageListener(new TioClusterMessageListener(this));
-			//			this.tioClusterConfig.addMessageListener(new RedissonMessageListener(this));
-		}
 	}
 
 	public void setSslConfig(SslConfig sslConfig) {

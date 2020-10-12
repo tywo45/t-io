@@ -177,7 +177,7 @@
 	the same "printed page" as the copyright notice for easier identification within
 	third-party archives.
 	
-	   Copyright 2020 t-io
+	   Copyright 2018 JFinal
 	
 	   Licensed under the Apache License, Version 2.0 (the "License");
 	   you may not use this file except in compliance with the License.
@@ -205,7 +205,7 @@ import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.TioConfig;
 import org.tio.core.Tio;
-import org.tio.core.exception.AioDecodeException;
+import org.tio.core.exception.TioDecodeException;
 import org.tio.core.intf.Packet;
 import org.tio.http.common.HeaderName;
 import org.tio.http.common.HeaderValue;
@@ -257,7 +257,7 @@ public class WsServerAioHandler implements ServerAioHandler {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public WsRequest decode(ByteBuffer buffer, int limit, int position, int readableLength, ChannelContext channelContext) throws AioDecodeException {
+	public WsRequest decode(ByteBuffer buffer, int limit, int position, int readableLength, ChannelContext channelContext) throws TioDecodeException {
 		WsSessionContext wsSessionContext = (WsSessionContext) channelContext.get();
 		//		int initPosition = buffer.position();
 
@@ -269,7 +269,7 @@ public class WsServerAioHandler implements ServerAioHandler {
 
 			HttpResponse httpResponse = updateWebSocketProtocol(request, channelContext);
 			if (httpResponse == null) {
-				throw new AioDecodeException("http协议升级到websocket协议失败");
+				throw new TioDecodeException("http协议升级到websocket协议失败");
 			}
 
 			wsSessionContext.setHandshakeRequest(request);

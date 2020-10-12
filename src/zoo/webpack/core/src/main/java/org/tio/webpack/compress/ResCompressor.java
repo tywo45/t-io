@@ -177,7 +177,7 @@
 	the same "printed page" as the copyright notice for easier identification within
 	third-party archives.
 	
-	   Copyright 2020 t-io
+	   Copyright 2018 JFinal
 	
 	   Licensed under the Apache License, Version 2.0 (the "License");
 	   you may not use this file except in compliance with the License.
@@ -210,5 +210,5 @@ public interface ResCompressor {
 	 */
 	public String compress(String filePath, String initStr);
 
-	String DOC = "\r\n1、t-io提供压缩能力" + "\r\n2、不仅仅是百万级网络编程框架 ： https://www.t-io.org" + SysConst.CRLF;
+	String DOC = "\r\n1、t-io提供压缩能力" + "\r\n2、不仅仅是百万级网络编程框架 ： https://www.tiocloud.com" + SysConst.CRLF;
 }

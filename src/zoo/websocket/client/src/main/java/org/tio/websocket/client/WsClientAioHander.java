@@ -177,7 +177,7 @@
 	the same "printed page" as the copyright notice for easier identification within
 	third-party archives.
 	
-	   Copyright 2020 t-io
+	   Copyright 2018 JFinal
 	
 	   Licensed under the Apache License, Version 2.0 (the "License");
 	   you may not use this file except in compliance with the License.
@@ -199,7 +199,7 @@ import org.slf4j.LoggerFactory;
 import org.tio.client.intf.ClientAioHandler;
 import org.tio.core.ChannelContext;
 import org.tio.core.TioConfig;
-import org.tio.core.exception.AioDecodeException;
+import org.tio.core.exception.TioDecodeException;
 import org.tio.core.intf.Packet;
 import org.tio.http.common.HttpRequest;
 import org.tio.http.common.HttpResponse;
@@ -227,7 +227,7 @@ public class WsClientAioHander implements ClientAioHandler {
   @Override
   public Packet decode(
       ByteBuffer buffer, int limit, int position, int readableLength, ChannelContext ctx)
-      throws AioDecodeException {
+      throws TioDecodeException {
     WsSessionContext session = (WsSessionContext) ctx.get();
     if (!session.isHandshaked()) {
       HttpResponse response =

@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>org.t-io</groupId>
 		<artifactId>tio-parent</artifactId>
-		<version>3.6.2.v20200808-RELEASE</version>
+		<version>3.7.0.v20201010-RELEASE</version>
 		<relativePath>../../parent/pom.xml</relativePath>
 	</parent>
 
@@ -21,7 +21,7 @@
 		<module>../http/parent</module>
 		<module>../websocket/parent</module>
 		<module>../webpack/parent</module>
-		<module>../spring-boot/parent</module>
+		<!-- <module>../spring-boot/parent</module> -->
 	</modules>
 
 

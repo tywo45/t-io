@@ -177,7 +177,7 @@
 	the same "printed page" as the copyright notice for easier identification within
 	third-party archives.
 	
-	   Copyright 2020 t-io
+	   Copyright 2018 JFinal
 	
 	   Licensed under the Apache License, Version 2.0 (the "License");
 	   you may not use this file except in compliance with the License.
@@ -205,7 +205,7 @@ import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.Node;
 import org.tio.core.Tio;
-import org.tio.core.exception.AioDecodeException;
+import org.tio.core.exception.TioDecodeException;
 import org.tio.http.common.HttpConst.RequestBodyFormat;
 import org.tio.http.common.utils.HttpParseUtils;
 import org.tio.http.common.utils.IpUtils;
@@ -248,11 +248,11 @@ public class HttpRequestDecoder {
 	 * @param channelContext
 	 * @param httpConfig
 	 * @return
-	 * @throws AioDecodeException
+	 * @throws TioDecodeException
 	 * @author tanyaowu
 	 */
 	public static HttpRequest decode(ByteBuffer buffer, int limit, int position, int readableLength, ChannelContext channelContext, HttpConfig httpConfig)
-	        throws AioDecodeException {
+	        throws TioDecodeException {
 		//		int initPosition = position;
 		//		int count = 0;
 		//		Step step = Step.firstline;
@@ -295,7 +295,7 @@ public class HttpRequestDecoder {
 		} else {
 			contentLength = Integer.parseInt(contentLengthStr);
 			if (contentLength > httpConfig.getMaxLengthOfPostBody()) {
-				throw new AioDecodeException("post body length is too big[" + contentLength + "], max length is " + httpConfig.getMaxLengthOfPostBody() + " byte");
+				throw new TioDecodeException("post body length is too big[" + contentLength + "], max length is " + httpConfig.getMaxLengthOfPostBody() + " byte");
 			}
 		}
 
@@ -319,11 +319,11 @@ public class HttpRequestDecoder {
 
 		String realIp = IpUtils.getRealIp(channelContext, httpConfig, headers);
 		if (Tio.IpBlacklist.isInBlacklist(channelContext.tioConfig, realIp)) {
-			throw new AioDecodeException("[" + realIp + "] in black list");
+			throw new TioDecodeException("[" + realIp + "] in black list");
 		}
 		if (httpConfig.checkHost) {
 			if (!headers.containsKey(HttpConst.RequestHeaderKey.Host)) {
-				throw new AioDecodeException("there is no host header");
+				throw new TioDecodeException("there is no host header");
 			}
 		}
 
@@ -398,9 +398,9 @@ public class HttpRequestDecoder {
 	 * @param charset
 	 * @param channelContext
 	 * @author tanyaowu
-	 * @throws AioDecodeException 
+	 * @throws TioDecodeException 
 	 */
-	public static void decodeParams(Map<String, Object[]> params, String queryString, String charset, ChannelContext channelContext) throws AioDecodeException {
+	public static void decodeParams(Map<String, Object[]> params, String queryString, String charset, ChannelContext channelContext) throws TioDecodeException {
 		if (StrUtil.isBlank(queryString)) {
 			return;
 		}
@@ -412,7 +412,7 @@ public class HttpRequestDecoder {
 			if (keyvalueArr.length == 2) {
 				value1 = keyvalueArr[1];
 			} else if (keyvalueArr.length > 2) {
-				throw new AioDecodeException("含有多个" + SysConst.STR_EQ);
+				throw new TioDecodeException("含有多个" + SysConst.STR_EQ);
 			}
 
 			String key = keyvalueArr[0];
@@ -423,7 +423,7 @@ public class HttpRequestDecoder {
 				try {
 					value = URLDecoder.decode(value1, charset);
 				} catch (UnsupportedEncodingException e) {
-					throw new AioDecodeException(e);
+					throw new TioDecodeException(e);
 				}
 			}
 
@@ -448,11 +448,11 @@ public class HttpRequestDecoder {
 	 * @param bodyBytes
 	 * @param channelContext
 	 * @param httpConfig
-	 * @throws AioDecodeException
+	 * @throws TioDecodeException
 	 * @author tanyaowu
 	 */
 	private static void parseBody(HttpRequest httpRequest, RequestLine firstLine, byte[] bodyBytes, ChannelContext channelContext, HttpConfig httpConfig)
-	        throws AioDecodeException {
+	        throws TioDecodeException {
 		parseBodyFormat(httpRequest, httpRequest.getHeaders());
 		RequestBodyFormat bodyFormat = httpRequest.getBodyFormat();
 
@@ -581,10 +581,10 @@ public class HttpRequestDecoder {
 	 * @param hasReceivedHeaderLength
 	 * @param httpConfig
 	 * @return 头部是否解析完成，true: 解析完成, false: 没有解析完成
-	 * @throws AioDecodeException
+	 * @throws TioDecodeException
 	 * @author tanyaowu
 	 */
-	public static boolean parseHeaderLine(ByteBuffer buffer, Map<String, String> headers, int hasReceivedHeaderLength, HttpConfig httpConfig) throws AioDecodeException {
+	public static boolean parseHeaderLine(ByteBuffer buffer, Map<String, String> headers, int hasReceivedHeaderLength, HttpConfig httpConfig) throws TioDecodeException {
 		//		if (!buffer.hasArray()) {
 		//			return parseHeaderLine2(buffer, headers, hasReceivedHeaderLength, httpConfig);
 		//		}
@@ -664,7 +664,7 @@ public class HttpRequestDecoder {
 		//		log.error("lineLength:{}, headerLength:{}, headers:\r\n{}", lineLength, hasReceivedHeaderLength, Json.toFormatedJson(headers));
 		if (lineLength > MAX_LENGTH_OF_HEADERLINE) {
 			//			log.error("header line is too long, max length of header line is " + MAX_LENGTH_OF_HEADERLINE);
-			throw new AioDecodeException("header line is too long, max length of header line is " + MAX_LENGTH_OF_HEADERLINE);
+			throw new TioDecodeException("header line is too long, max length of header line is " + MAX_LENGTH_OF_HEADERLINE);
 		}
 
 		if (needIteration) {
@@ -672,7 +672,7 @@ public class HttpRequestDecoder {
 			//			log.error("allHeaderLength:{}", allHeaderLength);
 			if (headerLength > MAX_LENGTH_OF_HEADER) {
 				//				log.error("header is too long, max length of header is " + MAX_LENGTH_OF_HEADER);
-				throw new AioDecodeException("header is too long, max length of header is " + MAX_LENGTH_OF_HEADER);
+				throw new TioDecodeException("header is too long, max length of header is " + MAX_LENGTH_OF_HEADER);
 			}
 			return parseHeaderLine(buffer, headers, headerLength, httpConfig);
 		}
@@ -688,7 +688,7 @@ public class HttpRequestDecoder {
 	 * @author tanyaowu
 	 */
 	@SuppressWarnings("unused")
-	private static boolean parseHeaderLine2(ByteBuffer buffer, Map<String, String> headers, int headerLength, HttpConfig httpConfig) throws AioDecodeException {
+	private static boolean parseHeaderLine2(ByteBuffer buffer, Map<String, String> headers, int headerLength, HttpConfig httpConfig) throws TioDecodeException {
 		int initPosition = buffer.position();
 		int lastPosition = initPosition;
 		int remaining = buffer.remaining();
@@ -782,13 +782,13 @@ public class HttpRequestDecoder {
 		if (needIteration) {
 			int myHeaderLength = buffer.position() - initPosition;
 			if (myHeaderLength > MAX_LENGTH_OF_HEADER) {
-				throw new AioDecodeException("header is too long");
+				throw new TioDecodeException("header is too long");
 			}
 			return parseHeaderLine(buffer, headers, myHeaderLength + headerLength, httpConfig);
 		}
 
 		if (remaining > MAX_LENGTH_OF_HEADERLINE) {
-			throw new AioDecodeException("header line is too long");
+			throw new TioDecodeException("header line is too long");
 		}
 		return false;
 	}
@@ -803,7 +803,7 @@ public class HttpRequestDecoder {
 	 * 2017年2月23日 下午1:37:51
 	 *
 	 */
-	public static RequestLine parseRequestLine(ByteBuffer buffer, ChannelContext channelContext) throws AioDecodeException {
+	public static RequestLine parseRequestLine(ByteBuffer buffer, ChannelContext channelContext) throws TioDecodeException {
 		//		if (!buffer.hasArray()) {
 		//			return parseRequestLine2(buffer, channelContext);
 		//		}
@@ -887,13 +887,13 @@ public class HttpRequestDecoder {
 		}
 
 		if ((buffer.position() - initPosition) > MAX_LENGTH_OF_REQUESTLINE) {
-			throw new AioDecodeException("request line is too long");
+			throw new TioDecodeException("request line is too long");
 		}
 		return null;
 	}
 
 	@SuppressWarnings("unused")
-	private static RequestLine parseRequestLine2(ByteBuffer buffer, ChannelContext channelContext) throws AioDecodeException {
+	private static RequestLine parseRequestLine2(ByteBuffer buffer, ChannelContext channelContext) throws TioDecodeException {
 		int initPosition = buffer.position();
 		//		int remaining = buffer.remaining();
 		String methodStr = null;
@@ -988,7 +988,7 @@ public class HttpRequestDecoder {
 		}
 
 		if ((buffer.position() - initPosition) > MAX_LENGTH_OF_REQUESTLINE) {
-			throw new AioDecodeException("request line is too long");
+			throw new TioDecodeException("request line is too long");
 		}
 		return null;
 	}
@@ -997,10 +997,10 @@ public class HttpRequestDecoder {
 	 * 解析URLENCODED格式的消息体
 	 * 形如： 【Content-Type : application/x-www-form-urlencoded; charset=UTF-8】
 	 * @author tanyaowu
-	 * @throws AioDecodeException 
+	 * @throws TioDecodeException 
 	 */
 	private static void parseUrlencoded(HttpRequest httpRequest, RequestLine firstLine, byte[] bodyBytes, String bodyString, ChannelContext channelContext)
-	        throws AioDecodeException {
+	        throws TioDecodeException {
 		decodeParams(httpRequest.getParams(), bodyString, httpRequest.getCharset(), channelContext);
 	}
 

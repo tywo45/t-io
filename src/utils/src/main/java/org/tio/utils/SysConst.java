@@ -200,10 +200,10 @@ import java.nio.charset.Charset;
  * 2018年7月1日 下午10:51:59
  */
 public interface SysConst {
-	String	TIO_CORE_VERSION		= "3.6.2.v20200808-RELEASE";
+	String	TIO_CORE_VERSION		= "3.7.0.v20201010-RELEASE";
 	String	TIO_URL_GITEE			= "https://gitee.com/tywo45/t-io";
 	String	TIO_URL_GITHUB			= "https://github.com/tywo45/t-io";
-	String	TIO_URL_SITE			= "https://www.t-io.org";
+	String	TIO_URL_SITE			= "https://www.tiocloud.com";
 	String	CHECK_LASTVERSION_URL_1	= TIO_URL_SITE + "/mytio/open/lastVersion1.tio_x?v=" + TIO_CORE_VERSION;
 	String	CHECK_LASTVERSION_URL_2	= TIO_URL_SITE + "/mytio/open/lastVersion2.tio_x?id=";
 	/**

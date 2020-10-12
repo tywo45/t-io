@@ -177,7 +177,7 @@
 	the same "printed page" as the copyright notice for easier identification within
 	third-party archives.
 	
-	   Copyright 2020 t-io
+	   Copyright 2018 JFinal
 	
 	   Licensed under the Apache License, Version 2.0 (the "License");
 	   you may not use this file except in compliance with the License.
@@ -200,7 +200,7 @@ import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.TioConfig;
 import org.tio.core.Tio;
-import org.tio.core.exception.AioDecodeException;
+import org.tio.core.exception.TioDecodeException;
 import org.tio.core.exception.LengthOverflowException;
 import org.tio.core.intf.Packet;
 import org.tio.core.utils.ByteBufferUtils;
@@ -230,11 +230,11 @@ public class FlashPolicyServerAioHandler implements ServerAioHandler {
 	 * @param buffer
 	 * @param channelContext
 	 * @return
-	 * @throws AioDecodeException
+	 * @throws TioDecodeException
 	 * @author tanyaowu
 	 */
 	@Override
-	public FlashPolicyPacket decode(ByteBuffer buffer, int limit, int position, int readableLength, ChannelContext channelContext) throws AioDecodeException {
+	public FlashPolicyPacket decode(ByteBuffer buffer, int limit, int position, int readableLength, ChannelContext channelContext) throws TioDecodeException {
 		//收到的数据组不了业务包，则返回null以告诉框架数据不够
 		if (readableLength < FlashPolicyPacket.MIN_LENGHT) {
 			return null;
@@ -245,7 +245,7 @@ public class FlashPolicyServerAioHandler implements ServerAioHandler {
 		try {
 			line = ByteBufferUtils.readString(buffer, Const.CHARSET, '\0', FlashPolicyPacket.MAX_LING_LENGHT);
 		} catch (LengthOverflowException e) {
-			throw new AioDecodeException(e);
+			throw new TioDecodeException(e);
 		}
 
 		if (line == null) {
@@ -255,7 +255,7 @@ public class FlashPolicyServerAioHandler implements ServerAioHandler {
 			if (REQUEST_STR.equalsIgnoreCase(line)) {
 				return FlashPolicyPacket.REQUEST;
 			} else {
-				throw new AioDecodeException("");
+				throw new TioDecodeException("");
 			}
 		}
 	}

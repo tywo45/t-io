@@ -177,7 +177,7 @@
 	the same "printed page" as the copyright notice for easier identification within
 	third-party archives.
 	
-	   Copyright 2020 t-io
+	   Copyright 2018 JFinal
 	
 	   Licensed under the Apache License, Version 2.0 (the "License");
 	   you may not use this file except in compliance with the License.
@@ -203,7 +203,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.exception.AioDecodeException;
+import org.tio.core.exception.TioDecodeException;
 import org.tio.http.common.HeaderName;
 import org.tio.http.common.HeaderValue;
 import org.tio.http.common.HttpConst;
@@ -243,12 +243,12 @@ public class HttpResponseDecoder {
    * @param readableLength
    * @param channelContext
    * @return
-   * @throws AioDecodeException
+   * @throws TioDecodeException
    * @author tanyaowu
    */
   public static HttpResponse decode(
       ByteBuffer buffer, int limit, int position, int readableLength, ChannelContext channelContext)
-      throws AioDecodeException {
+      throws TioDecodeException {
     Map<String, String> headers = new HashMap<>();
     int contentLength = 0;
     byte[] bodyBytes = null;
@@ -384,12 +384,12 @@ public class HttpResponseDecoder {
    * @param httpResponse
    * @param bodyBytes
    * @param channelContext
-   * @throws AioDecodeException
+   * @throws TioDecodeException
    * @author tanyaowu
    */
   private static void parseBody(
       HttpResponse httpResponse, byte[] bodyBytes, ChannelContext channelContext)
-      throws AioDecodeException {
+      throws TioDecodeException {
     if (bodyBytes != null) {
 			httpResponse.setBody(bodyBytes);
 		}
@@ -399,7 +399,7 @@ public class HttpResponseDecoder {
    * 解析请求头的每一行
    */
   public static boolean parseHeaderLine(
-      ByteBuffer buffer, Map<String, String> headers, int headerLength) throws AioDecodeException {
+      ByteBuffer buffer, Map<String, String> headers, int headerLength) throws TioDecodeException {
     //		if (!buffer.hasArray()) {
     //			return parseHeaderLine2(buffer, headers, headerLength, httpConfig);
     //		}
@@ -476,13 +476,13 @@ public class HttpResponseDecoder {
     if (needIteration) {
       int myHeaderLength = buffer.position() - initPosition;
       if (myHeaderLength > MAX_LENGTH_OF_HEADER) {
-        throw new AioDecodeException("header is too long");
+        throw new TioDecodeException("header is too long");
       }
       return parseHeaderLine(buffer, headers, myHeaderLength + headerLength);
     }
 
     if (remaining > MAX_LENGTH_OF_HEADERLINE) {
-      throw new AioDecodeException("header line is too long");
+      throw new TioDecodeException("header line is too long");
     }
     return false;
   }
@@ -492,7 +492,7 @@ public class HttpResponseDecoder {
    *
    */
   public static ResponseLine parseResponseLine(ByteBuffer buffer, ChannelContext channelContext)
-      throws AioDecodeException {
+      throws TioDecodeException {
     //		if(!buffer.hasArray()) {
     //			return parseRequestLine2(buffer, channelContext, httpConfig);
     //		}
@@ -531,7 +531,7 @@ public class HttpResponseDecoder {
           try {
             status = Integer.parseInt(statusStr);
           } catch (NumberFormatException e) {
-            throw new AioDecodeException(e);
+            throw new TioDecodeException(e);
           }
           lastPosition = buffer.position();
         }
@@ -554,7 +554,7 @@ public class HttpResponseDecoder {
     }
 
     if ((buffer.position() - initPosition) > MAX_LENGTH_OF_RESPONSELINE) {
-      throw new AioDecodeException("response line is too long");
+      throw new TioDecodeException("response line is too long");
     }
     return null;
   }

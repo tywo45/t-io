@@ -177,7 +177,7 @@
 	the same "printed page" as the copyright notice for easier identification within
 	third-party archives.
 	
-	   Copyright 2020 t-io
+	   Copyright 2018 JFinal
 	
 	   Licensed under the Apache License, Version 2.0 (the "License");
 	   you may not use this file except in compliance with the License.
@@ -203,7 +203,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.exception.AioDecodeException;
+import org.tio.core.exception.TioDecodeException;
 import org.tio.core.exception.LengthOverflowException;
 import org.tio.core.utils.ByteBufferUtils;
 import org.tio.http.common.utils.HttpParseUtils;
@@ -306,13 +306,13 @@ public class HttpMultiBodyDecoder {
 	 * @param initboundary
 	 * @param channelContext
 	 * @param httpConfig
-	 * @throws AioDecodeException
+	 * @throws TioDecodeException
 	 * @author tanyaowu
 	 */
 	public static void decode(HttpRequest request, RequestLine firstLine, byte[] bodyBytes, String initboundary, ChannelContext channelContext, HttpConfig httpConfig)
-	        throws AioDecodeException {
+	        throws TioDecodeException {
 		if (StrUtil.isBlank(initboundary)) {
-			throw new AioDecodeException("boundary is null");
+			throw new TioDecodeException("boundary is null");
 		}
 
 		long start = SystemTimer.currTime;
@@ -338,7 +338,7 @@ public class HttpMultiBodyDecoder {
 						//                        int ss = buffer.readerIndex() + 2 - offset;
 						break;
 					} else {
-						throw new AioDecodeException("line need:" + boundary + ", but is: " + line + "");
+						throw new TioDecodeException("line need:" + boundary + ", but is: " + line + "");
 					}
 				}
 
@@ -369,7 +369,7 @@ public class HttpMultiBodyDecoder {
 
 			}
 		} catch (LengthOverflowException loe) {
-			throw new AioDecodeException(loe);
+			throw new TioDecodeException(loe);
 		} catch (UnsupportedEncodingException e) {
 			log.error(channelContext.toString(), e);
 		} finally {
@@ -426,7 +426,7 @@ public class HttpMultiBodyDecoder {
 	 * @param httpConfig 
 	 */
 	public static Step parseBody(Header header, HttpRequest request, ByteBuffer buffer, String boundary, String endBoundary, ChannelContext channelContext, HttpConfig httpConfig)
-	        throws UnsupportedEncodingException, LengthOverflowException, AioDecodeException {
+	        throws UnsupportedEncodingException, LengthOverflowException, TioDecodeException {
 		int initPosition = buffer.position();
 
 		while (buffer.hasRemaining()) {
@@ -461,7 +461,7 @@ public class HttpMultiBodyDecoder {
 			}
 		}
 		log.error("文件上传，协议不对，step is null");
-		throw new AioDecodeException("step is null");
+		throw new TioDecodeException("step is null");
 	}
 
 	/**
@@ -477,9 +477,9 @@ public class HttpMultiBodyDecoder {
 	 * @param header
 	 * @author tanyaowu
 	 */
-	public static void parseHeader(List<String> lines, Header header, ChannelContext channelContext) throws AioDecodeException {
+	public static void parseHeader(List<String> lines, Header header, ChannelContext channelContext) throws TioDecodeException {
 		if (lines == null || lines.size() == 0) {
-			throw new AioDecodeException("multipart_form_data 格式不对，没有头部信息");
+			throw new TioDecodeException("multipart_form_data 格式不对，没有头部信息");
 		}
 
 		try {
@@ -502,7 +502,7 @@ public class HttpMultiBodyDecoder {
 
 		} catch (Throwable e) {
 			log.error(channelContext.toString(), e);
-			throw new AioDecodeException(e.toString());
+			throw new TioDecodeException(e.toString());
 		}
 
 		//		for (int i = 0; i < lines.size(); i++) {

@@ -177,7 +177,7 @@
 	the same "printed page" as the copyright notice for easier identification within
 	third-party archives.
 	
-	   Copyright 2020 t-io
+	   Copyright 2018 JFinal
 	
 	   Licensed under the Apache License, Version 2.0 (the "License");
 	   you may not use this file except in compliance with the License.
@@ -198,7 +198,7 @@ import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.exception.AioDecodeException;
+import org.tio.core.exception.TioDecodeException;
 import org.tio.core.utils.ByteBufferUtils;
 
 public class WsClientDecoder {
@@ -206,7 +206,7 @@ public class WsClientDecoder {
   private static Logger log = LoggerFactory.getLogger(WsClientDecoder.class);
 
   public static WsResponse decode(ByteBuffer buf, ChannelContext channelContext)
-      throws AioDecodeException {
+      throws TioDecodeException {
     // 第一阶段解析
     int initPosition = buf.position();
     int readableLength = buf.limit() - initPosition;
@@ -236,7 +236,7 @@ public class WsClientDecoder {
 
     // Client data must be masked
     if (!hasMask) { // 第9为为mask,必须为1
-      // throw new AioDecodeException("websocket client data must be masked");
+      // throw new TioDecodeException("websocket client data must be masked");
     } else {
       headLength += 4;
     }
@@ -262,7 +262,7 @@ public class WsClientDecoder {
     }
 
     if (payloadLength < 0 ) {
-      throw new AioDecodeException("body length(" + payloadLength + ") is not right");
+      throw new TioDecodeException("body length(" + payloadLength + ") is not right");
     }
 
     if (readableLength < headLength + payloadLength) {
