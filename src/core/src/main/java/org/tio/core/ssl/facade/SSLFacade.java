@@ -205,29 +205,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.ssl.SslVo;
+import org.tio.core.utils.ByteBufferUtils;
 
-/**
- * 一个
- * @author tanyaowu
- *
- */
 public class SSLFacade implements ISSLFacade {
 	@SuppressWarnings("unused")
-	private static final String	TAG	= "SSLFascade";
-	private static final Logger	log	= LoggerFactory.getLogger(SSLFacade.class);
-
+	private static final String TAG = "SSLFascade";
+	private static final Logger log = LoggerFactory.getLogger(SSLFacade.class);
 	private AtomicLong sslSeq = new AtomicLong();
-
-	private Handshaker					_handshaker;
-	private IHandshakeCompletedListener	_hcl;
-	private final Worker				_worker;
-	private boolean						_clientMode;
-	private ChannelContext				channelContext;
+	private Handshaker _handshaker;
+	private IHandshakeCompletedListener _hcl;
+	private final Worker _worker;
+	private boolean _clientMode;
+	private ChannelContext channelContext;
 
 	public SSLFacade(ChannelContext channelContext, SSLContext context, boolean client, boolean clientAuthRequired, ITaskHandler taskHandler) {
 		this.channelContext = channelContext;
-		//Currently there is no support for SSL session reuse,
-		// so no need to take a peerHost or port from the host application
 		final String who = client ? "client" : "server";
 		SSLEngine engine = makeSSLEngine(context, client, clientAuthRequired);
 		Buffers buffers = new Buffers(engine.getSession(), channelContext);
@@ -235,10 +227,6 @@ public class SSLFacade implements ISSLFacade {
 		_handshaker = new Handshaker(client, _worker, taskHandler, channelContext);
 		_clientMode = client;
 	}
-
-	//	private void debug(final String message, final String... args) {
-	//		SSLLog.debug(TAG, message, args);
-	//	}
 
 	@Override
 	public boolean isClientMode() {
@@ -276,7 +264,7 @@ public class SSLFacade implements ISSLFacade {
 		long seq = sslSeq.incrementAndGet();
 
 		ByteBuffer src = sslVo.getByteBuffer();
-		ByteBuffer[] byteBuffers = org.tio.core.utils.ByteBufferUtils.split(src, 1024 * 8);
+		ByteBuffer[] byteBuffers = ByteBufferUtils.split(src, 2048);
 		if (byteBuffers == null) {
 			log.debug("{}, 准备, SSL加密{}, 明文:{}", channelContext, channelContext.getId() + "_" + seq, sslVo);
 			SSLEngineResult result = _worker.wrap(sslVo, sslVo.getByteBuffer());

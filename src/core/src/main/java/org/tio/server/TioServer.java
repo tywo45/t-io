@@ -194,16 +194,12 @@
 package org.tio.server;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
-import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
-import java.net.URL;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -212,7 +208,6 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.Node;
-import org.tio.utils.IoUtils;
 import org.tio.utils.SysConst;
 import org.tio.utils.hutool.DateUtil;
 import org.tio.utils.hutool.StrUtil;
@@ -353,8 +348,6 @@ public class TioServer {
 		} else {
 			System.out.println(printStr);
 		}
-
-		checkLastVersion();
 	}
 
 	/**
@@ -399,63 +392,6 @@ public class TioServer {
 
 		log.info(this.serverNode + " stopped");
 		return ret;
-	}
-
-	private void checkLastVersion() {
-		if (checkLastVersion) {
-			serverTioConfig.groupExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						URL url = new URL(SysConst.CHECK_LASTVERSION_URL_1);
-						HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-						connection.setRequestMethod("GET");
-						connection.setConnectTimeout(10 * 1000);
-						connection.connect();
-						int responseCode = connection.getResponseCode();
-						if (responseCode == HttpURLConnection.HTTP_OK) {
-							InputStream inputStream = connection.getInputStream();
-							String result = IoUtils.streamToString(inputStream);
-
-							connection.disconnect();
-
-							url = new URL(SysConst.CHECK_LASTVERSION_URL_2 + result);
-							connection = (HttpURLConnection) url.openConnection();
-							connection.setRequestMethod("GET");
-							connection.setConnectTimeout(10 * 1000);
-							connection.connect();
-							responseCode = connection.getResponseCode();
-							if (responseCode == HttpURLConnection.HTTP_OK) {
-								inputStream = connection.getInputStream();
-								result = IoUtils.streamToString(inputStream);
-
-								if (SysConst.TIO_CORE_VERSION.equals(result)) {
-									log.info("The version you are using is the latest");
-								} else {
-									log.info("t-io latest version:{}，your version:{}", result, SysConst.TIO_CORE_VERSION);
-									//3.6.2.v20200808-RELEASE
-									String myVersionDateStr = SysConst.TIO_CORE_VERSION.substring(SysConst.TIO_CORE_VERSION.length() - 16, SysConst.TIO_CORE_VERSION.length() - 8);
-									String latestVersionDateStr = result.substring(result.length() - 16, result.length() - 8);
-
-									SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-
-									Date myVersionDate = format.parse(myVersionDateStr);
-									Date latestVersionDate = format.parse(latestVersionDateStr);
-									Integer days = DateUtil.daysBetween(myVersionDate, latestVersionDate);
-
-									log.info("You haven't upgraded in {} days", days);
-								}
-							}
-
-							connection.disconnect();
-
-						}
-					} catch (Exception e) {
-						//						log.error("", e);
-					}
-				}
-			});
-		}
 	}
 
 	public boolean isCheckLastVersion() {

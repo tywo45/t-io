@@ -203,7 +203,7 @@ import org.tio.websocket.common.WsRequest;
  * @author tanyaowu
  * 2017年7月30日 上午9:34:59
  */
-public interface IWsMsgHandler {
+public interface IWsMsgHandler extends IWsSubProtocolsMsgHandler {
 	/**
 	 * <li>对httpResponse参数进行补充并返回，如果返回null表示不想和对方建立连接，框架会断开连接，如果返回非null，框架会把这个对象发送给对方</li>
 	 * <li>注：请不要在这个方法中向对方发送任何消息，因为这个时候握手还没完成，发消息会导致协议交互失败。</li>
@@ -215,7 +215,7 @@ public interface IWsMsgHandler {
 	 * @throws Exception
 	 * @author tanyaowu
 	 */
-	public HttpResponse handshake(HttpRequest httpRequest, HttpResponse httpResponse, ChannelContext channelContext) throws Exception;
+	HttpResponse handshake(HttpRequest httpRequest, HttpResponse httpResponse, ChannelContext channelContext) throws Exception;
 
 	/**
 	 * 握手成功后触发该方法
@@ -225,7 +225,7 @@ public interface IWsMsgHandler {
 	 * @throws Exception
 	 * @author tanyaowu
 	 */
-	public void onAfterHandshaked(HttpRequest httpRequest, HttpResponse httpResponse, ChannelContext channelContext) throws Exception;
+	void onAfterHandshaked(HttpRequest httpRequest, HttpResponse httpResponse, ChannelContext channelContext) throws Exception;
 
 	/**
 	 * <li>当收到Opcode.BINARY消息时，执行该方法。也就是说如何你的ws是基于BINARY传输的，就会走到这个方法</li>

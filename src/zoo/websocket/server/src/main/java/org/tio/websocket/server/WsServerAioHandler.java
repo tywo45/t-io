@@ -195,10 +195,7 @@ package org.tio.websocket.server;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -308,7 +305,7 @@ public class WsServerAioHandler implements ServerAioHandler {
 					}
 					
 					byte[] allBody = new byte[allBodyLength];
-					Integer index = 0;
+					int index = 0;
 					for (WsRequest wsRequest : parts) {
 						System.arraycopy(wsRequest.getBody(), 0, allBody, index, wsRequest.getBody().length);
 						index += wsRequest.getBody().length;
@@ -336,7 +333,14 @@ public class WsServerAioHandler implements ServerAioHandler {
 
 	@Override
 	public ByteBuffer encode(Packet packet, TioConfig tioConfig, ChannelContext channelContext) {
-		WsResponse wsResponse = (WsResponse) packet;
+		// 处理 websocket 子协议
+		WsResponse wsResponse;
+		if (packet instanceof WsResponse) {
+			wsResponse = (WsResponse) packet;
+		} else {
+			wsResponse = wsMsgHandler.encodeSubProtocol(packet, tioConfig, channelContext);
+			Objects.requireNonNull(wsResponse, "IWsMsgHandler encodeSubProtocol WsResponse is null.");
+		}
 
 		// 握手包
 		if (wsResponse.isHandShake()) {
@@ -350,8 +354,7 @@ public class WsServerAioHandler implements ServerAioHandler {
 			}
 		}
 
-		ByteBuffer byteBuffer = WsServerEncoder.encode(wsResponse, tioConfig, channelContext);
-		return byteBuffer;
+		return WsServerEncoder.encode(wsResponse, tioConfig, channelContext);
 	}
 
 	/** @return the httpConfig */
@@ -379,6 +382,7 @@ public class WsServerAioHandler implements ServerAioHandler {
 			Object retObj = wsMsgHandler.onBytes(websocketPacket, bytes, channelContext);
 			String methodName = "onBytes";
 			wsResponse = processRetObj(retObj, methodName, channelContext);
+
 			return wsResponse;
 		} else if (opcode == Opcode.PING || opcode == Opcode.PONG) {
 			log.debug("收到" + opcode);
@@ -471,7 +475,7 @@ public class WsServerAioHandler implements ServerAioHandler {
 	 * @return
 	 * @author tanyaowu
 	 */
-	public static HttpResponse updateWebSocketProtocol(HttpRequest request, ChannelContext channelContext) {
+	public HttpResponse updateWebSocketProtocol(HttpRequest request, ChannelContext channelContext) {
 		Map<String, String> headers = request.getHeaders();
 
 		String Sec_WebSocket_Key = headers.get(HttpConst.RequestHeaderKey.Sec_WebSocket_Key);
@@ -499,9 +503,45 @@ public class WsServerAioHandler implements ServerAioHandler {
 			respHeaders.put(HeaderName.Connection, HeaderValue.Connection.Upgrade);
 			respHeaders.put(HeaderName.Upgrade, HeaderValue.Upgrade.WebSocket);
 			respHeaders.put(HeaderName.Sec_WebSocket_Accept, HeaderValue.from(acceptKey));
+
+			// websocket 子协议协商
+			String[] supportedSubProtocols = wsMsgHandler.getSupportedSubProtocols();
+			if (supportedSubProtocols != null && supportedSubProtocols.length > 0) {
+				String requestedSubProtocols = headers.get(HttpConst.RequestHeaderKey.Sec_Websocket_Protocol);
+				String selectSubProtocol = selectSubProtocol(requestedSubProtocols, supportedSubProtocols);
+				if (selectSubProtocol != null) {
+					respHeaders.put(HeaderName.Sec_Websocket_Protocol, HeaderValue.from(selectSubProtocol));
+				}
+			}
+
 			httpResponse.addHeaders(respHeaders);
 			return httpResponse;
 		}
 		return null;
 	}
+
+	/**
+	 * Selects the first matching supported sub protocol
+	 *
+	 * @param requestedSubProtocols 请求中的子协议
+	 * @param subProtocols          系统支持得子协议，注意：不支持 * 通配
+	 * @return First matching supported sub protocol. Null if not found.
+	 */
+	private static String selectSubProtocol(String requestedSubProtocols, String[] subProtocols) {
+		if (requestedSubProtocols == null || subProtocols == null || subProtocols.length == 0) {
+			return null;
+		}
+		String[] requestedSubProtocolArray = requestedSubProtocols.split(",");
+		for (String p : requestedSubProtocolArray) {
+			String requestedSubProtocol = p.trim();
+			for (String supportedSubProtocol : subProtocols) {
+				if (requestedSubProtocol.equals(supportedSubProtocol)) {
+					return requestedSubProtocol;
+				}
+			}
+		}
+		// No match found
+		return null;
+	}
+
 }

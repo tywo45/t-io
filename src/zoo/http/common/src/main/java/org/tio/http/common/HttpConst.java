@@ -255,6 +255,8 @@ public interface HttpConst {
 		 * 值为XMLHttpRequest则为Ajax
 		 */
 		String X_Requested_With = "x-requested-with";//.toLowerCase();//XMLHttpRequest
+
+		String Sec_Websocket_Protocol 		= "sec-websocket-protocol";		//.toLowerCase(); // websocket 子协议
 	}
 
 	//	Content-Type: text/html;charset:utf-8;

@@ -514,6 +514,7 @@ public class ServerTioConfig extends TioConfig {
 			this.clientNodes = tioConfig.clientNodes;
 			this.connections = tioConfig.connections;
 			this.groups = tioConfig.groups;
+			this.groupStat = tioConfig.groupStat;
 			this.users = tioConfig.users;
 			this.tokens = tioConfig.tokens;
 			this.ids = tioConfig.ids;

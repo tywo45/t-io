@@ -204,7 +204,7 @@ import org.tio.core.ChannelContext;
 import org.tio.core.ChannelContext.CloseCode;
 import org.tio.core.Tio;
 import org.tio.core.TioConfig;
-import org.tio.core.exception.AioDecodeException;
+import org.tio.core.exception.TioDecodeException;
 import org.tio.core.intf.Packet;
 import org.tio.core.stat.ChannelStat;
 import org.tio.core.stat.IpStat;
@@ -346,7 +346,7 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 							int per = readableLength / channelStat.decodeFailCount;
 							if (per < Math.min(channelContext.getReadBufferSize() / 2, 256)) {
 								String str = "连续解码" + channelStat.decodeFailCount + "次都不成功，并且平均每次接收到的数据为" + per + "字节，有慢攻击的嫌疑";
-								throw new AioDecodeException(str);
+								throw new TioDecodeException(str);
 							}
 						}
 					}
@@ -413,7 +413,7 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 
 				channelContext.setPacketNeededLength(null);
 
-				if (e instanceof AioDecodeException) {
+				if (e instanceof TioDecodeException) {
 					List<Long> list = tioConfig.ipStats.durationList;
 					if (list != null && list.size() > 0) {
 						try {

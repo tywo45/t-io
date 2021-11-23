@@ -232,7 +232,7 @@ public class RequestLine {
 	 */
 	public String getPathAndQuery() {
 		if (StrUtil.isNotBlank(queryString)) {
-			return path + "?" + queryString;
+			return path + '?' + queryString;
 		}
 		return path;
 	}
@@ -327,12 +327,12 @@ public class RequestLine {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(method.value).append(" ").append(path);
+		sb.append(method.value).append(' ').append(path);
 		if (StrUtil.isNotBlank(queryString)) {
-			sb.append("?").append(queryString);
+			sb.append('?').append(queryString);
 		}
-		sb.append(" ");
-		sb.append(protocol).append("/").append(version);
+		sb.append(' ');
+		sb.append(protocol).append('/').append(version);
 
 		return sb.toString();
 	}
@@ -346,9 +346,9 @@ public class RequestLine {
 	@SuppressWarnings("deprecation")
 	public String toUrlEncodedString(String charset) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(method.value).append(" ").append(path);
+		sb.append(method.value).append(' ').append(path);
 		if (StrUtil.isNotBlank(queryString)) {
-			sb.append("?");//.append(queryString);
+			sb.append('?');//.append(queryString);
 			String[] keyValues = queryString.split("&");
 			int i = 0;
 			for (String keyValue : keyValues) {
@@ -358,21 +358,21 @@ public class RequestLine {
 					String value = keyValueArray[1];
 					if (StrUtil.isNotBlank(charset)) {
 						try {
-							sb.append(name).append("=").append(URLEncoder.encode(value, charset));
+							sb.append(name).append('=').append(URLEncoder.encode(value, charset));
 						} catch (UnsupportedEncodingException e) {
-							sb.append(name).append("=").append(URLEncoder.encode(value));
+							sb.append(name).append('=').append(URLEncoder.encode(value));
 						}
 					} else {
-						sb.append(name).append("=").append(URLEncoder.encode(value));
+						sb.append(name).append('=').append(URLEncoder.encode(value));
 					}
 					if (i != keyValues.length - 1)
-					  sb.append("&");
+					  sb.append('&');
 				}
 				i++;
 			}
 		}
-		sb.append(" ");
-		sb.append(protocol).append("/").append(version);
+		sb.append(' ');
+		sb.append(protocol).append('/').append(version);
 
 		return sb.toString();
 	}

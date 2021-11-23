@@ -195,6 +195,7 @@ package org.tio.core.utils;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -482,6 +483,34 @@ public class ByteBufferUtils {
 		return null;
 	}
 
+	/**
+	 * 获取utf-8字符串
+	 * @param bytes
+	 * @return
+	 * 
+	 */
+	public static String getUtf8(byte[] bytes) {
+		return new String(bytes, StandardCharsets.UTF_8);
+	}
+
+	/**
+	* 读取byte
+	* @param buffer
+	* @return
+	*/
+	public static byte read(ByteBuffer buffer) {
+		return buffer.get();
+	}
+	
+	/**
+	 * 读取short
+	 * @param buffer
+	 * @return
+	 */
+	public static short readShort(ByteBuffer buffer) {
+		return buffer.getShort();
+	}
+	
 	public static int readUB1(ByteBuffer buffer) {
 		int ret = buffer.get() & 0xff;
 		return ret;

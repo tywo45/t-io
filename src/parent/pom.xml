@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -5,7 +6,7 @@
 	<groupId>org.t-io</groupId>
 	<artifactId>tio-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>3.7.0.v20201010-RELEASE</version>
+	<version>3.7.5.v20211028-RELEASE</version>
 	<name>${project.artifactId}</name>
 	<url>http://maven.apache.org</url>
 
@@ -35,44 +36,44 @@
 
 	<properties>
 		<maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
-		<tio.version>3.7.0.v20201010-RELEASE</tio.version>
+		<tio.version>3.7.5.v20211028-RELEASE</tio.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.test.skip>true</maven.test.skip>
 		<maven.version>3.6.0</maven.version>
 
-		<mysql.driver.version>8.0.21</mysql.driver.version><!-- 5.1.46 -->
-		<druid.version>1.2.1</druid.version>
-		<HikariCP.version>3.4.5</HikariCP.version>
+		<mysql.driver.version>8.0.23</mysql.driver.version><!-- 5.1.46 -->
+		<druid.version>1.2.8</druid.version>
+		<HikariCP.version>4.0.3</HikariCP.version>
 		<jfinal.version>4.9</jfinal.version>
 		<logback.version>1.2.3</logback.version>
 		<slf4j.version>1.7.26</slf4j.version>
 		<jdk.version>1.8</jdk.version>
-		<junit.version>4.13</junit.version>
+		<junit.version>4.13.1</junit.version>
 		<commons-collections4.version>4.4</commons-collections4.version>
-		<commons-io.version>2.8.0</commons-io.version>
-		<commons-lang3.version>3.11</commons-lang3.version>
+		<commons-io.version>2.11.0</commons-io.version>
+		<commons-lang3.version>3.12.0</commons-lang3.version>
 		<commons-codec.version>1.15</commons-codec.version>
-		<commons-compress.version>1.20</commons-compress.version>
-		<fastjson.version>1.2.74</fastjson.version>
-		<testng.version>7.3.0</testng.version>
-		<hutool.version>5.4.4</hutool.version>
+		<commons-compress.version>1.21</commons-compress.version>
+		<fastjson.version>1.2.78</fastjson.version>
+		<testng.version>7.4.0</testng.version>
+		<hutool.version>5.7.15</hutool.version>
 		<protobuf-java.version>3.12.2</protobuf-java.version>
 		<commons-beanutils.version>1.9.4</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
-		<protostuff.version>1.7.2</protostuff.version>
-		<redisson.version>3.13.5</redisson.version>
+		<protostuff.version>1.7.4</protostuff.version>
+		<redisson.version>3.16.3</redisson.version>
 		<jodd.version>5.1.6</jodd.version>
 		<quartz.version>2.3.2</quartz.version>
-		<caffeine.version>2.8.5</caffeine.version>
-		<binarywang.version>3.9.0</binarywang.version>
+		<caffeine.version>2.9.0</caffeine.version>
+		<binarywang.version>4.1.5.B</binarywang.version>
 		<zxing.version>3.4.1</zxing.version>
-		<httpcore.version>4.4.13</httpcore.version>
+		<httpcore.version>4.4.14</httpcore.version>
 		<httpclient.version>4.5.13</httpclient.version>
-		<closure.version>v20201006</closure.version>
-		<freemarker.version>2.3.30</freemarker.version>
+		<closure.version>v20211006</closure.version>
+		<freemarker.version>2.3.31</freemarker.version>
 		<UserAgentUtils.version>1.21</UserAgentUtils.version>
-		<scribejava-apis.version>7.1.1</scribejava-apis.version>
+		<scribejava-apis.version>8.3.1</scribejava-apis.version>
 		<oltu.oauth2.version>1.0.2</oltu.oauth2.version>
 
 
@@ -97,21 +98,22 @@
 		<ffmpeg.version>4.1-${javacpp.version}</ffmpeg.version>
 		<opencv.version>4.0.1-${javacpp.version}</opencv.version>
 
-		<IJPay.version>2.7</IJPay.version>
+		<IJPay.version>2.7.9</IJPay.version>
 
 
 		<shardingsphere.version>3.1.0</shardingsphere.version>
 
-		<svnkit.version>1.10.1</svnkit.version>
+		<svnkit.version>1.10.3</svnkit.version>
 		<proguard.version>6.2.2</proguard.version>
 		<okhttp.version>4.9.0</okhttp.version>
-		<neo4j.version>3.2.12</neo4j.version>
-		<xmlunit.version>2.7.0</xmlunit.version>
-		<mongodb.version>3.12.7</mongodb.version>
+		<neo4j.version>3.2.25</neo4j.version>
+		<xmlunit.version>2.8.3</xmlunit.version>
+		<mongodb.version>3.12.10</mongodb.version>
 
 		<spring.boot.version>2.2.7.RELEASE</spring.boot.version>
-		<jna.version>5.6.0</jna.version>
-		<oshi.version>5.3.0</oshi.version>
+		<jna.version>5.9.0</jna.version>
+		<oshi.version>5.8.3</oshi.version>
+		<poi.version>5.0.0</poi.version>
 
 	</properties>
 
@@ -129,10 +131,34 @@
 		<dependencies>
 
 			<dependency>
+				<groupId>org.openjfx</groupId>
+				<artifactId>javafx-controls</artifactId>
+				<version>18-ea+1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>me.zhyd.oauth</groupId>
+				<artifactId>JustAuth</artifactId>
+				<version>1.16.5</version>
+			</dependency>
+
+			<dependency>
 				<groupId>org.mapdb</groupId>
 				<artifactId>mapdb</artifactId>
 				<version>3.0.8</version>
 			</dependency>
+
+			<dependency>
+				<groupId>cglib</groupId>
+				<artifactId>cglib</artifactId>
+				<version>3.3.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ow2.asm</groupId>
+				<artifactId>asm</artifactId>
+				<version>9.2</version>
+			</dependency>
+
 			<dependency>
 				<groupId>com.github.oshi</groupId>
 				<artifactId>oshi-core</artifactId>
@@ -202,6 +228,14 @@
 				<version>${tio.version}</version>
 			</dependency>
 
+
+			<dependency>
+				<groupId>org.t-io</groupId>
+				<artifactId>tio-clu-server</artifactId>
+				<version>${tio.version}</version>
+			</dependency>
+
+
 			<dependency>
 				<groupId>org.t-io</groupId>
 				<artifactId>tio-umeng</artifactId>
@@ -223,7 +257,7 @@
 			<dependency>
 				<groupId>commons-net</groupId>
 				<artifactId>commons-net</artifactId>
-				<version>3.7.1</version>
+				<version>3.8.0</version>
 			</dependency>
 
 			<dependency>
@@ -367,7 +401,11 @@
 			</dependency>
 
 
-
+			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-api</artifactId>
+				<version>2.14.1</version>
+			</dependency>
 
 			<!-- log framework start -->
 			<dependency>
@@ -468,7 +506,7 @@
 			<dependency>
 				<groupId>org.json</groupId>
 				<artifactId>json</artifactId>
-				<version>20200518</version>
+				<version>20210307</version>
 			</dependency>
 
 			<dependency>
@@ -491,7 +529,7 @@
 			<dependency>
 				<groupId>org.jsoup</groupId>
 				<artifactId>jsoup</artifactId>
-				<version>1.13.1</version>
+				<version>1.14.3</version>
 			</dependency>
 
 			<dependency>
@@ -503,13 +541,13 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>29.0-jre</version>
+				<version>31.0.1-jre</version>
 			</dependency>
 
 			<dependency>
 				<groupId>nl.basjes.parse.useragent</groupId>
 				<artifactId>yauaa</artifactId>
-				<version>5.19</version>
+				<version>6.0</version>
 			</dependency>
 
 			<dependency>
@@ -542,7 +580,7 @@
 			<dependency>
 				<groupId>com.typesafe</groupId>
 				<artifactId>config</artifactId>
-				<version>1.4.0</version>
+				<version>1.4.1</version>
 			</dependency>
 
 			<dependency>
@@ -588,7 +626,7 @@
 			<dependency>
 				<groupId>io.github.classgraph</groupId>
 				<artifactId>classgraph</artifactId>
-				<version>4.8.90</version>
+				<version>4.8.128</version>
 			</dependency>
 			<dependency>
 				<groupId>com.thoughtworks.paranamer</groupId>
@@ -610,17 +648,17 @@
 			<dependency>
 				<groupId>org.mongodb</groupId>
 				<artifactId>bson</artifactId>
-				<version>4.0.0</version>
+				<version>4.3.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mongodb</groupId>
 				<artifactId>mongodb-driver-core</artifactId>
-				<version>4.0.0</version>
+				<version>4.3.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mongodb</groupId>
 				<artifactId>mongodb-driver-reactivestreams</artifactId>
-				<version>4.0.0</version>
+				<version>4.3.1</version>
 			</dependency>
 
 			<dependency>
@@ -650,17 +688,17 @@
 			<dependency>
 				<groupId>com.aliyun</groupId>
 				<artifactId>aliyun-java-sdk-core</artifactId>
-				<version>3.7.1</version>
+				<version>4.5.25</version>
 			</dependency>
 			<dependency>
 				<groupId>com.aliyun</groupId>
 				<artifactId>aliyun-java-sdk-live</artifactId>
-				<version>3.6.0</version>
+				<version>3.9.11</version>
 			</dependency>
 			<dependency>
 				<groupId>com.aliyun.oss</groupId>
 				<artifactId>aliyun-sdk-oss</artifactId>
-				<version>3.1.0</version>
+				<version>3.13.1</version>
 			</dependency>
 
 			<dependency>
@@ -730,13 +768,13 @@
 			<dependency>
 				<groupId>org.apache.curator</groupId>
 				<artifactId>curator-x-discovery</artifactId>
-				<version>5.1.0</version>
+				<version>5.2.0</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.apache.zookeeper</groupId>
 				<artifactId>zookeeper</artifactId>
-				<version>3.6.2</version>
+				<version>3.7.0</version>
 			</dependency>
 
 			<!-- QQ登录 -->
@@ -789,13 +827,13 @@
 			<dependency>
 				<groupId>com.esotericsoftware</groupId>
 				<artifactId>kryo</artifactId>
-				<version>5.0.0-RC5</version>
+				<version>5.2.0</version>
 			</dependency>
 
 			<dependency>
 				<groupId>io.netty</groupId>
 				<artifactId>netty-bom</artifactId>
-				<version>4.1.50.Final</version>
+				<version>4.1.63.Final</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -819,7 +857,7 @@
 			<dependency>
 				<groupId>com.github.hazendaz</groupId>
 				<artifactId>htmlcompressor</artifactId>
-				<version>1.7.1</version>
+				<version>1.7.2</version>
 			</dependency>
 
 			<dependency>
@@ -860,7 +898,7 @@
 			<dependency>
 				<groupId>io.reactivex.rxjava2</groupId>
 				<artifactId>rxjava</artifactId>
-				<version>2.2.20</version>
+				<version>2.2.21</version>
 			</dependency>
 
 			<dependency>
@@ -928,13 +966,13 @@
 			<dependency>
 				<groupId>net.coobird</groupId>
 				<artifactId>thumbnailator</artifactId>
-				<version>0.4.12</version>
+				<version>0.4.14</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.lmax</groupId>
 				<artifactId>disruptor</artifactId>
-				<version>3.4.2</version>
+				<version>3.4.4</version>
 			</dependency>
 
 			<dependency>
@@ -943,29 +981,29 @@
 				<version>2.5.1</version>
 			</dependency>
 
-			
+
 
 			<dependency>
 				<groupId>net.bytebuddy</groupId>
 				<artifactId>byte-buddy</artifactId>
-				<version>1.10.17</version>
+				<version>1.11.21</version>
 			</dependency>
 			<dependency>
 				<groupId>io.projectreactor</groupId>
 				<artifactId>reactor-core</artifactId>
-				<version>3.3.10.RELEASE</version>
+				<version>3.4.11</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.code.gson</groupId>
 				<artifactId>gson</artifactId>
-				<version>2.8.6</version>
+				<version>2.8.8</version>
 			</dependency>
 
 
 			<dependency>
 				<groupId>cn.jpush.api</groupId>
 				<artifactId>jpush-client</artifactId>
-				<version>3.4.7</version>
+				<version>3.5.4</version>
 			</dependency>
 
 			<dependency>
@@ -1043,18 +1081,48 @@
 			<dependency>
 				<groupId>org.webjars</groupId>
 				<artifactId>webjars-locator-core</artifactId>
-				<version>0.46</version>
+				<version>0.48</version>
 			</dependency>
 
 			<dependency>
 				<groupId>redis.clients</groupId>
 				<artifactId>jedis</artifactId>
-				<version>3.3.0</version>
+				<version>3.7.0</version>
 			</dependency>
 			<dependency>
 				<groupId>com.couchbase.client</groupId>
 				<artifactId>java-client</artifactId>
-				<version>3.0.9</version>
+				<version>3.2.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.elasticsearch.client</groupId>
+				<artifactId>elasticsearch-rest-high-level-client</artifactId>
+				<version>7.13.0</version>
+			</dependency>
+
+
+
+
+			<dependency>
+				<groupId>org.apache.poi</groupId>
+				<artifactId>poi</artifactId>
+				<version>${poi.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.poi</groupId>
+				<artifactId>poi-scratchpad</artifactId>
+				<version>${poi.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.opensagres.xdocreport</groupId>
+				<artifactId>fr.opensagres.xdocreport.document</artifactId>
+				<version>2.0.2</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.opensagres.xdocreport</groupId>
+				<artifactId>org.apache.poi.xwpf.converter.xhtml</artifactId>
+				<version>1.0.6</version>
 			</dependency>
 
 		</dependencies>

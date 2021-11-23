@@ -232,6 +232,7 @@ public class HeaderName {
 	public static final HeaderName	tio_from_cache						= new HeaderName(HttpConst.ResponseHeaderKey.tio_from_cache);
 	public static final HeaderName	tio_webpack_used_cache				= new HeaderName(HttpConst.ResponseHeaderKey.tio_webpack_used_cache);
 	public static final HeaderName	Access_Control_Allow_Credentials	= new HeaderName(HttpConst.ResponseHeaderKey.Access_Control_Allow_Credentials);
+	public static final HeaderName	Sec_Websocket_Protocol 				= HeaderName.from(HttpConst.RequestHeaderKey.Sec_Websocket_Protocol);
 
 	public final String name;
 
