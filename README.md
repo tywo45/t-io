@@ -1,4 +1,4 @@
-# t-io 让天下没有难开发的网络程序
+# 如果网络编程很痛苦，那一定是没用t-io
 t-io是talent-tan采用java语言开发的一款网络编程框架
 
 # 为什么要开发t-io
@@ -41,6 +41,7 @@ https://www.tiocloud.com/doc/tio/85
 
 # t-io技术白皮书
 [《t-io技术白皮书》](https://www.tiocloud.com/tio.pdf)
+
 [![t-io技术白皮书](https://images.gitee.com/uploads/images/2021/1123/155602_fde63447_355738.jpeg "t-io技术白皮书.jpg")](https://www.tiocloud.com/tio.pdf)
 
 
