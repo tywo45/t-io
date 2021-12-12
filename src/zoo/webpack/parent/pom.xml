@@ -21,7 +21,7 @@
 	<parent>
 		<groupId>org.t-io</groupId>
 		<artifactId>tio-zoo-parent</artifactId>
-		<version>3.7.5.v20211028-RELEASE</version>
+		<version>3.7.6.v20211212-RELEASE</version>
 		<relativePath>../../parent/pom.xml</relativePath>
 	</parent>
 

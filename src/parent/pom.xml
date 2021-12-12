@@ -6,7 +6,7 @@
 	<groupId>org.t-io</groupId>
 	<artifactId>tio-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>3.7.5.v20211028-RELEASE</version>
+	<version>3.7.6.v20211212-RELEASE</version>
 	<name>${project.artifactId}</name>
 	<url>http://maven.apache.org</url>
 
@@ -36,7 +36,7 @@
 
 	<properties>
 		<maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
-		<tio.version>3.7.5.v20211028-RELEASE</tio.version>
+		<tio.version>3.7.6.v20211212-RELEASE</tio.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.test.skip>true</maven.test.skip>
@@ -48,7 +48,7 @@
 		<jfinal.version>4.9</jfinal.version>
 		<logback.version>1.2.3</logback.version>
 		<slf4j.version>1.7.26</slf4j.version>
-		<jdk.version>16</jdk.version>
+		<jdk.version>17</jdk.version>
 		<junit.version>4.13.1</junit.version>
 		<commons-collections4.version>4.4</commons-collections4.version>
 		<commons-io.version>2.11.0</commons-io.version>
