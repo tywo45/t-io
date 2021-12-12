@@ -40,15 +40,15 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.test.skip>true</maven.test.skip>
-		<maven.version>3.6.0</maven.version>
+		<maven.version>3.8.3</maven.version>
 
 		<mysql.driver.version>8.0.23</mysql.driver.version><!-- 5.1.46 -->
 		<druid.version>1.2.8</druid.version>
-		<HikariCP.version>4.0.3</HikariCP.version>
+		<HikariCP.version>5.0.0</HikariCP.version>
 		<jfinal.version>4.9</jfinal.version>
 		<logback.version>1.2.3</logback.version>
 		<slf4j.version>1.7.26</slf4j.version>
-		<jdk.version>1.8</jdk.version>
+		<jdk.version>16</jdk.version>
 		<junit.version>4.13.1</junit.version>
 		<commons-collections4.version>4.4</commons-collections4.version>
 		<commons-io.version>2.11.0</commons-io.version>
@@ -57,20 +57,20 @@
 		<commons-compress.version>1.21</commons-compress.version>
 		<fastjson.version>1.2.78</fastjson.version>
 		<testng.version>7.4.0</testng.version>
-		<hutool.version>5.7.15</hutool.version>
+		<hutool.version>5.7.17</hutool.version>
 		<protobuf-java.version>3.12.2</protobuf-java.version>
 		<commons-beanutils.version>1.9.4</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
 		<protostuff.version>1.7.4</protostuff.version>
-		<redisson.version>3.16.3</redisson.version>
+		<redisson.version>3.16.4</redisson.version>
 		<jodd.version>5.1.6</jodd.version>
 		<quartz.version>2.3.2</quartz.version>
-		<caffeine.version>2.9.0</caffeine.version>
-		<binarywang.version>4.1.5.B</binarywang.version>
+		<caffeine.version>3.0.5</caffeine.version>
+		<binarywang.version>4.2.0</binarywang.version>
 		<zxing.version>3.4.1</zxing.version>
 		<httpcore.version>4.4.14</httpcore.version>
 		<httpclient.version>4.5.13</httpclient.version>
-		<closure.version>v20211006</closure.version>
+		<closure.version>v20211201</closure.version>
 		<freemarker.version>2.3.31</freemarker.version>
 		<UserAgentUtils.version>1.21</UserAgentUtils.version>
 		<scribejava-apis.version>8.3.1</scribejava-apis.version>
@@ -113,7 +113,7 @@
 		<spring.boot.version>2.2.7.RELEASE</spring.boot.version>
 		<jna.version>5.9.0</jna.version>
 		<oshi.version>5.8.3</oshi.version>
-		<poi.version>5.0.0</poi.version>
+		<poi.version>5.1.0</poi.version>
 
 	</properties>
 
@@ -404,7 +404,7 @@
 			<dependency>
 				<groupId>org.apache.logging.log4j</groupId>
 				<artifactId>log4j-api</artifactId>
-				<version>2.14.1</version>
+				<version>2.15.0</version>
 			</dependency>
 
 			<!-- log framework start -->
@@ -506,7 +506,7 @@
 			<dependency>
 				<groupId>org.json</groupId>
 				<artifactId>json</artifactId>
-				<version>20210307</version>
+				<version>20211205</version>
 			</dependency>
 
 			<dependency>
@@ -547,7 +547,7 @@
 			<dependency>
 				<groupId>nl.basjes.parse.useragent</groupId>
 				<artifactId>yauaa</artifactId>
-				<version>6.0</version>
+				<version>6.3</version>
 			</dependency>
 
 			<dependency>
@@ -614,7 +614,7 @@
 			<dependency>
 				<groupId>de.ruedigermoeller</groupId>
 				<artifactId>fst</artifactId>
-				<version>2.57</version>
+				<version>3.0.3</version>
 			</dependency>
 
 			<dependency>
@@ -688,7 +688,7 @@
 			<dependency>
 				<groupId>com.aliyun</groupId>
 				<artifactId>aliyun-java-sdk-core</artifactId>
-				<version>4.5.25</version>
+				<version>4.5.30</version>
 			</dependency>
 			<dependency>
 				<groupId>com.aliyun</groupId>
@@ -833,7 +833,7 @@
 			<dependency>
 				<groupId>io.netty</groupId>
 				<artifactId>netty-bom</artifactId>
-				<version>4.1.63.Final</version>
+				<version>4.1.70.Final</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -966,7 +966,7 @@
 			<dependency>
 				<groupId>net.coobird</groupId>
 				<artifactId>thumbnailator</artifactId>
-				<version>0.4.14</version>
+				<version>0.4.15</version>
 			</dependency>
 
 			<dependency>
@@ -986,7 +986,7 @@
 			<dependency>
 				<groupId>net.bytebuddy</groupId>
 				<artifactId>byte-buddy</artifactId>
-				<version>1.11.21</version>
+				<version>1.11.22</version>
 			</dependency>
 			<dependency>
 				<groupId>io.projectreactor</groupId>
@@ -996,7 +996,7 @@
 			<dependency>
 				<groupId>com.google.code.gson</groupId>
 				<artifactId>gson</artifactId>
-				<version>2.8.8</version>
+				<version>2.8.9</version>
 			</dependency>
 
 
