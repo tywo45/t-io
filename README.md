@@ -1,5 +1,9 @@
+
 # 网络编程很苦，用t-io后会很甜
 t-io是talent-tan采用java语言开发的一款网络编程框架
+
+[![t-io gitee](https://www.tiocloud.com/2/imgs/product/tio/mayun.png)](https://gitee.com/tywo45/t-io)
+[![t-io github](https://www.tiocloud.com/2/imgs/product/tio/Github.png)](https://github.com/tywo45/t-io)
 
 # 为什么要开发t-io
 在t-io之前，已经有mina,netty这样的网络编程框架了，talent-tan出于什么考虑要重新发明轮子呢？原因很奇葩： 
