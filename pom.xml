@@ -45,7 +45,7 @@
 		<mysql.driver.version>8.0.23</mysql.driver.version><!-- 5.1.46 -->
 		<druid.version>1.2.8</druid.version>
 		<HikariCP.version>5.0.0</HikariCP.version>
-		<jfinal.version>4.9</jfinal.version>
+		<jfinal.version>4.9.11</jfinal.version>
 		<logback.version>1.2.3</logback.version>
 		<slf4j.version>1.7.26</slf4j.version>
 		<jdk.version>17</jdk.version>
