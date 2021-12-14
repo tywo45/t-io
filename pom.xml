@@ -1,0 +1,1450 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.t-io</groupId>
+	<artifactId>tio-parent</artifactId>
+	<packaging>pom</packaging>
+	<version>3.7.6.v20211212-RELEASE</version>
+	<name>${project.artifactId}</name>
+	<url>http://maven.apache.org</url>
+
+	<description>t-io is a aio framework for java</description>
+
+	<!-- <prerequisites> <maven>3.3.9</maven> </prerequisites> -->
+
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>https://gitee.com/tywo45/t-io/blob/master/LICENSE</url>
+		</license>
+	</licenses>
+
+
+	<scm>
+		<connection>scm:svn://gitee.com/tywo45/t-io</connection>
+		<developerConnection>scm:svn://gitee.com/tywo45/t-io</developerConnection>
+		<url>svn://gitee.com/tywo45/t-io</url>
+	</scm>
+
+	<modules>
+		<module>./src/utils</module>
+		<module>./src/core</module>
+		<module>./src/zoo/parent</module>
+	</modules>
+
+	<properties>
+		<maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
+		<tio.version>3.7.6.v20211212-RELEASE</tio.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<maven.test.skip>true</maven.test.skip>
+		<maven.version>3.8.3</maven.version>
+
+		<mysql.driver.version>8.0.23</mysql.driver.version><!-- 5.1.46 -->
+		<druid.version>1.2.8</druid.version>
+		<HikariCP.version>5.0.0</HikariCP.version>
+		<jfinal.version>4.9</jfinal.version>
+		<logback.version>1.2.3</logback.version>
+		<slf4j.version>1.7.26</slf4j.version>
+		<jdk.version>17</jdk.version>
+		<junit.version>4.13.1</junit.version>
+		<commons-collections4.version>4.4</commons-collections4.version>
+		<commons-io.version>2.11.0</commons-io.version>
+		<commons-lang3.version>3.12.0</commons-lang3.version>
+		<commons-codec.version>1.15</commons-codec.version>
+		<commons-compress.version>1.21</commons-compress.version>
+		<fastjson.version>1.2.78</fastjson.version>
+		<testng.version>7.4.0</testng.version>
+		<hutool.version>5.7.17</hutool.version>
+		<protobuf-java.version>3.12.2</protobuf-java.version>
+		<commons-beanutils.version>1.9.4</commons-beanutils.version>
+		<protobuf-java-format.version>1.4</protobuf-java-format.version>
+		<protostuff.version>1.7.4</protostuff.version>
+		<redisson.version>3.16.4</redisson.version>
+		<jodd.version>5.1.6</jodd.version>
+		<quartz.version>2.3.2</quartz.version>
+		<caffeine.version>3.0.5</caffeine.version>
+		<binarywang.version>4.2.0</binarywang.version>
+		<zxing.version>3.4.1</zxing.version>
+		<httpcore.version>4.4.14</httpcore.version>
+		<httpclient.version>4.5.13</httpclient.version>
+		<closure.version>v20211201</closure.version>
+		<freemarker.version>2.3.31</freemarker.version>
+		<UserAgentUtils.version>1.21</UserAgentUtils.version>
+		<scribejava-apis.version>8.3.1</scribejava-apis.version>
+		<oltu.oauth2.version>1.0.2</oltu.oauth2.version>
+
+
+		<javacpp.platform.android-arm>android-arm</javacpp.platform.android-arm>
+		<javacpp.platform.android-arm64>android-arm64</javacpp.platform.android-arm64>
+		<javacpp.platform.android-x86>android-x86</javacpp.platform.android-x86>
+		<javacpp.platform.android-x86_64>android-x86_64</javacpp.platform.android-x86_64>
+		<javacpp.platform.ios-arm>ios-arm</javacpp.platform.ios-arm>
+		<javacpp.platform.ios-arm64>ios-arm64</javacpp.platform.ios-arm64>
+		<javacpp.platform.ios-x86>ios-x86</javacpp.platform.ios-x86>
+		<javacpp.platform.ios-x86_64>ios-x86_64</javacpp.platform.ios-x86_64>
+		<javacpp.platform.linux-armhf>linux-armhf</javacpp.platform.linux-armhf>
+		<javacpp.platform.linux-arm64>linux-arm64</javacpp.platform.linux-arm64>
+		<javacpp.platform.linux-ppc64le>linux-ppc64le</javacpp.platform.linux-ppc64le>
+		<javacpp.platform.linux-x86>linux-x86</javacpp.platform.linux-x86>
+		<javacpp.platform.linux-x86_64>linux-x86_64</javacpp.platform.linux-x86_64>
+		<javacpp.platform.macosx-x86_64>macosx-x86_64</javacpp.platform.macosx-x86_64>
+		<javacpp.platform.windows-x86>windows-x86</javacpp.platform.windows-x86>
+		<javacpp.platform.windows-x86_64>windows-x86_64</javacpp.platform.windows-x86_64>
+		<javacpp.platform.dependencies>${javacpp.platform.windows-x86_64}</javacpp.platform.dependencies>
+		<javacpp.version>1.4.4</javacpp.version>
+		<ffmpeg.version>4.1-${javacpp.version}</ffmpeg.version>
+		<opencv.version>4.0.1-${javacpp.version}</opencv.version>
+
+		<IJPay.version>2.7.9</IJPay.version>
+
+
+		<shardingsphere.version>3.1.0</shardingsphere.version>
+
+		<svnkit.version>1.10.3</svnkit.version>
+		<proguard.version>6.2.2</proguard.version>
+		<okhttp.version>4.9.0</okhttp.version>
+		<neo4j.version>3.2.25</neo4j.version>
+		<xmlunit.version>2.8.3</xmlunit.version>
+		<mongodb.version>3.12.10</mongodb.version>
+
+		<spring.boot.version>2.2.7.RELEASE</spring.boot.version>
+		<jna.version>5.9.0</jna.version>
+		<oshi.version>5.8.3</oshi.version>
+		<poi.version>5.1.0</poi.version>
+
+	</properties>
+
+	<developers>
+		<developer>
+			<id>tanyaowu</id>
+			<name>tanyaowu</name>
+			<email>tywo45@163.com</email>
+			<url>https://gitee.com/tywo45/t-io</url>
+		</developer>
+	</developers>
+
+
+	<dependencyManagement>
+		<dependencies>
+
+			<dependency>
+				<groupId>org.openjfx</groupId>
+				<artifactId>javafx-controls</artifactId>
+				<version>18-ea+1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>me.zhyd.oauth</groupId>
+				<artifactId>JustAuth</artifactId>
+				<version>1.16.5</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.mapdb</groupId>
+				<artifactId>mapdb</artifactId>
+				<version>3.0.8</version>
+			</dependency>
+
+			<dependency>
+				<groupId>cglib</groupId>
+				<artifactId>cglib</artifactId>
+				<version>3.3.0</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ow2.asm</groupId>
+				<artifactId>asm</artifactId>
+				<version>9.2</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.github.oshi</groupId>
+				<artifactId>oshi-core</artifactId>
+				<version>${oshi.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>net.java.dev.jna</groupId>
+				<artifactId>jna</artifactId>
+				<version>${jna.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>net.java.dev.jna</groupId>
+				<artifactId>jna-platform</artifactId>
+				<version>${jna.version}</version>
+			</dependency>
+
+
+			<dependency>
+				<groupId>org.t-io</groupId>
+				<artifactId>tio-utils</artifactId>
+				<version>${tio.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.t-io</groupId>
+				<artifactId>tio-core</artifactId>
+				<version>${tio.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.t-io</groupId>
+				<artifactId>tio-flash-policy-server</artifactId>
+				<version>${tio.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.t-io</groupId>
+				<artifactId>tio-webpack-core</artifactId>
+				<version>${tio.version}</version>
+			</dependency>
+
+
+
+			<dependency>
+				<groupId>org.t-io</groupId>
+				<artifactId>tio-websocket-common</artifactId>
+				<version>${tio.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.t-io</groupId>
+				<artifactId>tio-websocket-server</artifactId>
+				<version>${tio.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.t-io</groupId>
+				<artifactId>tio-http-common</artifactId>
+				<version>${tio.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.t-io</groupId>
+				<artifactId>tio-http-server</artifactId>
+				<version>${tio.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.t-io</groupId>
+				<artifactId>tio-http-client</artifactId>
+				<version>${tio.version}</version>
+			</dependency>
+
+
+			<dependency>
+				<groupId>org.t-io</groupId>
+				<artifactId>tio-clu-server</artifactId>
+				<version>${tio.version}</version>
+			</dependency>
+
+
+			<dependency>
+				<groupId>org.t-io</groupId>
+				<artifactId>tio-umeng</artifactId>
+				<version>${tio.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>tio-alipay</groupId>
+				<artifactId>alipay-sdk-java</artifactId>
+				<version>20180104135026</version>
+			</dependency>
+
+			<dependency>
+				<groupId>net.oschina.j2cache</groupId>
+				<artifactId>j2cache-core</artifactId>
+				<version>2.8.2-release</version>
+			</dependency>
+
+			<dependency>
+				<groupId>commons-net</groupId>
+				<artifactId>commons-net</artifactId>
+				<version>3.8.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.jfinal</groupId>
+				<artifactId>jfinal</artifactId>
+				<version>${jfinal.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.jfinal</groupId>
+				<artifactId>activerecord</artifactId>
+				<version>${jfinal.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.t-io</groupId>
+				<artifactId>jfinal-activerecord</artifactId>
+				<version>${tio.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>cn.hutool</groupId>
+				<artifactId>hutool-core</artifactId>
+				<version>${hutool.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.hutool</groupId>
+				<artifactId>hutool-setting</artifactId>
+				<version>${hutool.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.hutool</groupId>
+				<artifactId>hutool-dfa</artifactId>
+				<version>${hutool.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.hutool</groupId>
+				<artifactId>hutool-crypto</artifactId>
+				<version>${hutool.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.hutool</groupId>
+				<artifactId>hutool-extra</artifactId>
+				<version>${hutool.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.hutool</groupId>
+				<artifactId>hutool-http</artifactId>
+				<version>${hutool.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.hutool</groupId>
+				<artifactId>hutool-all</artifactId>
+				<version>${hutool.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>cn.hutool</groupId>
+				<artifactId>hutool-bom</artifactId>
+				<type>pom</type>
+				<version>${hutool.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.redisson</groupId>
+				<artifactId>redisson</artifactId>
+				<version>${redisson.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.googlecode.protobuf-java-format</groupId>
+				<artifactId>protobuf-java-format</artifactId>
+				<version>${protobuf-java-format.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>commons-beanutils</groupId>
+				<artifactId>commons-beanutils</artifactId>
+				<version>${commons-beanutils.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>mysql</groupId>
+				<artifactId>mysql-connector-java</artifactId>
+				<version>${mysql.driver.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.alibaba</groupId>
+				<artifactId>druid</artifactId>
+				<version>${druid.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.zaxxer</groupId>
+				<artifactId>HikariCP</artifactId>
+				<version>${HikariCP.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>net.sf.ehcache</groupId>
+				<artifactId>ehcache-core</artifactId>
+				<version>2.6.11</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.squareup.okhttp3</groupId>
+				<artifactId>okhttp</artifactId>
+				<version>${okhttp.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.squareup.okhttp3</groupId>
+				<artifactId>logging-interceptor</artifactId>
+				<version>${okhttp.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.squareup.okhttp3</groupId>
+				<artifactId>mockwebserver</artifactId>
+				<version>${okhttp.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.squareup.okhttp3</groupId>
+				<artifactId>okcurl</artifactId>
+				<version>${okhttp.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.squareup.okhttp3</groupId>
+				<artifactId>okhttp-dnsoverhttps</artifactId>
+				<version>${okhttp.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.squareup.okhttp3</groupId>
+				<artifactId>okhttp-sse</artifactId>
+				<version>${okhttp.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.squareup.okhttp3</groupId>
+				<artifactId>okhttp-tls</artifactId>
+				<version>${okhttp.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.squareup.okhttp3</groupId>
+				<artifactId>okhttp-urlconnection</artifactId>
+				<version>${okhttp.version}</version>
+			</dependency>
+
+
+			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-api</artifactId>
+				<version>2.15.0</version>
+			</dependency>
+
+			<!-- log framework start -->
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-log4j12</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-ext</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ch.qos.logback</groupId>
+				<artifactId>logback-classic</artifactId>
+				<version>${logback.version}</version>
+			</dependency>
+			<!-- redirect apache commons logging -->
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>jcl-over-slf4j</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<!-- redirect jdk util logging -->
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>jul-to-slf4j</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<!-- redirect log4j -->
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>log4j-over-slf4j</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<!-- log framework end -->
+
+
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>${junit.version}</version>
+			</dependency>
+
+			<!-- logback-access访问模块与Servlet容器集成提供通过Http来访问日记的功能 -->
+			<dependency>
+				<groupId>ch.qos.logback</groupId>
+				<artifactId>logback-access</artifactId>
+				<version>${logback.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>ch.qos.logback</groupId>
+				<artifactId>logback-core</artifactId>
+				<version>${logback.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-collections4</artifactId>
+				<version>${commons-collections4.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>commons-logging</groupId>
+				<artifactId>commons-logging</artifactId>
+				<version>1.2</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-lang3</artifactId>
+				<version>${commons-lang3.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>${commons-io.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>commons-codec</groupId>
+				<artifactId>commons-codec</artifactId>
+				<version>${commons-codec.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.alibaba</groupId>
+				<artifactId>fastjson</artifactId>
+				<version>${fastjson.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.json</groupId>
+				<artifactId>json</artifactId>
+				<version>20211205</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.testng</groupId>
+				<artifactId>testng</artifactId>
+				<version>${testng.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.protobuf</groupId>
+				<artifactId>protobuf-java</artifactId>
+				<version>${protobuf-java.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-compress</artifactId>
+				<version>${commons-compress.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.jsoup</groupId>
+				<artifactId>jsoup</artifactId>
+				<version>1.14.3</version>
+			</dependency>
+
+			<dependency>
+				<groupId>io.springside</groupId>
+				<artifactId>springside-utils</artifactId>
+				<version>5.0.0-RC1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>31.0.1-jre</version>
+			</dependency>
+
+			<dependency>
+				<groupId>nl.basjes.parse.useragent</groupId>
+				<artifactId>yauaa</artifactId>
+				<version>6.3</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.jodd</groupId>
+				<artifactId>jodd-core</artifactId>
+				<version>${jodd.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jodd</groupId>
+				<artifactId>jodd-http</artifactId>
+				<version>${jodd.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jodd</groupId>
+				<artifactId>jodd-upload</artifactId>
+				<version>${jodd.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jodd</groupId>
+				<artifactId>jodd-bean</artifactId>
+				<version>${jodd.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jodd</groupId>
+				<artifactId>jodd-all</artifactId>
+				<version>${jodd.version}</version>
+			</dependency>
+
+
+			<dependency>
+				<groupId>com.typesafe</groupId>
+				<artifactId>config</artifactId>
+				<version>1.4.1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-text</artifactId>
+				<version>1.9</version>
+			</dependency>
+
+			<dependency>
+				<groupId>io.protostuff</groupId>
+				<artifactId>protostuff-core</artifactId>
+				<version>${protostuff.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.protostuff</groupId>
+				<artifactId>protostuff-runtime</artifactId>
+				<version>${protostuff.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.quartz-scheduler</groupId>
+				<artifactId>quartz</artifactId>
+				<version>${quartz.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.quartz-scheduler</groupId>
+				<artifactId>quartz-jobs</artifactId>
+				<version>${quartz.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>de.ruedigermoeller</groupId>
+				<artifactId>fst</artifactId>
+				<version>3.0.3</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.github.javen205</groupId>
+				<artifactId>IJPay-All</artifactId>
+				<version>${IJPay.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>io.github.classgraph</groupId>
+				<artifactId>classgraph</artifactId>
+				<version>4.8.128</version>
+			</dependency>
+			<dependency>
+				<groupId>com.thoughtworks.paranamer</groupId>
+				<artifactId>paranamer</artifactId>
+				<version>2.8</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.mongodb</groupId>
+				<artifactId>mongo-java-driver</artifactId>
+				<version>${mongodb.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mongodb</groupId>
+				<artifactId>mongodb-driver-async</artifactId>
+				<version>${mongodb.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.mongodb</groupId>
+				<artifactId>bson</artifactId>
+				<version>4.3.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mongodb</groupId>
+				<artifactId>mongodb-driver-core</artifactId>
+				<version>4.3.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mongodb</groupId>
+				<artifactId>mongodb-driver-reactivestreams</artifactId>
+				<version>4.3.1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>oro</groupId>
+				<artifactId>oro</artifactId>
+				<version>2.0.8</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.lionsoul</groupId>
+				<artifactId>ip2region</artifactId>
+				<version>1.7.2</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-email</artifactId>
+				<version>1.5</version> <!-- 1.2 -->
+			</dependency>
+
+			<dependency>
+				<groupId>org.freemarker</groupId>
+				<artifactId>freemarker</artifactId>
+				<version>${freemarker.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.aliyun</groupId>
+				<artifactId>aliyun-java-sdk-core</artifactId>
+				<version>4.5.30</version>
+			</dependency>
+			<dependency>
+				<groupId>com.aliyun</groupId>
+				<artifactId>aliyun-java-sdk-live</artifactId>
+				<version>3.9.11</version>
+			</dependency>
+			<dependency>
+				<groupId>com.aliyun.oss</groupId>
+				<artifactId>aliyun-sdk-oss</artifactId>
+				<version>3.13.1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-configuration2</artifactId>
+				<version>2.7</version>
+			</dependency>
+			<dependency>
+				<groupId>org.nutz</groupId>
+				<artifactId>nutz-qrcode</artifactId>
+				<version>1.b.53</version>
+			</dependency>
+
+			<!-- 开源多维码生成工具 -->
+			<dependency>
+				<groupId>com.google.zxing</groupId>
+				<artifactId>core</artifactId>
+				<version>${zxing.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.zxing</groupId>
+				<artifactId>javase</artifactId>
+				<version>${zxing.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.github.ben-manes.caffeine</groupId>
+				<artifactId>caffeine</artifactId>
+				<version>${caffeine.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.github.ben-manes.caffeine</groupId>
+				<artifactId>guava</artifactId>
+				<version>${caffeine.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.github.binarywang</groupId>
+				<artifactId>weixin-java-mp</artifactId>
+				<version>${binarywang.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.github.binarywang</groupId>
+				<artifactId>weixin-java-open</artifactId>
+				<version>${binarywang.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.github.binarywang</groupId>
+				<artifactId>weixin-java-pay</artifactId>
+				<version>${binarywang.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.github.wxpay</groupId>
+				<artifactId>WXPay-SDK-Java</artifactId>
+				<version>0.0.5</version>
+			</dependency>
+
+
+			<dependency>
+				<groupId>com.github.wxpay</groupId>
+				<artifactId>wxpay-sdk</artifactId>
+				<version>3.0.9</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.curator</groupId>
+				<artifactId>curator-x-discovery</artifactId>
+				<version>5.2.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.zookeeper</groupId>
+				<artifactId>zookeeper</artifactId>
+				<version>3.7.0</version>
+			</dependency>
+
+			<!-- QQ登录 -->
+			<dependency>
+				<groupId>net.gplatform</groupId>
+				<artifactId>Sdk4J</artifactId>
+				<version>2.0</version>
+			</dependency>
+
+			<!-- 微博登录 -->
+			<dependency>
+				<groupId>com.belerweb</groupId>
+				<artifactId>weibo4j-oauth2</artifactId>
+				<version>2.1.1-beta2-3</version>
+			</dependency>
+
+
+			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpcore</artifactId>
+				<version>${httpcore.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpclient</artifactId>
+				<version>${httpclient.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpclient-cache</artifactId>
+				<version>${httpclient.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpmime</artifactId>
+				<version>${httpclient.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>fluent-hc</artifactId>
+				<version>${httpclient.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.esotericsoftware</groupId>
+				<artifactId>reflectasm</artifactId>
+				<version>1.11.9</version>
+			</dependency>
+			<dependency>
+				<groupId>com.esotericsoftware</groupId>
+				<artifactId>kryo</artifactId>
+				<version>5.2.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>io.netty</groupId>
+				<artifactId>netty-bom</artifactId>
+				<version>4.1.70.Final</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>com.yahoo.platform.yui</groupId>
+				<artifactId>yuicompressor</artifactId>
+				<version>2.4.8</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.javascript</groupId>
+				<artifactId>closure-compiler</artifactId>
+				<version>${closure.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.javascript</groupId>
+				<artifactId>closure-compiler-externs</artifactId>
+				<version>${closure.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.github.hazendaz</groupId>
+				<artifactId>htmlcompressor</artifactId>
+				<version>1.7.2</version>
+			</dependency>
+
+			<dependency>
+				<groupId>eu.bitwalker</groupId>
+				<artifactId>UserAgentUtils</artifactId>
+				<version>${UserAgentUtils.version}</version>
+			</dependency>
+
+
+			<dependency>
+				<groupId>com.github.scribejava</groupId>
+				<artifactId>scribejava-apis</artifactId>
+				<version>${scribejava-apis.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.oltu.oauth2</groupId>
+				<artifactId>org.apache.oltu.oauth2.authzserver</artifactId>
+				<version>${oltu.oauth2.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.oltu.oauth2</groupId>
+				<artifactId>org.apache.oltu.oauth2.resourceserver</artifactId>
+				<version>${oltu.oauth2.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.oltu.oauth2</groupId>
+				<artifactId>org.apache.oltu.oauth2.common</artifactId>
+				<version>${oltu.oauth2.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.github.dfabulich</groupId>
+				<artifactId>sitemapgen4j</artifactId>
+				<version>1.1.2</version>
+			</dependency>
+
+			<dependency>
+				<groupId>io.reactivex.rxjava2</groupId>
+				<artifactId>rxjava</artifactId>
+				<version>2.2.21</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.bytedeco</groupId>
+				<artifactId>javacv</artifactId>
+				<version>${javacpp.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.bytedeco.javacpp-presets</groupId>
+				<artifactId>opencv</artifactId>
+				<version>${opencv.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.bytedeco.javacpp-presets</groupId>
+				<artifactId>ffmpeg</artifactId>
+				<version>${ffmpeg.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.bytedeco.javacpp-presets</groupId>
+				<artifactId>opencv</artifactId>
+				<version>${opencv.version}</version>
+				<classifier>${javacpp.platform.windows-x86_64}</classifier>
+			</dependency>
+			<dependency>
+				<groupId>org.bytedeco.javacpp-presets</groupId>
+				<artifactId>ffmpeg</artifactId>
+				<version>${ffmpeg.version}</version>
+				<classifier>${javacpp.platform.windows-x86_64}</classifier>
+			</dependency>
+
+			<!-- linux平台 -->
+			<dependency>
+				<groupId>org.bytedeco.javacpp-presets</groupId>
+				<artifactId>opencv</artifactId>
+				<version>${opencv.version}</version>
+				<classifier>${javacpp.platform.linux-x86_64}</classifier>
+			</dependency>
+			<dependency>
+				<groupId>org.bytedeco.javacpp-presets</groupId>
+				<artifactId>ffmpeg</artifactId>
+				<version>${ffmpeg.version}</version>
+				<classifier>${javacpp.platform.linux-x86_64}</classifier>
+			</dependency>
+
+			<dependency>
+				<groupId>io.shardingsphere</groupId>
+				<artifactId>sharding-jdbc</artifactId>
+				<version>${shardingsphere.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.shardingsphere</groupId>
+				<artifactId>sharding-jdbc-core</artifactId>
+				<version>${shardingsphere.version}</version>
+			</dependency>
+			<!-- <dependency> <groupId>org.projectlombok</groupId> <artifactId>lombok</artifactId> 
+				<version>1.18.6</version> </dependency> -->
+
+			<dependency>
+				<groupId>org.tmatesoft.svnkit</groupId>
+				<artifactId>svnkit-cli</artifactId>
+				<version>${svnkit.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>net.coobird</groupId>
+				<artifactId>thumbnailator</artifactId>
+				<version>0.4.15</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.lmax</groupId>
+				<artifactId>disruptor</artifactId>
+				<version>3.4.4</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.belerweb</groupId>
+				<artifactId>pinyin4j</artifactId>
+				<version>2.5.1</version>
+			</dependency>
+
+
+
+			<dependency>
+				<groupId>net.bytebuddy</groupId>
+				<artifactId>byte-buddy</artifactId>
+				<version>1.11.22</version>
+			</dependency>
+			<dependency>
+				<groupId>io.projectreactor</groupId>
+				<artifactId>reactor-core</artifactId>
+				<version>3.4.11</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.code.gson</groupId>
+				<artifactId>gson</artifactId>
+				<version>2.8.9</version>
+			</dependency>
+
+
+			<dependency>
+				<groupId>cn.jpush.api</groupId>
+				<artifactId>jpush-client</artifactId>
+				<version>3.5.4</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.neo4j</groupId>
+				<artifactId>neo4j-ogm-api</artifactId>
+				<version>${neo4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.neo4j</groupId>
+				<artifactId>neo4j-ogm-bolt-driver</artifactId>
+				<version>${neo4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.neo4j</groupId>
+				<artifactId>neo4j-ogm-bolt-native-types</artifactId>
+				<version>${neo4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.neo4j</groupId>
+				<artifactId>neo4j-ogm-core</artifactId>
+				<version>${neo4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.neo4j</groupId>
+				<artifactId>neo4j-ogm-embedded-driver</artifactId>
+				<version>${neo4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.neo4j</groupId>
+				<artifactId>neo4j-ogm-embedded-native-types</artifactId>
+				<version>${neo4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.neo4j</groupId>
+				<artifactId>neo4j-ogm-http-driver</artifactId>
+				<version>${neo4j.version}</version>
+			</dependency>
+
+
+
+			<dependency>
+				<groupId>org.xerial</groupId>
+				<artifactId>sqlite-jdbc</artifactId>
+				<version>3.32.3</version>
+			</dependency>
+
+
+
+			<dependency>
+				<groupId>org.xmlunit</groupId>
+				<artifactId>xmlunit-assertj</artifactId>
+				<version>${xmlunit.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.xmlunit</groupId>
+				<artifactId>xmlunit-core</artifactId>
+				<version>${xmlunit.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.xmlunit</groupId>
+				<artifactId>xmlunit-legacy</artifactId>
+				<version>${xmlunit.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.xmlunit</groupId>
+				<artifactId>xmlunit-matchers</artifactId>
+				<version>${xmlunit.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.xmlunit</groupId>
+				<artifactId>xmlunit-placeholders</artifactId>
+				<version>${xmlunit.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.webjars</groupId>
+				<artifactId>webjars-locator-core</artifactId>
+				<version>0.48</version>
+			</dependency>
+
+			<dependency>
+				<groupId>redis.clients</groupId>
+				<artifactId>jedis</artifactId>
+				<version>3.7.0</version>
+			</dependency>
+			<dependency>
+				<groupId>com.couchbase.client</groupId>
+				<artifactId>java-client</artifactId>
+				<version>3.2.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.elasticsearch.client</groupId>
+				<artifactId>elasticsearch-rest-high-level-client</artifactId>
+				<version>7.13.0</version>
+			</dependency>
+
+
+
+
+			<dependency>
+				<groupId>org.apache.poi</groupId>
+				<artifactId>poi</artifactId>
+				<version>${poi.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.poi</groupId>
+				<artifactId>poi-scratchpad</artifactId>
+				<version>${poi.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.opensagres.xdocreport</groupId>
+				<artifactId>fr.opensagres.xdocreport.document</artifactId>
+				<version>2.0.2</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.opensagres.xdocreport</groupId>
+				<artifactId>org.apache.poi.xwpf.converter.xhtml</artifactId>
+				<version>1.0.6</version>
+			</dependency>
+
+		</dependencies>
+	</dependencyManagement>
+
+
+
+	<!-- 插件配置 -->
+	<build>
+		<pluginManagement>
+			<plugins>
+				<!-- compiler插件, 设定JDK版本 -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+
+					<configuration>
+						<compilerVersion>${jdk.version}</compilerVersion>
+						<source>${jdk.version}</source>
+						<target>${jdk.version}</target>
+						<encoding>UTF-8</encoding>
+						<forceJavacCompilerUse>true</forceJavacCompilerUse>
+						<!-- <compilerArguments> <bootclasspath>${env.JAVA_HOME}\jre\lib\rt.jar;${env.JAVA_HOME}\jre\lib\jce.jar</bootclasspath> 
+							</compilerArguments> -->
+						<compilerArgs>
+							<arg>-g</arg>
+
+							<!--<arg>-g:none</arg> <arg>-O</arg> -->
+						</compilerArgs>
+					</configuration>
+				</plugin>
+
+				<!-- test插件, 增大内存且仅测试名称为*Test的类 -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<configuration>
+						<skip>${maven.test.skip}</skip>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-failsafe-plugin</artifactId>
+					<executions>
+						<execution>
+							<id>integration-test</id>
+							<goals>
+								<goal>integration-test</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<!-- cobertura插件 -->
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>cobertura-maven-plugin</artifactId>
+				</plugin>
+
+
+
+				<!-- resource插件, 设定编码 -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<configuration>
+						<encoding>${project.build.sourceEncoding}</encoding>
+					</configuration>
+				</plugin>
+
+
+
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>3.0.1</version>
+				</plugin>
+
+				<!-- clean插件 -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>3.0.0</version>
+				</plugin>
+
+				<!-- install插件 -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-install-plugin</artifactId>
+					<version>2.5.2</version>
+				</plugin>
+
+				<!-- eclipse插件,设定下载Source并屏蔽.svn文件 -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-eclipse-plugin</artifactId>
+					<configuration>
+						<sourceExcludes>
+							<sourceExclude>**/.svn/</sourceExclude>
+						</sourceExcludes>
+						<downloadSources>false</downloadSources>
+						<downloadJavadocs>false</downloadJavadocs>
+						<ajdtVersion>${jdk.version}</ajdtVersion>
+					</configuration>
+				</plugin>
+
+				<!-- dependency插件 -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>2.10</version>
+				</plugin>
+
+
+				<!-- 运行java程序的插件 -->
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>exec-maven-plugin</artifactId>
+				</plugin>
+
+				<!-- sonar插件 -->
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>sonar-maven-plugin</artifactId>
+				</plugin>
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>findbugs-maven-plugin</artifactId>
+					<version>3.0.3</version>
+					<configuration>
+						<!-- <configLocation>${basedir}/springside-findbugs.xml</configLocation> -->
+						<!-- findbugs xml输出 -->
+						<findbugsXmlOutput>true</findbugsXmlOutput>
+						<!-- findbugs xml输出路径 -->
+						<findbugsXmlOutputDirectory>target/site</findbugsXmlOutputDirectory>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-pmd-plugin</artifactId>
+				</plugin>
+
+				<!-- 发布插件 -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>2.8.2</version>
+				</plugin>
+
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-checkstyle-plugin</artifactId>
+				</plugin>
+
+
+				<plugin>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>2.6</version>
+					<configuration>
+						<appendAssemblyId>false</appendAssemblyId>
+						<descriptorRefs>
+							<descriptorRef>jar-with-dependencies</descriptorRef>
+						</descriptorRefs>
+					</configuration>
+				</plugin>
+
+				<!-- 跟fatjar差不多的一个插件 -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-shade-plugin</artifactId>
+					<version>2.4.3</version>
+				</plugin>
+
+				<!-- 版本管理插件 -->
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>versions-maven-plugin</artifactId>
+					<version>2.5</version>
+				</plugin>
+
+
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>3.0.1</version>
+					<configuration>
+						<aggregate>true</aggregate>
+						<additionalparam>-Xdoclint:none</additionalparam>
+					</configuration>
+				</plugin>
+
+			</plugins>
+		</pluginManagement>
+
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>${maven-jar-plugin.version}</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+						</manifest>
+						<addMavenDescriptor>false</addMavenDescriptor><!-- 生成的jar中，不要包含pom.xml和pom.properties这两个文件 -->
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+
+	</build>
+
+
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.9</version>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<report>dependencies</report>
+							<report>project-team</report>
+							<report>mailing-list</report>
+							<report>cim</report>
+							<report>issue-tracking</report>
+							<report>license</report>
+							<report>scm</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+		</plugins>
+	</reporting>
+
+
+
+
+
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<!-- Source -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>2.2.1</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+					<!-- Javadoc -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>2.10.3</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+								<configuration>
+									<additionalparam>-Xdoclint:none</additionalparam><!-- 防止生成docs时报错 -->
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<!-- GPG -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+			<distributionManagement>
+				<snapshotRepository>
+					<id>oss</id>
+					<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+				</snapshotRepository>
+				<repository>
+					<id>oss</id>
+					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+				</repository>
+			</distributionManagement>
+		</profile>
+	</profiles>
+
+
+	<repositories>
+		<!-- 非SSL的仓库，这个速度更快 -->
+		<repository>
+			<id>plain-repo</id>
+			<name>maven-public</name>
+			<url>http://repo.maven.apache.org/maven2</url>
+		</repository>
+	</repositories>
+</project>
