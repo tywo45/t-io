@@ -41,13 +41,14 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.test.skip>true</maven.test.skip>
 		<maven.version>3.8.3</maven.version>
-
-		<mysql.driver.version>8.0.23</mysql.driver.version><!-- 5.1.46 -->
+		<mica-mqtt.version>1.2.1</mica-mqtt.version>
+		<mysql.driver.version>8.0.23</mysql.driver.version> <!-- 5.1.46 -->
 		<druid.version>1.2.8</druid.version>
 		<HikariCP.version>5.0.0</HikariCP.version>
-		<jfinal.version>4.9</jfinal.version>
-		<logback.version>1.2.3</logback.version>
-		<slf4j.version>1.7.26</slf4j.version>
+		<jfinal.version>4.9.17</jfinal.version>
+		<jfinal.activerecord.version>4.9.16</jfinal.activerecord.version>
+		<logback.version>1.3.0-alpha12</logback.version>
+		<slf4j.version>2.0.0-alpha5</slf4j.version>
 		<jdk.version>17</jdk.version>
 		<junit.version>4.13.1</junit.version>
 		<commons-collections4.version>4.4</commons-collections4.version>
@@ -55,28 +56,26 @@
 		<commons-lang3.version>3.12.0</commons-lang3.version>
 		<commons-codec.version>1.15</commons-codec.version>
 		<commons-compress.version>1.21</commons-compress.version>
-		<fastjson.version>1.2.78</fastjson.version>
+		<fastjson.version>1.2.79</fastjson.version>
 		<testng.version>7.4.0</testng.version>
-		<hutool.version>5.7.17</hutool.version>
+		<hutool.version>5.7.19</hutool.version>
 		<protobuf-java.version>3.12.2</protobuf-java.version>
 		<commons-beanutils.version>1.9.4</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
 		<protostuff.version>1.7.4</protostuff.version>
-		<redisson.version>3.16.4</redisson.version>
+		<redisson.version>3.16.7</redisson.version>
 		<jodd.version>5.1.6</jodd.version>
 		<quartz.version>2.3.2</quartz.version>
 		<caffeine.version>3.0.5</caffeine.version>
-		<binarywang.version>4.2.0</binarywang.version>
+		<binarywang.version>4.2.2.B</binarywang.version>
 		<zxing.version>3.4.1</zxing.version>
 		<httpcore.version>4.4.14</httpcore.version>
 		<httpclient.version>4.5.13</httpclient.version>
-		<closure.version>v20211201</closure.version>
+		<closure.version>v20220104</closure.version>
 		<freemarker.version>2.3.31</freemarker.version>
 		<UserAgentUtils.version>1.21</UserAgentUtils.version>
 		<scribejava-apis.version>8.3.1</scribejava-apis.version>
 		<oltu.oauth2.version>1.0.2</oltu.oauth2.version>
-
-
 		<javacpp.platform.android-arm>android-arm</javacpp.platform.android-arm>
 		<javacpp.platform.android-arm64>android-arm64</javacpp.platform.android-arm64>
 		<javacpp.platform.android-x86>android-x86</javacpp.platform.android-x86>
