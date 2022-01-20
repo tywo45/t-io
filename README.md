@@ -1,24 +1,24 @@
 
 # 网络编程很苦，用t-io后会很甜
-
-t-io是未华钛特云（WA Talent Cloud，简称WTC）开发的一款高性能网络编程框架。t-io强大的并发处理能力、高稳定性使其成为广大企业开发工程项目和应用的首选；简单易学，专为解决网络编程痛点而生
+t-io是未华钛特云（WA Talent Cloud，简称 **WTC** ）开发的一款高性能网络编程框架。t-io强大的并发处理能力、高稳定性使其成为广大企业开发工程项目和应用的首选；t-io简单易学，专为解决网络编程痛点而生，使其被众多新老开发者所喜爱
 
 [![Stargazers over time](https://whnb.wang/stars/tywo45/t-io)](https://whnb.wang/stars/tywo45/t-io)
 
-# 源代码仓库
+
 [![t-io gitee](https://www.tiocloud.com/2/imgs/product/tio/mayun.png) ](https://gitee.com/tywo45/t-io)
 [![t-io github](https://www.tiocloud.com/2/imgs/product/tio/Github.png) ](https://github.com/tywo45/t-io)
 
 
 # 为什么要开发t-io
-### 与其坐学厚厚的《xxx权威指南》，不如站着自主研发，创造中国人一眼就懂的编程API
+与其坐学厚厚的《xxx权威指南》，不如站着自主研发，创造更多人一眼就懂的编程API
 
 # t-io的前世今生
-1. 2010年，talent-tan在某通讯大厂接手网管系统的通讯模块，老代码采用的是传统IO，一个client需要有3个线程来守，经常内存溢出和宕机。talent-tan临危受命，重写了通讯模块
-2. 2012年，talent-tan利用业余时间基于nio写talent-nio
-3. 2013年，talent-tan短暂参与了mycat项目，用talent-nio写了mycat中的一个透传模块
+1. 2010年，t-io的原创作者talent-tan在某通讯大厂接手网管系统的通讯模块，老代码采用的是传统IO，一个client需要有3个线程来守，经常内存溢出和宕机。talent-tan临危受命，重写了通讯模块。随即萌生了构思一套框架，专门解决网络编程痛点
+2. 2012年，经过两年的琢磨，基于nio写了talent-nio
+3. 2013年，用talent-nio写了mycat中的一个透传模块
 4. 2014年，用talent-nio实现了热波直播的IM模块
 5. 2015年，talent-tan开始关注aio技术，同时把talent-nio中的线程池、锁处理、并发数据结构进行了进一步抽象
+5. 2015年，开始关注aio技术，同时把talent-nio中的线程池、锁处理、并发数据结构进行了进一步抽象
 6. 2016年，基于aio技术重写了talent-nio，命名为talent-aio，代码入驻码云，正式开源
 7. 2017年，talent-aio更名为t-io，同年t-io成为GVP项目，t-io收获大量用户
 8. 2018年，基于t-io实现了tio-http-server、tio-websocket-server、tio-webpack等周边产品
@@ -27,7 +27,7 @@ t-io是未华钛特云（WA Talent Cloud，简称WTC）开发的一款高性能�
 11. 2021年，客户反馈基于t-io研发的谭聊非常稳定
 
 # t-io解决的痛点
-任何作品都应该有其使命和价值，t-io的使命是解决网络编程方面的用户痛点，且看t-io给用户带来的惊喜
+t-io的出发点是解决网络编程方面的用户痛点，其使命是让天下再也没有难开发的网络程序，且看t-io给用户带来的惊喜
 1. 易学易用，talent-tan之所以创造t-io，就是因为市面上同类产品学习成本大，所以在设计api时，特别关切用户的接受度。t-io第一批用户仅仅是看了t-io官方提供的示范工程就掌握了t-io
 2. 全方位的数据监控能力：org.tio.core.stat.ChannelStat
 3. 内置心跳超时检查、心跳定时发送能力
