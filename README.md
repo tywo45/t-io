@@ -1,13 +1,16 @@
 
 # 网络编程很苦，用t-io后会很甜
-t-io是talent-tan采用java语言开发的一款网络编程框架
+### t-io是talent-tan采用java语言开发的一款网络编程框架
 
-[![t-io gitee](https://www.tiocloud.com/2/imgs/product/tio/mayun.png)](https://gitee.com/tywo45/t-io)
-[![t-io github](https://www.tiocloud.com/2/imgs/product/tio/Github.png)](https://github.com/tywo45/t-io)
+[![Stargazers over time](https://whnb.wang/stars/tywo45/t-io)](https://whnb.wang/stars/tywo45/t-io)
+
+# 源代码仓库
+[![t-io gitee](https://www.tiocloud.com/2/imgs/product/tio/mayun.png) ](https://gitee.com/tywo45/t-io)
+[![t-io github](https://www.tiocloud.com/2/imgs/product/tio/Github.png) ](https://github.com/tywo45/t-io)
+
 
 # 为什么要开发t-io
-在t-io之前，已经有mina,netty这样的网络编程框架了，talent-tan出于什么考虑要重新发明轮子呢？原因很奇葩： 
-> talent-tan学习能力太差，在看了些《netty权威指南》后，觉得自己很难hold住netty，或者说要想hold住netty需要花上大量精力和记忆力
+### 与其坐学厚厚的《xxx权威指南》，不如站着自主研发，创造中国人一眼就懂的编程API
 
 # t-io的前世今生
 1. 2010年，talent-tan在某通讯大厂接手网管系统的通讯模块，老代码采用的是传统IO，一个client需要有3个线程来守，经常内存溢出和宕机。talent-tan临危受命，重写了通讯模块
