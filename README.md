@@ -1,6 +1,7 @@
 
 # 网络编程很苦，用t-io后会很甜
-### t-io是talent-tan采用java语言开发的一款网络编程框架
+
+t-io是未华钛特云（WA Talent Cloud，简称WTC）开发的一款高性能网络编程框架。t-io强大的并发处理能力、高稳定性使其成为广大企业开发工程项目和应用的首选；简单易学，专为解决网络编程痛点而生
 
 [![Stargazers over time](https://whnb.wang/stars/tywo45/t-io)](https://whnb.wang/stars/tywo45/t-io)
 
