@@ -41,14 +41,14 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.test.skip>true</maven.test.skip>
 		<maven.version>3.8.3</maven.version>
-		<mica-mqtt.version>1.2.1</mica-mqtt.version>
+		<mica-mqtt.version>1.2.6</mica-mqtt.version>
 		<mysql.driver.version>8.0.23</mysql.driver.version> <!-- 5.1.46 -->
 		<druid.version>1.2.8</druid.version>
 		<HikariCP.version>5.0.0</HikariCP.version>
 		<jfinal.version>4.9.17</jfinal.version>
 		<jfinal.activerecord.version>4.9.16</jfinal.activerecord.version>
 		<logback.version>1.3.0-alpha12</logback.version>
-		<slf4j.version>2.0.0-alpha5</slf4j.version>
+		<slf4j.version>2.0.0-alpha6</slf4j.version>
 		<jdk.version>17</jdk.version>
 		<junit.version>4.13.1</junit.version>
 		<commons-collections4.version>4.4</commons-collections4.version>
@@ -58,7 +58,7 @@
 		<commons-compress.version>1.21</commons-compress.version>
 		<fastjson.version>1.2.79</fastjson.version>
 		<testng.version>7.4.0</testng.version>
-		<hutool.version>5.7.19</hutool.version>
+		<hutool.version>5.7.20</hutool.version>
 		<protobuf-java.version>3.12.2</protobuf-java.version>
 		<commons-beanutils.version>1.9.4</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
@@ -96,24 +96,23 @@
 		<javacpp.version>1.4.4</javacpp.version>
 		<ffmpeg.version>4.1-${javacpp.version}</ffmpeg.version>
 		<opencv.version>4.0.1-${javacpp.version}</opencv.version>
-
-		<IJPay.version>2.7.9</IJPay.version>
-
-
+		<IJPay.version>2.8.0</IJPay.version>
 		<shardingsphere.version>3.1.0</shardingsphere.version>
-
 		<svnkit.version>1.10.3</svnkit.version>
 		<proguard.version>6.2.2</proguard.version>
-		<okhttp.version>4.9.0</okhttp.version>
+		<okhttp.version>5.0.0-alpha.3</okhttp.version>
 		<neo4j.version>3.2.25</neo4j.version>
 		<xmlunit.version>2.8.3</xmlunit.version>
 		<mongodb.version>3.12.10</mongodb.version>
-
 		<spring.boot.version>2.2.7.RELEASE</spring.boot.version>
-		<jna.version>5.9.0</jna.version>
-		<oshi.version>5.8.3</oshi.version>
+		<jna.version>5.10.0</jna.version>
+		<oshi.version>6.1.0</oshi.version>
 		<poi.version>5.1.0</poi.version>
-
+		<netty.tcnative.version>2.0.34.Final</netty.tcnative.version>
+		<paho.version>1.2.5</paho.version>
+		<h2.version>2.1.210</h2.version>
+		<metrics.version>4.2.7</metrics.version>
+		<junit-jupiter.version>5.8.2</junit-jupiter.version>
 	</properties>
 
 	<developers>
@@ -133,6 +132,12 @@
 				<groupId>org.openjfx</groupId>
 				<artifactId>javafx-controls</artifactId>
 				<version>18-ea+1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>net.dreamlu</groupId>
+				<artifactId>mica-mqtt-core</artifactId>
+				<version>${mica-mqtt.version}</version>
 			</dependency>
 
 			<dependency>
@@ -172,6 +177,50 @@
 				<groupId>net.java.dev.jna</groupId>
 				<artifactId>jna-platform</artifactId>
 				<version>${jna.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter-api</artifactId>
+				<version>${junit-jupiter.version}</version>
+				<scope>test</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter-engine</artifactId>
+				<version>${junit-jupiter.version}</version>
+				<scope>test</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter-params</artifactId>
+				<version>${junit-jupiter.version}</version>
+				<scope>test</scope>
+			</dependency>
+
+
+			<!-- needs extra dependencies: objenesis & hamcrest -->
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<version>3.6.0</version>
+				<scope>test</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.assertj</groupId>
+				<artifactId>assertj-core</artifactId>
+				<version>2.6.0</version>
+				<scope>test</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.awaitility</groupId>
+				<artifactId>awaitility</artifactId>
+				<version>4.0.3</version>
+				<scope>test</scope>
 			</dependency>
 
 
@@ -268,7 +317,7 @@
 			<dependency>
 				<groupId>com.jfinal</groupId>
 				<artifactId>activerecord</artifactId>
-				<version>${jfinal.version}</version>
+				<version>${jfinal.activerecord.version}</version>
 			</dependency>
 
 			<dependency>
@@ -403,8 +452,15 @@
 			<dependency>
 				<groupId>org.apache.logging.log4j</groupId>
 				<artifactId>log4j-api</artifactId>
-				<version>2.16.0</version>
+				<version>2.17.0</version>
 			</dependency>
+
+			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j</artifactId>
+				<version>2.17.0</version>
+			</dependency>
+
 
 			<!-- log framework start -->
 			<dependency>
@@ -546,7 +602,7 @@
 			<dependency>
 				<groupId>nl.basjes.parse.useragent</groupId>
 				<artifactId>yauaa</artifactId>
-				<version>6.3</version>
+				<version>6.8</version>
 			</dependency>
 
 			<dependency>
