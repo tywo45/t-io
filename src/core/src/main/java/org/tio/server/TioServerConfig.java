@@ -206,7 +206,7 @@ import org.tio.core.ChannelContext.CloseCode;
 import org.tio.core.Tio;
 import org.tio.core.TioConfig;
 import org.tio.core.intf.TioHandler;
-import org.tio.core.intf.AioListener;
+import org.tio.core.intf.TioListener;
 import org.tio.core.maintain.IpBlacklist;
 import org.tio.core.ssl.SslConfig;
 import org.tio.server.intf.TioServerHandler;
@@ -462,7 +462,7 @@ public class TioServerConfig extends TioConfig {
 	}
 
 	/**
-	 * @see org.tio.core.TioConfig#getAioListener()
+	 * @see org.tio.core.TioConfig#getTioListener()
 	 *
 	 * @return
 	 * @author tanyaowu
@@ -470,7 +470,7 @@ public class TioServerConfig extends TioConfig {
 	 *
 	 */
 	@Override
-	public AioListener getAioListener() {
+	public TioListener getTioListener() {
 		return getTioServerListener();
 	}
 

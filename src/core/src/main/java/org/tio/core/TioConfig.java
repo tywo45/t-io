@@ -204,7 +204,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.client.TioClientConfig;
 import org.tio.core.intf.TioHandler;
-import org.tio.core.intf.AioListener;
+import org.tio.core.intf.TioListener;
 import org.tio.core.intf.GroupListener;
 import org.tio.core.intf.Packet;
 import org.tio.core.intf.TioUuid;
@@ -373,11 +373,11 @@ public abstract class TioConfig extends MapWithLockPropSupport {
 	public abstract TioHandler getTioHandler();
 
 	/**
-	 * 获取AioListener对象
+	 * 获取TioListener对象
 	 * @return
 	 * @author: tanyaowu
 	 */
-	public abstract AioListener getAioListener();
+	public abstract TioListener getTioListener();
 
 	/**
 	 *

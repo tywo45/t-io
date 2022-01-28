@@ -251,9 +251,9 @@ public class CloseRunnable extends AbstractQueueRunnable<ChannelContext> {
 				//				}
 
 				channelContext.stat.timeClosed = SystemTimer.currTime;
-				if (channelContext.tioConfig.getAioListener() != null) {
+				if (channelContext.tioConfig.getTioListener() != null) {
 					try {
-						channelContext.tioConfig.getAioListener().onBeforeClose(channelContext, throwable, remark, isNeedRemove);
+						channelContext.tioConfig.getTioListener().onBeforeClose(channelContext, throwable, remark, isNeedRemove);
 					} catch (Throwable e) {
 						log.error(e.toString(), e);
 					}

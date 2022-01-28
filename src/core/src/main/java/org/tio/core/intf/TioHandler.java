@@ -197,7 +197,7 @@ import java.nio.ByteBuffer;
 
 import org.tio.core.ChannelContext;
 import org.tio.core.TioConfig;
-import org.tio.core.exception.AioDecodeException;
+import org.tio.core.exception.TioDecodeException;
 import org.tio.core.exception.TioDecodeException;
 
 /**
@@ -216,7 +216,7 @@ public interface TioHandler {
 	 * @param readableLength ByteBuffer参与本次解码的有效数据（= limit - position）
 	 * @param channelContext
 	 * @return
-	 * @throws AioDecodeException
+	 * @throws TioDecodeException
 	 */
 	Packet decode(ByteBuffer buffer, int limit, int position, int readableLength, ChannelContext channelContext) throws TioDecodeException;
 

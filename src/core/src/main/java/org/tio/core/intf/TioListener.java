@@ -200,7 +200,7 @@ import org.tio.core.ChannelContext;
  * @author tanyaowu
  * 2017年4月1日 上午9:34:08
  */
-public interface AioListener {
+public interface TioListener {
 
 	/**
 	 * 建链后触发本方法，注：建链不一定成功，需要关注参数isConnected

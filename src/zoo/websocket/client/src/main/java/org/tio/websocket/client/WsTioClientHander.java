@@ -214,8 +214,8 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WsClientAioHander implements TioClientHandler {
-  private static final Logger log = LoggerFactory.getLogger(WsClientAioHander.class);
+public class WsTioClientHander implements TioClientHandler {
+  private static final Logger log = LoggerFactory.getLogger(WsTioClientHander.class);
 
   private static final String NOT_FINAL_WEBSOCKET_PACKET_PARTS = "TIO_N_F_W_P_P";
 

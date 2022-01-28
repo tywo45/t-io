@@ -480,9 +480,9 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 
 			//非SSL or SSL已经握手
 			if (this.sslFacadeContext == null || this.sslFacadeContext.isHandshakeCompleted()) {
-				if (tioConfig.getAioListener() != null) {
+				if (tioConfig.getTioListener() != null) {
 					try {
-						tioConfig.getAioListener().onAfterSent(this, packet, isSentSuccess);
+						tioConfig.getTioListener().onAfterSent(this, packet, isSentSuccess);
 					} catch (Exception e) {
 						log.error(e.toString(), e);
 					}

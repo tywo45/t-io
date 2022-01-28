@@ -290,9 +290,9 @@ public class HandlerRunnable extends AbstractQueueRunnable<Packet> {
 				}
 			}
 
-			if (tioConfig.getAioListener() != null) {
+			if (tioConfig.getTioListener() != null) {
 				try {
-					tioConfig.getAioListener().onAfterHandled(channelContext, packet, iv);
+					tioConfig.getTioListener().onAfterHandled(channelContext, packet, iv);
 				} catch (Exception e) {
 					log.error(e.toString(), e);
 				}

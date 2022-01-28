@@ -257,9 +257,9 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuf
 				}
 			}
 
-			if (tioConfig.getAioListener() != null) {
+			if (tioConfig.getTioListener() != null) {
 				try {
-					tioConfig.getAioListener().onAfterReceivedBytes(channelContext, result);
+					tioConfig.getTioListener().onAfterReceivedBytes(channelContext, result);
 				} catch (Exception e) {
 					log.error("", e);
 				}

@@ -194,14 +194,14 @@
 package org.tio.server.intf;
 
 import org.tio.core.ChannelContext;
-import org.tio.core.intf.AioListener;
+import org.tio.core.intf.TioListener;
 
 /**
  *
  * @author tanyaowu
  *
  */
-public interface TioServerListener extends AioListener {
+public interface TioServerListener extends TioListener {
 
 	/**
 	 * 建立连接后触发的方法

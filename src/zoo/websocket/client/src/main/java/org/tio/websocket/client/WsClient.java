@@ -213,8 +213,8 @@ public class WsClient {
   @SuppressWarnings("unused")
   private static Logger log = LoggerFactory.getLogger(WsClient.class);
 
-  static TioClientHandler tioClientHandler = new WsClientAioHander();
-  static TioClientListener aioListener = new WsTioClientListener();
+  static TioClientHandler tioClientHandler = new WsTioClientHander();
+  static TioClientListener tioListener = new WsTioClientListener();
 
   /**
    * To create a WsClient.
@@ -359,7 +359,7 @@ public class WsClient {
       } catch (Exception ex) {
       }
     }
-    tioClientConfig = new TioClientConfig(tioClientHandler, aioListener, null);
+    tioClientConfig = new TioClientConfig(tioClientHandler, tioListener, null);
     tioClientConfig.setHeartbeatTimeout(0);
     if (uri.getScheme().equals("ws")) {
       tioClient = new TioClient(tioClientConfig);

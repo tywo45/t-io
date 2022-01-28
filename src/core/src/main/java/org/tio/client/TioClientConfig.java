@@ -203,7 +203,7 @@ import org.tio.client.intf.TioClientListener;
 import org.tio.core.ChannelContext;
 import org.tio.core.TioConfig;
 import org.tio.core.intf.TioHandler;
-import org.tio.core.intf.AioListener;
+import org.tio.core.intf.TioListener;
 import org.tio.core.ssl.SslConfig;
 import org.tio.utils.lock.SetWithLock;
 import org.tio.utils.thread.pool.SynThreadPoolExecutor;
@@ -230,37 +230,37 @@ public class TioClientConfig extends TioConfig {
 	/**
 	 * 不重连
 	 * @param tioHandler
-	 * @param aioListener
+	 * @param tioListener
 	 * @author tanyaowu
 	 */
-	public TioClientConfig(TioClientHandler tioHandler, TioClientListener aioListener) {
-		this(tioHandler, aioListener, null);
+	public TioClientConfig(TioClientHandler tioHandler, TioClientListener tioListener) {
+		this(tioHandler, tioListener, null);
 	}
 
 	/**
 	 * 
 	 * @param tioHandler
-	 * @param aioListener
+	 * @param tioListener
 	 * @param reconnConf 不用框架自动重连，就传null
 	 */
-	public TioClientConfig(TioClientHandler tioHandler, TioClientListener aioListener, ReconnConf reconnConf) {
-		this(tioHandler, aioListener, reconnConf, null, null);
+	public TioClientConfig(TioClientHandler tioHandler, TioClientListener tioListener, ReconnConf reconnConf) {
+		this(tioHandler, tioListener, reconnConf, null, null);
 	}
 
 	/**
 	 * 
 	 * @param tioHandler
-	 * @param aioListener
+	 * @param tioListener
 	 * @param reconnConf 不用框架自动重连，就传null
 	 * @param tioExecutor
 	 * @param groupExecutor
 	 */
-	public TioClientConfig(TioClientHandler tioHandler, TioClientListener aioListener, ReconnConf reconnConf, SynThreadPoolExecutor tioExecutor,
+	public TioClientConfig(TioClientHandler tioHandler, TioClientListener tioListener, ReconnConf reconnConf, SynThreadPoolExecutor tioExecutor,
 	        ThreadPoolExecutor groupExecutor) {
 		super(tioExecutor, groupExecutor);
 		this.groupStat = new ClientGroupStat();
 		this.setTioClientHandler(tioHandler);
-		this.setTioClientListener(aioListener);
+		this.setTioClientListener(tioListener);
 
 		this.reconnConf = reconnConf;
 	}
@@ -289,7 +289,7 @@ public class TioClientConfig extends TioConfig {
 	}
 
 	/**
-	 * @see org.tio.core.TioConfig#getAioListener()
+	 * @see org.tio.core.TioConfig#getTioListener()
 	 *
 	 * @return
 	 * @author tanyaowu
@@ -297,7 +297,7 @@ public class TioClientConfig extends TioConfig {
 	 *
 	 */
 	@Override
-	public AioListener getAioListener() {
+	public TioListener getTioListener() {
 		return this.getTioClientListener();
 	}
 

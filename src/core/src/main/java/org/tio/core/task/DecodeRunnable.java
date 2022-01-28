@@ -377,9 +377,9 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 						}
 					}
 
-					if (tioConfig.getAioListener() != null) {
+					if (tioConfig.getTioListener() != null) {
 						try {
-							tioConfig.getAioListener().onAfterDecoded(channelContext, packet, packetSize);
+							tioConfig.getTioListener().onAfterDecoded(channelContext, packet, packetSize);
 						} catch (Throwable e) {
 							log.error(e.toString(), e);
 						}
