@@ -227,7 +227,7 @@ import org.tio.utils.thread.pool.SynThreadPoolExecutor;
 public class TioServerConfig extends TioConfig {
 	static Logger					log						= LoggerFactory.getLogger(TioServerConfig.class);
 	private AcceptCompletionHandler	acceptCompletionHandler	= null;
-	private TioServerHandler		serverTioHandler		= null;
+	private TioServerHandler		tioServerHandler		= null;
 	private TioServerListener		tioServerListener		= null;
 	private Thread					checkHeartbeatThread	= null;
 	private boolean					needCheckHeartbeat		= true;
@@ -236,67 +236,67 @@ public class TioServerConfig extends TioConfig {
 
 	/**
 	 * 
-	 * @param serverTioHandler
+	 * @param tioServerHandler
 	 * @param tioServerListener
 	 * @author: tanyaowu
 	 */
-	public TioServerConfig(TioServerHandler serverTioHandler, TioServerListener tioServerListener) {
-		this(null, serverTioHandler, tioServerListener);
+	public TioServerConfig(TioServerHandler tioServerHandler, TioServerListener tioServerListener) {
+		this(null, tioServerHandler, tioServerListener);
 	}
 
 	/**
 	 * 
 	 * @param name
-	 * @param serverTioHandler
+	 * @param tioServerHandler
 	 * @param tioServerListener
 	 * @author: tanyaowu
 	 */
-	public TioServerConfig(String name, TioServerHandler serverTioHandler, TioServerListener tioServerListener) {
-		this(name, serverTioHandler, tioServerListener, null, null);
+	public TioServerConfig(String name, TioServerHandler tioServerHandler, TioServerListener tioServerListener) {
+		this(name, tioServerHandler, tioServerListener, null, null);
 	}
 
 	/**
 	 * 
-	 * @param serverTioHandler
+	 * @param tioServerHandler
 	 * @param tioServerListener
 	 * @param tioExecutor
 	 * @param groupExecutor
 	 * @author: tanyaowu
 	 */
-	public TioServerConfig(TioServerHandler serverTioHandler, TioServerListener tioServerListener, SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
-		this(null, serverTioHandler, tioServerListener, tioExecutor, groupExecutor);
+	public TioServerConfig(TioServerHandler tioServerHandler, TioServerListener tioServerListener, SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
+		this(null, tioServerHandler, tioServerListener, tioExecutor, groupExecutor);
 	}
 
 	/**
 	 * 
 	 * @param name
-	 * @param serverTioHandler
+	 * @param tioServerHandler
 	 * @param tioServerListener
 	 * @param tioExecutor
 	 * @param groupExecutor
 	 * @author: tanyaowu
 	 */
-	public TioServerConfig(String name, TioServerHandler serverTioHandler, TioServerListener tioServerListener, SynThreadPoolExecutor tioExecutor,
+	public TioServerConfig(String name, TioServerHandler tioServerHandler, TioServerListener tioServerListener, SynThreadPoolExecutor tioExecutor,
 	        ThreadPoolExecutor groupExecutor) {
 		super(tioExecutor, groupExecutor);
 		this.ipBlacklist = new IpBlacklist(id, this);
-		init(name, serverTioHandler, tioServerListener, tioExecutor, groupExecutor);
+		init(name, tioServerHandler, tioServerListener, tioExecutor, groupExecutor);
 	}
 
 	/**
 	 * 
 	 * @param name
-	 * @param serverTioHandler
+	 * @param tioServerHandler
 	 * @param tioServerListener
 	 * @param tioExecutor
 	 * @param groupExecutor
 	 * @author tanyaowu
 	 */
-	private void init(String name, TioServerHandler serverTioHandler, TioServerListener tioServerListener, SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
+	private void init(String name, TioServerHandler tioServerHandler, TioServerListener tioServerListener, SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
 		this.name = name;
 		this.groupStat = new ServerGroupStat();
 		this.acceptCompletionHandler = new AcceptCompletionHandler();
-		this.serverTioHandler = serverTioHandler;
+		this.tioServerHandler = tioServerHandler;
 		this.tioServerListener = tioServerListener;// == null ? new DefaultTioServerListener() : tioServerListener;
 		checkHeartbeatThread = new Thread(new Runnable() {
 			@Override
@@ -475,10 +475,10 @@ public class TioServerConfig extends TioConfig {
 	}
 
 	/**
-	 * @return the serverTioHandler
+	 * @return the tioServerHandler
 	 */
 	public TioServerHandler getTioServerHandler() {
-		return serverTioHandler;
+		return tioServerHandler;
 	}
 
 	/**

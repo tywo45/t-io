@@ -216,7 +216,7 @@ import org.tio.utils.thread.pool.SynThreadPoolExecutor;
 public class TioClientConfig extends TioConfig {
 	static Logger log = LoggerFactory.getLogger(TioClientConfig.class);
 
-	private TioClientHandler clientTioHandler = null;
+	private TioClientHandler tioClientHandler = null;
 
 	private TioClientListener tioClientListener = null;
 
@@ -302,10 +302,10 @@ public class TioClientConfig extends TioConfig {
 	}
 
 	/**
-	 * @return the clientTioHandler
+	 * @return the tioClientHandler
 	 */
 	public TioClientHandler getTioClientHandler() {
-		return clientTioHandler;
+		return tioClientHandler;
 	}
 
 	/**
@@ -323,10 +323,10 @@ public class TioClientConfig extends TioConfig {
 	}
 
 	/**
-	 * @param clientTioHandler the clientTioHandler to set
+	 * @param tioClientHandler the tioClientHandler to set
 	 */
-	public void setTioClientHandler(TioClientHandler clientTioHandler) {
-		this.clientTioHandler = clientTioHandler;
+	public void setTioClientHandler(TioClientHandler tioClientHandler) {
+		this.tioClientHandler = tioClientHandler;
 	}
 
 	/**
