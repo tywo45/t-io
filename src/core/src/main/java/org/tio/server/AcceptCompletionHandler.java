@@ -229,25 +229,25 @@ public class AcceptCompletionHandler implements CompletionHandler<AsynchronousSo
 	@Override
 	public void completed(AsynchronousSocketChannel asynchronousSocketChannel, TioServer tioServer) {
 		try {
-			ServerTioConfig serverTioConfig = tioServer.getServerTioConfig();
+			TioServerConfig tioServerConfig = tioServer.getTioServerConfig();
 			InetSocketAddress inetSocketAddress = (InetSocketAddress) asynchronousSocketChannel.getRemoteAddress();
 			String clientIp = inetSocketAddress.getHostString();
-			//			serverTioConfig.ips.get(clientIp).getRequestCount().incrementAndGet();
+			//			tioServerConfig.ips.get(clientIp).getRequestCount().incrementAndGet();
 
-			//			CaffeineCache[] caches = serverTioConfig.ips.getCaches();
+			//			CaffeineCache[] caches = tioServerConfig.ips.getCaches();
 			//			for (CaffeineCache guavaCache : caches) {
 			//				IpStat ipStat = (IpStat) guavaCache.get(clientIp);
 			//				ipStat.getRequestCount().incrementAndGet();
 			//			}
 
-			if (org.tio.core.Tio.IpBlacklist.isInBlacklist(serverTioConfig, clientIp)) {
-				log.info("{}在黑名单中, {}", clientIp, serverTioConfig.getName());
+			if (org.tio.core.Tio.IpBlacklist.isInBlacklist(tioServerConfig, clientIp)) {
+				log.info("{}在黑名单中, {}", clientIp, tioServerConfig.getName());
 				asynchronousSocketChannel.close();
 				return;
 			}
 
-			if (serverTioConfig.statOn) {
-				((ServerGroupStat) serverTioConfig.groupStat).accepted.incrementAndGet();
+			if (tioServerConfig.statOn) {
+				((ServerGroupStat) tioServerConfig.groupStat).accepted.incrementAndGet();
 			}
 
 			//			channelContext.getIpStat().getActivatedCount().incrementAndGet();
@@ -256,7 +256,7 @@ public class AcceptCompletionHandler implements CompletionHandler<AsynchronousSo
 			//				ipStat.getActivatedCount().incrementAndGet();
 			//			}
 			//			for (Long v : durationList) {
-			//				IpStat ipStat = (IpStat) serverTioConfig.ips.get(v, clientIp);
+			//				IpStat ipStat = (IpStat) tioServerConfig.ips.get(v, clientIp);
 			//				IpStat.getActivatedCount().incrementAndGet();
 			//			}
 			//			IpStat.getActivatedCount(clientIp, true).incrementAndGet();
@@ -266,34 +266,34 @@ public class AcceptCompletionHandler implements CompletionHandler<AsynchronousSo
 			asynchronousSocketChannel.setOption(StandardSocketOptions.SO_SNDBUF, 64 * 1024);
 			asynchronousSocketChannel.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 
-			ServerChannelContext channelContext = new ServerChannelContext(serverTioConfig, asynchronousSocketChannel);
+			ServerChannelContext channelContext = new ServerChannelContext(tioServerConfig, asynchronousSocketChannel);
 			channelContext.setClosed(false);
 			channelContext.stat.setTimeFirstConnected(SystemTimer.currTime);
 			channelContext.setServerNode(tioServer.getServerNode());
 
 			//			channelContext.traceClient(ChannelAction.CONNECT, null, null);
 
-			//			serverTioConfig.connecteds.add(channelContext);
-			serverTioConfig.ips.bind(channelContext);
+			//			tioServerConfig.connecteds.add(channelContext);
+			tioServerConfig.ips.bind(channelContext);
 
 			boolean isConnected = true;
 			boolean isReconnect = false;
-			if (serverTioConfig.getServerAioListener() != null) {
+			if (tioServerConfig.getTioServerListener() != null) {
 				if (!SslUtils.isSsl(channelContext.tioConfig)) {
 					try {
-						serverTioConfig.getServerAioListener().onAfterConnected(channelContext, isConnected, isReconnect);
+						tioServerConfig.getTioServerListener().onAfterConnected(channelContext, isConnected, isReconnect);
 					} catch (Throwable e) {
 						log.error(e.toString(), e);
 					}
 				}
 			}
 			
-			if (CollUtil.isNotEmpty(serverTioConfig.ipStats.durationList)) {
+			if (CollUtil.isNotEmpty(tioServerConfig.ipStats.durationList)) {
 				try {
-					for (Long v : serverTioConfig.ipStats.durationList) {
-						IpStat ipStat = (IpStat) serverTioConfig.ipStats.get(v, channelContext);
+					for (Long v : tioServerConfig.ipStats.durationList) {
+						IpStat ipStat = (IpStat) tioServerConfig.ipStats.get(v, channelContext);
 						ipStat.getRequestCount().incrementAndGet();
-						serverTioConfig.getIpStatListener().onAfterConnected(channelContext, isConnected, isReconnect, ipStat);
+						tioServerConfig.getIpStatListener().onAfterConnected(channelContext, isConnected, isReconnect, ipStat);
 					}
 				} catch (Exception e) {
 					log.error(e.toString(), e);

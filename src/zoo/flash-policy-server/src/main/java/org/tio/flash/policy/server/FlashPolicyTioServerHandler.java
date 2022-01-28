@@ -177,7 +177,7 @@
 	the same "printed page" as the copyright notice for easier identification within
 	third-party archives.
 	
-	   Copyright 2020 t-io
+	   Copyright 2018 JFinal
 	
 	   Licensed under the Apache License, Version 2.0 (the "License");
 	   you may not use this file except in compliance with the License.
@@ -191,56 +191,94 @@
 	   See the License for the specific language governing permissions and
 	   limitations under the License.
 */
-package org.tio.websocket.client;
+package org.tio.flash.policy.server;
+
+import java.nio.ByteBuffer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.client.TioClient;
-import org.tio.client.intf.ClientAioListener;
 import org.tio.core.ChannelContext;
+import org.tio.core.TioConfig;
+import org.tio.core.Tio;
+import org.tio.core.exception.TioDecodeException;
+import org.tio.core.exception.LengthOverflowException;
 import org.tio.core.intf.Packet;
-import org.tio.websocket.client.kit.ReflectKit;
-import org.tio.websocket.common.WsSessionContext;
+import org.tio.core.utils.ByteBufferUtils;
+import org.tio.server.intf.TioServerHandler;
 
-import javax.net.ssl.SSLHandshakeException;
+/**
+ * 
+ * @author tanyaowu 
+ * 2017年10月31日 下午4:27:31
+ */
+public class FlashPolicyTioServerHandler implements TioServerHandler {
+	private static Logger log = LoggerFactory.getLogger(FlashPolicyTioServerHandler.class);
 
-public class WsClientAioListener implements ClientAioListener {
-  private static final Logger log = LoggerFactory.getLogger(WsClientAioListener.class);
+	/**
+	 * 处理消息
+	 */
+	@Override
+	public void handler(Packet packet, ChannelContext channelContext) throws Exception {
+		Tio.send(channelContext, FlashPolicyPacket.RESPONSE);
+		//		Tio.close(channelContext, "消息发送完毕");
+	}
 
-  @Override
-  public void onAfterConnected(
-      ChannelContext channelContext, boolean isConnected, boolean isReconnect) throws Exception {}
+	public static final String REQUEST_STR = "<policy-file-request/>";
 
-  @Override
-  public void onAfterDecoded(ChannelContext channelContext, Packet packet, int packetSize)
-      throws Exception {}
+	/**
+	 * <policy-file-request/>
+	 * @param buffer
+	 * @param channelContext
+	 * @return
+	 * @throws TioDecodeException
+	 * @author tanyaowu
+	 */
+	@Override
+	public FlashPolicyPacket decode(ByteBuffer buffer, int limit, int position, int readableLength, ChannelContext channelContext) throws TioDecodeException {
+		//收到的数据组不了业务包，则返回null以告诉框架数据不够
+		if (readableLength < FlashPolicyPacket.MIN_LENGHT) {
+			return null;
+		}
 
-  @Override
-  public void onAfterReceivedBytes(ChannelContext channelContext, int receivedBytes)
-      throws Exception {}
+		String line = null;
 
-  @Override
-  public void onAfterSent(ChannelContext channelContext, Packet packet, boolean isSentSuccess)
-      throws Exception {}
+		try {
+			line = ByteBufferUtils.readString(buffer, Const.CHARSET, '\0', FlashPolicyPacket.MAX_LING_LENGHT);
+		} catch (LengthOverflowException e) {
+			throw new TioDecodeException(e);
+		}
 
-  @Override
-  public void onAfterHandled(ChannelContext channelContext, Packet packet, long cost)
-      throws Exception {}
+		if (line == null) {
+			return null;
+		} else {
+			log.info("收到消息:{}", line);
+			if (REQUEST_STR.equalsIgnoreCase(line)) {
+				return FlashPolicyPacket.REQUEST;
+			} else {
+				throw new TioDecodeException("");
+			}
+		}
+	}
 
-  @Override
-  public void onBeforeClose(
-      ChannelContext channelContext, Throwable throwable, String remark, boolean isRemove)
-      throws Exception {
-    WsClient client = (WsClient) channelContext.getAttribute(WebSocketImpl.clientIntoCtxAttribute);
-    if (throwable instanceof SSLHandshakeException && client.uri.getScheme().equals("wss")) {
-      log.warn("wss但没有正确的CA证书，更为ws重试");
-      ReflectKit.setField(client.uri, "scheme", "ws");
-      if (client.uri.getPort() == 443) ReflectKit.setField(client.uri, "port", 80);
-      client.construct();
-      client.connect();
-      return;
-    }
-    client.ws.clear(1011, remark);
-    channelContext.setAttribute(WebSocketImpl.clientIntoCtxAttribute, null);
-  }
+	public static byte[] RESPONSE_BYTES;
+
+	static {
+		RESPONSE_BYTES = ("<cross-domain-policy><allow-access-from domain=\"*\" to-ports=\"*\" /></cross-domain-policy>\0").getBytes();
+	}
+
+	/**
+	 * 
+	 * @param packet
+	 * @param tioConfig
+	 * @param channelContext
+	 * @return
+	 * @author tanyaowu
+	 */
+	@Override
+	public ByteBuffer encode(Packet packet, TioConfig tioConfig, ChannelContext channelContext) {
+		ByteBuffer ret = ByteBuffer.wrap(RESPONSE_BYTES);
+		//		ret.position(ret.limit());
+		return ret;
+	}
+
 }

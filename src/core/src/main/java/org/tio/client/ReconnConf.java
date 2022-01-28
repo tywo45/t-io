@@ -211,8 +211,8 @@ public class ReconnConf {
 	private static Logger log = LoggerFactory.getLogger(ReconnConf.class);
 
 	public static ReconnConf getReconnConf(ClientChannelContext clientChannelContext) {
-		ClientTioConfig clientTioConfig = (ClientTioConfig) clientChannelContext.tioConfig;
-		ReconnConf reconnConf = clientTioConfig.getReconnConf();
+		TioClientConfig tioClientConfig = (TioClientConfig) clientChannelContext.tioConfig;
+		ReconnConf reconnConf = tioClientConfig.getReconnConf();
 		return reconnConf;
 	}
 
@@ -238,8 +238,8 @@ public class ReconnConf {
 		if (reconnConf.getInterval() > 0) {
 			if (reconnConf.getRetryCount() <= 0 || reconnConf.getRetryCount() > clientChannelContext.getReconnCount().get()) {
 				if (putIfNeedConn) {
-					ClientTioConfig clientTioConfig = (ClientTioConfig) clientChannelContext.tioConfig;
-					clientTioConfig.closeds.add(clientChannelContext);
+					TioClientConfig tioClientConfig = (TioClientConfig) clientChannelContext.tioConfig;
+					tioClientConfig.closeds.add(clientChannelContext);
 					clientChannelContext.stat.timeInReconnQueue = SystemTimer.currTime;
 					reconnConf.getQueue().add(clientChannelContext);
 				}

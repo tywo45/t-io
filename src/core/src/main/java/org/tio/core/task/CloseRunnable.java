@@ -198,7 +198,7 @@ import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.client.ClientChannelContext;
-import org.tio.client.ClientTioConfig;
+import org.tio.client.TioClientConfig;
 import org.tio.client.ReconnConf;
 import org.tio.core.ChannelContext;
 import org.tio.core.maintain.MaintainUtils;
@@ -287,9 +287,9 @@ public class CloseRunnable extends AbstractQueueRunnable<ChannelContext> {
 						if (isNeedRemove) {
 							MaintainUtils.remove(channelContext);
 						} else {
-							ClientTioConfig clientTioConfig = (ClientTioConfig) channelContext.tioConfig;
-							clientTioConfig.closeds.add(channelContext);
-							clientTioConfig.connecteds.remove(channelContext);
+							TioClientConfig tioClientConfig = (TioClientConfig) channelContext.tioConfig;
+							tioClientConfig.closeds.add(channelContext);
+							tioClientConfig.connecteds.remove(channelContext);
 							MaintainUtils.close(channelContext);
 						}
 

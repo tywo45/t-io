@@ -199,7 +199,7 @@ import java.nio.channels.CompletionHandler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.client.intf.ClientAioListener;
+import org.tio.client.intf.TioClientListener;
 import org.tio.core.ChannelContext.CloseCode;
 import org.tio.core.TioConfig;
 import org.tio.core.Node;
@@ -252,11 +252,11 @@ public class ConnectionCompletionHandler implements CompletionHandler<Void, Conn
 		ClientChannelContext channelContext = attachment.getChannelContext();
 		AsynchronousSocketChannel asynchronousSocketChannel = attachment.getAsynchronousSocketChannel();
 		TioClient tioClient = attachment.getTioClient();
-		ClientTioConfig clientTioConfig = tioClient.getClientTioConfig();
+		TioClientConfig tioClientConfig = tioClient.getTioClientConfig();
 		Node serverNode = attachment.getServerNode();
 		String bindIp = attachment.getBindIp();
 		Integer bindPort = attachment.getBindPort();
-		ClientAioListener clientAioListener = clientTioConfig.getClientAioListener();
+		TioClientListener tioClientListener = tioClientConfig.getTioClientListener();
 		boolean isReconnect = attachment.isReconnect();
 		boolean isConnected = false;
 
@@ -270,9 +270,9 @@ public class ConnectionCompletionHandler implements CompletionHandler<Void, Conn
 					channelContext.sendRunnable.setCanceled(false);
 					//		channelContext.getSendRunnableHighPrior().setCanceled(false);
 
-					clientTioConfig.closeds.remove(channelContext);
+					tioClientConfig.closeds.remove(channelContext);
 				} else {
-					channelContext = new ClientChannelContext(clientTioConfig, asynchronousSocketChannel);
+					channelContext = new ClientChannelContext(tioClientConfig, asynchronousSocketChannel);
 					channelContext.setServerNode(serverNode);
 				}
 
@@ -285,8 +285,8 @@ public class ConnectionCompletionHandler implements CompletionHandler<Void, Conn
 
 				attachment.setChannelContext(channelContext);
 
-				//				clientTioConfig.ips.bind(channelContext);
-				clientTioConfig.connecteds.add(channelContext);
+				//				tioClientConfig.ips.bind(channelContext);
+				tioClientConfig.connecteds.add(channelContext);
 
 				ReadCompletionHandler readCompletionHandler = channelContext.getReadCompletionHandler();
 				ByteBuffer readByteBuffer = readCompletionHandler.getReadByteBuffer();//ByteBuffer.allocateDirect(channelContext.tioConfig.getReadBufferSize());
@@ -301,9 +301,9 @@ public class ConnectionCompletionHandler implements CompletionHandler<Void, Conn
 			} else {
 				log.error(throwable.toString(), throwable);
 				if (channelContext == null) {
-					ReconnConf reconnConf = clientTioConfig.getReconnConf();
+					ReconnConf reconnConf = tioClientConfig.getReconnConf();
 					if (reconnConf != null) {
-						channelContext = new ClientChannelContext(clientTioConfig, asynchronousSocketChannel);
+						channelContext = new ClientChannelContext(tioClientConfig, asynchronousSocketChannel);
 						channelContext.setServerNode(serverNode);
 					}
 				}
@@ -335,17 +335,17 @@ public class ConnectionCompletionHandler implements CompletionHandler<Void, Conn
 							SslFacadeContext sslFacadeContext = new SslFacadeContext(channelContext);
 							sslFacadeContext.beginHandshake();
 						} else {
-							if (clientAioListener != null) {
+							if (tioClientListener != null) {
 								if (isConnected) {
 									channelContext.stat.heartbeatTimeoutCount.set(0);
 									channelContext.setCloseCode(CloseCode.INIT_STATUS);
 								}
-								clientAioListener.onAfterConnected(channelContext, isConnected, isReconnect);
+								tioClientListener.onAfterConnected(channelContext, isConnected, isReconnect);
 							}
 						}
 					} else {
-						if (clientAioListener != null) {
-							clientAioListener.onAfterConnected(channelContext, isConnected, isReconnect);
+						if (tioClientListener != null) {
+							tioClientListener.onAfterConnected(channelContext, isConnected, isReconnect);
 						}
 					}
 

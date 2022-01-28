@@ -201,7 +201,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.client.ClientChannelContext;
-import org.tio.client.ClientTioConfig;
+import org.tio.client.TioClientConfig;
 import org.tio.client.ReconnConf;
 import org.tio.client.TioClient;
 import org.tio.core.Node;
@@ -220,15 +220,15 @@ public class HttpClientStarter {
 	@SuppressWarnings("unused")
 	private static Logger log = LoggerFactory.getLogger(HttpClientStarter.class);
 
-	private HttpClientAioHandler httpClientAioHandler = new HttpClientAioHandler();
+	private HttpTioClientHandler httpTioClientHandler = new HttpTioClientHandler();
 
-	private HttpClientAioListener httpClientAioListener = new HttpClientAioListener();
+	private HttpTioClientListener httpTioClientListener = new HttpTioClientListener();
 
 	//断链后自动连接的，不想自动连接请设为null
 	private ReconnConf reconnConf = null;//new ReconnConf(5000L);
 
 	//一组连接共用的上下文对象
-	public ClientTioConfig clientTioConfig = new ClientTioConfig(httpClientAioHandler, httpClientAioListener, reconnConf);
+	public TioClientConfig tioClientConfig = new TioClientConfig(httpTioClientHandler, httpTioClientListener, reconnConf);
 
 	private TioClient tioClient = null;
 
@@ -259,24 +259,24 @@ public class HttpClientStarter {
 	}
 
 	/**
-	 * @return the httpClientAioHandler
+	 * @return the httpTioClientHandler
 	 */
-	public HttpClientAioHandler getHttpClientAioHandler() {
-		return httpClientAioHandler;
+	public HttpTioClientHandler getHttpTioClientHandler() {
+		return httpTioClientHandler;
 	}
 
 	/**
-	 * @return the httpClientAioListener
+	 * @return the httpTioClientListener
 	 */
-	public HttpClientAioListener getHttpClientAioListener() {
-		return httpClientAioListener;
+	public HttpTioClientListener getHttpTioClientListener() {
+		return httpTioClientListener;
 	}
 
 	/**
-	 * @return the clientTioConfig
+	 * @return the tioClientConfig
 	 */
-	public ClientTioConfig getClientTioConfig() {
-		return clientTioConfig;
+	public TioClientConfig getTioClientConfig() {
+		return tioClientConfig;
 	}
 
 	private void init(SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) throws IOException {
@@ -284,9 +284,9 @@ public class HttpClientStarter {
 		//		if (StrUtil.isBlank(system_timer_period)) {
 		//			System.setProperty("tio.system.timer.period", "50");
 		//		}
-		clientTioConfig.setName("Tio Http Client");
-		clientTioConfig.statOn = false;
-		tioClient = new TioClient(clientTioConfig);
+		tioClientConfig.setName("Tio Http Client");
+		tioClientConfig.statOn = false;
+		tioClient = new TioClient(tioClientConfig);
 	}
 
 	public void stop() throws IOException {
@@ -316,8 +316,8 @@ public class HttpClientStarter {
 	public static void init() throws Exception {
 		httpClientStarter = new HttpClientStarter();
 		httpsClientStarter = new HttpClientStarter();
-		ClientTioConfig clientTioConfig = httpsClientStarter.getClientTioConfig();
-		clientTioConfig.useSsl();
+		TioClientConfig tioClientConfig = httpsClientStarter.getTioClientConfig();
+		tioClientConfig.useSsl();
 	}
 
 	public static void main(String[] args) throws Exception {

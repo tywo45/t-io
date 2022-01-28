@@ -199,7 +199,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.intf.TioUuid;
-import org.tio.server.ServerTioConfig;
+import org.tio.server.TioServerConfig;
 import org.tio.server.TioServer;
 import org.tio.utils.Threads;
 import org.tio.utils.thread.pool.SynThreadPoolExecutor;
@@ -216,9 +216,9 @@ public class WsServerStarter {
 	private static Logger		log					= LoggerFactory.getLogger(WsServerStarter.class);
 	private WsServerConfig		wsServerConfig		= null;
 	private IWsMsgHandler		wsMsgHandler		= null;
-	private WsServerAioHandler	wsServerAioHandler	= null;
-	private WsServerAioListener	wsServerAioListener	= null;
-	private ServerTioConfig	serverTioConfig	= null;
+	private WsTioServerHandler	wsTioServerHandler	= null;
+	private WsTioServerListener	wsTioServerListener	= null;
+	private TioServerConfig	tioServerConfig	= null;
 	private TioServer			tioServer			= null;
 
 	public TioServer getTioServer() {
@@ -240,24 +240,24 @@ public class WsServerStarter {
 	}
 
 	/**
-	 * @return the wsServerAioHandler
+	 * @return the wsTioServerHandler
 	 */
-	public WsServerAioHandler getWsServerAioHandler() {
-		return wsServerAioHandler;
+	public WsTioServerHandler getWsTioServerHandler() {
+		return wsTioServerHandler;
 	}
 
 	/**
-	 * @return the wsServerAioListener
+	 * @return the wsTioServerListener
 	 */
-	public WsServerAioListener getWsServerAioListener() {
-		return wsServerAioListener;
+	public WsTioServerListener getWsTioServerListener() {
+		return wsTioServerListener;
 	}
 
 	/**
-	 * @return the serverTioConfig
+	 * @return the tioServerConfig
 	 */
-	public ServerTioConfig getServerTioConfig() {
-		return serverTioConfig;
+	public TioServerConfig getTioServerConfig() {
+		return tioServerConfig;
 	}
 
 	public WsServerStarter(int port, IWsMsgHandler wsMsgHandler) throws IOException {
@@ -288,13 +288,13 @@ public class WsServerStarter {
 
 		this.wsServerConfig = wsServerConfig;
 		this.wsMsgHandler = wsMsgHandler;
-		wsServerAioHandler = new WsServerAioHandler(wsServerConfig, wsMsgHandler);
-		wsServerAioListener = new WsServerAioListener();
-		serverTioConfig = new ServerTioConfig("Tio Websocket Server", wsServerAioHandler, wsServerAioListener, tioExecutor, groupExecutor);
-		serverTioConfig.setHeartbeatTimeout(0);
-		serverTioConfig.setTioUuid(tioUuid);
-		serverTioConfig.setReadBufferSize(1024 * 30);
-		tioServer = new TioServer(serverTioConfig);
+		wsTioServerHandler = new WsTioServerHandler(wsServerConfig, wsMsgHandler);
+		wsTioServerListener = new WsTioServerListener();
+		tioServerConfig = new TioServerConfig("Tio Websocket Server", wsTioServerHandler, wsTioServerListener, tioExecutor, groupExecutor);
+		tioServerConfig.setHeartbeatTimeout(0);
+		tioServerConfig.setTioUuid(tioUuid);
+		tioServerConfig.setReadBufferSize(1024 * 30);
+		tioServer = new TioServer(tioServerConfig);
 	}
 
 	public void start() throws IOException {

@@ -177,7 +177,7 @@
 	the same "printed page" as the copyright notice for easier identification within
 	third-party archives.
 	
-	   Copyright 2020 t-io
+	   Copyright 2018 JFinal
 	
 	   Licensed under the Apache License, Version 2.0 (the "License");
 	   you may not use this file except in compliance with the License.
@@ -191,37 +191,111 @@
 	   See the License for the specific language governing permissions and
 	   limitations under the License.
 */
-package org.tio.server.intf;
+package org.tio.http.server;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
-import org.tio.core.intf.AioListener;
+import org.tio.core.TioConfig;
+import org.tio.core.Tio;
+import org.tio.core.exception.TioDecodeException;
+import org.tio.core.intf.Packet;
+import org.tio.http.common.HttpConfig;
+import org.tio.http.common.HttpRequest;
+import org.tio.http.common.HttpRequestDecoder;
+import org.tio.http.common.HttpResponse;
+import org.tio.http.common.HttpResponseEncoder;
+import org.tio.http.common.handler.HttpRequestHandler;
+import org.tio.server.intf.TioServerHandler;
 
 /**
  *
  * @author tanyaowu
  *
  */
-public interface ServerAioListener extends AioListener {
+public class HttpTioServerHandler implements TioServerHandler {
+	private static Logger		log			= LoggerFactory.getLogger(HttpTioServerHandler.class);
+	public static final String	REQUEST_KEY	= "tio_request_key";
+	protected HttpConfig		httpConfig;
+	private HttpRequestHandler	requestHandler;
 
 	/**
-	 * 建立连接后触发的方法
-	 * @param asynchronousSocketChannel
-	 * @param tioServer
-	 * @return false: 表示拒绝这个连接, true: 表示接受这个连接
-	 *
 	 * @author tanyaowu
-	 * 2016年12月20日 上午10:10:56
+	 * 2016年11月18日 上午9:13:15
 	 *
 	 */
-	//	void onAfterAccepted(AsynchronousSocketChannel asynchronousSocketChannel, TioServer tioServer);
+	public HttpTioServerHandler(HttpConfig httpConfig, HttpRequestHandler requestHandler) {
+		this.httpConfig = httpConfig;
+		this.requestHandler = requestHandler;
+	}
+
+	@Override
+	public HttpRequest decode(ByteBuffer buffer, int limit, int position, int readableLength, ChannelContext channelContext) throws TioDecodeException {
+		HttpRequest request = HttpRequestDecoder.decode(buffer, limit, position, readableLength, channelContext, httpConfig);
+		if (request != null) {
+			channelContext.setAttribute(REQUEST_KEY, request);
+		}
+		return request;
+	}
+
+	@Override
+	public ByteBuffer encode(Packet packet, TioConfig tioConfig, ChannelContext channelContext) {
+		HttpResponse httpResponse = (HttpResponse) packet;
+		ByteBuffer byteBuffer;
+		try {
+			byteBuffer = HttpResponseEncoder.encode(httpResponse, tioConfig, channelContext);
+			return byteBuffer;
+		} catch (UnsupportedEncodingException e) {
+			log.error(e.toString(), e);
+			return null;
+		}
+	}
 
 	/**
-	 * 
-	 * 服务器检查到心跳超时时，会调用这个函数（一般场景，该方法只需要直接返回false即可）
-	 * @param channelContext
-	 * @param interval 已经多久没有收发消息了，单位：毫秒
-	 * @param heartbeatTimeoutCount 心跳超时次数，第一次超时此值是1，以此类推。此值被保存在：channelContext.stat.heartbeatTimeoutCount
-	 * @return 返回true，那么服务器则不关闭此连接；返回false，服务器将按心跳超时关闭该连接
+	 * @return the httpConfig
 	 */
-	public boolean onHeartbeatTimeout(ChannelContext channelContext, Long interval, int heartbeatTimeoutCount);
+	public HttpConfig getHttpConfig() {
+		return httpConfig;
+	}
+
+	@Override
+	public void handler(Packet packet, ChannelContext channelContext) throws Exception {
+		HttpRequest request = (HttpRequest) packet;
+		//		request.setHttpConfig(requestHandler.getHttpConfig(request));
+
+		String ip = request.getClientIp();
+
+		if (channelContext.tioConfig.ipBlacklist.isInBlacklist(ip)) {
+			HttpResponse httpResponse = request.httpConfig.getRespForBlackIp();
+			if (httpResponse != null) {
+				Tio.send(channelContext, httpResponse);
+				return;
+			} else {
+				Tio.remove(channelContext, ip + "在黑名单中");
+				return;
+			}
+		}
+
+		HttpResponse httpResponse = requestHandler.handler(request);
+		if (httpResponse != null) {
+			Tio.send(channelContext, httpResponse);
+		} else {
+			if (log.isInfoEnabled()) {
+				log.info("{}, {}, handler return null, request line: {}", channelContext.tioConfig.getName(), channelContext.toString(), request.getRequestLine().toString());
+			}
+			//			Tio.remove(channelContext, "handler return null");
+			request.close("handler return null");
+		}
+	}
+
+	/**
+	 * @param httpConfig the httpConfig to set
+	 */
+	public void setHttpConfig(HttpConfig httpConfig) {
+		this.httpConfig = httpConfig;
+	}
+
 }

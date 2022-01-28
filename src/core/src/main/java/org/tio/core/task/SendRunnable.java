@@ -210,7 +210,7 @@ import org.tio.core.TcpConst;
 import org.tio.core.Tio;
 import org.tio.core.TioConfig;
 import org.tio.core.WriteCompletionHandler.WriteCompletionVo;
-import org.tio.core.intf.AioHandler;
+import org.tio.core.intf.TioHandler;
 import org.tio.core.intf.Packet;
 import org.tio.core.ssl.SslUtils;
 import org.tio.core.ssl.SslVo;
@@ -228,7 +228,7 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 	private static final Logger				log									= LoggerFactory.getLogger(SendRunnable.class);
 	private ChannelContext					channelContext						= null;
 	private TioConfig						tioConfig							= null;
-	private AioHandler						aioHandler							= null;
+	private TioHandler						tioHandler							= null;
 	private boolean							isSsl								= false;
 	/** The msg queue. */
 	private ConcurrentLinkedQueue<Packet>	forSendAfterSslHandshakeCompleted	= null;											//new ConcurrentLinkedQueue<>();
@@ -259,7 +259,7 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 		super(executor);
 		this.channelContext = channelContext;
 		this.tioConfig = channelContext.tioConfig;
-		this.aioHandler = tioConfig.getAioHandler();
+		this.tioHandler = tioConfig.getTioHandler();
 		this.isSsl = SslUtils.isSsl(tioConfig);
 
 		getMsgQueue();
@@ -299,7 +299,7 @@ public class SendRunnable extends AbstractQueueRunnable<Packet> {
 		try {
 			ByteBuffer byteBuffer = packet.getPreEncodedByteBuffer();
 			if (byteBuffer == null) {
-				byteBuffer = aioHandler.encode(packet, tioConfig, channelContext);
+				byteBuffer = tioHandler.encode(packet, tioConfig, channelContext);
 			}
 
 			if (!byteBuffer.hasRemaining()) {

@@ -218,7 +218,7 @@ import org.tio.utils.hutool.StrUtil;
  */
 public class TioServer {
 	private static Logger					log					= LoggerFactory.getLogger(TioServer.class);
-	private ServerTioConfig					serverTioConfig;
+	private TioServerConfig					tioServerConfig;
 	private AsynchronousServerSocketChannel	serverSocketChannel;
 	private AsynchronousChannelGroup		channelGroup		= null;
 	private Node							serverNode;
@@ -227,22 +227,22 @@ public class TioServer {
 
 	/**
 	 *
-	 * @param serverTioConfig
+	 * @param tioServerConfig
 	 *
 	 * @author tanyaowu
 	 * 2017年1月2日 下午5:53:06
 	 *
 	 */
-	public TioServer(ServerTioConfig serverTioConfig) {
+	public TioServer(TioServerConfig tioServerConfig) {
 		super();
-		this.serverTioConfig = serverTioConfig;
+		this.tioServerConfig = tioServerConfig;
 	}
 
 	/**
-	 * @return the serverTioConfig
+	 * @return the tioServerConfig
 	 */
-	public ServerTioConfig getServerTioConfig() {
-		return serverTioConfig;
+	public TioServerConfig getTioServerConfig() {
+		return tioServerConfig;
 	}
 
 	/**
@@ -267,10 +267,10 @@ public class TioServer {
 	}
 
 	/**
-	 * @param serverTioConfig the serverTioConfig to set
+	 * @param tioServerConfig the tioServerConfig to set
 	 */
-	public void setServerTioConfig(ServerTioConfig serverTioConfig) {
-		this.serverTioConfig = serverTioConfig;
+	public void setTioServerConfig(TioServerConfig tioServerConfig) {
+		this.tioServerConfig = tioServerConfig;
 	}
 
 	/**
@@ -283,7 +283,7 @@ public class TioServer {
 	public void start(String serverIp, int serverPort) throws IOException {
 		long start = System.currentTimeMillis();
 		this.serverNode = new Node(serverIp, serverPort);
-		channelGroup = AsynchronousChannelGroup.withThreadPool(serverTioConfig.groupExecutor);
+		channelGroup = AsynchronousChannelGroup.withThreadPool(tioServerConfig.groupExecutor);
 		serverSocketChannel = AsynchronousServerSocketChannel.open(channelGroup);
 
 		serverSocketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
@@ -299,10 +299,10 @@ public class TioServer {
 
 		serverSocketChannel.bind(listenAddress, 0);
 
-		AcceptCompletionHandler acceptCompletionHandler = serverTioConfig.getAcceptCompletionHandler();
+		AcceptCompletionHandler acceptCompletionHandler = tioServerConfig.getAcceptCompletionHandler();
 		serverSocketChannel.accept(this, acceptCompletionHandler);
 
-		serverTioConfig.startTime = System.currentTimeMillis();
+		tioServerConfig.startTime = System.currentTimeMillis();
 
 		//下面这段代码有点无聊，写得随意，纯粹是为了打印好看些
 		String baseStr = "|----------------------------------------------------------------------------------------|";
@@ -319,7 +319,7 @@ public class TioServer {
 
 		infoList.add(StrUtil.fillAfter("-", '-', aaLen));
 
-		infoList.add(StrUtil.fillAfter("TioConfig name", ' ', xxLen) + "| " + serverTioConfig.getName());
+		infoList.add(StrUtil.fillAfter("TioConfig name", ' ', xxLen) + "| " + tioServerConfig.getName());
 		infoList.add(StrUtil.fillAfter("Started at", ' ', xxLen) + "| " + DateUtil.formatDateTime(new Date()));
 		infoList.add(StrUtil.fillAfter("Listen on", ' ', xxLen) + "| " + this.serverNode);
 		infoList.add(StrUtil.fillAfter("Main Class", ' ', xxLen) + "| " + se.getClassName());
@@ -372,20 +372,20 @@ public class TioServer {
 		}
 
 		try {
-			serverTioConfig.groupExecutor.shutdown();
+			tioServerConfig.groupExecutor.shutdown();
 		} catch (Exception e1) {
 			log.error(e1.toString(), e1);
 		}
 		try {
-			serverTioConfig.tioExecutor.shutdown();
+			tioServerConfig.tioExecutor.shutdown();
 		} catch (Exception e1) {
 			log.error(e1.toString(), e1);
 		}
 
-		serverTioConfig.setStopped(true);
+		tioServerConfig.setStopped(true);
 		try {
-			ret = ret && serverTioConfig.groupExecutor.awaitTermination(6000, TimeUnit.SECONDS);
-			ret = ret && serverTioConfig.tioExecutor.awaitTermination(6000, TimeUnit.SECONDS);
+			ret = ret && tioServerConfig.groupExecutor.awaitTermination(6000, TimeUnit.SECONDS);
+			ret = ret && tioServerConfig.tioExecutor.awaitTermination(6000, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			log.error(e.getLocalizedMessage(), e);
 		}

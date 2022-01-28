@@ -196,10 +196,10 @@ package org.tio.websocket.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.client.ClientChannelContext;
-import org.tio.client.ClientTioConfig;
+import org.tio.client.TioClientConfig;
 import org.tio.client.TioClient;
-import org.tio.client.intf.ClientAioHandler;
-import org.tio.client.intf.ClientAioListener;
+import org.tio.client.intf.TioClientHandler;
+import org.tio.client.intf.TioClientListener;
 import org.tio.websocket.client.config.WsClientConfig;
 import org.tio.websocket.client.kit.ReflectKit;
 import org.tio.websocket.client.kit.UriKit;
@@ -213,8 +213,8 @@ public class WsClient {
   @SuppressWarnings("unused")
   private static Logger log = LoggerFactory.getLogger(WsClient.class);
 
-  static ClientAioHandler tioClientHandler = new WsClientAioHander();
-  static ClientAioListener aioListener = new WsClientAioListener();
+  static TioClientHandler tioClientHandler = new WsClientAioHander();
+  static TioClientListener aioListener = new WsTioClientListener();
 
   /**
    * To create a WsClient.
@@ -280,7 +280,7 @@ public class WsClient {
   ClientChannelContext clientChannelContext;
   Map<String, String> additionalHttpHeaders;
   WebSocketImpl ws;
-  ClientTioConfig clientTioConfig;
+  TioClientConfig tioClientConfig;
 
   WsClient(String rawUri) throws Exception {
     this(rawUri, null);
@@ -315,7 +315,7 @@ public class WsClient {
       ws.close();
       ws = null;
       clientChannelContext = null;
-      clientTioConfig = null;
+      tioClientConfig = null;
       tioClient = null;
     }
   }
@@ -359,13 +359,13 @@ public class WsClient {
       } catch (Exception ex) {
       }
     }
-    clientTioConfig = new ClientTioConfig(tioClientHandler, aioListener, null);
-    clientTioConfig.setHeartbeatTimeout(0);
+    tioClientConfig = new TioClientConfig(tioClientHandler, aioListener, null);
+    tioClientConfig.setHeartbeatTimeout(0);
     if (uri.getScheme().equals("ws")) {
-      tioClient = new TioClient(clientTioConfig);
+      tioClient = new TioClient(tioClientConfig);
     } else {
-      clientTioConfig.useSsl();
-      tioClient = new TioClient(clientTioConfig);
+      tioClientConfig.useSsl();
+      tioClient = new TioClient(tioClientConfig);
     }
     ws = new WebSocketImpl(this, additionalHttpHeaders);
   }

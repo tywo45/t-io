@@ -259,7 +259,7 @@ public class HandlerRunnable extends AbstractQueueRunnable<Packet> {
 					log.error("[{}]同步消息失败, synSeq is {}, 但是同步集合中没有对应key值", synFailCount.incrementAndGet(), synSeq);
 				}
 			} else {
-				tioConfig.getAioHandler().handler(packet, channelContext);
+				tioConfig.getTioHandler().handler(packet, channelContext);
 			}
 		} catch (Throwable e) {
 			log.error(packet.logstr(), e);

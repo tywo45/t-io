@@ -193,15 +193,15 @@
 */
 package org.tio.core;
 
-import org.tio.client.intf.ClientAioListener;
+import org.tio.client.intf.TioClientListener;
 import org.tio.core.intf.Packet;
-import org.tio.server.intf.ServerAioListener;
+import org.tio.server.intf.TioServerListener;
 
 /**
  *
  * @author tanyaowu
  */
-public class DefaultAioListener implements ClientAioListener, ServerAioListener {
+public class DefaultTioListener implements TioClientListener, TioServerListener {
 	/**
 	 *
 	 * @param channelContext

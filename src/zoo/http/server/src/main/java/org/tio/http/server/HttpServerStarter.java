@@ -216,7 +216,7 @@ import org.tio.http.common.HttpConst;
 import org.tio.http.common.HttpUuid;
 import org.tio.http.common.handler.HttpRequestHandler;
 import org.tio.http.common.session.id.impl.UUIDSessionIdGenerator;
-import org.tio.server.ServerTioConfig;
+import org.tio.server.TioServerConfig;
 import org.tio.server.TioServer;
 import org.tio.utils.Threads;
 import org.tio.utils.cache.caffeine.CaffeineCache;
@@ -235,9 +235,9 @@ import okhttp3.Response;
 public class HttpServerStarter {
 	private static Logger			log						= LoggerFactory.getLogger(HttpServerStarter.class);
 	private HttpConfig				httpConfig				= null;
-	private HttpServerAioHandler	httpServerAioHandler	= null;
-	private HttpServerAioListener	httpServerAioListener	= null;
-	private ServerTioConfig		serverTioConfig		= null;
+	private HttpTioServerHandler	httpTioServerHandler	= null;
+	private HttpTioServerListener	httpTioServerListener	= null;
+	private TioServerConfig		tioServerConfig		= null;
 	private TioServer				tioServer				= null;
 	private HttpRequestHandler		httpRequestHandler		= null;
 	/**
@@ -378,24 +378,24 @@ public class HttpServerStarter {
 	}
 
 	/**
-	 * @return the httpServerAioHandler
+	 * @return the httpTioServerHandler
 	 */
-	public HttpServerAioHandler getHttpServerAioHandler() {
-		return httpServerAioHandler;
+	public HttpTioServerHandler getHttpTioServerHandler() {
+		return httpTioServerHandler;
 	}
 
 	/**
-	 * @return the httpServerAioListener
+	 * @return the httpTioServerListener
 	 */
-	public HttpServerAioListener getHttpServerAioListener() {
-		return httpServerAioListener;
+	public HttpTioServerListener getHttpTioServerListener() {
+		return httpTioServerListener;
 	}
 
 	/**
-	 * @return the serverTioConfig
+	 * @return the tioServerConfig
 	 */
-	public ServerTioConfig getServerTioConfig() {
-		return serverTioConfig;
+	public TioServerConfig getTioServerConfig() {
+		return tioServerConfig;
 	}
 
 	private void init(HttpConfig httpConfig, HttpRequestHandler requestHandler, SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
@@ -407,23 +407,23 @@ public class HttpServerStarter {
 		this.httpConfig = httpConfig;
 		this.httpRequestHandler = requestHandler;
 		httpConfig.setHttpRequestHandler(this.httpRequestHandler);
-		this.httpServerAioHandler = new HttpServerAioHandler(httpConfig, requestHandler);
-		httpServerAioListener = new HttpServerAioListener();
+		this.httpTioServerHandler = new HttpTioServerHandler(httpConfig, requestHandler);
+		httpTioServerListener = new HttpTioServerListener();
 		String name = httpConfig.getName();
 		if (StrUtil.isBlank(name)) {
 			name = "Tio Http Server";
 		}
-		serverTioConfig = new ServerTioConfig(name, httpServerAioHandler, httpServerAioListener, tioExecutor, groupExecutor);
-		serverTioConfig.setHeartbeatTimeout(1000 * 20);
-		serverTioConfig.setShortConnection(true);
-		serverTioConfig.setReadBufferSize(TcpConst.MAX_DATA_LENGTH);
-		//		serverTioConfig.setAttribute(TioConfigKey.HTTP_SERVER_CONFIG, httpConfig);
-		serverTioConfig.setAttribute(TioConfigKey.HTTP_REQ_HANDLER, this.httpRequestHandler);
+		tioServerConfig = new TioServerConfig(name, httpTioServerHandler, httpTioServerListener, tioExecutor, groupExecutor);
+		tioServerConfig.setHeartbeatTimeout(1000 * 20);
+		tioServerConfig.setShortConnection(true);
+		tioServerConfig.setReadBufferSize(TcpConst.MAX_DATA_LENGTH);
+		//		tioServerConfig.setAttribute(TioConfigKey.HTTP_SERVER_CONFIG, httpConfig);
+		tioServerConfig.setAttribute(TioConfigKey.HTTP_REQ_HANDLER, this.httpRequestHandler);
 
-		tioServer = new TioServer(serverTioConfig);
+		tioServer = new TioServer(tioServerConfig);
 
 		HttpUuid imTioUuid = new HttpUuid();
-		serverTioConfig.setTioUuid(imTioUuid);
+		tioServerConfig.setTioUuid(imTioUuid);
 	}
 
 	public void setHttpRequestHandler(HttpRequestHandler requestHandler) {
@@ -528,7 +528,7 @@ public class HttpServerStarter {
 
 			String protocol = null;
 
-			if (serverTioConfig.isSsl()) {
+			if (tioServerConfig.isSsl()) {
 				protocol = "https";
 			} else {
 				protocol = "http";

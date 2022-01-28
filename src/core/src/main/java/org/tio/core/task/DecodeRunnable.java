@@ -306,11 +306,11 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 						log.info("{}, 解码所需长度:{}", channelContext, channelContext.packetNeededLength);
 					}
 					if (readableLength >= channelContext.packetNeededLength) {
-						packet = tioConfig.getAioHandler().decode(byteBuffer, limit, initPosition, readableLength, channelContext);
+						packet = tioConfig.getTioHandler().decode(byteBuffer, limit, initPosition, readableLength, channelContext);
 					}
 				} else {
 					try {
-						packet = tioConfig.getAioHandler().decode(byteBuffer, limit, initPosition, readableLength, channelContext);
+						packet = tioConfig.getTioHandler().decode(byteBuffer, limit, initPosition, readableLength, channelContext);
 					} catch (BufferUnderflowException e) {
 						//log.error(e.toString(), e);
 						//数据不够读

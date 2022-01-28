@@ -204,12 +204,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.client.ClientChannelContext;
-import org.tio.client.ClientTioConfig;
+import org.tio.client.TioClientConfig;
 import org.tio.client.ReconnConf;
 import org.tio.core.ChannelContext.CloseCode;
 import org.tio.core.intf.Packet;
 import org.tio.core.intf.Packet.Meta;
-import org.tio.server.ServerTioConfig;
+import org.tio.server.TioServerConfig;
 import org.tio.utils.convert.Converter;
 import org.tio.utils.lock.ReadLockHandler;
 import org.tio.utils.lock.SetWithLock;
@@ -906,24 +906,24 @@ public class Tio {
 	/**
 	 * 此API仅供 tio client使用
 	 * 获取所有处于正常连接状态的连接
-	 * @param clientTioConfig
+	 * @param tioClientConfig
 	 * @return
 	 * @author tanyaowu
 	 */
-	public static SetWithLock<ChannelContext> getConnecteds(ClientTioConfig clientTioConfig) {
-		return clientTioConfig.connecteds;
+	public static SetWithLock<ChannelContext> getConnecteds(TioClientConfig tioClientConfig) {
+		return tioClientConfig.connecteds;
 	}
 
 	/**
 	 * 此API仅供 tio client使用
 	 * 获取所有处于正常连接状态的连接
-	 * @param clientTioConfig
+	 * @param tioClientConfig
 	 * @return
 	 * @author tanyaowu
-	 * @deprecated 用getAllConnecteds(ClientTioConfig clientTioConfig)
+	 * @deprecated 用getAllConnecteds(TioClientConfig tioClientConfig)
 	 */
-	public static SetWithLock<ChannelContext> getAllConnectedsChannelContexts(ClientTioConfig clientTioConfig) {
-		return getConnecteds(clientTioConfig);
+	public static SetWithLock<ChannelContext> getAllConnectedsChannelContexts(TioClientConfig tioClientConfig) {
+		return getConnecteds(tioClientConfig);
 	}
 
 	/**
@@ -1102,27 +1102,27 @@ public class Tio {
 
 	/**
 	 * 这个方法是给客户器端用的
-	 * @param clientTioConfig
+	 * @param tioClientConfig
 	 * @param pageIndex
 	 * @param pageSize
 	 * @return
 	 * @author tanyaowu
 	 */
-	public static Page<ChannelContext> getPageOfConnecteds(ClientTioConfig clientTioConfig, Integer pageIndex, Integer pageSize) {
-		return getPageOfConnecteds(clientTioConfig, pageIndex, pageSize, null);
+	public static Page<ChannelContext> getPageOfConnecteds(TioClientConfig tioClientConfig, Integer pageIndex, Integer pageSize) {
+		return getPageOfConnecteds(tioClientConfig, pageIndex, pageSize, null);
 	}
 
 	/**
 	 * 这个方法是给客户器端用的
-	 * @param clientTioConfig
+	 * @param tioClientConfig
 	 * @param pageIndex
 	 * @param pageSize
 	 * @param converter
 	 * @return
 	 * @author tanyaowu
 	 */
-	public static <T> Page<T> getPageOfConnecteds(ClientTioConfig clientTioConfig, Integer pageIndex, Integer pageSize, Converter<T> converter) {
-		SetWithLock<ChannelContext> setWithLock = Tio.getAllConnectedsChannelContexts(clientTioConfig);
+	public static <T> Page<T> getPageOfConnecteds(TioClientConfig tioClientConfig, Integer pageIndex, Integer pageSize, Converter<T> converter) {
+		SetWithLock<ChannelContext> setWithLock = Tio.getAllConnectedsChannelContexts(tioClientConfig);
 		return PageUtils.fromSetWithLock(setWithLock, pageIndex, pageSize, converter);
 	}
 
@@ -1262,23 +1262,23 @@ public class Tio {
 
 	/**
 	 * 删除clientip为指定值的所有连接
-	 * @param serverTioConfig
+	 * @param tioServerConfig
 	 * @param ip
 	 * @param remark
 	 */
-	public static void remove(ServerTioConfig serverTioConfig, String ip, String remark) {
-		remove(serverTioConfig, ip, remark, (CloseCode) null);
+	public static void remove(TioServerConfig tioServerConfig, String ip, String remark) {
+		remove(tioServerConfig, ip, remark, (CloseCode) null);
 	}
 
 	/**
 	 *  删除clientip为指定值的所有连接
-	 * @param serverTioConfig
+	 * @param tioServerConfig
 	 * @param ip
 	 * @param remark
 	 * @param closeCode
 	 */
-	public static void remove(ServerTioConfig serverTioConfig, String ip, String remark, CloseCode closeCode) {
-		SetWithLock<ChannelContext> setWithLock = serverTioConfig.ips.clients(serverTioConfig, ip);
+	public static void remove(TioServerConfig tioServerConfig, String ip, String remark, CloseCode closeCode) {
+		SetWithLock<ChannelContext> setWithLock = tioServerConfig.ips.clients(tioServerConfig, ip);
 		if (setWithLock == null) {
 			return;
 		}

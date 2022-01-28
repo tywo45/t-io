@@ -201,7 +201,7 @@ import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.client.ClientTioConfig;
+import org.tio.client.TioClientConfig;
 import org.tio.core.ChannelContext;
 import org.tio.core.TioConfig;
 import org.tio.utils.hutool.FileUtil;
@@ -227,9 +227,9 @@ public class MaintainUtils {
 	public static void remove(ChannelContext channelContext) {
 		TioConfig tioConfig = channelContext.tioConfig;
 		if (!tioConfig.isServer()) {
-			ClientTioConfig clientTioConfig = (ClientTioConfig) tioConfig;
-			clientTioConfig.closeds.remove(channelContext);
-			clientTioConfig.connecteds.remove(channelContext);
+			TioClientConfig tioClientConfig = (TioClientConfig) tioConfig;
+			tioClientConfig.closeds.remove(channelContext);
+			tioClientConfig.connecteds.remove(channelContext);
 		}
 
 		tioConfig.connections.remove(channelContext);

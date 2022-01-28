@@ -196,7 +196,7 @@ package org.tio.websocket.client;
 import io.reactivex.subjects.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.client.intf.ClientAioHandler;
+import org.tio.client.intf.TioClientHandler;
 import org.tio.core.ChannelContext;
 import org.tio.core.TioConfig;
 import org.tio.core.exception.TioDecodeException;
@@ -214,7 +214,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WsClientAioHander implements ClientAioHandler {
+public class WsClientAioHander implements TioClientHandler {
   private static final Logger log = LoggerFactory.getLogger(WsClientAioHander.class);
 
   private static final String NOT_FINAL_WEBSOCKET_PACKET_PARTS = "TIO_N_F_W_P_P";

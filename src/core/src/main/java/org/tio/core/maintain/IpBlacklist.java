@@ -198,7 +198,7 @@ import java.util.function.Consumer;
 
 import org.tio.core.TioConfig;
 import org.tio.core.Tio;
-import org.tio.server.ServerTioConfig;
+import org.tio.server.TioServerConfig;
 import org.tio.utils.SystemTimer;
 import org.tio.utils.cache.caffeine.CaffeineCache;
 import org.tio.utils.time.Time;
@@ -216,7 +216,7 @@ public class IpBlacklist {
 	private final static Long		TIME_TO_IDLE_SECONDS	= null;
 	private String					cacheName				= null;
 	private CaffeineCache			cache					= null;
-	private ServerTioConfig		serverTioConfig;
+	private TioServerConfig		tioServerConfig;
 	public final static IpBlacklist	GLOBAL					= new IpBlacklist();
 
 	private IpBlacklist() {
@@ -225,9 +225,9 @@ public class IpBlacklist {
 		this.cache = CaffeineCache.register(this.cacheName, TIME_TO_LIVE_SECONDS, TIME_TO_IDLE_SECONDS, null);
 	}
 
-	public IpBlacklist(String id, ServerTioConfig serverTioConfig) {
+	public IpBlacklist(String id, TioServerConfig tioServerConfig) {
 		this.id = id;
-		this.serverTioConfig = serverTioConfig;
+		this.tioServerConfig = tioServerConfig;
 		this.cacheName = CACHE_NAME_PREFIX + this.id;
 		this.cache = CaffeineCache.register(this.cacheName, TIME_TO_LIVE_SECONDS, TIME_TO_IDLE_SECONDS, null);
 	}
@@ -236,13 +236,13 @@ public class IpBlacklist {
 		//先添加到黑名单列表
 		cache.put(ip, SystemTimer.currTime);
 
-		if (serverTioConfig != null) {
+		if (tioServerConfig != null) {
 			//删除相关连接
-			Tio.remove(serverTioConfig, ip, "ip[" + ip + "]被加入了黑名单, " + serverTioConfig.getName());
+			Tio.remove(tioServerConfig, ip, "ip[" + ip + "]被加入了黑名单, " + tioServerConfig.getName());
 		} else {
-			TioConfig.ALL_SERVER_GROUPCONTEXTS.stream().forEach(new Consumer<ServerTioConfig>() {
+			TioConfig.ALL_SERVER_GROUPCONTEXTS.stream().forEach(new Consumer<TioServerConfig>() {
 				@Override
-				public void accept(ServerTioConfig tioConfig) {
+				public void accept(TioServerConfig tioConfig) {
 					Tio.remove(tioConfig, ip, "ip[" + ip + "]被加入了黑名单, " + tioConfig.getName());
 
 				}

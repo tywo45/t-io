@@ -212,7 +212,7 @@ import org.tio.http.common.HttpRequestDecoder;
 import org.tio.http.common.HttpResponse;
 import org.tio.http.common.HttpResponseEncoder;
 import org.tio.http.common.HttpResponseStatus;
-import org.tio.server.intf.ServerAioHandler;
+import org.tio.server.intf.TioServerHandler;
 import org.tio.utils.hutool.StrUtil;
 import org.tio.websocket.common.Opcode;
 import org.tio.websocket.common.WsRequest;
@@ -225,8 +225,8 @@ import org.tio.websocket.common.util.SHA1Util;
 import org.tio.websocket.server.handler.IWsMsgHandler;
 
 /** @author tanyaowu */
-public class WsServerAioHandler implements ServerAioHandler {
-	private static Logger		log									= LoggerFactory.getLogger(WsServerAioHandler.class);
+public class WsTioServerHandler implements TioServerHandler {
+	private static Logger		log									= LoggerFactory.getLogger(WsTioServerHandler.class);
 	/**
 	 * value: List<WsRequest>
 	 */
@@ -247,7 +247,7 @@ public class WsServerAioHandler implements ServerAioHandler {
 	 * @param wsServerConfig
 	 * @param wsMsgHandler
 	 */
-	public WsServerAioHandler(WsServerConfig wsServerConfig, IWsMsgHandler wsMsgHandler) {
+	public WsTioServerHandler(WsServerConfig wsServerConfig, IWsMsgHandler wsMsgHandler) {
 		this.wsServerConfig = wsServerConfig;
 		this.wsMsgHandler = wsMsgHandler;
 	}

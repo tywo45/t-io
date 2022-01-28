@@ -201,10 +201,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.Tio;
-import org.tio.server.ServerTioConfig;
+import org.tio.server.TioServerConfig;
 import org.tio.server.TioServer;
-import org.tio.server.intf.ServerAioHandler;
-import org.tio.server.intf.ServerAioListener;
+import org.tio.server.intf.TioServerHandler;
+import org.tio.server.intf.TioServerListener;
 import org.tio.utils.SystemTimer;
 import org.tio.utils.Threads;
 import org.tio.utils.lock.SetWithLock;
@@ -219,13 +219,13 @@ public class FlashPolicyServerStarter {
 	private static Logger log = LoggerFactory.getLogger(FlashPolicyServerStarter.class);
 
 	//handler, 包括编码、解码、消息处理
-	public static ServerAioHandler aioHandler = null;
+	public static TioServerHandler tioHandler = null;
 
 	//事件监听器，可以为null，但建议自己实现该接口，可以参考showcase了解些接口
-	public static ServerAioListener aioListener = null;
+	public static TioServerListener aioListener = null;
 
 	//一组连接共用的上下文对象
-	public static ServerTioConfig serverTioConfig = null;
+	public static TioServerConfig tioServerConfig = null;
 
 	//tioServer对象
 	public static TioServer tioServer = null;
@@ -244,10 +244,10 @@ public class FlashPolicyServerStarter {
 		if (port == null) {
 			port = Const.PORT;
 		}
-		aioHandler = new FlashPolicyServerAioHandler();
-		serverTioConfig = new ServerTioConfig("tio flash policy server", aioHandler, aioListener, tioExecutor, groupExecutor);
-		serverTioConfig.setHeartbeatTimeout(Const.HEARTBEAT_TIMEOUT);
-		tioServer = new TioServer(serverTioConfig);
+		tioHandler = new FlashPolicyTioServerHandler();
+		tioServerConfig = new TioServerConfig("tio flash policy server", tioHandler, aioListener, tioExecutor, groupExecutor);
+		tioServerConfig.setHeartbeatTimeout(Const.HEARTBEAT_TIMEOUT);
+		tioServer = new TioServer(tioServerConfig);
 
 		try {
 			tioServer.start(ip, port);
@@ -289,7 +289,7 @@ public class FlashPolicyServerStarter {
 					log.error(e1.toString(), e1);
 				}
 
-				SetWithLock<ChannelContext> setWithLock = serverTioConfig.connections;
+				SetWithLock<ChannelContext> setWithLock = tioServerConfig.connections;
 				Set<ChannelContext> set = null;
 				ReadLock readLock = setWithLock.readLock();
 				readLock.lock();

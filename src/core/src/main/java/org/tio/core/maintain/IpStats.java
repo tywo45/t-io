@@ -212,8 +212,8 @@ import org.tio.utils.hutool.CollUtil;
 
 /**
  * 使用方法（注意顺序）：<br>
- *	1、serverTioConfig.setIpStatListener(ShowcaseIpStatListener.me);
-	2、serverTioConfig.ipStats.addDuration(Time.MINUTE_1 * 5);
+ *	1、tioServerConfig.setIpStatListener(ShowcaseIpStatListener.me);
+	2、tioServerConfig.ipStats.addDuration(Time.MINUTE_1 * 5);
  * @author tanyaowu
  * 2017年4月15日 下午12:13:19
  */

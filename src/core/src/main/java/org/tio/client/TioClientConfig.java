@@ -191,36 +191,188 @@
 	   See the License for the specific language governing permissions and
 	   limitations under the License.
 */
-package org.tio.client.intf;
+package org.tio.client;
 
+import java.util.HashSet;
+import java.util.concurrent.ThreadPoolExecutor;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tio.client.intf.TioClientHandler;
+import org.tio.client.intf.TioClientListener;
+import org.tio.core.ChannelContext;
+import org.tio.core.TioConfig;
+import org.tio.core.intf.TioHandler;
 import org.tio.core.intf.AioListener;
+import org.tio.core.ssl.SslConfig;
+import org.tio.utils.lock.SetWithLock;
+import org.tio.utils.thread.pool.SynThreadPoolExecutor;
 
 /**
  *
  * @author tanyaowu
- * 2017年4月1日 上午9:15:04
+ * 2017年4月1日 上午9:31:31
  */
-public interface ClientAioListener extends AioListener {
+public class TioClientConfig extends TioConfig {
+	static Logger log = LoggerFactory.getLogger(TioClientConfig.class);
+
+	private TioClientHandler clientTioHandler = null;
+
+	private TioClientListener tioClientListener = null;
+
+	protected ReconnConf reconnConf;//重连配置
+
+	private ConnectionCompletionHandler connectionCompletionHandler = new ConnectionCompletionHandler();
+
+	public final SetWithLock<ChannelContext>	connecteds	= new SetWithLock<ChannelContext>(new HashSet<ChannelContext>());
+	public final SetWithLock<ChannelContext>	closeds		= new SetWithLock<ChannelContext>(new HashSet<ChannelContext>());
 
 	/**
-	 * 重连后触发本方法
-	 * @param channelContext
-	 * @param isConnected true: 表示重连成功，false: 表示重连失败
-	 * @return
-	 *
+	 * 不重连
+	 * @param tioHandler
+	 * @param aioListener
 	 * @author tanyaowu
+	 */
+	public TioClientConfig(TioClientHandler tioHandler, TioClientListener aioListener) {
+		this(tioHandler, aioListener, null);
+	}
+
+	/**
+	 * 
+	 * @param tioHandler
+	 * @param aioListener
+	 * @param reconnConf 不用框架自动重连，就传null
+	 */
+	public TioClientConfig(TioClientHandler tioHandler, TioClientListener aioListener, ReconnConf reconnConf) {
+		this(tioHandler, aioListener, reconnConf, null, null);
+	}
+
+	/**
+	 * 
+	 * @param tioHandler
+	 * @param aioListener
+	 * @param reconnConf 不用框架自动重连，就传null
+	 * @param tioExecutor
+	 * @param groupExecutor
+	 */
+	public TioClientConfig(TioClientHandler tioHandler, TioClientListener aioListener, ReconnConf reconnConf, SynThreadPoolExecutor tioExecutor,
+	        ThreadPoolExecutor groupExecutor) {
+		super(tioExecutor, groupExecutor);
+		this.groupStat = new ClientGroupStat();
+		this.setTioClientHandler(tioHandler);
+		this.setTioClientListener(aioListener);
+
+		this.reconnConf = reconnConf;
+	}
+
+	/**
+	 * 使用ssl访问
+	 * @throws Exception
+	 * @author tanyaowu
+	 */
+	public void useSsl() throws Exception {
+		SslConfig sslConfig = SslConfig.forClient();
+		setSslConfig(sslConfig);
+	}
+
+	/**
+	 * @see org.tio.core.TioConfig#getTioHandler()
+	 *
+	 * @return
+	 * @author tanyaowu
+	 * 2016年12月20日 上午11:33:46
 	 *
 	 */
-	//	void onAfterReconnected(ChannelContext channelContext, boolean isConnected) throws Exception;
+	@Override
+	public TioHandler getTioHandler() {
+		return this.getTioClientHandler();
+	}
 
-	//	/**
-	//	 * 连接失败后触发的方法
-	//	 * @param channelContext
-	//	 * @param isReconnect 是否是重连
-	//	 * @param throwable 有可能是null
-	//	 * @author tanyaowu
+	/**
+	 * @see org.tio.core.TioConfig#getAioListener()
+	 *
+	 * @return
+	 * @author tanyaowu
+	 * 2016年12月20日 上午11:33:46
+	 *
+	 */
+	@Override
+	public AioListener getAioListener() {
+		return this.getTioClientListener();
+	}
 
-	//	 *
-	//	 */
-	//	void onFailConnected(ChannelContext channelContext, boolean isReconnect, java.lang.Throwable throwable);
+	/**
+	 * @return the clientTioHandler
+	 */
+	public TioClientHandler getTioClientHandler() {
+		return clientTioHandler;
+	}
+
+	/**
+	 * @return the tioClientListener
+	 */
+	public TioClientListener getTioClientListener() {
+		return tioClientListener;
+	}
+
+	/**
+	 * @return the connectionCompletionHandler
+	 */
+	public ConnectionCompletionHandler getConnectionCompletionHandler() {
+		return connectionCompletionHandler;
+	}
+
+	/**
+	 * @param clientTioHandler the clientTioHandler to set
+	 */
+	public void setTioClientHandler(TioClientHandler clientTioHandler) {
+		this.clientTioHandler = clientTioHandler;
+	}
+
+	/**
+	 * @param tioClientListener the tioClientListener to set
+	 */
+	public void setTioClientListener(TioClientListener tioClientListener) {
+		this.tioClientListener = tioClientListener;
+		if (this.tioClientListener == null) {
+			this.tioClientListener = new DefaultTioClientListener();
+		}
+	}
+
+	/**
+	 * @param connectionCompletionHandler the connectionCompletionHandler to set
+	 */
+	public void setConnectionCompletionHandler(ConnectionCompletionHandler connectionCompletionHandler) {
+		this.connectionCompletionHandler = connectionCompletionHandler;
+	}
+
+	/**
+	 * @param reconnConf the reconnConf to set
+	 */
+	public void setReconnConf(ReconnConf reconnConf) {
+		this.reconnConf = reconnConf;
+	}
+
+	/**
+	 * 
+	 * @return
+	 * @author tanyaowu
+	 */
+	public ReconnConf getReconnConf() {
+		return reconnConf;
+	}
+
+	/** 
+	 * @return
+	 * @author tanyaowu
+	 */
+	@Override
+	public boolean isServer() {
+		return false;
+	}
+
+	@Override
+	public String toString() {
+		return "TioClientConfig [name=" + name + "]";
+	}
 }

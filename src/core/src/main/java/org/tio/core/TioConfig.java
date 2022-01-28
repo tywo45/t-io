@@ -202,8 +202,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tio.client.ClientTioConfig;
-import org.tio.core.intf.AioHandler;
+import org.tio.client.TioClientConfig;
+import org.tio.core.intf.TioHandler;
 import org.tio.core.intf.AioListener;
 import org.tio.core.intf.GroupListener;
 import org.tio.core.intf.Packet;
@@ -222,7 +222,7 @@ import org.tio.core.stat.DefaultIpStatListener;
 import org.tio.core.stat.GroupStat;
 import org.tio.core.stat.IpStatListener;
 import org.tio.core.task.CloseRunnable;
-import org.tio.server.ServerTioConfig;
+import org.tio.server.TioServerConfig;
 import org.tio.utils.SystemTimer;
 import org.tio.utils.Threads;
 import org.tio.utils.lock.MapWithLock;
@@ -250,13 +250,13 @@ public abstract class TioConfig extends MapWithLockPropSupport {
 	public boolean								statOn						= true;
 	public PacketConverter						packetConverter				= null;
 	/**
-	 * 本jvm中所有的ServerTioConfig对象
+	 * 本jvm中所有的TioServerConfig对象
 	 */
-	public static final Set<ServerTioConfig>	ALL_SERVER_GROUPCONTEXTS	= new HashSet<>();
+	public static final Set<TioServerConfig>	ALL_SERVER_GROUPCONTEXTS	= new HashSet<>();
 	/**
-	 * 本jvm中所有的ClientTioConfig对象
+	 * 本jvm中所有的TioClientConfig对象
 	 */
-	public static final Set<ClientTioConfig>	ALL_CLIENT_GROUPCONTEXTS	= new HashSet<>();
+	public static final Set<TioClientConfig>	ALL_CLIENT_GROUPCONTEXTS	= new HashSet<>();
 	/**
 	 * 本jvm中所有的TioConfig对象
 	 */
@@ -327,10 +327,10 @@ public abstract class TioConfig extends MapWithLockPropSupport {
 	public TioConfig(SynThreadPoolExecutor tioExecutor, ThreadPoolExecutor groupExecutor) {
 		super();
 		ALL_GROUPCONTEXTS.add(this);
-		if (this instanceof ServerTioConfig) {
-			ALL_SERVER_GROUPCONTEXTS.add((ServerTioConfig) this);
+		if (this instanceof TioServerConfig) {
+			ALL_SERVER_GROUPCONTEXTS.add((TioServerConfig) this);
 		} else {
-			ALL_CLIENT_GROUPCONTEXTS.add((ClientTioConfig) this);
+			ALL_CLIENT_GROUPCONTEXTS.add((TioClientConfig) this);
 		}
 
 		if (ALL_GROUPCONTEXTS.size() > 20) {
@@ -366,11 +366,11 @@ public abstract class TioConfig extends MapWithLockPropSupport {
 	//	}
 
 	/**
-	 * 获取AioHandler对象
+	 * 获取TioHandler对象
 	 * @return
 	 * @author: tanyaowu
 	 */
-	public abstract AioHandler getAioHandler();
+	public abstract TioHandler getTioHandler();
 
 	/**
 	 * 获取AioListener对象
