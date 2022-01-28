@@ -59,7 +59,7 @@
 		<fastjson.version>1.2.79</fastjson.version>
 		<testng.version>7.4.0</testng.version>
 		<hutool.version>5.7.20</hutool.version>
-		<protobuf-java.version>3.12.2</protobuf-java.version>
+		<protobuf-java.version>3.16.1</protobuf-java.version>
 		<commons-beanutils.version>1.9.4</commons-beanutils.version>
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
 		<protostuff.version>1.7.4</protostuff.version>
