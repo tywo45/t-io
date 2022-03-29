@@ -365,7 +365,7 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 						channelContext.stat.receivedPackets.incrementAndGet();
 					}
 					
-					if (CollUtil.isNotEmpty(tioConfig.ipStats.durationList)) {
+					if (tioConfig.isIpStatEnable()) {
 						try {
 							for (Long v : tioConfig.ipStats.durationList) {
 								IpStat ipStat = tioConfig.ipStats.get(v, channelContext);
@@ -413,18 +413,15 @@ public class DecodeRunnable extends AbstractQueueRunnable<ByteBuffer> {
 
 				channelContext.setPacketNeededLength(null);
 
-				if (e instanceof TioDecodeException) {
-					List<Long> list = tioConfig.ipStats.durationList;
-					if (list != null && list.size() > 0) {
-						try {
-							for (Long v : list) {
-								IpStat ipStat = tioConfig.ipStats.get(v, channelContext);
-								ipStat.getDecodeErrorCount().incrementAndGet();
-								tioConfig.getIpStatListener().onDecodeError(channelContext, ipStat);
-							}
-						} catch (Exception e1) {
-							log.error(e1.toString(), e1);
+				if (e instanceof TioDecodeException && tioConfig.isIpStatEnable()) {
+					try {
+						for (Long v : tioConfig.ipStats.durationList) {
+							IpStat ipStat = tioConfig.ipStats.get(v, channelContext);
+							ipStat.getDecodeErrorCount().incrementAndGet();
+							tioConfig.getIpStatListener().onDecodeError(channelContext, ipStat);
 						}
+					} catch (Exception e1) {
+						log.error(e1.toString(), e1);
 					}
 				}
 

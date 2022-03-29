@@ -208,12 +208,12 @@ import org.tio.core.TioConfig;
 import org.tio.core.intf.TioHandler;
 import org.tio.core.intf.TioListener;
 import org.tio.core.maintain.IpBlacklist;
+import org.tio.core.maintain.IpStats;
 import org.tio.core.ssl.SslConfig;
 import org.tio.server.intf.TioServerHandler;
 import org.tio.server.intf.TioServerListener;
 import org.tio.utils.SysConst;
 import org.tio.utils.SystemTimer;
-import org.tio.utils.hutool.CollUtil;
 import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.json.Json;
 import org.tio.utils.lock.SetWithLock;
@@ -279,6 +279,7 @@ public class TioServerConfig extends TioConfig {
 	public TioServerConfig(String name, TioServerHandler tioServerHandler, TioServerListener tioServerListener, SynThreadPoolExecutor tioExecutor,
 	        ThreadPoolExecutor groupExecutor) {
 		super(tioExecutor, groupExecutor);
+		this.ipStats = new IpStats(this, null);
 		this.ipBlacklist = new IpBlacklist(id, this);
 		init(name, tioServerHandler, tioServerListener, tioExecutor, groupExecutor);
 	}
@@ -375,7 +376,7 @@ public class TioServerConfig extends TioConfig {
 								builder.append("\r\n │ \t └ 平均每次TCP包接收的业务包  :").append(groupStat.getPacketsPerTcpReceive());
 								builder.append("\r\n └ IP统计时段 ");
 								
-								if (CollUtil.isNotEmpty(TioServerConfig.this.ipStats.durationList)) {
+								if (TioServerConfig.this.isIpStatEnable()) {
 									builder.append("\r\n   \t └ ").append(Json.toJson(TioServerConfig.this.ipStats.durationList));
 								} else {
 									builder.append("\r\n   \t └ ").append("没有设置ip统计时间");

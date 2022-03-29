@@ -276,7 +276,7 @@ public class HandlerRunnable extends AbstractQueueRunnable<Packet> {
 				tioConfig.groupStat.handledPacketCosts.addAndGet(iv);
 			}
 			
-			if (CollUtil.isNotEmpty(tioConfig.ipStats.durationList)) {
+			if (tioConfig.isIpStatEnable()) {
 				try {
 					for (Long v : tioConfig.ipStats.durationList) {
 						IpStat ipStat = (IpStat) tioConfig.ipStats.get(v, channelContext);

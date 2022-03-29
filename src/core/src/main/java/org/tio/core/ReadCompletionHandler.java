@@ -244,7 +244,7 @@ public class ReadCompletionHandler implements CompletionHandler<Integer, ByteBuf
 
 			channelContext.stat.latestTimeOfReceivedByte = SystemTimer.currTime;
 			
-			if (CollUtil.isNotEmpty(tioConfig.ipStats.durationList)) {
+			if (tioConfig.isIpStatEnable()) {
 				try {
 					for (Long v : tioConfig.ipStats.durationList) {
 						IpStat ipStat = tioConfig.ipStats.get(v, channelContext);

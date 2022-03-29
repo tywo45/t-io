@@ -288,7 +288,7 @@ public class AcceptCompletionHandler implements CompletionHandler<AsynchronousSo
 				}
 			}
 			
-			if (CollUtil.isNotEmpty(tioServerConfig.ipStats.durationList)) {
+			if (tioServerConfig.isIpStatEnable()) {
 				try {
 					for (Long v : tioServerConfig.ipStats.durationList) {
 						IpStat ipStat = (IpStat) tioServerConfig.ipStats.get(v, channelContext);

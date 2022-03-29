@@ -493,7 +493,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 					stat.sentPackets.incrementAndGet();
 				}
 
-				if (CollUtil.isNotEmpty(tioConfig.ipStats.durationList)) {
+				if (tioConfig.isIpStatEnable()) {
 					try {
 						for (Long v : tioConfig.ipStats.durationList) {
 							IpStat ipStat = tioConfig.ipStats.get(v, this);
@@ -822,7 +822,7 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 			//将性能数据进行转移
 			if (!Objects.equals(proxyClientNode.getIp(), clientNode.getIp())) {
 
-				if (CollUtil.isNotEmpty(tioConfig.ipStats.durationList)) {
+				if (tioConfig.isIpStatEnable()) {
 					try {
 						for (Long v : tioConfig.ipStats.durationList) {
 							IpStat oldIpStat = (IpStat) tioConfig.ipStats._get(v, this, true, false);

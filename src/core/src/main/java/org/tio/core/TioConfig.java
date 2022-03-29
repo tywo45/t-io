@@ -225,6 +225,7 @@ import org.tio.core.task.CloseRunnable;
 import org.tio.server.TioServerConfig;
 import org.tio.utils.SystemTimer;
 import org.tio.utils.Threads;
+import org.tio.utils.hutool.CollUtil;
 import org.tio.utils.lock.MapWithLock;
 import org.tio.utils.lock.SetWithLock;
 import org.tio.utils.prop.MapWithLockPropSupport;
@@ -337,8 +338,6 @@ public abstract class TioConfig extends MapWithLockPropSupport {
 			log.warn("已经产生{}个TioConfig对象，t-io作者怀疑你在误用t-io", ALL_GROUPCONTEXTS.size());
 		}
 		this.id = ID_ATOMIC.incrementAndGet() + "";
-
-		this.ipStats = new IpStats(this, null);
 
 		this.tioExecutor = tioExecutor;
 		if (this.tioExecutor == null) {
@@ -506,7 +505,7 @@ public abstract class TioConfig extends MapWithLockPropSupport {
 	}
 
 	/**
-	 * @param isStop the isStop to set
+	 * @param isStopped the isStop to set
 	 */
 	public void setStopped(boolean isStopped) {
 		this.isStopped = isStopped;
@@ -521,6 +520,10 @@ public abstract class TioConfig extends MapWithLockPropSupport {
 
 	public void setSslConfig(SslConfig sslConfig) {
 		this.sslConfig = sslConfig;
+	}
+
+	public boolean isIpStatEnable() {
+		return this.ipStats != null && CollUtil.isNotEmpty(this.ipStats.durationList);
 	}
 
 	public IpStatListener getIpStatListener() {

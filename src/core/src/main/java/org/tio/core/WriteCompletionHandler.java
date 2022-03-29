@@ -287,7 +287,7 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 					channelContext.stat.sentBytes.addAndGet(bytesWritten);
 				}
 
-				if (CollUtil.isNotEmpty(tioConfig.ipStats.durationList)) {
+				if (tioConfig.isIpStatEnable()) {
 					for (Long v : tioConfig.ipStats.durationList) {
 						IpStat ipStat = (IpStat) channelContext.tioConfig.ipStats.get(v, channelContext);
 						ipStat.getSentBytes().addAndGet(bytesWritten);
@@ -299,7 +299,7 @@ public class WriteCompletionHandler implements CompletionHandler<Integer, WriteC
 				boolean isPacket = attachment instanceof Packet;
 				if (isPacket) {
 					if (isSentSuccess) {
-						if (CollUtil.isNotEmpty(tioConfig.ipStats.durationList)) {
+						if (tioConfig.isIpStatEnable()) {
 							for (Long v : tioConfig.ipStats.durationList) {
 								IpStat ipStat = (IpStat) channelContext.tioConfig.ipStats.get(v, channelContext);
 								ipStat.getSentPackets().incrementAndGet();
