@@ -6,7 +6,7 @@
 	<groupId>org.t-io</groupId>
 	<artifactId>tio-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>3.8.0.v20220128-RELEASE</version>
+	<version>3.8.1.v20220401-RELEASE</version>
 	<name>${project.artifactId}</name>
 	<url>http://maven.apache.org</url>
 
@@ -36,12 +36,12 @@
 
 	<properties>
 		<maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
-		<tio.version>3.8.0.v20220128-RELEASE</tio.version>
+		<tio.version>3.8.1.v20220401-RELEASE</tio.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.test.skip>true</maven.test.skip>
 		<maven.version>3.8.3</maven.version>
-		<mica-mqtt.version>1.2.6</mica-mqtt.version>
+		<mica-mqtt.version>1.2.10</mica-mqtt.version>
 		<mysql.driver.version>8.0.23</mysql.driver.version> <!-- 5.1.46 -->
 		<druid.version>1.2.8</druid.version>
 		<HikariCP.version>5.0.0</HikariCP.version>
@@ -56,7 +56,7 @@
 		<commons-lang3.version>3.12.0</commons-lang3.version>
 		<commons-codec.version>1.15</commons-codec.version>
 		<commons-compress.version>1.21</commons-compress.version>
-		<fastjson.version>1.2.79</fastjson.version>
+		<fastjson.version>1.2.80</fastjson.version>
 		<testng.version>7.5</testng.version>
 		<hutool.version>5.7.20</hutool.version>
 		<protobuf-java.version>4.0.0-rc-2</protobuf-java.version>
@@ -113,7 +113,7 @@
 		<h2.version>2.1.210</h2.version>
 		<metrics.version>4.2.7</metrics.version>
 		<junit-jupiter.version>5.8.2</junit-jupiter.version>
-		<log4j2.version>2.17.1</log4j2.version>
+		<log4j2.version>2.17.2</log4j2.version>
 		<mongodb.version>4.5.0</mongodb.version>
 	</properties>
 
