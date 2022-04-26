@@ -198,7 +198,7 @@ package org.tio.http.common;
  * 2017年6月28日 下午2:23:16
  */
 public enum Method {
-	GET("GET"), POST("POST"), HEAD("HEAD"), PUT("PUT"), TRACE("TRACE"), OPTIONS("OPTIONS"), PATCH("PATCH");
+	GET("GET"), POST("POST"), HEAD("HEAD"), PUT("PUT"), TRACE("TRACE"), OPTIONS("OPTIONS"), PATCH("PATCH"), DELETE("DELETE");
 	public static Method from(String method) {
 		if (method == null) {
 			return null;
@@ -218,6 +218,8 @@ public enum Method {
 			return OPTIONS;
 		case "PATCH":
 			return PATCH;
+		case "DELETE":
+			return DELETE;
 		default:
 			return null;
 		}
