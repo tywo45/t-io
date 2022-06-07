@@ -64,7 +64,7 @@
 		<protobuf-java-format.version>1.4</protobuf-java-format.version>
 		<protostuff.version>1.7.4</protostuff.version>
 		<redisson.version>3.16.7</redisson.version>
-		<jodd.version>5.1.6</jodd.version>
+		<jodd.version>6.2.1</jodd.version>
 		<quartz.version>2.3.2</quartz.version>
 		<caffeine.version>3.0.5</caffeine.version>
 		<binarywang.version>4.2.2.B</binarywang.version>
