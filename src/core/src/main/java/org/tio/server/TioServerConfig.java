@@ -215,7 +215,6 @@ import org.tio.server.intf.TioServerListener;
 import org.tio.utils.SysConst;
 import org.tio.utils.SystemTimer;
 import org.tio.utils.hutool.StrUtil;
-import org.tio.utils.json.Json;
 import org.tio.utils.lock.SetWithLock;
 import org.tio.utils.thread.pool.SynThreadPoolExecutor;
 
@@ -377,7 +376,7 @@ public class TioServerConfig extends TioConfig {
 								builder.append("\r\n └ IP统计时段 ");
 								
 								if (TioServerConfig.this.isIpStatEnable()) {
-									builder.append("\r\n   \t └ ").append(Json.toJson(TioServerConfig.this.ipStats.durationList));
+									builder.append("\r\n   \t └ ").append(StrUtil.join(TioServerConfig.this.ipStats.durationList));
 								} else {
 									builder.append("\r\n   \t └ ").append("没有设置ip统计时间");
 								}
@@ -392,7 +391,7 @@ public class TioServerConfig extends TioConfig {
 								builder.append("\r\n ├ 群组");
 								builder.append("\r\n │ \t └ groupmap:").append(TioServerConfig.this.groups.getGroupmap().getObj().size());
 								builder.append("\r\n └ 拉黑IP ");
-								builder.append("\r\n   \t └ ").append(Json.toJson(TioServerConfig.this.ipBlacklist.getAll()));
+								builder.append("\r\n   \t └ ").append(StrUtil.join(TioServerConfig.this.ipBlacklist.getAll()));
 
 								log.warn(builder.toString());
 

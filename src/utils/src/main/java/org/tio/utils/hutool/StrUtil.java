@@ -200,7 +200,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 
 public class StrUtil {
 
@@ -1553,4 +1555,37 @@ public class StrUtil {
 		}
 		return str.toString();
 	}
+
+	/**
+	 * 以 , 为分隔符将多个对象转换为字符串
+	 *
+	 * @param coll      集合
+	 * @return 连接后的字符串
+	 */
+	public static String join(Collection<?> coll) {
+		return join(coll, ",");
+	}
+
+	/**
+	 * 以 delimiter 为分隔符将多个对象转换为字符串
+	 *
+	 * @param coll      集合
+	 * @param delimiter 分隔符
+	 * @return 连接后的字符串
+	 */
+	public static String join(Collection<?> coll, CharSequence delimiter) {
+		if (coll == null || coll.isEmpty()) {
+			return "";
+		}
+		StringBuilder sb = new StringBuilder();
+		Iterator<?> it = coll.iterator();
+		while (it.hasNext()) {
+			sb.append(it.next());
+			if (it.hasNext()) {
+				sb.append(delimiter);
+			}
+		}
+		return sb.toString();
+	}
+
 }
