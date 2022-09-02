@@ -251,8 +251,21 @@ public class ClientChannelContext extends ChannelContext {
 	 */
 	@Override
 	public Node createClientNode(AsynchronousSocketChannel asynchronousSocketChannel) throws IOException {
-		InetSocketAddress inetSocketAddress = (InetSocketAddress) asynchronousSocketChannel.getLocalAddress();
-		Node clientNode = new Node(inetSocketAddress.getHostString(), inetSocketAddress.getPort());
+		Node clientNode = null;
+		InetSocketAddress inetSocketAddress = null;
+		if (asynchronousSocketChannel == null) {
+			clientNode = createUnknowNode();
+		} else {
+			inetSocketAddress = (InetSocketAddress) asynchronousSocketChannel.getLocalAddress();
+		}
+		
+		if (inetSocketAddress == null) {
+			clientNode = createUnknowNode();
+		}
+		
+		if (clientNode == null) {
+			clientNode = new Node(inetSocketAddress.getHostString(), inetSocketAddress.getPort());
+		}
 		return clientNode;
 	}
 

@@ -194,6 +194,7 @@
 package org.tio.core.maintain;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 
 import org.slf4j.Logger;
@@ -208,52 +209,34 @@ import org.tio.utils.lock.MapWithLock;
  * 2017年4月1日 上午9:35:20
  */
 public class ClientNodes {
-	private static Logger log = LoggerFactory.getLogger(ClientNodes.class);
+	private static final Logger log = LoggerFactory.getLogger(ClientNodes.class);
+
+	/** remoteAndChannelContext key: Node value: ChannelContext. */
+	private final MapWithLock<Node, ChannelContext> mapWithLock = new MapWithLock<>();
 
 	/**
 	 *
-	 * @param channelContext
-	 * @return
+	 * @param channelContext ChannelContext
+	 * @return Node
 	 * @author tanyaowu
 	 */
-	public static String getKey(ChannelContext channelContext) {
+	public static Node getKey(ChannelContext channelContext) {
 		Node clientNode = channelContext.getClientNode();
-		if (clientNode == null) {
-			throw new RuntimeException("client node is null");
-		}
-		String key = getKey(clientNode.getIp(), clientNode.getPort());
-		return key;
+		return Objects.requireNonNull(clientNode, "client node is null");
 	}
 
 	/**
 	 *
-	 * @param ip
-	 * @param port
+	 * @param clientNode
 	 * @return
 	 * @author tanyaowu
 	 */
-	public static String getKey(String ip, int port) {
-		String key = ip + ":" + port;
-		return key;
-	}
-
-	/** remoteAndChannelContext key: "ip:port" value: ChannelContext. */
-	private MapWithLock<String, ChannelContext> mapWithLock = new MapWithLock<>();
-
-	/**
-	 *
-	 * @param key
-	 * @return
-	 * @author tanyaowu
-	 */
-	public ChannelContext find(String key) {
+	public ChannelContext find(Node clientNode) {
 		Lock lock = mapWithLock.readLock();
 		lock.lock();
 		try {
-			Map<String, ChannelContext> m = mapWithLock.getObj();
-			return m.get(key);
-		} catch (Throwable e) {
-			throw e;
+			Map<Node, ChannelContext> m = mapWithLock.getObj();
+			return m.get(clientNode);
 		} finally {
 			lock.unlock();
 		}
@@ -267,8 +250,7 @@ public class ClientNodes {
 	 * @author tanyaowu
 	 */
 	public ChannelContext find(String ip, int port) {
-		String key = getKey(ip, port);
-		return find(key);
+		return find(new Node(ip, port));
 	}
 
 	/**
@@ -276,13 +258,13 @@ public class ClientNodes {
 	 * @return
 	 * @author tanyaowu
 	 */
-	public MapWithLock<String, ChannelContext> getObjWithLock() {
+	public MapWithLock<Node, ChannelContext> getObjWithLock() {
 		return mapWithLock;
 	}
 
 	/**
 	 * 添加映射
-	 * @param channelContext
+	 * @param channelContext ChannelContext
 	 * @author tanyaowu
 	 */
 	public void put(ChannelContext channelContext) {
@@ -290,8 +272,8 @@ public class ClientNodes {
 			return;
 		}
 		try {
-			String key = getKey(channelContext);
-			mapWithLock.put(key, channelContext);
+			Node clientNode = getKey(channelContext);
+			mapWithLock.put(clientNode, channelContext);
 		} catch (Exception e) {
 			log.error(e.toString(), e);
 		}
@@ -307,8 +289,8 @@ public class ClientNodes {
 			return;
 		}
 		try {
-			String key = getKey(channelContext);
-			mapWithLock.remove(key);
+			Node clientNode = getKey(channelContext);
+			mapWithLock.remove(clientNode);
 		} catch (Throwable e) {
 			log.error(e.toString(), e);
 		}

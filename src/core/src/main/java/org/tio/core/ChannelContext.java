@@ -211,7 +211,6 @@ import org.tio.core.stat.IpStat;
 import org.tio.core.task.DecodeRunnable;
 import org.tio.core.task.HandlerRunnable;
 import org.tio.core.task.SendRunnable;
-import org.tio.utils.hutool.CollUtil;
 import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.lock.SetWithLock;
 import org.tio.utils.prop.MapWithLockPropSupport;
@@ -322,10 +321,13 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 
 		initOther();
 	}
-
-	private void assignAnUnknownClientNode() {
-		Node clientNode = new Node(UNKNOWN_ADDRESS_IP, UNKNOWN_ADDRESS_PORT_SEQ.incrementAndGet());
-		setClientNode(clientNode);
+	
+	protected void assignAnUnknownClientNode() {
+		setClientNode(createUnknowNode());
+	}
+	
+	public static Node createUnknowNode() {
+		return new Node(UNKNOWN_ADDRESS_IP, UNKNOWN_ADDRESS_PORT_SEQ.incrementAndGet());
 	}
 
 	/**
@@ -363,6 +365,8 @@ public abstract class ChannelContext extends MapWithLockPropSupport {
 		}
 		return true;
 	}
+	
+
 
 	/**
 	 * 等价于：getAttribute(DEFAULT_ATTUBITE_KEY)

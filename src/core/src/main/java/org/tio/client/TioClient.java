@@ -390,16 +390,23 @@ public class TioClient {
 
 			CountDownLatch countDownLatch = new CountDownLatch(1);
 			attachment.setCountDownLatch(countDownLatch);
-			asynchronousSocketChannel.connect(inetSocketAddress, attachment, tioClientConfig.getConnectionCompletionHandler());
-			boolean f = countDownLatch.await(realTimeout, TimeUnit.SECONDS);
-			if (f) {
-				return attachment.getChannelContext();
-			} else {
-				log.error("countDownLatch.await(realTimeout, TimeUnit.SECONDS) 返回false ");
+			
+			try {
+				asynchronousSocketChannel.connect(inetSocketAddress, attachment, tioClientConfig.getConnectionCompletionHandler());
+			} catch (Throwable e) {
+				tioClientConfig.getConnectionCompletionHandler().failed(e, attachment);
 				return attachment.getChannelContext();
 			}
+			
+			@SuppressWarnings("unused")
+			boolean f = countDownLatch.await(realTimeout, TimeUnit.SECONDS);
+			return attachment.getChannelContext();
 		} else {
-			asynchronousSocketChannel.connect(inetSocketAddress, attachment, tioClientConfig.getConnectionCompletionHandler());
+			try {
+				asynchronousSocketChannel.connect(inetSocketAddress, attachment, tioClientConfig.getConnectionCompletionHandler());
+			} catch (Throwable e) {
+				tioClientConfig.getConnectionCompletionHandler().failed(e, attachment);
+			}
 			return null;
 		}
 	}
