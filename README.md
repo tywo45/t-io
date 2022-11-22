@@ -1,8 +1,6 @@
 
-# 网络编程很苦，用t-io后会很甜
+# 网络编程很苦，那是在使用t-io前的事
 t-io是基于java开发的一款高性能网络编程框架，其炸裂的性能、超长续航的稳定性、极简易用的API、丰富够用的内置功能，让其一出道就受到广大工程师喜爱，并被持续口碑传递
-
-[![Stargazers over time](https://whnb.wang/stars/tywo45/t-io)](https://whnb.wang/stars/tywo45/t-io)
 
 # 源代码仓库
 [![t-io gitee](https://www.tiocloud.com/2/imgs/product/tio/mayun.png) ](https://gitee.com/tywo45/t-io)
