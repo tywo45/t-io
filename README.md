@@ -31,7 +31,7 @@ t-io是基于java开发的一款高性能网络编程框架，其炸裂的性能
 | tio-websocket | 基于t-io实现的websocket服务器 | t-io官方所有产品的websocket服务器均采用tio-websocket |
 | TioMQ | 基于t-io实现的mqtt broker | 服务器：broker.tiomq.com； 端口：ws：8083， wss：8084， mqtt：1883，mqtts：8883；mqtt-client测试工具：https://www.tiocloud.com/tiomq-website/product/client.html |
 |    TioMeter           |    基于t-io实现的mqtt压力测试工具                   |       如有mqtt压力测试需求，[可联系t-io官网商务客服](https://www.tiocloud.com)             |
-|    TioMQ Enterprise           |    基于t-io实现的大型物联网接入平台，类似emqx enterprise             |       如有合作需求，[可联系t-io官网商务客服](https://www.tiocloud.com)              |
+|    TioMQ Enterprise           |    基于t-io实现的大型物联网接入平台             |       如有合作需求，[可联系t-io官网商务客服](https://www.tiocloud.com)              |
 |    tio-smpp           |    基于t-io实现的smpp协议             |       如有合作需求，[可联系t-io官网商务客服](https://www.tiocloud.com)              |
 
 
