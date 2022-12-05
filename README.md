@@ -24,6 +24,18 @@ t-io是基于java开发的一款高性能网络编程框架，其炸裂的性能
 11. 2021年，客户反馈基于t-io研发的谭聊非常稳定
 12. 2022年，基于t-io研发的集群版本谭聊，获得用户极致的口碑，同时也为t-io的持续投入带来了相当长时间的资金保障
 
+# t-io生态
+| 组件/框架/产品      | 说明                    | 备注                 |
+|---------------|-----------------------|--------------------|
+| tio-http      | 基于t-io实现的http服务器      | t-io官方所有产品的http服务器均采用tio-http |
+| tio-websocket | 基于t-io实现的websocket服务器 | t-io官方所有产品的websocket服务器均采用tio-websocket |
+| TioMQ | 基于t-io实现的mqtt broker | 服务器：broker.tiomq.com； 端口：ws：8083， wss：8084， mqtt：1883，mqtts：8883；mqtt-client测试工具：https://www.tiocloud.com/tiomq-website/product/client.html |
+|    TioMeter           |    基于t-io实现的mqtt压力测试工具                   |       如有mqtt压力测试需求，[可联系t-io官网商务客服](https://www.tiocloud.com)             |
+|    TioMQ Enterprise           |    基于t-io实现的大型物联网接入平台，类似emqx enterprise             |       如有合作需求，[可联系t-io官网商务客服](https://www.tiocloud.com)              |
+|    tio-smpp           |    基于t-io实现的smpp协议             |       如有合作需求，[可联系t-io官网商务客服](https://www.tiocloud.com)              |
+
+
+
 # t-io解决的痛点
 t-io的出发点是解决网络编程的用户痛点，其使命是让天下再也没有难开发的网络程序，且看t-io给用户带来的惊喜
 1. 易学易用，talent-tan之所以创造t-io，就是因为市面上同类产品学习成本大，所以在设计api时，特别关切用户的接受度。t-io第一批用户仅仅是看了t-io官方提供的示范工程就掌握了t-io
