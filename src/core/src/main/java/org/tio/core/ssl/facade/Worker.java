@@ -216,6 +216,9 @@ class Worker {
 	private final SSLEngine			_engine;
 	private final Buffers			_buffers;
 	private ISSLListener			_sslListener;
+	private Handshaker handshaker;
+	
+
 	private ISessionClosedListener	_sessionClosedListener	= new DefaultOnCloseListener();
 	@SuppressWarnings("unused")
 	private String					who;
@@ -264,7 +267,7 @@ class Worker {
 	SSLEngineResult wrap(SslVo sslVo, ByteBuffer plainData) throws SSLException {
 		_buffers.prepareForWrap(plainData);
 		SSLEngineResult result = doWrap();
-
+		handshaker.handleUnwrapResult(result);
 		emitWrappedData(sslVo, result);
 
 		switch (result.getStatus()) {
@@ -427,6 +430,14 @@ class Worker {
 		internalBuffer.flip();
 		BufferUtils.copy(internalBuffer, newBuffer);
 		return newBuffer;
+	}
+	
+	public Handshaker getHandshaker() {
+		return handshaker;
+	}
+
+	public void setHandshaker(Handshaker handshaker) {
+		this.handshaker = handshaker;
 	}
 
 }

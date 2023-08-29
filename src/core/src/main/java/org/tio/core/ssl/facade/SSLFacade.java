@@ -225,6 +225,7 @@ public class SSLFacade implements ISSLFacade {
 		Buffers buffers = new Buffers(engine.getSession(), channelContext);
 		_worker = new Worker(who, engine, buffers, channelContext);
 		_handshaker = new Handshaker(client, _worker, taskHandler, channelContext);
+		_worker.setHandshaker(_handshaker);
 		_clientMode = client;
 	}
 
@@ -298,7 +299,7 @@ public class SSLFacade implements ISSLFacade {
 		log.debug("{}, 准备, SSL解密{}, 密文:{}", channelContext, channelContext.getId() + "_" + seq, byteBuffer);
 		SSLEngineResult result = _worker.unwrap(byteBuffer);
 		log.debug("{}, 完成, SSL解密{}, 密文:{}, 结果:{}", channelContext, channelContext.getId() + "_" + seq, byteBuffer, result);
-		_handshaker.handleUnwrapResult(result);
+//		_handshaker.handleUnwrapResult(result);
 	}
 
 	@Override
