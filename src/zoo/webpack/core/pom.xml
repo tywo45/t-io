@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>org.t-io</groupId>
 		<artifactId>tio-webpack-parent</artifactId>
-		<version>3.8.3.v20220902-RELEASE</version>
+		<version>3.8.5.v20230901-RELEASE</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
