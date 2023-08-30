@@ -20,6 +20,17 @@
 		</dependency>
 
 		<dependency>
+			<groupId>de.ruedigermoeller</groupId>
+			<artifactId>fst</artifactId>
+		</dependency>
+
+
+		<dependency>
+			<groupId>com.esotericsoftware</groupId>
+			<artifactId>reflectasm</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>org.redisson</groupId>
 			<artifactId>redisson</artifactId>
 			<scope>provided</scope>
@@ -39,6 +50,14 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.ow2.asm</groupId>
+			<artifactId>asm</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
