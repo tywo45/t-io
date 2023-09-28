@@ -205,12 +205,12 @@ public class Tasks implements ITasks {
 	}
 
 	@Override
-	public Runnable next() {
-		return _worker.getDelegatedTask();
+	public void done() throws SSLException {
+		_hs.carryOn();
 	}
 
 	@Override
-	public void done() throws SSLException {
-		_hs.carryOn();
+	public Runnable next() {
+		return _worker.getDelegatedTask();
 	}
 }

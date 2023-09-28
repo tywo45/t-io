@@ -201,43 +201,47 @@ import javax.net.ssl.SSLException;
 import org.tio.core.ssl.SslVo;
 
 public interface ISSLFacade {
-	void setHandshakeCompletedListener(IHandshakeCompletedListener hcl);
-
-	void setSSLListener(ISSLListener l);
-
-	void setCloseListener(ISessionClosedListener l);
-
 	/**
 	 * 开始握手
+	 * 
 	 * @throws IOException
 	 */
 	void beginHandshake() throws IOException;
 
-	/**
-	 * SSL握手是否已经完成
-	 * @return
-	 */
-	boolean isHandshakeCompleted();
-
-	/**
-	 * 加密
-	 * @param sslVo
-	 * @throws SSLException
-	 */
-	void encrypt(SslVo sslVo) throws SSLException;
+	void close();
 
 	/**
 	 * 解密
+	 * 
 	 * @param byteBuffer
 	 * @throws SSLException
 	 */
 	void decrypt(ByteBuffer byteBuffer) throws SSLException;
 
-	void close();
+	/**
+	 * 加密
+	 * 
+	 * @param sslVo
+	 * @throws SSLException
+	 */
+	void encrypt(SslVo sslVo) throws SSLException;
+
+	boolean isClientMode();
 
 	boolean isCloseCompleted();
 
-	boolean isClientMode();
+	/**
+	 * SSL握手是否已经完成
+	 * 
+	 * @return
+	 */
+	boolean isHandshakeCompleted();
+
+	void setCloseListener(ISessionClosedListener l);
+
+	void setHandshakeCompletedListener(IHandshakeCompletedListener hcl);
+
+	void setSSLListener(ISSLListener l);
 
 	void terminate();
 }

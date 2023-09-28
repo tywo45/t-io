@@ -206,7 +206,6 @@ import org.tio.core.ReadCompletionHandler;
 import org.tio.core.ssl.SslUtils;
 import org.tio.core.stat.IpStat;
 import org.tio.utils.SystemTimer;
-import org.tio.utils.hutool.CollUtil;
 
 /**
  *

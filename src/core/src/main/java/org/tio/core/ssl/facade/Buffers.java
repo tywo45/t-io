@@ -260,10 +260,53 @@ class Buffers {
 		waitUnwrapBuffer = new AppendableBuffer();
 	}
 
-	//	private void debug(final String msg) {
-	//		System.out.println("[Buffers]" + msg);
-	//		System.out.flush();
-	//	}
+	// private void debug(final String msg) {
+	// System.out.println("[Buffers]" + msg);
+	// System.out.flush();
+	// }
+
+	/* private */
+	private void allocate() {
+		int applicationBufferSize = ssLSession.getApplicationBufferSize();
+		int packetBufferSize = ssLSession.getPacketBufferSize();
+		_peerApp = ByteBuffer.allocate(applicationBufferSize);
+		_myApp = ByteBuffer.allocate(applicationBufferSize);
+		_peerNet = ByteBuffer.allocate(packetBufferSize);
+		_myNet = ByteBuffer.allocate(packetBufferSize);
+	}
+
+	private void assign(BufferType t, ByteBuffer b) {
+		switch (t) {
+
+		case IN_PLAIN:
+			_peerApp = b;
+			break;
+		case IN_CIPHER:
+			_peerNet = b;
+			break;
+		case OUT_PLAIN:
+			_myApp = b;
+			break;
+		case OUT_CIPHER:
+			_myNet = b;
+			break;
+		}
+	}
+
+	void cache(ByteBuffer data) {
+		if (data != null) {
+			waitUnwrapBuffer.set(data);
+		}
+	}
+
+	private void clear(BufferType source, BufferType destination) {
+		get(source).clear();
+		get(destination).clear();
+	}
+
+	void clearCache() {
+		waitUnwrapBuffer.clear();
+	}
 
 	ByteBuffer get(BufferType t) {
 		ByteBuffer result = null;
@@ -294,7 +337,7 @@ class Buffers {
 			assign(t, grow(t, ssLSession.getPacketBufferSize()));
 			break;
 		case OUT_PLAIN:
-			//No known reason for this case to occur
+			// No known reason for this case to occur
 			break;
 		case OUT_CIPHER:
 			assign(t, grow(t, ssLSession.getPacketBufferSize()));
@@ -308,12 +351,28 @@ class Buffers {
 		ByteBuffer newBuffer = ByteBuffer.allocate(recommendedBufferSize);
 
 		try {
-			//debug("grow buffer " + originalBuffer + " to " + newBuffer);
+			// debug("grow buffer " + originalBuffer + " to " + newBuffer);
 			BufferUtils.copy(originalBuffer, newBuffer);
 		} catch (BufferOverflowException e) {
 			throw e;
 		}
 		return newBuffer;
+	}
+
+	private ByteBuffer growIfNecessary(BufferType t, int size) {
+		// grow if not enough space
+		ByteBuffer b = get(t);
+		// log.info("growIfNecessary {}, size:{}", b, size);
+		// System.out.println("Grow " + t + " : " + b + " size=" + size);
+		if (b.position() + size > b.capacity()) {
+			// System.out.println("Grow");
+			resetSize(t, b.limit() + size);
+		}
+		return get(t);
+	}
+
+	boolean isCacheEmpty() {
+		return !waitUnwrapBuffer.hasRemaining();
 	}
 
 	void prepareForUnwrap(ByteBuffer data) {
@@ -324,7 +383,7 @@ class Buffers {
 				newBuffer.put(data);
 				newBuffer.flip();
 			} catch (Exception e) {
-				log.error(e.toString() + ", data: " + data + ", BufferType.IN_CIPHER:" + get(BufferType.IN_CIPHER), e);
+				log.error("" + ", data: " + data + ", BufferType.IN_CIPHER:" + get(BufferType.IN_CIPHER), e);
 				throw new RuntimeException(e);
 			}
 		}
@@ -335,7 +394,7 @@ class Buffers {
 	 * @param plainData 待加密的ByteBuffer
 	 */
 	void prepareForWrap(ByteBuffer plainData) {
-		//Avoid buffer overflow when loading plain data and clear buffers
+		// Avoid buffer overflow when loading plain data and clear buffers
 		clear(BufferType.OUT_PLAIN, BufferType.OUT_CIPHER);
 		if (plainData != null) {
 			ByteBuffer newBuffer = growIfNecessary(BufferType.OUT_PLAIN, plainData.limit());
@@ -355,74 +414,15 @@ class Buffers {
 		}
 	}
 
-	void cache(ByteBuffer data) {
-		if (data != null) {
-			waitUnwrapBuffer.set(data);
-		}
-	}
-
-	void clearCache() {
-		waitUnwrapBuffer.clear();
-	}
-
-	boolean isCacheEmpty() {
-		return !waitUnwrapBuffer.hasRemaining();
-	}
-
-	/* private */
-	private void allocate() {
-		int applicationBufferSize = ssLSession.getApplicationBufferSize();
-		int packetBufferSize = ssLSession.getPacketBufferSize();
-		_peerApp = ByteBuffer.allocate(applicationBufferSize);
-		_myApp = ByteBuffer.allocate(applicationBufferSize);
-		_peerNet = ByteBuffer.allocate(packetBufferSize);
-		_myNet = ByteBuffer.allocate(packetBufferSize);
-	}
-
-	private void clear(BufferType source, BufferType destination) {
-		get(source).clear();
-		get(destination).clear();
-	}
-
-	private void assign(BufferType t, ByteBuffer b) {
-		switch (t) {
-
-		case IN_PLAIN:
-			_peerApp = b;
-			break;
-		case IN_CIPHER:
-			_peerNet = b;
-			break;
-		case OUT_PLAIN:
-			_myApp = b;
-			break;
-		case OUT_CIPHER:
-			_myNet = b;
-			break;
-		}
-	}
-
 	private void resetSize(BufferType t, int size) {
 		ByteBuffer newBuffer = ByteBuffer.allocate(size);
 		try {
 			BufferUtils.copy(get(t), newBuffer);
 			assign(t, newBuffer);
-			//			ByteBuffer ss = get(t);
-			//			log.error("size:{}, newbytebuffer:{}", size, ss);
+			// ByteBuffer ss = get(t);
+			// log.error("size:{}, newbytebuffer:{}", size, ss);
 		} catch (BufferOverflowException e) {
 			throw e;
 		}
-	}
-
-	private ByteBuffer growIfNecessary(BufferType t, int size) {
-		//grow if not enough space
-		ByteBuffer b = get(t);
-		//    log.info("growIfNecessary {}, size:{}", b, size);
-		//  System.out.println("Grow " + t + " : " + b + " size=" + size);
-		if (b.position() + size > b.capacity()) {
-			//  System.out.println("Grow");
-			resetSize(t, b.limit() + size);
-		}
-		return get(t);
 	}
 }

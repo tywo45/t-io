@@ -201,16 +201,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.core.ChannelContext;
 import org.tio.core.ssl.SslVo;
+import org.tio.server.ServerChannelContext;
 
 class Handshaker {
 	/*
-	 The purpose of this class is to conduct a SSL handshake. To do this it
-	 requires a SSLEngine as a provider of SSL knowhow. Byte buffers that are
-	 required by the SSLEngine to execute its wrap and unwrap methods. And a
-	 ITaskHandler callback that is used to delegate the responsibility of
-	 executing long-running/IO tasks to the host application. By providing a
-	 ITaskHandler the host application gains the flexibility of executing
-	 these tasks in compliance with its own compute/IO strategies.
+	 * The purpose of this class is to conduct a SSL handshake. To do this it
+	 * requires a SSLEngine as a provider of SSL knowhow. Byte buffers that are
+	 * required by the SSLEngine to execute its wrap and unwrap methods. And a
+	 * ITaskHandler callback that is used to delegate the responsibility of
+	 * executing long-running/IO tasks to the host application. By providing a
+	 * ITaskHandler the host application gains the flexibility of executing these
+	 * tasks in compliance with its own compute/IO strategies.
 	 */
 
 	private static Logger log = LoggerFactory.getLogger(Handshaker.class);
@@ -234,8 +235,8 @@ class Handshaker {
 		_client = client;
 	}
 
-	private void debug(final String msg, final String... args) {
-		SSLLog.debug(channelContext.toString(), msg, args);
+	void addCompletedListener(IHandshakeCompletedListener hscl) {
+		_hscl = hscl;
 	}
 
 	void begin() throws SSLException {
@@ -247,24 +248,36 @@ class Handshaker {
 		shakehands();
 	}
 
+	private void debug(final String msg, final String... args) {
+		SSLLog.debug(channelContext.toString(), msg, args);
+	}
+
 	void handleUnwrapResult(SSLEngineResult result) throws SSLException {
 		if (result.getHandshakeStatus().equals(SSLEngineResult.HandshakeStatus.FINISHED)) {
-			handshakeFinished(); //客户端会走到这一行
+			handshakeFinished(); // 客户端会走到这一行
 		} else {
 			shakehands();
 		}
 	}
 
-	void addCompletedListener(IHandshakeCompletedListener hscl) {
-		_hscl = hscl;
-	}
-
-	void removeCompletedListener(IHandshakeCompletedListener hscl) {
-		_hscl = hscl;
+	public void handshakeFinished() {
+		_finished = true;
+		if (_hscl != null) {
+			_hscl.onComplete();
+			_hscl = null;
+		} else {
+			if (log.isDebugEnabled()) {
+				log.debug("----- hscl has finished");
+			}
+		}
 	}
 
 	boolean isFinished() {
 		return _finished;
+	}
+
+	void removeCompletedListener(IHandshakeCompletedListener hscl) {
+		_hscl = hscl;
 	}
 
 	/**
@@ -273,24 +286,33 @@ class Handshaker {
 	 */
 	private void shakehands() throws SSLException {
 		HandshakeStatus handshakeStatus = _worker.getHandshakeStatus();
-		log.info("{}, handshakeStatus:{}", this.channelContext, handshakeStatus);
+		if (log.isDebugEnabled()) {
+			log.debug("{}, 握手状态 handshakeStatus:{}", this.channelContext, handshakeStatus);
+		}
 		switch (handshakeStatus) {
 		case NOT_HANDSHAKING:
 			/* Occurs after handshake is over 握手早就完成了 */
+			if (log.isDebugEnabled()) {
+				log.debug("{}, 握手早就完成了， handshakeStatus:{}", this.channelContext, handshakeStatus);
+			}
 			break;
-		case FINISHED: //握手刚刚完成
+		case FINISHED: // 握手刚刚完成
 			handshakeFinished();
 			break;
-		case NEED_TASK: //运行任务
+		case NEED_TASK: // 运行任务
 			_taskHandler.process(new Tasks(_worker, this));
 			break;
-		case NEED_WRAP: //加密
+		case NEED_WRAP: // 加密
 			SSLEngineResult w_result = _worker.wrap(new SslVo(), null);
-			if (w_result.getStatus().equals(SSLEngineResult.Status.CLOSED) && null != _sessionClosedListener) {
-				_sessionClosedListener.onSessionClosed();
+			if (w_result.getStatus().equals(SSLEngineResult.Status.CLOSED)) {
+				if (null != _sessionClosedListener) {
+					_sessionClosedListener.onSessionClosed();
+				}
 			}
 			if (w_result.getHandshakeStatus().equals(SSLEngineResult.HandshakeStatus.FINISHED)) {
-				handshakeFinished();
+				if (channelContext instanceof ServerChannelContext) {
+					handshakeFinished();
+				}
 			} else {
 				shakehands();
 			}
@@ -298,7 +320,9 @@ class Handshaker {
 		case NEED_UNWRAP:
 			if (_worker.pendingUnwrap()) {
 				SSLEngineResult u_result = _worker.unwrap(null);
-				debug("Unwrap result " + u_result);
+				if (log.isDebugEnabled()) {
+					debug("Unwrap result " + u_result);
+				}
 				if (u_result.getHandshakeStatus().equals(SSLEngineResult.HandshakeStatus.FINISHED)) {
 					handshakeFinished();
 				}
@@ -306,15 +330,14 @@ class Handshaker {
 					shakehands();
 				}
 			} else {
-				debug("No pending data to unwrap");
+				if (log.isDebugEnabled()) {
+					debug("No pending data to unwrap");
+				}
 			}
 			break;
+		default:
+			break;
 		}
-	}
-
-	private void handshakeFinished() {
-		_finished = true;
-		_hscl.onComplete();
 	}
 
 }

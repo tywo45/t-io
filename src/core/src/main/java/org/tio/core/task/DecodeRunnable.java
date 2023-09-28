@@ -195,7 +195,6 @@ package org.tio.core.task;
 
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
-import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.slf4j.Logger;
@@ -210,7 +209,6 @@ import org.tio.core.stat.ChannelStat;
 import org.tio.core.stat.IpStat;
 import org.tio.core.utils.ByteBufferUtils;
 import org.tio.utils.SystemTimer;
-import org.tio.utils.hutool.CollUtil;
 import org.tio.utils.queue.FullWaitQueue;
 import org.tio.utils.queue.TioFullWaitQueue;
 import org.tio.utils.thread.pool.AbstractQueueRunnable;

@@ -214,20 +214,12 @@ class AppendableBuffer {
 		return nb;
 	}
 
-	/**
-	 * 把
-	 * @param byteBuffer
-	 */
-	public void set(ByteBuffer byteBuffer) {
-		if (byteBuffer.hasRemaining()) {
-			b = ByteBuffer.allocate(byteBuffer.remaining());
-			b.put(byteBuffer);
-			b.rewind();
-		}
-	}
-
 	public void clear() {
 		b = null;
+	}
+
+	public ByteBuffer get() {
+		return b;
 	}
 
 	public boolean hasRemaining() {
@@ -237,7 +229,16 @@ class AppendableBuffer {
 		return false;
 	}
 
-	public ByteBuffer get() {
-		return b;
+	/**
+	 * 把
+	 * 
+	 * @param byteBuffer
+	 */
+	public void set(ByteBuffer byteBuffer) {
+		if (byteBuffer.hasRemaining()) {
+			b = ByteBuffer.allocate(byteBuffer.remaining());
+			b.put(byteBuffer);
+			b.rewind();
+		}
 	}
 }
