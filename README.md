@@ -4,12 +4,12 @@ T-io is a network programming framework developed based on Java AIO
 Reduce the difficulty and complexity of network programming, allowing business developers to focus only on business design and implementation, without spending too much time on network programming details, multi-threaded security, and concurrency performance
 ## Function Introduction
 1. **Automatic heartbeat processing**: heartbeat timeout detection (server side), heartbeat timing sending (client side)
-1. **User Management**: TiO2. bindUser(), TiO2. getByUserid()
-1. **Token Management**: TiO2. bindToken(), TiO2. getByToken()
-1. **Group Management**: TiO2. bindGroup(), TiO2. getByGroup()
-1. **Synchronous sending**: TiO2. synSend(), requires protocol cooperation
-1. **Block sending**: TiO2. bSend(), wait for the message to be successfully sent before returning
-1. **Asynchronous sending**: tio. send(), putting the message into the queue for sending
+1. **User Management**: Tio.bindUser(), Tio.getByUserid()
+1. **Token Management**: Tio.bindToken(), Tio.getByToken()
+1. **Group Management**: Tio.bindGroup(), Tio.getByGroup()
+1. **Synchronous sending**: Tio.synSend(), requires protocol cooperation
+1. **Block sending**: Tio.bSend(), wait for the message to be successfully sent before returning
+1. **Asynchronous sending**: Tio.send(), putting the message into the queue for sending
 1. **Unified TCP&UDP Programming API**: Except for slightly different startup codes, the business oriented APIs are almost identical. Provides great convenience for one click switching between TCP/UDP
 1. **Protocol Adaptation**: Different protocols can be converted into the same protocol through protocol conversion, facilitating unified business processing
 1. **Single channel traffic monitoring**: time of last received business message packet, time of last sent business message packet, time of last received byte, time of last sent byte, time of last packet entering the sending queue, time of ChannelContext object creation, time of first successful connection, time of connection closure, number of bytes sent by this connection, number of packets sent by this connection, number of bytes processed by this connection, number of packets processed by this connection, time taken to process message packets, number of bytes received by this connection, number of TCP/UDP packets received by this connection, number of packets received by this connection T count, heartbeat timeout count, average number of bytes received per TCP, average packet processing time, average number of business packets received per TCP
