@@ -2,6 +2,10 @@
 T-io is a network programming framework developed based on Java AIO
 ## Design Mission
 Reduce the difficulty and complexity of network programming, allowing business developers to focus only on business design and implementation, without spending too much time on network programming details, multi-threaded security, and concurrency performance
+## Quick Start
+
+[https://www.tiomq.com/books/doc/126/1013](https://www.tiomq.com/books/doc/126/1013)
+
 ## Function Introduction
 1. **Automatic heartbeat processing**: heartbeat timeout detection (server side), heartbeat timing sending (client side)
 1. **User Management**: Tio.bindUser(), Tio.getByUserid()
