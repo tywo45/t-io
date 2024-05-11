@@ -1,9 +1,9 @@
 ## t-io简介
 t-io是基于java aio研发的网络编程框架
-- [快速开始](https://www.tiomq.com/books/doc/126/1013)
-- [用户案例](https://www.tiomq.com/books/doc/36/1017)
-- [提交案例](https://www.tiomq.com/books/doc/36/1135)
-- [删除案例](https://www.tiomq.com/books/doc/36/1202)
+- [快速开始](https://www.tiomq.com/books/doc/126/1013)：Show me the code and document
+- [用户案例](https://www.tiomq.com/books/doc/36/1017)：看看哪些人在使用t-io，并且愿意让大家知道他们使用了t-io
+- [提交案例](https://www.tiomq.com/books/doc/36/1135)：这将增加您产品的曝光率，让更多人知道您的产品
+- [删除案例](https://www.tiomq.com/books/doc/36/1202)：有那么一瞬间，您又不想让您的案例让更多人知道
 
 ## 设计使命
 减少网络编程难度和繁琐度，让业务开发人员只需要关注业务设计与实现，不需要花太多时间在网络编程细节、多线程安全、并发性能
