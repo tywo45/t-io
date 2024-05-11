@@ -1,9 +1,9 @@
 ## Introduction to t-io
 T-io is a network programming framework developed based on Java AIO
-- [Quick Start](https://www.tiomq.com/books/doc/126/1013)
-- [User Case](https://www.tiomq.com/books/doc/36/1017)
-- [Submit Case](https://www.tiomq.com/books/doc/36/1136)
-- [Delete Case](https://www.tiomq.com/books/doc/36/1204)
+- [Quick Start](https://www.tiomq.com/books/doc/126/1013): Show me the code and document
+- [User Case](https://www.tiomq.com/books/doc/36/1017): Look at who is using t-io and is willing to let everyone know that they are using t-io
+- [Submit Case](https://www.tiomq.com/books/doc/36/1136): This will increase the exposure of your product and let more people know about it
+- [Delete Case](https://www.tiomq.com/books/doc/36/1204): There was a moment when you didn't want your case to be known to more people
 
 ## Design Mission
 Reduce the difficulty and complexity of network programming, allowing business developers to focus only on business design and implementation, without spending too much time on network programming details, multi-threaded security, and concurrency performance
