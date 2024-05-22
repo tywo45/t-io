@@ -1,5 +1,5 @@
 ## t-io简介
-t-io是基于java aio研发的网络编程框架
+t-io是基于java aio研发的网络编程框架，从收集到的案例来看，用t-io做物联网、IM、客服的比较多，堪称殿堂级网络开发框架
 - [快速开始](https://www.tiomq.com/books/doc/126/1013)：Show me the code and document
 - [用户案例](https://www.tiomq.com/books/doc/36/1017)：看看哪些人在使用t-io，并且愿意让大家知道他们使用了t-io
 - [提交案例](https://www.tiomq.com/books/doc/36/1135)：这将增加您产品的曝光率，让更多人知道您的产品

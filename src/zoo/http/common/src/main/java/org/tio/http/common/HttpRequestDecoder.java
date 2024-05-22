@@ -225,17 +225,17 @@ public class HttpRequestDecoder {
 	private static Logger log = LoggerFactory.getLogger(HttpRequestDecoder.class);
 
 	/**
-	 *   头部，最多有多少字节
+	 * 头部最多有多少字节
 	 */
 	public static final int MAX_LENGTH_OF_HEADER = 20480;
 
 	/**
-	 *      头部，每行最大的字节数
+	 * 头部每行最大的字节数
 	 */
 	public static final int MAX_LENGTH_OF_HEADERLINE = 2048;
 
 	/**
-	 *   请求行的最大长度
+	 * 请求行的最大长度
 	 */
 	public static final int MAX_LENGTH_OF_REQUESTLINE = 2048;
 
@@ -253,23 +253,10 @@ public class HttpRequestDecoder {
 	 */
 	public static HttpRequest decode(ByteBuffer buffer, int limit, int position, int readableLength, ChannelContext channelContext, HttpConfig httpConfig)
 	        throws TioDecodeException {
-		//		int initPosition = position;
-		//		int count = 0;
-		//		Step step = Step.firstline;
-		//		StringBuilder currLine = new StringBuilder();
 		Map<String, String> headers = new HashMap<>();
 		int contentLength = 0;
 		byte[] bodyBytes = null;
-		//		StringBuilder headerSb = null;//new StringBuilder(512);
 		RequestLine firstLine = null;
-		//		boolean appendRequestHeaderString = httpConfig.isAppendRequestHeaderString();
-
-		//		if (httpConfig != null) {
-		//			
-		//		}
-		//		if (appendRequestHeaderString) {
-		//			headerSb = new StringBuilder(512);
-		//		}
 
 		// request line start
 		firstLine = parseRequestLine(buffer, channelContext);

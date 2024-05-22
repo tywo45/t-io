@@ -200,6 +200,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tio.http.common.Cookie;
 import org.tio.http.common.HttpRequest;
+import org.tio.utils.hutool.StrUtil;
 
 /**
  * @author tanyaowu 
@@ -223,10 +224,10 @@ public class DomainSessionCookieDecorator implements SessionCookieDecorator {
 	 */
 	public DomainSessionCookieDecorator(String domain) {
 		this.domain = domain;
-
 		Map<String, String> domainMap = new HashMap<>();
-		domainMap.put("(.)*(" + domain + "){1}", domain);
-
+		if (StrUtil.isNotBlank(domain)) {
+			domainMap.put("(.)*(" + domain + "){1}", domain);
+		}
 		domainMappingSessionCookieDecorator = new DomainMappingSessionCookieDecorator(domainMap);
 	}
 
