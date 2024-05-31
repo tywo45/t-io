@@ -546,7 +546,10 @@ public class TioClient {
 			@Override
 			public void run() {
 				while (!tioClientConfig.isStopped()) {
-					log.error("closeds:{}, connections:{}", tioClientConfig.closeds.size(), tioClientConfig.connections.size());
+					if (tioClientConfig.closeds.size() > 0) {
+						// 有连接断开时才打印日志
+						log.error("closeds:{}, connections:{}", tioClientConfig.closeds.size(), tioClientConfig.connections.size());
+					}					
 					//log.info("准备重连");
 					LinkedBlockingQueue<ChannelContext> queue = reconnConf.getQueue();
 					ClientChannelContext channelContext = null;
