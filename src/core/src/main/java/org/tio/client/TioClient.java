@@ -194,6 +194,7 @@
 package org.tio.client;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
 import java.nio.channels.AsynchronousChannelGroup;
@@ -218,423 +219,417 @@ import org.tio.utils.hutool.StrUtil;
 import org.tio.utils.lock.SetWithLock;
 
 /**
- *
  * @author tanyaowu
  * 2017年4月1日 上午9:29:58
  */
 public class TioClient {
-	private static Logger log = LoggerFactory.getLogger(TioClient.class);
+    private static Logger log = LoggerFactory.getLogger(TioClient.class);
 
-	private AsynchronousChannelGroup channelGroup;
+    private AsynchronousChannelGroup channelGroup;
 
-	private TioClientConfig tioClientConfig;
+    private TioClientConfig tioClientConfig;
 
-	/**
-	 * @param serverIp 可以为空
-	 * @param serverPort
-	 * @param aioDecoder
-	 * @param aioEncoder
-	 * @param tioHandler
-	 *
-	 * @author tanyaowu
-	 * @throws IOException
-	 *
-	 */
-	public TioClient(final TioClientConfig tioClientConfig) throws IOException {
-		super();
-		this.tioClientConfig = tioClientConfig;
-		this.channelGroup = AsynchronousChannelGroup.withThreadPool(tioClientConfig.groupExecutor);
+    /**
+     * @param serverIp   可以为空
+     * @param serverPort
+     * @param aioDecoder
+     * @param aioEncoder
+     * @param tioHandler
+     * @throws IOException
+     * @author tanyaowu
+     */
+    public TioClient(final TioClientConfig tioClientConfig) throws IOException {
+        super();
+        this.tioClientConfig = tioClientConfig;
+        this.channelGroup = AsynchronousChannelGroup.withThreadPool(tioClientConfig.groupExecutor);
 
-		startHeartbeatTask();
-		startReconnTask();
-	}
+        startHeartbeatTask();
+        startReconnTask();
+    }
 
-	/**
-	 *
-	 * @param serverNode
-	 * @throws Exception
-	 *
-	 * @author tanyaowu
-	 *
-	 */
-	public void asynConnect(Node serverNode) throws Exception {
-		asynConnect(serverNode, null);
-	}
+    /**
+     * @param serverNode
+     * @throws Exception
+     * @author tanyaowu
+     */
+    public void asynConnect(Node serverNode) throws Exception {
+        asynConnect(serverNode, null);
+    }
 
-	/**
-	 *
-	 * @param serverNode
-	 * @param timeout
-	 * @throws Exception
-	 *
-	 * @author tanyaowu
-	 *
-	 */
-	public void asynConnect(Node serverNode, Integer timeout) throws Exception {
-		asynConnect(serverNode, null, null, timeout);
-	}
+    /**
+     * @param serverNode
+     * @param timeout
+     * @throws Exception
+     * @author tanyaowu
+     */
+    public void asynConnect(Node serverNode, Integer timeout) throws Exception {
+        asynConnect(serverNode, null, null, timeout);
+    }
 
-	/**
-	 *
-	 * @param serverNode
-	 * @param bindIp
-	 * @param bindPort
-	 * @param timeout
-	 * @throws Exception
-	 *
-	 * @author tanyaowu
-	 *
-	 */
-	public void asynConnect(Node serverNode, String bindIp, Integer bindPort, Integer timeout) throws Exception {
-		connect(serverNode, bindIp, bindPort, null, timeout, false);
-	}
+    /**
+     * @param serverNode
+     * @param bindIp
+     * @param bindPort
+     * @param timeout
+     * @throws Exception
+     * @author tanyaowu
+     */
+    public void asynConnect(Node serverNode, String bindIp, Integer timeout) throws Exception {
+        connect(serverNode, bindIp, 0, null, timeout, false);
+    }
 
-	/**
-	 *
-	 * @param serverNode
-	 * @return
-	 * @throws Exception
-	 *
-	 * @author tanyaowu
-	 *
-	 */
-	public ClientChannelContext connect(Node serverNode) throws Exception {
-		return connect(serverNode, null);
-	}
+    /**
+     * @param serverNode
+     * @param bindIp
+     * @param bindPort
+     * @param timeout
+     * @throws Exception
+     * @author tanyaowu
+     */
+    public void asynConnect(Node serverNode, String bindIp, Integer bindPort, Integer timeout) throws Exception {
+        connect(serverNode, bindIp, bindPort, null, timeout, false);
+    }
 
-	/**
-	 *
-	 * @param serverNode
-	 * @param timeout
-	 * @return
-	 * @throws Exception
-	 * @author tanyaowu
-	 */
-	public ClientChannelContext connect(Node serverNode, Integer timeout) throws Exception {
-		return connect(serverNode, null, 0, timeout);
-	}
+    /**
+     * @param serverNode
+     * @return
+     * @throws Exception
+     * @author tanyaowu
+     */
+    public ClientChannelContext connect(Node serverNode) throws Exception {
+        return connect(serverNode, null);
+    }
 
-	/**
-	 *
-	 * @param serverNode
-	 * @param bindIp
-	 * @param bindPort
-	 * @param initClientChannelContext
-	 * @param timeout 超时时间，单位秒
-	 * @return
-	 * @throws Exception
-	 * @author tanyaowu
-	 */
-	public ClientChannelContext connect(Node serverNode, String bindIp, Integer bindPort, ClientChannelContext initClientChannelContext, Integer timeout) throws Exception {
-		return connect(serverNode, bindIp, bindPort, initClientChannelContext, timeout, true);
-	}
+    /**
+     * @param serverNode
+     * @param timeout
+     * @return
+     * @throws Exception
+     * @author tanyaowu
+     */
+    public ClientChannelContext connect(Node serverNode, Integer timeout) throws Exception {
+        return connect(serverNode, null, 0, timeout);
+    }
 
-	/**
-	 *
-	 * @param serverNode
-	 * @param bindIp
-	 * @param bindPort
-	 * @param initClientChannelContext
-	 * @param timeout 超时时间，单位秒
-	 * @param isSyn true: 同步, false: 异步
-	 * @return
-	 * @throws Exception
-	 * @author tanyaowu
-	 */
-	private ClientChannelContext connect(Node serverNode, String bindIp, Integer bindPort, ClientChannelContext initClientChannelContext, Integer timeout, boolean isSyn)
-	        throws Exception {
+    /**
+     * @param serverNode
+     * @param bindIp
+     * @param bindPort
+     * @param initClientChannelContext
+     * @param timeout                  超时时间，单位秒
+     * @return
+     * @throws Exception
+     * @author tanyaowu
+     */
+    public ClientChannelContext connect(Node serverNode, String bindIp, Integer bindPort, ClientChannelContext initClientChannelContext, Integer timeout) throws Exception {
+        return connect(serverNode, bindIp, bindPort, initClientChannelContext, timeout, true);
+    }
 
-		AsynchronousSocketChannel asynchronousSocketChannel = null;
-		ClientChannelContext channelContext = null;
-		boolean isReconnect = initClientChannelContext != null;
-		//		TioClientListener tioClientListener = tioClientConfig.getTioClientListener();
+    /**
+     * @param serverNode
+     * @param bindIp
+     * @param bindPort
+     * @param initClientChannelContext
+     * @param timeout                  超时时间，单位秒
+     * @param isSyn                    true: 同步, false: 异步
+     * @return
+     * @throws Exception
+     * @author tanyaowu
+     */
+    private ClientChannelContext connect(Node serverNode, String bindIp, Integer bindPort, ClientChannelContext initClientChannelContext, Integer timeout, boolean isSyn)
+            throws Exception {
 
-		long start = SystemTimer.currTime;
-		asynchronousSocketChannel = AsynchronousSocketChannel.open(channelGroup);
-		long end = SystemTimer.currTime;
-		long iv = end - start;
-		if (iv >= 100) {
-			log.error("{}, open 耗时:{} ms", channelContext, iv);
-		}
+        AsynchronousSocketChannel asynchronousSocketChannel = null;
+        ClientChannelContext channelContext = null;
+        boolean isReconnect = initClientChannelContext != null;
 
-		asynchronousSocketChannel.setOption(StandardSocketOptions.TCP_NODELAY, true);
-		asynchronousSocketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-		asynchronousSocketChannel.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
+        long start = SystemTimer.currTime;
+        asynchronousSocketChannel = AsynchronousSocketChannel.open(channelGroup);
+        long end = SystemTimer.currTime;
+        long iv = end - start;
+        if (iv >= 100) {
+            log.error("{}, open 耗时:{} ms", channelContext, iv);
+        }
 
-		InetSocketAddress bind = null;
-		if (bindPort != null && bindPort > 0) {
-			if (false == StrUtil.isBlank(bindIp)) {
-				bind = new InetSocketAddress(bindIp, bindPort);
-			} else {
-				bind = new InetSocketAddress(bindPort);
-			}
-		}
+        asynchronousSocketChannel.setOption(StandardSocketOptions.TCP_NODELAY, true);
+        asynchronousSocketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+        asynchronousSocketChannel.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 
-		if (bind != null) {
-			asynchronousSocketChannel.bind(bind);
-		}
+        // Client bind
+        InetSocketAddress bindClient = null;
+        if (bindIp != null && false == StrUtil.isBlank(bindIp)) {
+            if (bindPort != null && bindPort > 0) {
+                // 指定ip和端口
+                bindClient = new InetSocketAddress(bindIp, bindPort);
+            } else {
+                // 指定ip，端口随机
+                bindClient = new InetSocketAddress(bindIp, 0);
+            }
+        } else {
+            if (bindPort != null && bindPort > 0) {
+                // 未指定ip，指定端口
+                bindClient = new InetSocketAddress((InetAddress) null, bindPort);
+            } else {
+                // 未指定ip和端口
+                bindClient = new InetSocketAddress((InetAddress) null, 0);
+            }
+        }
 
-		channelContext = initClientChannelContext;
+        if (bindClient != null) {
+            asynchronousSocketChannel.bind(bindClient);
+        }
 
-		start = SystemTimer.currTime;
+        channelContext = initClientChannelContext;
 
-		InetSocketAddress inetSocketAddress = new InetSocketAddress(serverNode.getIp(), serverNode.getPort());
+        start = SystemTimer.currTime;
 
-		ConnectionCompletionVo attachment = new ConnectionCompletionVo(channelContext, this, isReconnect, asynchronousSocketChannel, serverNode, bindIp, bindPort);
+        // Server
+        InetSocketAddress bindServer = new InetSocketAddress(serverNode.getIp(), serverNode.getPort());
 
-		if (isSyn) {
-			Integer realTimeout = timeout;
-			if (realTimeout == null) {
-				realTimeout = 5;
-			}
+        ConnectionCompletionVo attachment = new ConnectionCompletionVo(channelContext, this, isReconnect, asynchronousSocketChannel, serverNode, bindIp, bindPort);
 
-			CountDownLatch countDownLatch = new CountDownLatch(1);
-			attachment.setCountDownLatch(countDownLatch);
-			
-			try {
-				asynchronousSocketChannel.connect(inetSocketAddress, attachment, tioClientConfig.getConnectionCompletionHandler());
-			} catch (Throwable e) {
-				tioClientConfig.getConnectionCompletionHandler().failed(e, attachment);
-				return attachment.getChannelContext();
-			}
-			
-			@SuppressWarnings("unused")
-			boolean f = countDownLatch.await(realTimeout, TimeUnit.SECONDS);
-			return attachment.getChannelContext();
-		} else {
-			try {
-				asynchronousSocketChannel.connect(inetSocketAddress, attachment, tioClientConfig.getConnectionCompletionHandler());
-			} catch (Throwable e) {
-				tioClientConfig.getConnectionCompletionHandler().failed(e, attachment);
-			}
-			return null;
-		}
-	}
+        if (isSyn) {
+            Integer realTimeout = timeout;
+            if (realTimeout == null) {
+                realTimeout = 5;
+            }
 
-	/**
-	 *
-	 * @param serverNode
-	 * @param bindIp
-	 * @param bindPort
-	 * @param timeout 超时时间，单位秒
-	 * @return
-	 * @throws Exception
-	 *
-	 * @author tanyaowu
-	 *
-	 */
-	public ClientChannelContext connect(Node serverNode, String bindIp, Integer bindPort, Integer timeout) throws Exception {
-		return connect(serverNode, bindIp, bindPort, null, timeout);
-	}
+            CountDownLatch countDownLatch = new CountDownLatch(1);
+            attachment.setCountDownLatch(countDownLatch);
 
-	/**
-	 * @return the channelGroup
-	 */
-	public AsynchronousChannelGroup getChannelGroup() {
-		return channelGroup;
-	}
+            try {
+                asynchronousSocketChannel.connect(bindServer, attachment, tioClientConfig.getConnectionCompletionHandler());
+            } catch (Throwable e) {
+                tioClientConfig.getConnectionCompletionHandler().failed(e, attachment);
+                return attachment.getChannelContext();
+            }
 
-	/**
-	 * @return the tioClientConfig
-	 */
-	public TioClientConfig getTioClientConfig() {
-		return tioClientConfig;
-	}
+            @SuppressWarnings("unused")
+            boolean f = countDownLatch.await(realTimeout, TimeUnit.SECONDS);
+            return attachment.getChannelContext();
+        } else {
+            try {
+                asynchronousSocketChannel.connect(bindServer, attachment, tioClientConfig.getConnectionCompletionHandler());
+            } catch (Throwable e) {
+                tioClientConfig.getConnectionCompletionHandler().failed(e, attachment);
+            }
+            return null;
+        }
+    }
 
-	/**
-	 *
-	 * @param channelContext
-	 * @param timeout 单位秒
-	 * @return
-	 * @throws Exception
-	 *
-	 * @author tanyaowu
-	 *
-	 */
-	public void reconnect(ClientChannelContext channelContext, Integer timeout) throws Exception {
-		connect(channelContext.getServerNode(), channelContext.getBindIp(), channelContext.getBindPort(), channelContext, timeout);
-	}
+    /**
+     * @param serverNode
+     * @param bindIp
+     * @param bindPort
+     * @param timeout    超时时间，单位秒
+     * @return
+     * @throws Exception
+     * @author tanyaowu
+     */
+    public ClientChannelContext connect(Node serverNode, String bindIp, Integer bindPort, Integer timeout) throws Exception {
+        return connect(serverNode, bindIp, bindPort, null, timeout);
+    }
 
-	/**
-	 * @param tioClientConfig the tioClientConfig to set
-	 */
-	public void setTioClientConfig(TioClientConfig tioClientConfig) {
-		this.tioClientConfig = tioClientConfig;
-	}
+    /**
+     * @return the channelGroup
+     */
+    public AsynchronousChannelGroup getChannelGroup() {
+        return channelGroup;
+    }
 
-	/**
-	 * 定时任务：发心跳
-	 * @author tanyaowu
-	 *
-	 */
-	private void startHeartbeatTask() {
-		final ClientGroupStat clientGroupStat = (ClientGroupStat) tioClientConfig.groupStat;
-		final TioClientHandler tioHandler = tioClientConfig.getTioClientHandler();
+    /**
+     * @return the tioClientConfig
+     */
+    public TioClientConfig getTioClientConfig() {
+        return tioClientConfig;
+    }
 
-		final String id = tioClientConfig.getId();
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while (!tioClientConfig.isStopped()) {
-					//					final long heartbeatTimeout = tioClientConfig.heartbeatTimeout;
-					if (tioClientConfig.heartbeatTimeout <= 0) {
-						log.warn("用户取消了框架层面的心跳定时发送功能，请用户自己去完成心跳机制");
-						break;
-					}
-					SetWithLock<ChannelContext> setWithLock = tioClientConfig.connecteds;
-					ReadLock readLock = setWithLock.readLock();
-					readLock.lock();
-					try {
-						Set<ChannelContext> set = setWithLock.getObj();
-						long currtime = SystemTimer.currTime;
-						for (ChannelContext entry : set) {
-							ClientChannelContext channelContext = (ClientChannelContext) entry;
-							if (channelContext.isClosed || channelContext.isRemoved) {
-								continue;
-							}
+    /**
+     * @param channelContext
+     * @param timeout        单位秒
+     * @return
+     * @throws Exception
+     * @author tanyaowu
+     */
+    public void reconnect(ClientChannelContext channelContext, Integer timeout) throws Exception {
+        connect(channelContext.getServerNode(), channelContext.getBindIp(), channelContext.getBindPort(), channelContext, timeout);
+    }
 
-							ChannelStat stat = channelContext.stat;
-							long compareTime = Math.max(stat.latestTimeOfReceivedByte, stat.latestTimeOfSentPacket);
-							long interval = currtime - compareTime;
-							if (interval >= tioClientConfig.heartbeatTimeout / 2) {
-								Packet packet = tioHandler.heartbeatPacket(channelContext);
-								if (packet != null) {
-									if (log.isInfoEnabled()) {
-										log.info("{}发送心跳包", channelContext.toString());
-									}
-									Tio.send(channelContext, packet);
-								}
-							}
-						}
-						if (log.isInfoEnabled()) {
-							log.info("[{}]: curr:{}, closed:{}, received:({}p)({}b), handled:{}, sent:({}p)({}b)", id, set.size(), clientGroupStat.closed.get(),
-							        clientGroupStat.receivedPackets.get(), clientGroupStat.receivedBytes.get(), clientGroupStat.handledPackets.get(),
-							        clientGroupStat.sentPackets.get(), clientGroupStat.sentBytes.get());
-						}
+    /**
+     * @param tioClientConfig the tioClientConfig to set
+     */
+    public void setTioClientConfig(TioClientConfig tioClientConfig) {
+        this.tioClientConfig = tioClientConfig;
+    }
 
-					} catch (Throwable e) {
-						log.error("", e);
-					} finally {
-						try {
-							readLock.unlock();
-							Thread.sleep(tioClientConfig.heartbeatTimeout / 4);
-						} catch (Throwable e) {
-							log.error(e.toString(), e);
-						} finally {
+    /**
+     * 定时任务：发心跳
+     *
+     * @author tanyaowu
+     */
+    private void startHeartbeatTask() {
+        final ClientGroupStat clientGroupStat = (ClientGroupStat) tioClientConfig.groupStat;
+        final TioClientHandler tioHandler = tioClientConfig.getTioClientHandler();
 
-						}
-					}
-				}
-			}
-		}, "tio-timer-heartbeat" + id).start();
-	}
+        final String id = tioClientConfig.getId();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (!tioClientConfig.isStopped()) {
+                    if (tioClientConfig.heartbeatTimeout <= 0) {
+                        // log.warn("用户取消了框架层面的心跳定时发送功能，请用户自己去完成心跳机制");
+                        break;
+                    }
+                    SetWithLock<ChannelContext> setWithLock = tioClientConfig.connecteds;
+                    ReadLock readLock = setWithLock.readLock();
+                    readLock.lock();
+                    try {
+                        Set<ChannelContext> set = setWithLock.getObj();
+                        long currtime = SystemTimer.currTime;
+                        for (ChannelContext entry : set) {
+                            ClientChannelContext channelContext = (ClientChannelContext) entry;
+                            if (channelContext.isClosed || channelContext.isRemoved) {
+                                continue;
+                            }
 
-	/**
-	 * 启动重连任务
-	 *
-	 * @author tanyaowu
-	 *
-	 */
-	private void startReconnTask() {
-		final ReconnConf reconnConf = tioClientConfig.getReconnConf();
-		if (reconnConf == null || reconnConf.getInterval() <= 0) {
-			return;
-		}
+                            ChannelStat stat = channelContext.stat;
+                            long compareTime = Math.max(stat.latestTimeOfReceivedByte, stat.latestTimeOfSentPacket);
+                            long interval = currtime - compareTime;
+                            if (interval >= tioClientConfig.heartbeatTimeout / 2) {
+                                Packet packet = tioHandler.heartbeatPacket(channelContext);
+                                if (packet != null) {
+                                    if (log.isInfoEnabled()) {
+                                        log.info("{}发送心跳包", channelContext.toString());
+                                    }
+                                    Tio.send(channelContext, packet);
+                                }
+                            }
+                        }
+                        if (log.isInfoEnabled()) {
+                            log.info("[{}]: curr:{}, closed:{}, received:({}p)({}b), handled:{}, sent:({}p)({}b)", id, set.size(), clientGroupStat.closed.get(),
+                                    clientGroupStat.receivedPackets.get(), clientGroupStat.receivedBytes.get(), clientGroupStat.handledPackets.get(),
+                                    clientGroupStat.sentPackets.get(), clientGroupStat.sentBytes.get());
+                        }
 
-		final String id = tioClientConfig.getId();
-		Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while (!tioClientConfig.isStopped()) {
-					if (tioClientConfig.closeds.size() > 0) {
-						// 有连接断开时才打印日志
-						log.error("closeds:{}, connections:{}", tioClientConfig.closeds.size(), tioClientConfig.connections.size());
-					}					
-					//log.info("准备重连");
-					LinkedBlockingQueue<ChannelContext> queue = reconnConf.getQueue();
-					ClientChannelContext channelContext = null;
-					try {
-						channelContext = (ClientChannelContext) queue.take();
-					} catch (InterruptedException e1) {
-						log.error(e1.toString(), e1);
-					}
-					if (channelContext == null) {
-						continue;
-						//						return;
-					}
+                    } catch (Throwable e) {
+                        log.error("", e);
+                    } finally {
+                        try {
+                            readLock.unlock();
+                            Thread.sleep(tioClientConfig.heartbeatTimeout / 4);
+                        } catch (Throwable e) {
+                            log.error(e.toString(), e);
+                        } finally {
 
-					if (channelContext.isRemoved) //已经删除的，不需要重新再连
-					{
-						continue;
-					}
+                        }
+                    }
+                }
+            }
+        }, "tio-timer-heartbeat" + id).start();
+    }
 
-					SslFacadeContext sslFacadeContext = channelContext.sslFacadeContext;
-					if (sslFacadeContext != null) {
-						sslFacadeContext.setHandshakeCompleted(false);
-					}
+    /**
+     * 启动重连任务
+     *
+     * @author tanyaowu
+     */
+    private void startReconnTask() {
+        final ReconnConf reconnConf = tioClientConfig.getReconnConf();
+        if (reconnConf == null || reconnConf.getInterval() <= 0) {
+            return;
+        }
 
-					long sleeptime = reconnConf.getInterval() - (SystemTimer.currTime - channelContext.stat.timeInReconnQueue);
-					//log.info("sleeptime:{}, closetime:{}", sleeptime, timeInReconnQueue);
-					if (sleeptime > 0) {
-						try {
-							Thread.sleep(sleeptime);
-						} catch (InterruptedException e) {
-							log.error(e.toString(), e);
-						}
-					}
+        final String id = tioClientConfig.getId();
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (!tioClientConfig.isStopped()) {
+                    if (tioClientConfig.closeds.size() > 0) {
+                        // 有连接断开时才打印日志
+                        log.error("closeds:{}, connections:{}", tioClientConfig.closeds.size(), tioClientConfig.connections.size());
+                    }
+                    // log.info("准备重连");
+                    LinkedBlockingQueue<ChannelContext> queue = reconnConf.getQueue();
+                    ClientChannelContext channelContext = null;
+                    try {
+                        channelContext = (ClientChannelContext) queue.take();
+                    } catch (InterruptedException e1) {
+                        log.error(e1.toString(), e1);
+                    }
+                    if (channelContext == null) {
+                        continue;
+                    }
 
-					if (channelContext.isRemoved || !channelContext.isClosed) //已经删除的和已经连上的，不需要重新再连
-					{
-						continue;
-					} else {
-						ReconnRunnable runnable = channelContext.getReconnRunnable();
-						if (runnable == null) {
-							synchronized (channelContext) {
-								runnable = channelContext.getReconnRunnable();
-								if (runnable == null) {
-									runnable = new ReconnRunnable(channelContext, TioClient.this, reconnConf.getThreadPoolExecutor());
-									channelContext.setReconnRunnable(runnable);
-								}
-							}
-						}
-						runnable.execute();
-						//						reconnConf.getThreadPoolExecutor().execute(runnable);
-					}
-				}
-			}
-		});
-		thread.setName("tio-timer-reconnect-" + id);
-		thread.setDaemon(true);
-		thread.start();
+                    if (channelContext.isRemoved) {
+                        // 已经删除的，不需要重新再连
+                        continue;
+                    }
 
-	}
+                    SslFacadeContext sslFacadeContext = channelContext.sslFacadeContext;
+                    if (sslFacadeContext != null) {
+                        sslFacadeContext.setHandshakeCompleted(false);
+                    }
 
-	/**
-	 * 
-	 * @return
-	 * @author tanyaowu
-	 */
-	public boolean stop() {
-		boolean ret = true;
-		try {
-			tioClientConfig.groupExecutor.shutdown();
-		} catch (Exception e1) {
-			log.error(e1.toString(), e1);
-		}
-		try {
-			tioClientConfig.tioExecutor.shutdown();
-		} catch (Exception e1) {
-			log.error(e1.toString(), e1);
-		}
+                    long sleeptime = reconnConf.getInterval() - (SystemTimer.currTime - channelContext.stat.timeInReconnQueue);
+                    // log.info("sleeptime:{}, closetime:{}", sleeptime, timeInReconnQueue);
+                    if (sleeptime > 0) {
+                        try {
+                            Thread.sleep(sleeptime);
+                        } catch (InterruptedException e) {
+                            log.error(e.toString(), e);
+                        }
+                    }
 
-		tioClientConfig.setStopped(true);
-		try {
-			ret = ret && tioClientConfig.groupExecutor.awaitTermination(6000, TimeUnit.SECONDS);
-			ret = ret && tioClientConfig.tioExecutor.awaitTermination(6000, TimeUnit.SECONDS);
-		} catch (InterruptedException e) {
-			log.error(e.getLocalizedMessage(), e);
-		}
-		log.info("client resource has released");
-		return ret;
-	}
+                    if (channelContext.isRemoved || !channelContext.isClosed) {
+                        // 已经删除的和已经连上的，不需要重新再连
+                        continue;
+                    } else {
+                        ReconnRunnable runnable = channelContext.getReconnRunnable();
+                        if (runnable == null) {
+                            synchronized (channelContext) {
+                                runnable = channelContext.getReconnRunnable();
+                                if (runnable == null) {
+                                    runnable = new ReconnRunnable(channelContext, TioClient.this, reconnConf.getThreadPoolExecutor());
+                                    channelContext.setReconnRunnable(runnable);
+                                }
+                            }
+                        }
+                        runnable.execute();
+                    }
+                }
+            }
+        });
+        thread.setName("tio-timer-reconnect-" + id);
+        thread.setDaemon(true);
+        thread.start();
+
+    }
+
+    /**
+     * @return
+     * @author tanyaowu
+     */
+    public boolean stop() {
+        boolean ret = true;
+        try {
+            tioClientConfig.groupExecutor.shutdown();
+        } catch (Exception e1) {
+            log.error(e1.toString(), e1);
+        }
+        try {
+            tioClientConfig.tioExecutor.shutdown();
+        } catch (Exception e1) {
+            log.error(e1.toString(), e1);
+        }
+
+        tioClientConfig.setStopped(true);
+        try {
+            ret = ret && tioClientConfig.groupExecutor.awaitTermination(6000, TimeUnit.SECONDS);
+            ret = ret && tioClientConfig.tioExecutor.awaitTermination(6000, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            log.error(e.getLocalizedMessage(), e);
+        }
+        log.info("client resource has released");
+        return ret;
+    }
 }
