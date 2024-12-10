@@ -477,7 +477,7 @@ public class TioClient {
             public void run() {
                 while (!tioClientConfig.isStopped()) {
                     if (tioClientConfig.heartbeatTimeout <= 0) {
-                        log.warn("用户取消了框架层面的心跳定时发送功能，请用户自己去完成心跳机制");
+                        // log.warn("用户取消了框架层面的心跳定时发送功能，请用户自己去完成心跳机制");
                         break;
                     }
                     SetWithLock<ChannelContext> setWithLock = tioClientConfig.connecteds;
