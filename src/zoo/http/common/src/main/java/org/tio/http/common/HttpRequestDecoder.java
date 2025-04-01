@@ -232,12 +232,12 @@ public class HttpRequestDecoder {
 	/**
 	 * 头部每行最大的字节数
 	 */
-	public static final int MAX_LENGTH_OF_HEADERLINE = 2048;
+	public static final int MAX_LENGTH_OF_HEADERLINE = 20480;
 
 	/**
 	 * 请求行的最大长度
 	 */
-	public static final int MAX_LENGTH_OF_REQUESTLINE = 2048;
+	public static final int MAX_LENGTH_OF_REQUESTLINE = 20480;
 
 	/**
 	 * 
