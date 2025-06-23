@@ -194,6 +194,7 @@
 package org.tio.client;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
 import java.nio.channels.AsynchronousChannelGroup;
@@ -267,6 +268,18 @@ public class TioClient {
 	 */
 	public void asynConnect(Node serverNode, Integer timeout) throws Exception {
 		asynConnect(serverNode, null, null, timeout);
+	}
+
+	/**
+	 * @param serverNode
+	 * @param bindIp
+	 * @param bindPort
+	 * @param timeout
+	 * @throws Exception
+	 * @author tanyaowu
+	 */
+	public void asynConnect(Node serverNode, String bindIp, Integer timeout) throws Exception {
+		connect(serverNode, bindIp, 0, null, timeout, false);
 	}
 
 	/**
@@ -356,17 +369,23 @@ public class TioClient {
 		asynchronousSocketChannel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
 		asynchronousSocketChannel.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
 
-		InetSocketAddress bind = null;
-		if (bindPort != null && bindPort > 0) {
-			if (false == StrUtil.isBlank(bindIp)) {
-				bind = new InetSocketAddress(bindIp, bindPort);
-			} else {
-				bind = new InetSocketAddress(bindPort);
-			}
-		}
+		InetSocketAddress bindClient = null;
+		if (StrUtil.isNotBlank(bindIp)) {
+            if (bindPort != null && bindPort > 0) {
+                bindClient = new InetSocketAddress(bindIp, bindPort);
+            } else {
+                bindClient = new InetSocketAddress(bindIp, 0);
+            }
+        } else {
+            if (bindPort != null && bindPort > 0) {
+                bindClient = new InetSocketAddress((InetAddress) null, bindPort);
+            } else {
+                bindClient = new InetSocketAddress((InetAddress) null, 0);
+            }
+        }
 
-		if (bind != null) {
-			asynchronousSocketChannel.bind(bind);
+		if (bindClient != null) {
+			asynchronousSocketChannel.bind(bindClient);
 		}
 
 		channelContext = initClientChannelContext;
@@ -385,14 +404,14 @@ public class TioClient {
 
 			CountDownLatch countDownLatch = new CountDownLatch(1);
 			attachment.setCountDownLatch(countDownLatch);
-			
+
 			try {
 				asynchronousSocketChannel.connect(inetSocketAddress, attachment, tioClientConfig.getConnectionCompletionHandler());
 			} catch (Throwable e) {
 				tioClientConfig.getConnectionCompletionHandler().failed(e, attachment);
 				return attachment.getChannelContext();
 			}
-			
+
 			@SuppressWarnings("unused")
 			boolean f = countDownLatch.await(realTimeout, TimeUnit.SECONDS);
 			return attachment.getChannelContext();
@@ -544,7 +563,7 @@ public class TioClient {
 					if (tioClientConfig.closeds.size() > 0) {
 						// 有连接断开时才打印日志
 						log.error("closeds:{}, connections:{}", tioClientConfig.closeds.size(), tioClientConfig.connections.size());
-					}					
+					}
 					//log.info("准备重连");
 					LinkedBlockingQueue<ChannelContext> queue = reconnConf.getQueue();
 					ClientChannelContext channelContext = null;
