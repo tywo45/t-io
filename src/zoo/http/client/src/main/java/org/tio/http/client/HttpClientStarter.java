@@ -205,6 +205,7 @@ import org.tio.client.TioClientConfig;
 import org.tio.client.ReconnConf;
 import org.tio.client.TioClient;
 import org.tio.core.Node;
+import org.tio.core.PacketHandlerMode;
 import org.tio.core.Tio;
 import org.tio.http.common.HttpConst;
 import org.tio.utils.Threads;
@@ -317,6 +318,10 @@ public class HttpClientStarter {
 		httpClientStarter = new HttpClientStarter();
 		httpsClientStarter = new HttpClientStarter();
 		TioClientConfig tioClientConfig = httpsClientStarter.getTioClientConfig();
+		tioClientConfig.setUseQueueDecode(false);
+		tioClientConfig.setPacketHandlerMode(PacketHandlerMode.SINGLE_THREAD);
+		tioClientConfig.setUseQueueSend(false);
+		tioClientConfig.statOn = false;
 		tioClientConfig.useSsl();
 	}
 

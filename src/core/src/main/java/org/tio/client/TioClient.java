@@ -230,15 +230,10 @@ public class TioClient {
 	private TioClientConfig tioClientConfig;
 
 	/**
-	 * @param serverIp 可以为空
-	 * @param serverPort
-	 * @param aioDecoder
-	 * @param aioEncoder
-	 * @param tioHandler
-	 *
-	 * @author tanyaowu
+	 * 
+	 * @param tioClientConfig
 	 * @throws IOException
-	 *
+	 * @author talent.tan
 	 */
 	public TioClient(final TioClientConfig tioClientConfig) throws IOException {
 		super();
