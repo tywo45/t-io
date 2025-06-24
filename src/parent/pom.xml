@@ -122,6 +122,7 @@
 		<flatlaf.version>3.2</flatlaf.version>
 		<geotools.version>26.3</geotools.version>
 		<sa-token.version>1.35.0.RC</sa-token.version>
+		<apache-maven-plugins.groupId>org.apache.maven.plugins</apache-maven-plugins.groupId>
 	</properties>
 
 	<developers>
@@ -1611,7 +1612,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-
+					<version>3.14.0</version>
 					<configuration>
 						<compilerVersion>${jdk.version}</compilerVersion>
 						<source>${jdk.version}</source>
@@ -1666,12 +1667,6 @@
 					</configuration>
 				</plugin>
 
-
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-source-plugin</artifactId>
-					<version>3.0.1</version>
-				</plugin>
 
 				<!-- clean插件 -->
 				<plugin>
@@ -1777,18 +1772,6 @@
 					<artifactId>versions-maven-plugin</artifactId>
 					<version>2.5</version>
 				</plugin>
-
-
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.0.1</version>
-					<configuration>
-						<aggregate>true</aggregate>
-						<additionalparam>-Xdoclint:none</additionalparam>
-					</configuration>
-				</plugin>
-
 			</plugins>
 		</pluginManagement>
 
@@ -1845,9 +1828,13 @@
 				<plugins>
 					<!-- Source -->
 					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
+						<groupId>${apache-maven-plugins.groupId}</groupId>
 						<artifactId>maven-source-plugin</artifactId>
-						<version>2.2.1</version>
+						<version>3.2.1</version>
+						<configuration>
+							<!-- 源码包随着项目打成的jar包安装到本地仓库或者私服、公服 -->
+							<attach>true</attach>
+						</configuration>
 						<executions>
 							<execution>
 								<phase>package</phase>
@@ -1858,38 +1845,56 @@
 						</executions>
 					</plugin>
 
-					<!-- Javadoc -->
+
 					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
+						<groupId>${apache-maven-plugins.groupId}</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
-						<version>2.10.3</version>
+						<version>3.11.2</version>
 						<executions>
 							<execution>
 								<phase>package</phase>
 								<goals>
 									<goal>jar</goal>
 								</goals>
-								<configuration>
-									<additionalparam>-Xdoclint:none</additionalparam> <!--
-									防止生成docs时报错 -->
-								</configuration>
 							</execution>
 						</executions>
+						<configuration>
+							<!-- 禁用严格语法检测 -->
+							<doclint>none</doclint>
+						</configuration>
 					</plugin>
 
 					<!-- GPG -->
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
-						<version>1.6</version>
+						<version>3.2.7</version>
+						<configuration>
+							<gpgArguments>
+								<arg>--pinentry-mode</arg>
+								<arg>loopback</arg>
+							</gpgArguments>
+						</configuration>
 						<executions>
 							<execution>
+								<id>sign-artifacts</id>
 								<phase>verify</phase>
 								<goals>
 									<goal>sign</goal>
 								</goals>
 							</execution>
 						</executions>
+					</plugin>
+
+					<plugin>
+						<groupId>org.sonatype.central</groupId>
+						<artifactId>central-publishing-maven-plugin</artifactId>
+						<version>0.7.0</version>
+						<extensions>true</extensions>
+						<configuration>
+							<!-- 注意：这类必须要和Maven配置环境中的server id对应上 -->
+							<publishingServerId>oss</publishingServerId>
+						</configuration>
 					</plugin>
 				</plugins>
 			</build>

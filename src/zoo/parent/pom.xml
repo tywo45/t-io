@@ -21,7 +21,7 @@
 		<module>../flash-policy-server</module>
 		<module>../http/parent</module>
 		<module>../websocket/parent</module>
-		<module>../webpack/parent</module>
+		<!--<module>../webpack/parent</module>-->
 		<!-- <module>../spring-boot/parent</module> -->
 	</modules>
 
